@@ -2,13 +2,13 @@ BINARY = app
 MAIN_PATH = .
 
 linux-build:
-	GOOS=linux go build -o ${BINARY} ${MAIN_PATH}/main.go
+	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY} ${MAIN_PATH}/main.go
 
 windows-build:
-	GOOS=windows go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
+	CGO_ENABLED=0 GOOS=windows go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
 
 mac-build:
-	GOOS=darwin go build -o ${BINARY} ${MAIN_PATH}/main.go
+	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY} ${MAIN_PATH}/main.go
 
 clean:
 	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
