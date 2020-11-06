@@ -2,10 +2,11 @@
 .vscode
 
 logs/*
+tmp
 config.yaml
 config.env
 config.json
 config.toml
 
-app
-app.exe
+/app
+/app.exe
