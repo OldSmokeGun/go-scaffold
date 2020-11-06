@@ -1,0 +1,15 @@
+host: "0.0.0.0"
+port: "9527"
+errors_log: "logs/errors.log"
+
+jwt:
+  key: ""
+  expire:
+
+mysql:
+  host: "127.0.0.1"
+  port: "3306"
+  database: "lumen"
+  username: "root"
+  password: "root"
+  charset: "utf8"

@@ -1,0 +1,11 @@
+.idea
+.vscode
+
+logs/*
+config.yaml
+config.env
+config.json
+config.toml
+
+app
+app.exe

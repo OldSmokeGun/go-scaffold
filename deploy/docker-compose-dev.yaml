@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  app:
+    image: cosmtrek/air
+    environment:
+      GOPROXY: https://goproxy.cn,direct
+    expose:
+      - "9527"
+    networks:
+      app-network:
+        aliases:
+          - app
+    ports:
+      - "9527:9527"
+    working_dir: "/go/app"
+    volumes:
+      - "../:/go/app"
+    command: ["air"]
+    restart: always
+
+networks:
+  app-network:
