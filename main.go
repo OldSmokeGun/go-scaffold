@@ -1,13 +1,20 @@
 package main
 
 import (
-	"gin-scaffold/kernel"
-	"gin-scaffold/kernel/components"
-	"gin-scaffold/kernel/db"
-	"gin-scaffold/kernel/global"
+	"flag"
+	"gin-scaffold/internal"
+	"gin-scaffold/internal/components"
+	"gin-scaffold/internal/db"
+	"gin-scaffold/internal/global"
 )
 
 func main() {
+	flag.String("config", "", "配置文件地址")
+	flag.String("host", "", "监听地址")
+	flag.String("port", "", "监听端口")
+
+	flag.Parse()
+
 	if err := components.LoadConfig(); err != nil {
 		panic(err)
 	}
@@ -26,5 +33,5 @@ func main() {
 		}
 	}()
 
-	kernel.Bootstrap()
+	internal.Bootstrap()
 }

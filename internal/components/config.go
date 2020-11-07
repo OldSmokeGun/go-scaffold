@@ -12,14 +12,11 @@ const DefaultConfig = "config.yaml"
 
 func LoadConfig() error {
 	var (
-		config string
+		config = DefaultConfig
 	)
 
-	flag.StringVar(&config, "config", "", "配置文件地址")
-	flag.Parse()
-
-	if config == "" {
-		config = DefaultConfig
+	if v := flag.Lookup("config").Value.String(); v != "" {
+		config = v
 	}
 
 	viper.SetConfigName(strings.TrimSuffix(filepath.Base(config), filepath.Ext(config)))

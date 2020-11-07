@@ -2,7 +2,7 @@ package components
 
 import (
 	"fmt"
-	"gin-scaffold/kernel/utils"
+	"gin-scaffold/internal/utils"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"io"
@@ -17,7 +17,7 @@ func InitLogger() error {
 		logPath = DefaultLog
 	)
 
-	if viper.IsSet("errors_log") {
+	if viper.IsSet("errors_log") && viper.GetString("errors_log") != "" {
 		logPath = viper.GetString("errors_log")
 	}
 
@@ -35,8 +35,8 @@ func InitLogger() error {
 	if err != nil {
 		return fmt.Errorf("打开文件 %s 出错，错误信息：%w", logPath, err)
 	}
-	logrus.SetOutput(io.MultiWriter(logWriter, os.Stdout))
 
+	logrus.SetOutput(io.MultiWriter(logWriter, os.Stdout))
 	logrus.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006-01-02 15:04:05.000",
 	})
