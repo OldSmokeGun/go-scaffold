@@ -7,7 +7,7 @@ COPY . .
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 RUN go mod download \
-    && linux-build
+    && make linux-build
 
 FROM scratch
 
