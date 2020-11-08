@@ -8,5 +8,5 @@ config.env
 config.json
 config.toml
 
-/app
-/app.exe
+/server
+/server.exe

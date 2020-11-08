@@ -4,7 +4,6 @@ import (
 	"errors"
 	"gin-scaffold/internal/utils"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/spf13/viper"
 	"time"
 )
 
@@ -14,10 +13,23 @@ const (
 
 var (
 	DefaultAlg = jwt.SigningMethodHS256
+
+	ErrMissingKey         = errors.New("token missing key")
+	ErrorMalformed        = errors.New("token 格式错误")
+	ErrorUnverifiable     = errors.New("签名无效，无法验证令牌")
+	ErrorSignatureInvalid = errors.New("签名验证失败")
+	ErrorAudience         = errors.New("token 身份验证失败")
+	ErrorExpired          = errors.New("token 已过期")
+	ErrorIssuedAt         = errors.New("token 签发时间验证失败")
+	ErrorIssuer           = errors.New("token 签发身份验证失败")
+	ErrorNotValidYet      = errors.New("token 暂不可用")
+	ErrorId               = errors.New("token 标识验证失败")
+	ErrorClaimsInvalid    = errors.New("token 结构体验证失败")
 )
 
 type Token struct {
 	Key    string
+	Expire time.Duration
 	Alg    jwt.SigningMethod
 	Body   map[string]interface{}
 	Claims jwt.StandardClaims
@@ -30,9 +42,15 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func WithKey(key string) OptionFunc {
+func WithKey(k string) OptionFunc {
 	return func(j *Token) {
-		j.Key = key
+		j.Key = k
+	}
+}
+
+func WithExpire(e time.Duration) OptionFunc {
+	return func(j *Token) {
+		j.Claims.ExpiresAt = time.Now().Add(time.Second * e).Unix()
 	}
 }
 
@@ -70,20 +88,12 @@ func NewToken(options ...OptionFunc) (*Token, error) {
 		},
 	}
 
-	if viper.IsSet("jwt.key") && viper.GetString("jwt.key") != "" {
-		j.Key = viper.GetString("jwt.key")
-	}
-
-	if viper.IsSet("jwt.expire") && viper.GetInt64("jwt.expire") > 0 {
-		j.Claims.ExpiresAt = time.Now().Unix() + viper.GetInt64("jwt.expire")
-	}
-
 	for _, f := range options {
 		f(j)
 	}
 
 	if j.Key == "" {
-		return nil, errors.New("缺少密钥")
+		return nil, ErrMissingKey
 	}
 
 	return j, nil
@@ -131,25 +141,25 @@ func handleParseError(parseError error) (err error) {
 	if ok {
 		switch validateError.Errors {
 		case jwt.ValidationErrorMalformed:
-			err = errors.New("token 格式错误")
+			err = ErrorMalformed
 		case jwt.ValidationErrorUnverifiable:
-			err = errors.New("签名无效，无法验证令牌")
+			err = ErrorUnverifiable
 		case jwt.ValidationErrorSignatureInvalid:
-			err = errors.New("签名验证失败")
+			err = ErrorSignatureInvalid
 		case jwt.ValidationErrorAudience:
-			err = errors.New("token 身份验证失败")
+			err = ErrorAudience
 		case jwt.ValidationErrorExpired:
-			err = errors.New("token 已过期")
+			err = ErrorExpired
 		case jwt.ValidationErrorIssuedAt:
-			err = errors.New("token 签发时间验证失败")
+			err = ErrorIssuedAt
 		case jwt.ValidationErrorIssuer:
-			err = errors.New("token 签发身份验证失败")
+			err = ErrorIssuer
 		case jwt.ValidationErrorNotValidYet:
-			err = errors.New("token 暂不可用")
+			err = ErrorNotValidYet
 		case jwt.ValidationErrorId:
-			err = errors.New("token 标识验证失败")
+			err = ErrorId
 		case jwt.ValidationErrorClaimsInvalid:
-			err = errors.New("token 结构体验证失败")
+			err = ErrorClaimsInvalid
 		default:
 			err = validateError
 		}

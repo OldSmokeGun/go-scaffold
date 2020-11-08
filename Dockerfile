@@ -7,18 +7,18 @@ COPY . .
 RUN go env -w GOPROXY=https://goproxy.cn,direct
 
 RUN go mod download \
-    && make build
+    && linux-build
 
 FROM scratch
 
 ENV TZ=Asia/Shanghai
 ENV ZONEINFO=/usr/local/go/lib/time/zoneinfo.zip
 
-WORKDIR /go/
+WORKDIR /go/app/
 
 COPY --from=build /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
-COPY --from=build /go/app/bin/app /go/
+COPY --from=build /go/app/server /go/app/server
 
 EXPOSE 9527
 
-CMD ["./app"]
+CMD ["./server"]

@@ -1,30 +1,19 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 )
 
-func BasePath() (string, error) {
-	p, err := os.Executable()
-	if err != nil {
-		return "", fmt.Errorf("获取可执行文件路径出错，错误信息：%w", err)
-	}
-	return p, nil
-}
-
-func PathExist(path string) (bool, error) {
+func PathExist(path string) bool {
 	_, err := os.Stat(path)
 
-	if err == nil {
-		return true, nil
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
 	}
-
-	if os.IsExist(err) {
-		return true, err
-	}
-
-	return false, err
+	return true
 }
 
 func IsDir(path string) (bool, error) {
