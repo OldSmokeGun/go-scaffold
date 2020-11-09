@@ -35,7 +35,9 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		DSN:                  c.GetDNS(),
 		PreferSimpleProtocol: c.PreferSimpleProtocol,
 		Conn:                 c.Conn,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		return nil, err
 	}

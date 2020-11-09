@@ -87,7 +87,7 @@ func initDB() (*gorm.DB, error) {
 		dbType = viper.GetString("db.type")
 	)
 
-	if viper.GetString("db") == "" {
+	if len(viper.GetStringMap("db")) == 0 {
 		return nil, nil
 	}
 

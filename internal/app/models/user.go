@@ -1,5 +1,7 @@
 package models
 
-type User struct {
+import "gorm.io/gorm"
 
+type User struct {
+	gorm.Model
 }

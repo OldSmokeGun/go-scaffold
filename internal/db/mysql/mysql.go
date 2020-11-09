@@ -42,7 +42,9 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		DisableDatetimePrecision:  c.DisableDatetimePrecision,
 		DontSupportRenameIndex:    c.DontSupportRenameIndex,
 		DontSupportRenameColumn:   c.DontSupportRenameColumn,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 	if err != nil {
 		return nil, err
 	}
