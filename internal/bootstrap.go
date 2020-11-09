@@ -2,7 +2,6 @@ package internal
 
 import (
 	"errors"
-	"flag"
 	"gin-scaffold/internal/components"
 	"gin-scaffold/internal/db"
 	"gin-scaffold/internal/db/mysql"
@@ -10,6 +9,7 @@ import (
 	"gin-scaffold/internal/global"
 	"gin-scaffold/internal/router"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"os"
@@ -31,7 +31,7 @@ func Bootstrap() {
 		panic(err)
 	}
 
-	if err = components.LoadViper(flag.Lookup("config").Value.String()); err != nil {
+	if err = components.LoadViper(pflag.Lookup("config").Value.String()); err != nil {
 		panic(err)
 	}
 
@@ -55,7 +55,7 @@ func Bootstrap() {
 		}
 	}()
 
-	if v := flag.Lookup("host").Value.String(); v != "" {
+	if v := pflag.Lookup("host").Value.String(); v != "" {
 		host = v
 	} else {
 		if viper.GetString("host") != "" {
@@ -63,7 +63,7 @@ func Bootstrap() {
 		}
 	}
 
-	if v := flag.Lookup("port").Value.String(); v != "" {
+	if v := pflag.Lookup("port").Value.String(); v != "" {
 		port = v
 	} else {
 		if viper.GetString("port") != "" {

@@ -1,16 +1,16 @@
 package main
 
 import (
-	"flag"
 	"gin-scaffold/internal"
+	"github.com/spf13/pflag"
 )
 
 func main() {
-	flag.String("config", "", "配置文件地址")
-	flag.String("host", "", "监听地址")
-	flag.String("port", "", "监听端口")
+	pflag.StringP("host", "h", "", "监听地址")
+	pflag.StringP("port", "p", "", "监听端口")
+	pflag.StringP("config", "c", "", "配置文件地址")
 
-	flag.Parse()
+	pflag.Parse()
 
 	internal.Bootstrap()
 }
