@@ -1,3 +1,5 @@
+.PHONY: linux-build windows-build mac-build clean test help
+
 BINARY = server
 MAIN_PATH = .
 
@@ -14,7 +16,7 @@ clean:
 	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 
 test:
-	go test
+	go test -v ./...
 
 help:
 	@printf "%-30s %-100s\n" "make" "默认编译 linux 平台的二进制文件"
