@@ -10,12 +10,12 @@ import (
 var TestKey = "123456"
 
 func TestNewToken(t *testing.T) {
-	group := map[string]string{
-		"withoutKey": "",
-		"withKey":    TestKey,
+	excepts := map[string]map[string]string{
+		"withoutKey": {"key": ""},
+		"withKey":    {"key": TestKey},
 	}
 
-	for k, v := range group {
+	for k, v := range excepts {
 		if k == "withoutKey" {
 			t.Run(k, func(t *testing.T) {
 				token, err := NewToken()
@@ -25,7 +25,7 @@ func TestNewToken(t *testing.T) {
 			})
 		} else if k == "withKey" {
 			t.Run(k, func(t *testing.T) {
-				token, err := NewToken(WithKey(v))
+				token, err := NewToken(WithKey(v["key"]))
 				if token == nil || err != nil {
 					t.Errorf("创建 Token 对象出错，对象：%v，错误信息：%v", token, err)
 				}
