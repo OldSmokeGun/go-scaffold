@@ -2,6 +2,7 @@ package internal
 
 import (
 	"errors"
+	"gin-scaffold/internal/app"
 	"gin-scaffold/internal/components"
 	"gin-scaffold/internal/db"
 	"gin-scaffold/internal/db/mysql"
@@ -16,14 +17,18 @@ import (
 	"time"
 )
 
-const DefaultHost = "127.0.0.1"
-const DefaultPort = "9527"
+const (
+	DefaultHost         = "127.0.0.1"
+	DefaultPort         = "9527"
+	DefaultTemplateGlob = "internal/app/templates/*"
+)
 
 func Bootstrap() {
 	var (
-		err  error
-		host = DefaultHost
-		port = DefaultPort
+		err          error
+		host         = DefaultHost
+		port         = DefaultPort
+		templateGlob = DefaultTemplateGlob
 	)
 
 	global.BinPath, err = os.Executable()
@@ -71,8 +76,17 @@ func Bootstrap() {
 		}
 	}
 
+	if d := viper.GetString("templates_glob"); d != "" {
+		templateGlob = d
+	}
+
 	r := gin.Default()
 	router.Register(r)
+	r.LoadHTMLGlob(templateGlob)
+
+	if err := app.Constructor(); err != nil {
+		panic(err)
+	}
 
 	listenAddr := host + ":" + port
 
