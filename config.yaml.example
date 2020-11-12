@@ -1,5 +1,6 @@
 host: "127.0.0.1"
 port: "9527"
+templates_glob: "internal/app/templates/*"
 errors_log: "logs/errors.log"
 
 jwt:
