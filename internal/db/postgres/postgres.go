@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"strings"
 	"time"
 )
@@ -23,6 +24,7 @@ type Config struct {
 	ConnMaxLifeTime      time.Duration
 	PreferSimpleProtocol bool
 	Conn                 *sql.DB
+	LogLevel             logger.Interface
 }
 
 func (*Config) GetType() string {
@@ -37,6 +39,7 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		Conn:                 c.Conn,
 	}), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
+		Logger:                                   c.LogLevel,
 	})
 	if err != nil {
 		return nil, err

@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"os"
 	"time"
 )
@@ -97,12 +98,28 @@ func Bootstrap() {
 
 func initDB() (*gorm.DB, error) {
 	var (
-		config db.Config
-		dbType = viper.GetString("db.type")
+		config     db.Config
+		dbType     = viper.GetString("db.type")
+		dbLogLevel = logger.Default.LogMode(logger.Info)
 	)
 
 	if len(viper.GetStringMap("db")) == 0 {
 		return nil, nil
+	}
+
+	if viper.GetString("db.log_level") != "" {
+		switch viper.GetString("db.log_level") {
+		case "silent":
+			dbLogLevel = logger.Default.LogMode(logger.Silent)
+		case "error":
+			dbLogLevel = logger.Default.LogMode(logger.Error)
+		case "warn":
+			dbLogLevel = logger.Default.LogMode(logger.Warn)
+		case "info":
+			dbLogLevel = logger.Default.LogMode(logger.Info)
+		default:
+			dbLogLevel = logger.Default.LogMode(logger.Info)
+		}
 	}
 
 	switch dbType {
@@ -118,6 +135,7 @@ func initDB() (*gorm.DB, error) {
 			MaxIdleConn:     viper.GetInt("db.max_idle_conn"),
 			MaxOpenConn:     viper.GetInt("db.max_open_conn"),
 			ConnMaxLifeTime: time.Second * viper.GetDuration("db.conn_max_life_time"),
+			LogLevel:        dbLogLevel,
 		}
 	case "postgres":
 		config = &postgres.Config{
@@ -131,6 +149,7 @@ func initDB() (*gorm.DB, error) {
 			MaxIdleConn:     viper.GetInt("db.max_idle_conn"),
 			MaxOpenConn:     viper.GetInt("db.max_open_conn"),
 			ConnMaxLifeTime: time.Second * viper.GetDuration("db.conn_max_life_time"),
+			LogLevel:        dbLogLevel,
 		}
 	default:
 		return nil, errors.New("unsupported database type " + dbType)

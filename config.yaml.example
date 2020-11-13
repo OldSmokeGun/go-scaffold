@@ -22,6 +22,7 @@ db:
   max_idle_conn: 20
   max_open_conn: 40
   conn_max_life_time: 86400
+  log_level: "info"
 
 #  type: "postgres"
 #  driver: "postgres"
@@ -36,3 +37,4 @@ db:
 #  max_idle_conn: 20
 #  max_open_conn: 40
 #  conn_max_life_time: 86400
+#  log_level: "info"

@@ -3,6 +3,7 @@ package mysql
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"strings"
 	"time"
 )
@@ -26,6 +27,7 @@ type Config struct {
 	DisableDatetimePrecision  bool
 	DontSupportRenameIndex    bool
 	DontSupportRenameColumn   bool
+	LogLevel                  logger.Interface
 }
 
 func (*Config) GetType() string {
@@ -44,6 +46,7 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		DontSupportRenameColumn:   c.DontSupportRenameColumn,
 	}), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
+		Logger:                                   c.LogLevel,
 	})
 	if err != nil {
 		return nil, err
