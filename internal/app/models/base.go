@@ -22,7 +22,3 @@ func paginationScope(p Pagination) func(db *gorm.DB) *gorm.DB {
 		return db.Offset(offset).Limit(p.PageSize)
 	}
 }
-
-func statusEnableScope(db *gorm.DB) *gorm.DB {
-	return db.Where("status = ?", 1)
-}

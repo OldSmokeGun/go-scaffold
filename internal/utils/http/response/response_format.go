@@ -7,9 +7,6 @@ type Schema struct {
 }
 
 func SuccessFormat(data interface{}) Schema {
-	if data == nil {
-		data = map[string]interface{}{}
-	}
 	return Format(SuccessCode, SuccessCodeMessage, data)
 }
 
