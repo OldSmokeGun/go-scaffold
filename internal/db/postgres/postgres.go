@@ -38,6 +38,7 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		PreferSimpleProtocol: c.PreferSimpleProtocol,
 		Conn:                 c.Conn,
 	}), &gorm.Config{
+		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
 		Logger:                                   c.LogLevel,
 	})

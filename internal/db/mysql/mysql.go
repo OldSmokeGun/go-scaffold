@@ -45,6 +45,7 @@ func (c *Config) GetDB() (*gorm.DB, error) {
 		DontSupportRenameIndex:    c.DontSupportRenameIndex,
 		DontSupportRenameColumn:   c.DontSupportRenameColumn,
 	}), &gorm.Config{
+		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
 		Logger:                                   c.LogLevel,
 	})
