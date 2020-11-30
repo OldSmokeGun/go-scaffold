@@ -20,7 +20,7 @@ func responseValidateError(c *gin.Context, err error, errTrans map[string]string
 	}
 }
 
-func validateQueryError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
+func ValidateQueryError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := c.ShouldBindQuery(obj); err != nil {
 		responseValidateError(c, err, errTrans)
 		return false
@@ -28,7 +28,7 @@ func validateQueryError(c *gin.Context, obj interface{}, errTrans map[string]str
 	return true
 }
 
-func validateFormError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
+func ValidateFormError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := c.ShouldBind(obj); err != nil {
 		responseValidateError(c, err, errTrans)
 		return false
