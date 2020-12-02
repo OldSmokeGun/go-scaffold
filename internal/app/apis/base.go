@@ -14,9 +14,11 @@ func responseValidateError(c *gin.Context, err error, errTrans map[string]string
 		errs := validator.Translate(validationErrors, errTrans)
 		for _, err := range errs {
 			c.JSON(http.StatusOK, response.FailedFormat(err))
+			return
 		}
 	} else {
 		c.JSON(http.StatusOK, response.Format(response.ArgumentsInvalidCode, response.ArgumentsInvalidCodeMessage, nil))
+		return
 	}
 }
 
