@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gin-scaffold/internal/app"
 	"gin-scaffold/internal/components"
+	"gin-scaffold/internal/components/vfs"
 	"gin-scaffold/internal/db"
 	"gin-scaffold/internal/db/mysql"
 	"gin-scaffold/internal/db/postgres"
@@ -15,13 +16,14 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 const (
 	DefaultHost         = "127.0.0.1"
 	DefaultPort         = "9527"
-	DefaultTemplateGlob = "internal/app/templates/*"
+	DefaultTemplateGlob = "*"
 )
 
 func Bootstrap() {
@@ -30,6 +32,7 @@ func Bootstrap() {
 		host         = DefaultHost
 		port         = DefaultPort
 		templateGlob = DefaultTemplateGlob
+		appPath      = filepath.Dir(global.BinPath) + "/internal/app"
 	)
 
 	global.BinPath, err = os.Executable()
@@ -82,8 +85,18 @@ func Bootstrap() {
 	}
 
 	r := gin.Default()
+
+	if v := pflag.Lookup("template-from-vfs").Value.String(); v == "true" {
+		t, err := vfs.LoadTemplatesFromFilesystem()
+		if err != nil {
+			panic(err)
+		}
+		r.SetHTMLTemplate(t)
+	} else {
+		r.LoadHTMLGlob(appPath + "/templates/" + templateGlob)
+	}
+
 	router.Register(r)
-	r.LoadHTMLGlob(templateGlob)
 
 	if err := app.Constructor(); err != nil {
 		panic(err)
