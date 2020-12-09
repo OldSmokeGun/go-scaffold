@@ -4,12 +4,15 @@ BINARY = server
 MAIN_PATH = .
 
 linux-build:
+	go generate -x ./...
 	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY} ${MAIN_PATH}/main.go
 
 windows-build:
+	go generate -x ./...
 	CGO_ENABLED=0 GOOS=windows go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
 
 mac-build:
+	go generate -x ./...
 	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY} ${MAIN_PATH}/main.go
 
 clean:
