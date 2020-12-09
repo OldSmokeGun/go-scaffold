@@ -98,7 +98,7 @@ func Bootstrap() {
 
 	router.Register(r)
 
-	if err := app.Constructor(); err != nil {
+	if err := app.Constructor(r); err != nil {
 		panic(err)
 	}
 

@@ -1,8 +1,11 @@
 package app
 
-import "gin-scaffold/internal/utils/validator"
+import (
+	"gin-scaffold/internal/utils/validator"
+	"github.com/gin-gonic/gin"
+)
 
-func Constructor() error {
+func Constructor(r *gin.Engine) error {
 	err := validator.RegisterValidator([]validator.CustomValidator{
 		{"phone", validator.IsPhone},
 	})
