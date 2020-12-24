@@ -12,10 +12,9 @@ func RandomString(length int) string {
 
 	source := []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_=")
 	random := make([]byte, length)
-	rand.Seed(time.Now().UnixNano())
 
 	for i := 0; i < length; i++ {
-		random[i] = source[rand.Intn(len(source))]
+		random[i] = source[rand.New(rand.NewSource(time.Now().UnixNano())).Intn(len(source))]
 	}
 
 	return string(random)
