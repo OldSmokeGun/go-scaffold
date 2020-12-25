@@ -93,7 +93,16 @@ func Bootstrap() {
 		}
 		r.SetHTMLTemplate(t)
 	} else {
-		r.LoadHTMLGlob(appPath + "/templates/" + templateGlob)
+		glob := appPath + "/templates/" + templateGlob
+
+		matches, err := filepath.Glob(glob)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(matches) > 0 {
+			r.LoadHTMLGlob(glob)
+		}
 	}
 
 	router.Register(r)
