@@ -1,6 +1,6 @@
 FROM golang:1.15.3 as build
 
-WORKDIR /go/app/
+WORKDIR /app/
 
 COPY . .
 
@@ -14,12 +14,12 @@ FROM scratch
 ENV TZ=Asia/Shanghai
 ENV ZONEINFO=/usr/local/go/lib/time/zoneinfo.zip
 
-WORKDIR /go/app/
+WORKDIR /app/
 
 COPY --from=build /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /go/app/server /go/app/server
+COPY --from=build /app/bin/server /app/bin/server
 
 EXPOSE 9527
 
-CMD ["./server"]
+CMD ["./bin/server"]

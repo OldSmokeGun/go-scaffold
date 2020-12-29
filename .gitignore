@@ -3,10 +3,10 @@
 
 logs/*
 tmp
-config.yaml
-config.env
-config.json
-config.toml
+config/config.yaml
+config/config.env
+config/config.json
+config/config.toml
 
-/server
-/server.exe
+/bin/server
+/bin/server.exe

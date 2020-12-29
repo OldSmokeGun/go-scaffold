@@ -1,7 +1,7 @@
 .PHONY: linux-build windows-build mac-build clean test help
 
-BINARY = server
-MAIN_PATH = .
+BINARY = bin/server
+MAIN_PATH = core/cmd/server
 
 linux-build:
 	go generate -x ./...
