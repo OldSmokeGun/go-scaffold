@@ -17,6 +17,7 @@ ENV ZONEINFO=/usr/local/go/lib/time/zoneinfo.zip
 WORKDIR /go/app/
 
 COPY --from=build /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /go/app/server /go/app/server
 
 EXPOSE 9527
