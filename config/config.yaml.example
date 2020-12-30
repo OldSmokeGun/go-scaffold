@@ -1,7 +1,7 @@
 host: "127.0.0.1"
 port: "9527"
-templates_glob: "../app/templates/*"
-log_path: "logs/errors.log"
+log_path: "../logs/errors.log"
+# templates_glob: "../app/templates/*"
 
 jwt:
   key: ""

@@ -8,11 +8,6 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// var (
-// 	AppPath             = filepath.Dir(filepath.Dir(filepath.Dir(global.BinPath()))) + "/app"
-// 	DefaultTemplateGlob = filepath.Join(AppPath, "/templates/*")
-// )
-
 const (
 	// 默认监听 host
 	DefaultHost = "127.0.0.1"
