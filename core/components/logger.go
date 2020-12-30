@@ -1,8 +1,8 @@
 package components
 
 import (
-	"gin-scaffold/app/util"
 	"gin-scaffold/core/global"
+	"gin-scaffold/core/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -26,9 +26,9 @@ func RegisterLogger(f string) error {
 		logPath = filepath.Join(filepath.Dir(global.BinPath()), logPath)
 	}
 
-	if ok := util.PathExist(logPath); !ok {
+	if ok := utils.PathExist(logPath); !ok {
 		logDir := logPath
-		if ok, _ := util.IsDir(logPath); !ok {
+		if ok, _ := utils.IsDir(logPath); !ok {
 			logDir = filepath.Dir(logPath)
 		}
 		if err := os.MkdirAll(logDir, 0755); err != nil {

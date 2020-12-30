@@ -2,7 +2,7 @@ package core
 
 import (
 	"gin-scaffold/app"
-	"gin-scaffold/app/router"
+	"gin-scaffold/app/routes"
 	"gin-scaffold/core/global"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -59,7 +59,7 @@ func Bootstrap() {
 	}
 
 	// 注册路由
-	router.Register(r)
+	routes.Register(r)
 
 	// 调用 app 启动前的钩子
 	if err := app.Run(r); err != nil {

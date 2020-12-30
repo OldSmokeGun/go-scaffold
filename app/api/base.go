@@ -1,8 +1,8 @@
 package api
 
 import (
-	"gin-scaffold/app/util/http/response"
-	"gin-scaffold/app/util/validator"
+	"gin-scaffold/app/utils/http/response"
+	"gin-scaffold/app/utils/validator"
 	"github.com/gin-gonic/gin"
 	validator2 "github.com/go-playground/validator/v10"
 	"net/http"

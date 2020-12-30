@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"gin-scaffold/app/util"
+	"gin-scaffold/core/utils"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
@@ -80,7 +80,7 @@ func NewToken(options ...OptionFunc) (*Token, error) {
 		Claims: jwt.StandardClaims{
 			Audience:  "server",
 			ExpiresAt: time.Now().Add(DefaultExpire).Unix(),
-			Id:        util.RandomString(64),
+			Id:        utils.RandomString(64),
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    "app",
 			NotBefore: time.Now().Unix(),

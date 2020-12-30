@@ -1,8 +1,8 @@
 package components
 
 import (
-	"gin-scaffold/app/util"
 	"gin-scaffold/core/global"
+	"gin-scaffold/core/utils"
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"
@@ -21,7 +21,7 @@ func RegisterConfigurator(f string) error {
 		config = f
 	}
 
-	if ok := util.PathExist(config); ok {
+	if ok := utils.PathExist(config); ok {
 		configurator.SetConfigName(strings.TrimSuffix(filepath.Base(config), filepath.Ext(config)))
 
 		if filepath.IsAbs(config) {
