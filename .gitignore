@@ -1,9 +1,6 @@
 .idea
 .vscode
 
-logs/*
 tmp
-config/config.yaml
-config/config.env
-config/config.json
-config/config.toml
+config/*
+!config/*.example
