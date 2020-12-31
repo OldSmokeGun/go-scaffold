@@ -9,7 +9,9 @@ linux-build:
 
 windows-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=windows go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
+	set CGO_ENABLED=0
+	set GOOS=windows
+	go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
 
 mac-build:
 	go generate -x ./...
