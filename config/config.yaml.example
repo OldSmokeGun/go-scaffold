@@ -1,7 +1,7 @@
 host: "127.0.0.1"
 port: "9527"
-log_path: "../logs/errors.log"
-# templates_glob: "../app/templates/*"
+logPath: "../logs/errors.log"
+# templateGlob: "../app/templates/*"
 
 jwt:
   key: ""
@@ -18,10 +18,10 @@ db:
     - "charset=utf8mb4"
     - "parseTime=True"
     - "loc=Local"
-  max_idle_conn: 20
-  max_open_conn: 40
-  conn_max_life_time: 86400
-  log_level: "info"
+  maxIdleConn: 20
+  maxOpenConn: 40
+  connMaxLifeTime: 86400
+  logLevel: "info"
 
 #  driver: "postgres"
 #  host: "127.0.0.1"
@@ -32,7 +32,7 @@ db:
 #  options:
 #    - "sslmode=disable"
 #    - "TimeZone=Asia/Shanghai"
-#  max_idle_conn: 20
-#  max_open_conn: 40
-#  conn_max_life_time: 86400
-#  log_level: "info"
+#  maxIdleConn: 20
+#  maxOpenConn: 40
+#  connMaxLifeTime: 86400
+#  logLevel: "info"
