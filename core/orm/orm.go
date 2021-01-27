@@ -24,12 +24,12 @@ type Config struct {
 	Options         []string
 	MaxIdleConn     int
 	MaxOpenConn     int
-	ConnMaxLifeTime time.Duration
-	LogLevel        logger.Interface
+	ConnMaxLifeTime int64
+	LogLevel        string
 }
 
 // Init 初始化 orm
-func Init(c Config) (err error) {
+func Init(c *Config) (err error) {
 	var (
 		db *gorm.DB
 	)
@@ -46,8 +46,8 @@ func Init(c Config) (err error) {
 			Options:                   c.Options,
 			MaxIdleConn:               c.MaxIdleConn,
 			MaxOpenConn:               c.MaxOpenConn,
-			ConnMaxLifeTime:           c.ConnMaxLifeTime,
-			LogLevel:                  c.LogLevel,
+			ConnMaxLifeTime:           time.Second * time.Duration(c.ConnMaxLifeTime),
+			LogLevel:                  LogMode(c.LogLevel).Convert(),
 			Conn:                      nil,
 			SkipInitializeWithVersion: false,
 			DefaultStringSize:         0,
@@ -69,8 +69,8 @@ func Init(c Config) (err error) {
 			Options:              c.Options,
 			MaxIdleConn:          c.MaxIdleConn,
 			MaxOpenConn:          c.MaxOpenConn,
-			ConnMaxLifeTime:      c.ConnMaxLifeTime,
-			LogLevel:             c.LogLevel,
+			ConnMaxLifeTime:      time.Second * time.Duration(c.ConnMaxLifeTime),
+			LogLevel:             LogMode(c.LogLevel).Convert(),
 			Conn:                 nil,
 			PreferSimpleProtocol: false,
 		})

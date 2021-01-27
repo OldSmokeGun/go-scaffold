@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	// 默认监听 host
+	// DefaultHost 默认监听 host
 	DefaultHost = "127.0.0.1"
-	// 默认监听端口
+	// DefaultPort 默认监听端口
 	DefaultPort = "9527"
 )
 
@@ -33,7 +33,7 @@ func Bootstrap() {
 		port = v
 	}
 
-	if v := global.Configurator().GetString("templates_glob"); v != "" {
+	if v := global.Configurator().GetString("templateGlob"); v != "" {
 		templateGlob = v
 	}
 
@@ -45,7 +45,7 @@ func Bootstrap() {
 		port = v
 	}
 
-	if v := pflag.Lookup("templates_glob").Value.String(); v != "" {
+	if v := pflag.Lookup("template-glob").Value.String(); v != "" {
 		templateGlob = v
 	}
 
