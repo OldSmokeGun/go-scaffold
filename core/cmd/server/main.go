@@ -12,7 +12,7 @@ import (
 const AppName = "server"
 
 func main() {
-	cobra.OnInitialize(dep)
+	cobra.OnInitialize(boot)
 
 	// 创建根命令
 	rootCmd := &cobra.Command{
@@ -40,7 +40,7 @@ func main() {
 }
 
 // 初始化基本依赖
-func dep() {
+func boot() {
 	// 注册配置对象
 	if err := components.RegisterConfigurator(global.RootCommand().Flags().Lookup("config").Value.String()); err != nil {
 		panic(err)
