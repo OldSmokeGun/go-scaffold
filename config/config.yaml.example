@@ -21,7 +21,7 @@ db:
   maxIdleConn: 20
   maxOpenConn: 40
   connMaxLifeTime: 86400
-  logLevel: "info"
+  logLevel: "warn"
 
 #  driver: "postgres"
 #  host: "127.0.0.1"
@@ -35,4 +35,4 @@ db:
 #  maxIdleConn: 20
 #  maxOpenConn: 40
 #  connMaxLifeTime: 86400
-#  logLevel: "info"
+#  logLevel: "warn"

@@ -5,7 +5,6 @@ import (
 	"gin-scaffold/app/routes"
 	"gin-scaffold/core/global"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/pflag"
 )
 
 const (
@@ -15,12 +14,13 @@ const (
 	DefaultPort = "9527"
 )
 
-// Bootstrap 引导内核启动
-func Bootstrap() {
+// Boot 引导内核启动
+func Boot() {
 	var (
 		host = DefaultHost
 		port = DefaultPort
 		r    = gin.Default()
+		flag = global.RootCommand().Flags()
 
 		templateGlob string
 	)
@@ -37,15 +37,15 @@ func Bootstrap() {
 		templateGlob = v
 	}
 
-	if v := pflag.Lookup("host").Value.String(); v != "" {
+	if v := flag.Lookup("host").Value.String(); v != "" {
 		host = v
 	}
 
-	if v := pflag.Lookup("port").Value.String(); v != "" {
+	if v := flag.Lookup("port").Value.String(); v != "" {
 		port = v
 	}
 
-	if v := pflag.Lookup("template-glob").Value.String(); v != "" {
+	if v := flag.Lookup("template-glob").Value.String(); v != "" {
 		templateGlob = v
 	}
 

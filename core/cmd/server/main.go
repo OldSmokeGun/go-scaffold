@@ -1,24 +1,48 @@
 package main
 
 import (
+	"gin-scaffold/app/commands"
 	"gin-scaffold/core"
 	"gin-scaffold/core/components"
 	"gin-scaffold/core/global"
 	"gin-scaffold/core/orm"
-	"github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 )
 
+const AppName = "server"
+
 func main() {
+	cobra.OnInitialize(dep)
+
+	// 创建根命令
+	rootCmd := &cobra.Command{
+		Use: AppName,
+		Run: func(cmd *cobra.Command, args []string) {
+			// 启动内核
+			core.Boot()
+		},
+	}
+
 	// flag 声明与解析
-	pflag.StringP("host", "h", "", "监听地址")
-	pflag.StringP("port", "p", "", "监听端口")
-	pflag.StringP("config", "c", "", "配置文件路径")
-	pflag.StringP("template-glob", "t", "", "模板文件 glob 表达式")
+	rootCmd.Flags().StringP("host", "", "", "监听地址")
+	rootCmd.Flags().StringP("port", "p", "", "监听端口")
+	rootCmd.Flags().StringP("config", "c", "", "配置文件路径")
+	rootCmd.Flags().StringP("template-glob", "t", "", "模板文件 glob 表达式")
 
-	pflag.Parse()
+	// 注册子命令
+	commands.Register(rootCmd)
 
+	global.SetRootCommand(rootCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		panic(err)
+	}
+}
+
+// 初始化基本依赖
+func dep() {
 	// 注册配置对象
-	if err := components.RegisterConfigurator(pflag.Lookup("config").Value.String()); err != nil {
+	if err := components.RegisterConfigurator(global.RootCommand().Flags().Lookup("config").Value.String()); err != nil {
 		panic(err)
 	}
 
@@ -50,7 +74,4 @@ func main() {
 			}
 		}()
 	}
-
-	// 启动内核
-	core.Bootstrap()
 }
