@@ -1,6 +1,9 @@
 package utils
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestRandomString(t *testing.T) {
 	excepts := map[string]map[string]int{
@@ -12,9 +15,7 @@ func TestRandomString(t *testing.T) {
 	for k, v := range excepts {
 		t.Run(k, func(t *testing.T) {
 			s := RandomString(v["except"])
-			if len(s) != v["except"] {
-				t.Errorf("生成随机字符串出错，期待字符串长度：%d，实际字符串长度：%d", v["except"], len(s))
-			}
+			assert.Len(t, s, v["except"])
 		})
 	}
 }

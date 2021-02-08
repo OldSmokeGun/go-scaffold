@@ -2,6 +2,8 @@ package jwt
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"math"
 	"testing"
 	"time"
@@ -11,35 +13,35 @@ var TestKey = "123456"
 
 func TestNewToken(t *testing.T) {
 	excepts := map[string]map[string]string{
-		"withoutKey": {"key": ""},
-		"withKey":    {"key": TestKey},
+		"without_key": {"key": ""},
+		"with_key":    {"key": TestKey},
 	}
 
+	var (
+		token *Token
+		err   error
+	)
 	for k, v := range excepts {
-		if k == "withoutKey" {
-			t.Run(k, func(t *testing.T) {
-				token, err := NewToken()
-				if token != nil || err != ErrMissingKey {
-					t.Errorf("创建 Token 对象出错，对象：%v，错误信息：%v", token, err)
+		t.Run(k, func(t *testing.T) {
+			token, err = NewToken(WithKey(v["key"]))
+			if k == "without_key" {
+				if assert.ErrorIs(t, err, ErrMissingKey) {
+					assert.Nil(t, token)
 				}
-			})
-		} else if k == "withKey" {
-			t.Run(k, func(t *testing.T) {
-				token, err := NewToken(WithKey(v["key"]))
-				if token == nil || err != nil {
-					t.Errorf("创建 Token 对象出错，对象：%v，错误信息：%v", token, err)
+			} else if k == "with_key" {
+				if assert.NoError(t, err) {
+					assert.NotNil(t, token)
 				}
-			})
-		}
+			}
+		})
 	}
 }
 
 func TestTokenCreate(t *testing.T) {
-	now, err := time.Parse("2006-01-02 15:04:05", "1995-01-01 00:00:00")
-	if err != nil {
-		t.Error(err)
-	}
 	exceptToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJib2R5Ijp7Im5hbWUiOiJUb20iLCJzZXgiOiJtYWxlIn0sImF1ZCI6InNlcnZlciIsImV4cCI6NTA4Mzg4NTY5NSwianRpIjoiYWJjZGUiLCJpYXQiOjc4ODkxODQwMCwiaXNzIjoiYXBwIiwibmJmIjo3ODg5MTg0MDAsInN1YiI6ImF1dGhlbnRpY2F0aW9uIHRva2VuIn0.KFq7Nea4aJEPuBr_sEGSHZKbvJheqb8uUp4ilPwdP7o"
+
+	now, err := time.Parse("2006-01-02 15:04:05", "1995-01-01 00:00:00")
+	require.NoError(t, err)
 
 	token, err := NewToken(
 		WithKey(TestKey),
@@ -58,20 +60,12 @@ func TestTokenCreate(t *testing.T) {
 			Subject:   "authentication token",
 		}),
 	)
-	if err != nil {
-		t.Errorf("创建 Token 对象出错，错误信息：%v", err)
-	}
+	require.NoError(t, err)
 
-	t.Run("createToken", func(t *testing.T) {
-		signedToken, err := token.Create()
-		if err != nil {
-			t.Errorf("创建 JWT 字符串出错，错误信息：%v", err)
-		}
+	signedToken, err := token.Create()
+	require.NoError(t, err)
 
-		if signedToken != exceptToken {
-			t.Errorf("创建 JWT 字符串出错，实际的字符串：%s", signedToken)
-		}
-	})
+	assert.Equal(t, exceptToken, signedToken)
 }
 
 func TestTokenParse(t *testing.T) {
@@ -80,35 +74,22 @@ func TestTokenParse(t *testing.T) {
 	token, err := NewToken(
 		WithKey(TestKey),
 	)
-	if err != nil {
-		t.Errorf("创建 Token 对象出错，错误信息：%v", err)
+	require.NoError(t, err)
+
+	parsedToken, claims, err := token.Parse(signedToken)
+	require.NoError(t, err)
+
+	if assert.NotNil(t, parsedToken) {
+		if assert.True(t, parsedToken.Valid) {
+			assert.Equal(t, "Tom", claims.Body["name"])
+			assert.Equal(t, "male", claims.Body["sex"])
+		}
 	}
-
-	t.Run("parseToken", func(t *testing.T) {
-		parsedToken, claims, err := token.Parse(signedToken)
-		if err != nil {
-			t.Errorf("解析 Token 字符串出错，错误信息：%v", err)
-		}
-
-		if parsedToken == nil {
-			t.Error("验证 Token 字符串失败，期待返回解析后的 Token 对象")
-		} else {
-			if !parsedToken.Valid {
-				t.Error("验证 Token 字符串失败，期待验证通过")
-			}
-		}
-
-		if claims.Body["name"] != "Tom" || claims.Body["sex"] != "male" {
-			t.Errorf("验证解析后的 Claims 出错，Claims：%v", claims)
-		}
-	})
 }
 
 func TestTokenExpire(t *testing.T) {
 	now, err := time.Parse("2006-01-02 15:04:05", "1995-01-01 00:00:00")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	token, err := NewToken(
 		WithKey(TestKey),
@@ -127,41 +108,22 @@ func TestTokenExpire(t *testing.T) {
 			Subject:   "authentication token",
 		}),
 	)
-	if err != nil {
-		t.Errorf("创建 Token 对象出错，错误信息：%v", err)
-	}
+	require.NoError(t, err)
 
 	signedToken, err := token.Create()
-	if err != nil {
-		t.Errorf("创建 JWT 字符串出错，错误信息：%v", err)
+	require.NoError(t, err)
+
+	token, err = NewToken(
+		WithKey(TestKey),
+	)
+	require.NoError(t, err)
+
+	parsedToken, _, err := token.Parse(signedToken)
+
+	assert.ErrorIs(t, err, ErrorExpired)
+	if assert.NotNil(t, parsedToken) {
+		assert.False(t, parsedToken.Valid)
 	}
-
-	t.Run("tokenExpire", func(t *testing.T) {
-		token, err := NewToken(
-			WithKey(TestKey),
-		)
-		if err != nil {
-			t.Errorf("创建 Token 对象出错，错误信息：%v", err)
-		}
-
-		parsedToken, _, err := token.Parse(signedToken)
-
-		if err == nil {
-			t.Error("验证 Token 字符串过期失败，期待返回错误")
-		}
-
-		if err != ErrorExpired {
-			t.Error("验证 Token 字符串过期失败，期待返回过期错误")
-		}
-
-		if parsedToken == nil {
-			t.Error("验证 Token 字符串过期失败，期待返回解析后的 Token 对象")
-		} else {
-			if parsedToken.Valid {
-				t.Error("验证 Token 字符串过期失败，期待验证不通过")
-			}
-		}
-	})
 }
 
 func TestTokenNotValidYet(t *testing.T) {
@@ -182,39 +144,20 @@ func TestTokenNotValidYet(t *testing.T) {
 			Subject:   "authentication token",
 		}),
 	)
-	if err != nil {
-		t.Errorf("创建 Token 对象出错，错误信息：%v", err)
-	}
+	require.NoError(t, err)
 
 	signedToken, err := token.Create()
-	if err != nil {
-		t.Errorf("创建 JWT 字符串出错，错误信息：%v", err)
+	require.NoError(t, err)
+
+	token, err = NewToken(
+		WithKey(TestKey),
+	)
+	require.NoError(t, err)
+
+	parsedToken, _, err := token.Parse(signedToken)
+
+	assert.ErrorIs(t, err, ErrorNotValidYet)
+	if assert.NotNil(t, parsedToken) {
+		assert.False(t, parsedToken.Valid)
 	}
-
-	t.Run("tokenNotValidYet", func(t *testing.T) {
-		token, err := NewToken(
-			WithKey(TestKey),
-		)
-		if err != nil {
-			t.Errorf("创建 Token 对象出错，错误信息：%v", err)
-		}
-
-		parsedToken, _, err := token.Parse(signedToken)
-
-		if err == nil {
-			t.Error("验证 Token 字符串暂不可用失败，期待返回错误")
-		}
-
-		if err != ErrorNotValidYet {
-			t.Error("验证 Token 字符串暂不可用失败，期待返回暂不可用错误")
-		}
-
-		if parsedToken == nil {
-			t.Error("验证 Token 字符串暂不可用失败，期待返回解析后的 Token 对象")
-		} else {
-			if parsedToken.Valid {
-				t.Error("验证 Token 字符串暂不可用失败，期待验证不通过")
-			}
-		}
-	})
 }
