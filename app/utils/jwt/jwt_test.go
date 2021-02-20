@@ -25,7 +25,7 @@ func TestNewToken(t *testing.T) {
 		t.Run(k, func(t *testing.T) {
 			token, err = NewToken(WithKey(v["key"]))
 			if k == "without_key" {
-				if assert.ErrorIs(t, err, ErrMissingKey) {
+				if assert.ErrorIs(t, err, ErrorMissingKey) {
 					assert.Nil(t, token)
 				}
 			} else if k == "with_key" {

@@ -17,12 +17,10 @@ const (
 // Boot 引导内核启动
 func Boot() {
 	var (
-		host = DefaultHost
-		port = DefaultPort
-		r    = gin.Default()
-		flag = global.RootCommand().Flags()
-
-		templateGlob string
+		host   = DefaultHost
+		port   = DefaultPort
+		router = gin.Default()
+		flag   = global.RootCommand().Flags()
 	)
 
 	if v := global.Configurator().GetString("host"); v != "" {
@@ -33,10 +31,6 @@ func Boot() {
 		port = v
 	}
 
-	if v := global.Configurator().GetString("templateGlob"); v != "" {
-		templateGlob = v
-	}
-
 	if v := flag.Lookup("host").Value.String(); v != "" {
 		host = v
 	}
@@ -45,24 +39,16 @@ func Boot() {
 		port = v
 	}
 
-	if v := flag.Lookup("template-glob").Value.String(); v != "" {
-		templateGlob = v
-	}
-
-	if templateGlob != "" {
-		r.LoadHTMLGlob(templateGlob)
-	}
-
 	// 注册路由
-	routes.Register(r)
+	routes.Register(router)
 
 	// 调用 app 启动前的钩子
-	if err := app.Run(r); err != nil {
+	if err := app.Initialize(router); err != nil {
 		panic(err)
 	}
 
 	// http 服务启动
-	if err := r.Run(host + ":" + port); err != nil {
+	if err := router.Run(host + ":" + port); err != nil {
 		panic(err)
 	}
 }

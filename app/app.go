@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// app 启动前的钩子函数
-func Run(r *gin.Engine) error {
+// Initialize APP 启动前的初始化钩子函数
+func Initialize(router *gin.Engine) error {
 	err := validator.RegisterValidator([]validator.CustomValidator{
 		{"phone", validator.IsPhone},
 	})

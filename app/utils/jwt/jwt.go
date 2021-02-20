@@ -14,7 +14,7 @@ const (
 var (
 	DefaultAlg = jwt.SigningMethodHS256
 
-	ErrMissingKey         = errors.New("token missing key")
+	ErrorMissingKey       = errors.New("token missing key")
 	ErrorMalformed        = errors.New("token 格式错误")
 	ErrorUnverifiable     = errors.New("签名无效，无法验证令牌")
 	ErrorSignatureInvalid = errors.New("签名验证失败")
@@ -93,7 +93,7 @@ func NewToken(options ...OptionFunc) (*Token, error) {
 	}
 
 	if j.Key == "" {
-		return nil, ErrMissingKey
+		return nil, ErrorMissingKey
 	}
 
 	return j, nil

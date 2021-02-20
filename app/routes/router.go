@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Register(r *gin.Engine) {
-	r.GET("/", controllers.Welcome)
+// Register 函数注册 http 路由
+func Register(router *gin.Engine) {
+	router.GET("/", controllers.Welcome)
 }

@@ -27,7 +27,6 @@ func main() {
 	rootCmd.Flags().StringP("host", "", "", "监听地址")
 	rootCmd.Flags().StringP("port", "p", "", "监听端口")
 	rootCmd.Flags().StringP("config", "c", "", "配置文件路径")
-	rootCmd.Flags().StringP("template-glob", "t", "", "模板文件 glob 表达式")
 
 	// 注册子命令
 	commands.Register(rootCmd)
@@ -41,8 +40,10 @@ func main() {
 
 // 初始化基本依赖
 func boot() {
+	var flag = global.RootCommand().Flags()
+
 	// 注册配置对象
-	if err := components.RegisterConfigurator(global.RootCommand().Flags().Lookup("config").Value.String()); err != nil {
+	if err := components.RegisterConfigurator(flag.Lookup("config").Value.String()); err != nil {
 		panic(err)
 	}
 

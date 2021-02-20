@@ -11,29 +11,24 @@ import (
 var DefaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.BinPath())), "config/config.yaml")
 
 // RegisterConfigurator 注册全局配置对象
-func RegisterConfigurator(f string) error {
-	var (
-		config       = DefaultConfigPath
-		configurator = viper.New()
-	)
+func RegisterConfigurator(configPath string) error {
+	var configurator = viper.New()
 
-	if f != "" {
-		config = f
-	}
+	if configPath != "" {
+		if ok := utils.PathExist(configPath); ok {
+			configurator.SetConfigName(strings.TrimSuffix(filepath.Base(configPath), filepath.Ext(configPath)))
 
-	if ok := utils.PathExist(config); ok {
-		configurator.SetConfigName(strings.TrimSuffix(filepath.Base(config), filepath.Ext(config)))
+			if filepath.IsAbs(configPath) {
+				configurator.AddConfigPath(filepath.Dir(configPath))
+			} else {
+				configurator.AddConfigPath(filepath.Dir(filepath.Join(filepath.Dir(global.BinPath()), configPath)))
+			}
 
-		if filepath.IsAbs(config) {
-			configurator.AddConfigPath(filepath.Dir(config))
-		} else {
-			configurator.AddConfigPath(filepath.Dir(filepath.Join(filepath.Dir(global.BinPath()), config)))
-		}
+			configurator.WatchConfig()
 
-		configurator.WatchConfig()
-
-		if err := configurator.ReadInConfig(); err != nil {
-			return err
+			if err := configurator.ReadInConfig(); err != nil {
+				return err
+			}
 		}
 	}
 

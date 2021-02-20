@@ -12,33 +12,33 @@ import (
 var DefaultLogPath = filepath.Join(filepath.Dir(filepath.Dir(global.BinPath())), "logs/errors.log")
 
 // RegisterLogger 注册全局日志对象
-func RegisterLogger(f string) error {
+func RegisterLogger(logPath string) error {
 	var (
-		logPath = DefaultLogPath
-		logger  = logrus.New()
+		logger = logrus.New()
+
+		err       error
+		logWriter *os.File
 	)
 
-	if f != "" {
-		logPath = f
-	}
-
-	if !filepath.IsAbs(logPath) {
-		logPath = filepath.Join(filepath.Dir(global.BinPath()), logPath)
-	}
-
-	if ok := utils.PathExist(logPath); !ok {
-		logDir := logPath
-		if ok, _ := utils.IsDir(logPath); !ok {
-			logDir = filepath.Dir(logPath)
+	if logPath != "" {
+		if !filepath.IsAbs(logPath) {
+			logPath = filepath.Join(filepath.Dir(global.BinPath()), logPath)
 		}
-		if err := os.MkdirAll(logDir, 0755); err != nil {
+
+		if ok := utils.PathExist(logPath); !ok {
+			logDir := logPath
+			if ok, _ := utils.IsDir(logPath); !ok {
+				logDir = filepath.Dir(logPath)
+			}
+			if err := os.MkdirAll(logDir, 0666); err != nil {
+				return err
+			}
+		}
+
+		logWriter, err = os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+		if err != nil {
 			return err
 		}
-	}
-
-	logWriter, err := os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0755)
-	if err != nil {
-		return err
 	}
 
 	logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
