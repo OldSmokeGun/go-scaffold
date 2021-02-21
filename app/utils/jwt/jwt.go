@@ -14,17 +14,17 @@ const (
 var (
 	DefaultAlg = jwt.SigningMethodHS256
 
-	ErrorMissingKey       = errors.New("token missing key")
-	ErrorMalformed        = errors.New("token 格式错误")
-	ErrorUnverifiable     = errors.New("签名无效，无法验证令牌")
-	ErrorSignatureInvalid = errors.New("签名验证失败")
-	ErrorAudience         = errors.New("token 身份验证失败")
-	ErrorExpired          = errors.New("token 已过期")
-	ErrorIssuedAt         = errors.New("token 签发时间验证失败")
-	ErrorIssuer           = errors.New("token 签发身份验证失败")
-	ErrorNotValidYet      = errors.New("token 暂不可用")
-	ErrorId               = errors.New("token 标识验证失败")
-	ErrorClaimsInvalid    = errors.New("token 结构体验证失败")
+	ErrMissingKey       = errors.New("token missing key")
+	ErrMalformed        = errors.New("token 格式错误")
+	ErrUnverifiable     = errors.New("签名无效，无法验证令牌")
+	ErrSignatureInvalid = errors.New("签名验证失败")
+	ErrAudience         = errors.New("token 身份验证失败")
+	ErrExpired          = errors.New("token 已过期")
+	ErrIssuedAt         = errors.New("token 签发时间验证失败")
+	ErrIssuer           = errors.New("token 签发身份验证失败")
+	ErrNotValidYet      = errors.New("token 暂不可用")
+	ErrId               = errors.New("token 标识验证失败")
+	ErrClaimsInvalid    = errors.New("token 结构体验证失败")
 )
 
 type Token struct {
@@ -93,7 +93,7 @@ func NewToken(options ...OptionFunc) (*Token, error) {
 	}
 
 	if j.Key == "" {
-		return nil, ErrorMissingKey
+		return nil, ErrMissingKey
 	}
 
 	return j, nil
@@ -141,25 +141,25 @@ func handleParseError(parseError error) (err error) {
 	if ok {
 		switch validateError.Errors {
 		case jwt.ValidationErrorMalformed:
-			err = ErrorMalformed
+			err = ErrMalformed
 		case jwt.ValidationErrorUnverifiable:
-			err = ErrorUnverifiable
+			err = ErrUnverifiable
 		case jwt.ValidationErrorSignatureInvalid:
-			err = ErrorSignatureInvalid
+			err = ErrSignatureInvalid
 		case jwt.ValidationErrorAudience:
-			err = ErrorAudience
+			err = ErrAudience
 		case jwt.ValidationErrorExpired:
-			err = ErrorExpired
+			err = ErrExpired
 		case jwt.ValidationErrorIssuedAt:
-			err = ErrorIssuedAt
+			err = ErrIssuedAt
 		case jwt.ValidationErrorIssuer:
-			err = ErrorIssuer
+			err = ErrIssuer
 		case jwt.ValidationErrorNotValidYet:
-			err = ErrorNotValidYet
+			err = ErrNotValidYet
 		case jwt.ValidationErrorId:
-			err = ErrorId
+			err = ErrId
 		case jwt.ValidationErrorClaimsInvalid:
-			err = ErrorClaimsInvalid
+			err = ErrClaimsInvalid
 		default:
 			err = validateError
 		}

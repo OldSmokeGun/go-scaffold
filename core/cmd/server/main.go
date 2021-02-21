@@ -7,16 +7,26 @@ import (
 	"gin-scaffold/core/global"
 	"gin-scaffold/core/orm"
 	"github.com/spf13/cobra"
+	"path/filepath"
 )
 
-const AppName = "server"
+const (
+	appName     = "server"    // 命令名称
+	defaultHost = "127.0.0.1" // 默认监听地址
+	defaultPort = "9527"      // 默认监听端口
+)
+
+var (
+	defaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.BinPath())), "config/config.yaml") // 默认配置文件路径
+	defaultLogPath    = filepath.Join(filepath.Dir(filepath.Dir(global.BinPath())), "logs/framework.log") // 默认日志文件路径
+)
 
 func main() {
 	cobra.OnInitialize(boot)
 
 	// 创建根命令
 	rootCmd := &cobra.Command{
-		Use: AppName,
+		Use: appName,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 启动内核
 			core.Boot()
@@ -24,9 +34,10 @@ func main() {
 	}
 
 	// flag 声明与解析
-	rootCmd.Flags().StringP("host", "", "", "监听地址")
-	rootCmd.Flags().StringP("port", "p", "", "监听端口")
-	rootCmd.Flags().StringP("config", "c", "", "配置文件路径")
+	rootCmd.Flags().StringP("host", "", defaultHost, "监听地址")
+	rootCmd.Flags().StringP("port", "p", defaultPort, "监听端口")
+	rootCmd.Flags().StringP("config", "c", defaultConfigPath, "配置文件路径")
+	rootCmd.Flags().StringP("log", "l", defaultLogPath, "日志文件路径")
 
 	// 注册子命令
 	commands.Register(rootCmd)
@@ -40,27 +51,40 @@ func main() {
 
 // 初始化基本依赖
 func boot() {
-	var flag = global.RootCommand().Flags()
+	var (
+		configPath, logPath string
+		flag                = global.RootCommand().Flags()
+	)
 
 	// 注册配置对象
-	if err := components.RegisterConfigurator(flag.Lookup("config").Value.String()); err != nil {
+	configPath = flag.Lookup("config").Value.String()
+	if err := components.RegisterConfigurator(configPath); err != nil {
 		panic(err)
 	}
 
 	// 注册日志对象
-	if err := components.RegisterLogger(global.Configurator().GetString("logPath")); err != nil {
+	logFlag := flag.Lookup("log")
+	if logFlag.Changed {
+		logPath = logFlag.Value.String()
+	} else {
+		if global.Configurator().InConfig("log") {
+			logPath = global.Configurator().GetString("log")
+		} else {
+			logPath = logFlag.DefValue
+		}
+	}
+	if err := components.RegisterLogger(logPath); err != nil {
 		panic(err)
 	}
 
-	// 如果获取到数据库配置
-	// 则初始化 orm
+	// 如果获取到数据库配置，则初始化 orm
 	if len(global.Configurator().GetStringMap("db")) > 0 {
-		of := new(orm.Config)
-		if err := global.Configurator().UnmarshalKey("db", of); err != nil {
+		ormConfig := new(orm.Config)
+		if err := global.Configurator().UnmarshalKey("db", ormConfig); err != nil {
 			panic(err)
 		}
 
-		if err := orm.Init(of); err != nil {
+		if err := orm.Init(ormConfig); err != nil {
 			panic(err)
 		}
 

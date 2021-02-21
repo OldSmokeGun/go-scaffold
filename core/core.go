@@ -7,36 +7,35 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	// DefaultHost 默认监听 host
-	DefaultHost = "127.0.0.1"
-	// DefaultPort 默认监听端口
-	DefaultPort = "9527"
-)
-
 // Boot 引导内核启动
 func Boot() {
 	var (
-		host   = DefaultHost
-		port   = DefaultPort
-		router = gin.Default()
-		flag   = global.RootCommand().Flags()
+		host, port string
+		router     = gin.Default()
+		flag       = global.RootCommand().Flags()
 	)
 
-	if v := global.Configurator().GetString("host"); v != "" {
-		host = v
+	hostFlag := flag.Lookup("host")
+	portFlag := flag.Lookup("port")
+
+	if hostFlag.Changed {
+		host = hostFlag.Value.String()
+	} else {
+		if global.Configurator().InConfig("host") {
+			host = global.Configurator().GetString("host")
+		} else {
+			host = hostFlag.DefValue
+		}
 	}
 
-	if v := global.Configurator().GetString("port"); v != "" {
-		port = v
-	}
-
-	if v := flag.Lookup("host").Value.String(); v != "" {
-		host = v
-	}
-
-	if v := flag.Lookup("port").Value.String(); v != "" {
-		port = v
+	if portFlag.Changed {
+		port = portFlag.Value.String()
+	} else {
+		if global.Configurator().InConfig("port") {
+			port = global.Configurator().GetString("port")
+		} else {
+			port = portFlag.DefValue
+		}
 	}
 
 	// 注册路由

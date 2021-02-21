@@ -1,6 +1,6 @@
 host: "127.0.0.1"
 port: "9527"
-logPath: "../logs/errors.log"
+log: "../logs/errors.log"
 # templateGlob: "../app/templates/*"
 
 jwt:

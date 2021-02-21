@@ -25,7 +25,7 @@ func TestNewToken(t *testing.T) {
 		t.Run(k, func(t *testing.T) {
 			token, err = NewToken(WithKey(v["key"]))
 			if k == "without_key" {
-				if assert.ErrorIs(t, err, ErrorMissingKey) {
+				if assert.ErrorIs(t, err, ErrMissingKey) {
 					assert.Nil(t, token)
 				}
 			} else if k == "with_key" {
@@ -120,7 +120,7 @@ func TestTokenExpire(t *testing.T) {
 
 	parsedToken, _, err := token.Parse(signedToken)
 
-	assert.ErrorIs(t, err, ErrorExpired)
+	assert.ErrorIs(t, err, ErrExpired)
 	if assert.NotNil(t, parsedToken) {
 		assert.False(t, parsedToken.Valid)
 	}
@@ -156,7 +156,7 @@ func TestTokenNotValidYet(t *testing.T) {
 
 	parsedToken, _, err := token.Parse(signedToken)
 
-	assert.ErrorIs(t, err, ErrorNotValidYet)
+	assert.ErrorIs(t, err, ErrNotValidYet)
 	if assert.NotNil(t, parsedToken) {
 		assert.False(t, parsedToken.Valid)
 	}

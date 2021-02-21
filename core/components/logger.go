@@ -9,15 +9,12 @@ import (
 	"path/filepath"
 )
 
-var DefaultLogPath = filepath.Join(filepath.Dir(filepath.Dir(global.BinPath())), "logs/errors.log")
-
 // RegisterLogger 注册全局日志对象
 func RegisterLogger(logPath string) error {
 	var (
-		logger = logrus.New()
-
 		err       error
 		logWriter *os.File
+		logger    = logrus.New()
 	)
 
 	if logPath != "" {
