@@ -42,7 +42,7 @@ func Boot() {
 	routes.Register(router)
 
 	// 调用 app 启动前的钩子
-	if err := app.Initialize(router); err != nil {
+	if err := app.ApplicationInitialize(router); err != nil {
 		panic(err)
 	}
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gin-scaffold/app"
 	"gin-scaffold/app/commands"
 	"gin-scaffold/core"
 	"gin-scaffold/core/components"
@@ -99,4 +100,7 @@ func boot() {
 			}
 		}()
 	}
+
+	// 框架基本初始化后调用钩子函数
+	app.FrameInitialize()
 }
