@@ -25,6 +25,18 @@ var (
 func main() {
 	cobra.OnInitialize(boot)
 
+	// 释放资源
+	defer func() {
+		sqlDB, err := global.DB().DB()
+		if err != nil {
+			panic(err)
+		}
+
+		if err := sqlDB.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
 	// 创建根命令
 	rootCmd := &cobra.Command{
 		Use: appName,
@@ -88,17 +100,6 @@ func boot() {
 		if err := orm.Init(ormConfig); err != nil {
 			panic(err)
 		}
-
-		defer func() {
-			sqlDB, err := global.DB().DB()
-			if err != nil {
-				panic(err)
-			}
-
-			if err := sqlDB.Close(); err != nil {
-				panic(err)
-			}
-		}()
 	}
 
 	// 框架基本初始化后调用钩子函数
