@@ -1,5 +1,7 @@
 package response
 
+import "reflect"
+
 type Schema struct {
 	Code string      `json:"code"`
 	Msg  string      `json:"msg"`
@@ -15,8 +17,11 @@ func FailedFormat(msg string) Schema {
 }
 
 func Format(code string, msg string, data interface{}) Schema {
-	if data == nil {
-		data = map[string]interface{}{}
+	val := reflect.ValueOf(data)
+	if val.Kind() == reflect.Ptr {
+		if val.IsNil() {
+			data = map[string]interface{}{}
+		}
 	}
 
 	format := Schema{
