@@ -17,11 +17,15 @@ func FailedFormat(msg string) Schema {
 }
 
 func Format(code string, msg string, data interface{}) Schema {
-	val := reflect.ValueOf(data)
-	if val.Kind() == reflect.Ptr {
-		if val.IsNil() {
-			data = map[string]interface{}{}
+	if data != nil {
+		val := reflect.ValueOf(data)
+		if val.Kind() == reflect.Ptr {
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
 		}
+	} else {
+		data = map[string]interface{}{}
 	}
 
 	format := Schema{
