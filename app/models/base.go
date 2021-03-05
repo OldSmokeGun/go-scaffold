@@ -13,7 +13,7 @@ type Pagination struct {
 	PageSize int
 }
 
-func paginationScope(p Pagination) func(db *gorm.DB) *gorm.DB {
+func PaginationScope(p Pagination) func(db *gorm.DB) *gorm.DB {
 	if p.Page <= 0 {
 		p.Page = 1
 	}
@@ -29,6 +29,6 @@ func paginationScope(p Pagination) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func statusEnableScope(db *gorm.DB) *gorm.DB {
+func StatusEnableScope(db *gorm.DB) *gorm.DB {
 	return db.Where("status = ?", 1)
 }
