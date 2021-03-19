@@ -6,8 +6,10 @@ import (
 )
 
 // FrameInitialize 框架初始化钩子函数
-func FrameInitialize()  {
+func FrameInitialize() error {
 	// 初始化操作
+
+	return nil
 }
 
 // ApplicationInitialize 应用初始化钩子函数

@@ -103,5 +103,7 @@ func boot() {
 	}
 
 	// 框架基本初始化后调用钩子函数
-	app.FrameInitialize()
+	if err := app.FrameInitialize(); err != nil {
+		panic(err)
+	}
 }
