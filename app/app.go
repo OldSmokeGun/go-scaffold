@@ -8,6 +8,15 @@ import (
 // FrameInitialize 框架初始化钩子函数
 func FrameInitialize() error {
 	// 初始化操作
+	// redisConfig := new(redis.Config)
+	// if err := global.Configurator().UnmarshalKey("redis", redisConfig); err != nil {
+	// 	panic(err)
+	// }
+	// rc, err := redis.Initialize(redisConfig)
+	// if err != nil {
+	// 	return err
+	// }
+	// SetRedisClient(rc)
 
 	return nil
 }
