@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FrameInitialize 框架初始化钩子函数
-func FrameInitialize() error {
+// CoreInitialize 核心初始化钩子函数
+func CoreInitialize() error {
 	// 初始化操作
 	// redisConfig := new(redis.Config)
 	// if err := global.Configurator().UnmarshalKey("redis", redisConfig); err != nil {
