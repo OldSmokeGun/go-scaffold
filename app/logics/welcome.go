@@ -2,8 +2,8 @@ package logics
 
 import (
 	"gin-scaffold/app/appcontext"
+	"gin-scaffold/app/types"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type WelcomeLogic struct {
@@ -11,6 +11,15 @@ type WelcomeLogic struct {
 	appCtx *appcontext.Context
 }
 
-func (l WelcomeLogic) Welcome() {
-	l.ctx.String(http.StatusOK, "<h1>Welcome</h1>")
+func NewWelcomeLogic(ctx *gin.Context, appCtx *appcontext.Context) *WelcomeLogic {
+	return &WelcomeLogic{
+		ctx:    ctx,
+		appCtx: appCtx,
+	}
+}
+
+func (l WelcomeLogic) Welcome(req types.WelcomeReq) (types.WelcomeResp, error) {
+	return types.WelcomeResp{
+		Msg: "Welcome",
+	}, nil
 }

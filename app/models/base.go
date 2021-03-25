@@ -6,6 +6,7 @@ type BaseModel struct {
 	ID        uint `json:"id,omitempty" gorm:"primaryKey"`
 	CreatedAt int  `json:"created_at,omitempty"`
 	UpdatedAt int  `json:"updated_at,omitempty"`
+	DeletedAt int  `json:"deleted_at,omitempty"`
 }
 
 type Pagination struct {

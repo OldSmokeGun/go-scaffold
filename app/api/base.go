@@ -3,6 +3,7 @@ package api
 import (
 	"gin-scaffold/app/utils/http/response"
 	"gin-scaffold/app/utils/validator"
+	"gin-scaffold/internal/global"
 	"github.com/gin-gonic/gin"
 	validator2 "github.com/go-playground/validator/v10"
 	"net/http"
@@ -24,6 +25,7 @@ func responseValidateError(c *gin.Context, err error, errTrans map[string]string
 
 func ValidateQueryError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := c.ShouldBindQuery(obj); err != nil {
+		global.GetLogger().Error(err)
 		responseValidateError(c, err, errTrans)
 		return false
 	}
@@ -32,6 +34,7 @@ func ValidateQueryError(c *gin.Context, obj interface{}, errTrans map[string]str
 
 func ValidateFormError(c *gin.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := c.ShouldBind(obj); err != nil {
+		global.GetLogger().Error(err)
 		responseValidateError(c, err, errTrans)
 		return false
 	}

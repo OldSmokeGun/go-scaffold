@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	conf              = new(config.Config)
+	conf              = config.Config{}
 	defaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "config/config.yaml") // 默认配置文件路径
 	defaultLogPath    = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "logs/framework.log") // 默认日志文件路径
 )
@@ -53,7 +53,7 @@ func main() {
 }
 
 // Start 启动服务
-func Start(cmd *cobra.Command, conf *config.Config) {
+func Start(cmd *cobra.Command, conf config.Config) {
 	var (
 		err  error
 		host string
@@ -95,7 +95,7 @@ func Start(cmd *cobra.Command, conf *config.Config) {
 	conf.Port = port
 
 	// 启动 app
-	app.Start(conf, gin.Default())
+	app.Start(gin.Default(), conf)
 }
 
 // 初始化基本依赖
@@ -138,7 +138,7 @@ func initialize() {
 	global.SetConfigurator(cfg)
 
 	// 框架基本初始化后调用钩子函数
-	if err := app.CoreInitialize(); err != nil {
+	if err := app.Initialize(); err != nil {
 		panic(err)
 	}
 }

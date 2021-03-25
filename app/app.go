@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"gin-scaffold/app/appcontext"
+	appconfig "gin-scaffold/app/config"
 	"gin-scaffold/app/routes"
 	"gin-scaffold/app/utils/validator"
 	"gin-scaffold/internal/components/orm"
@@ -12,14 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
-// CoreInitialize 核心初始化钩子函数
-func CoreInitialize() error {
+// Initialize 核心初始化钩子函数
+func Initialize() error {
 	// ...
 	return nil
 }
 
 // Start 启动 app 的 http 服务
-func Start(conf *config.Config, router *gin.Engine) {
+func Start(router *gin.Engine, conf config.Config) {
 	var (
 		err error
 		db  *gorm.DB
@@ -60,6 +61,7 @@ func Start(conf *config.Config, router *gin.Engine) {
 
 	// 创建 app Context 对象
 	appCtx := appcontext.NewContext(
+		appcontext.WithConfig(appconfig.Config{Config: conf}),
 		appcontext.WithDB(db),
 		// appcontext.WithRedisClient(rc),
 	)

@@ -4,14 +4,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"gorm.io/gorm"
 	"os"
 )
 
 var (
 	err          error
 	binPath      string         // 二进制文件路径
-	db           *gorm.DB       // 全局 DB
 	rootCommand  *cobra.Command // 根命令
 	configurator *viper.Viper
 	logger       *logrus.Logger
@@ -27,16 +25,6 @@ func init() {
 // BinPath 获取二进制文件路径
 func GetBinPath() string {
 	return binPath
-}
-
-// SetDB 设置全局数据库操作对象
-func SetDB(d *gorm.DB) {
-	db = d
-}
-
-// GetDB 获取全局数据库操作对象
-func GetDB() *gorm.DB {
-	return db
 }
 
 // SetRootCommand 设置根命令
