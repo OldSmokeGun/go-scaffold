@@ -2,9 +2,8 @@ package orm
 
 import (
 	"errors"
-	"gin-scaffold/core/global"
-	"gin-scaffold/core/orm/mysql"
-	"gin-scaffold/core/orm/postgres"
+	"gin-scaffold/internal/components/orm/mysql"
+	"gin-scaffold/internal/components/orm/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"time"
@@ -28,12 +27,8 @@ type Config struct {
 	LogLevel        string
 }
 
-// Init 初始化 orm
-func Init(c *Config) (err error) {
-	var (
-		db *gorm.DB
-	)
-
+// Initialize 初始化 orm
+func Initialize(c *Config) (db *gorm.DB, err error) {
 	switch c.Driver {
 	case "mysql":
 		db, err = mysql.GetDB(mysql.Config{
@@ -78,12 +73,10 @@ func Init(c *Config) (err error) {
 			return
 		}
 	default:
-		return ErrUnsupportedType
+		return nil, ErrUnsupportedType
 	}
 
-	global.SetDB(db)
-
-	return
+	return db, nil
 }
 
 type LogMode string

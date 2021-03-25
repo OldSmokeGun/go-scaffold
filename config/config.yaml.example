@@ -1,5 +1,6 @@
 # host: "127.0.0.1"
 # port: "9527"
+# env: "local"
 # log: "../logs/framework.log"
 # templateGlob: "../app/templates/*"
 

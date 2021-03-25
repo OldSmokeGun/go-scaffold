@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"gin-scaffold/core/utils"
+	"gin-scaffold/internal/utils"
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )

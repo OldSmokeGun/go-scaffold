@@ -1,16 +1,16 @@
-package components
+package logger
 
 import (
-	"gin-scaffold/core/global"
-	"gin-scaffold/core/utils"
+	"gin-scaffold/internal/global"
+	"gin-scaffold/internal/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-// RegisterLogger 注册全局日志对象
-func RegisterLogger(logPath string) error {
+// Register 注册全局日志对象
+func Register(logPath string) (*logrus.Logger, error) {
 	var (
 		err       error
 		logWriter *os.File
@@ -19,7 +19,7 @@ func RegisterLogger(logPath string) error {
 
 	if logPath != "" {
 		if !filepath.IsAbs(logPath) {
-			logPath = filepath.Join(filepath.Dir(global.BinPath()), logPath)
+			logPath = filepath.Join(filepath.Dir(global.GetBinPath()), logPath)
 		}
 
 		if ok := utils.PathExist(logPath); !ok {
@@ -28,13 +28,13 @@ func RegisterLogger(logPath string) error {
 				logDir = filepath.Dir(logPath)
 			}
 			if err := os.MkdirAll(logDir, 0666); err != nil {
-				return err
+				return nil, err
 			}
 		}
 
 		logWriter, err = os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
@@ -43,8 +43,5 @@ func RegisterLogger(logPath string) error {
 		TimestampFormat: "2006-01-02 15:04:05.000",
 	})
 
-	// 设置全局日志对象
-	global.SetLogger(logger)
-
-	return nil
+	return logger, nil
 }

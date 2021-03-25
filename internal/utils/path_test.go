@@ -16,7 +16,7 @@ func TestIsDir(t *testing.T) {
 
 	excepts := map[string]map[string]interface{}{
 		"is_dir(rel)":     {"path": "../utils", "except": true},
-		"is_not_dir(rel)": {"path": "../core.go", "except": false},
+		"is_not_dir(rel)": {"path": "../internal.go", "except": false},
 		"is_dir(abs)":     {"path": wd, "except": true},
 		"is_not_dir(abs)": {"path": testFile, "except": false},
 	}

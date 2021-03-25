@@ -25,7 +25,7 @@ func init() {
 }
 
 // BinPath 获取二进制文件路径
-func BinPath() string {
+func GetBinPath() string {
 	return binPath
 }
 
@@ -34,8 +34,8 @@ func SetDB(d *gorm.DB) {
 	db = d
 }
 
-// DB 获取全局数据库操作对象
-func DB() *gorm.DB {
+// GetDB 获取全局数据库操作对象
+func GetDB() *gorm.DB {
 	return db
 }
 
@@ -44,8 +44,8 @@ func SetRootCommand(cmd *cobra.Command) {
 	rootCommand = cmd
 }
 
-// RootCommand 获取根命令
-func RootCommand() *cobra.Command {
+// GetRootCommand 获取根命令
+func GetRootCommand() *cobra.Command {
 	return rootCommand
 }
 
@@ -54,8 +54,8 @@ func SetConfigurator(c *viper.Viper) {
 	configurator = c
 }
 
-// Configurator 获取全局配置对象
-func Configurator() *viper.Viper {
+// GetConfigurator 获取全局配置对象
+func GetConfigurator() *viper.Viper {
 	return configurator
 }
 
@@ -64,7 +64,7 @@ func SetLogger(l *logrus.Logger) {
 	logger = l
 }
 
-// Logger 获取全局日志对象
-func Logger() *logrus.Logger {
+// GetLogger 获取全局日志对象
+func GetLogger() *logrus.Logger {
 	return logger
 }
