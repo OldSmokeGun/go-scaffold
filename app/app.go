@@ -2,8 +2,8 @@ package app
 
 import (
 	"fmt"
+	"gin-scaffold/app/appconfig"
 	"gin-scaffold/app/appcontext"
-	appconfig "gin-scaffold/app/config"
 	"gin-scaffold/app/routes"
 	"gin-scaffold/app/utils/validator"
 	"gin-scaffold/internal/components/orm"
@@ -26,9 +26,9 @@ func Start(router *gin.Engine, conf config.Config) {
 		db  *gorm.DB
 	)
 
-	if len(global.GetConfigurator().GetStringMap("db")) > 0 {
+	if len(global.GetConfigurator().GetStringMap("DB")) > 0 {
 		ormConfig := new(orm.Config)
-		if err := global.GetConfigurator().UnmarshalKey("db", ormConfig); err != nil {
+		if err := global.GetConfigurator().UnmarshalKey("DB", ormConfig); err != nil {
 			panic(err)
 		}
 
@@ -63,6 +63,8 @@ func Start(router *gin.Engine, conf config.Config) {
 	appCtx := appcontext.NewContext(
 		appcontext.WithConfig(appconfig.Config{Config: conf}),
 		appcontext.WithDB(db),
+		appcontext.WithLogger(global.GetLogger()),
+		appcontext.WithConfigurator(global.GetConfigurator()),
 		// appcontext.WithRedisClient(rc),
 	)
 

@@ -1,39 +1,39 @@
-# host: "127.0.0.1"
-# port: "9527"
-# env: "local"
-# log: "../logs/framework.log"
-# templateGlob: "../app/templates/*"
+# Host: "127.0.0.1"
+# Port: "9527"
+# Env: "local"
+# Log: "../logs/framework.log"
+# TemplateGlob: "../app/templates/*"
 
-# jwt:
-#   key: ""
-#   expire: 604800
+# JWT:
+#   Key: ""
+#   Expire: 604800
 
-# db:
-#   driver: "mysql"
-#   host: "127.0.0.1"
-#   port: "3306"
-#   database: "test"
-#   username: "root"
-#   password: "root"
-#   options:
+# DB:
+#   Driver: "mysql"
+#   Host: "127.0.0.1"
+#   Port: "3306"
+#   Database: "test"
+#   Username: "root"
+#   Password: "root"
+#   Options:
 #     - "charset=utf8mb4"
 #     - "parseTime=True"
 #     - "loc=Local"
-#   maxIdleConn: 20
-#   maxOpenConn: 40
-#   connMaxLifeTime: 86400
-#   logLevel: "warn"
+#   MaxIdleConn: 20
+#   MaxOpenConn: 40
+#   ConnMaxLifeTime: 86400
+#   LogLevel: "warn"
 
-#  driver: "postgres"
-#  host: "127.0.0.1"
-#  port: "5432"
-#  database: "postgres"
-#  username: "postgres"
-#  password: "root"
-#  options:
+#  Driver: "postgres"
+#  Host: "127.0.0.1"
+#  Port: "5432"
+#  Database: "postgres"
+#  Username: "postgres"
+#  Password: "root"
+#  Options:
 #    - "sslmode=disable"
 #    - "TimeZone=Asia/Shanghai"
-#  maxIdleConn: 20
-#  maxOpenConn: 40
-#  connMaxLifeTime: 86400
-#  logLevel: "warn"
+#  MaxIdleConn: 20
+#  MaxOpenConn: 40
+#  ConnMaxLifeTime: 86400
+#  LogLevel: "warn"

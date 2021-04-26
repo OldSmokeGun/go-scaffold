@@ -67,8 +67,8 @@ func Start(cmd *cobra.Command, conf config.Config) {
 	if hostFlag.Changed {
 		host = hostFlag.Value.String()
 	} else {
-		if global.GetConfigurator().InConfig("host") {
-			host = global.GetConfigurator().GetString("host")
+		if global.GetConfigurator().InConfig("Host") {
+			host = global.GetConfigurator().GetString("Host")
 		} else {
 			host = hostFlag.DefValue
 		}
@@ -80,8 +80,8 @@ func Start(cmd *cobra.Command, conf config.Config) {
 			panic(err)
 		}
 	} else {
-		if global.GetConfigurator().InConfig("port") {
-			port = global.GetConfigurator().GetInt("port")
+		if global.GetConfigurator().InConfig("Port") {
+			port = global.GetConfigurator().GetInt("Port")
 		} else {
 			port, err = strconv.Atoi(portFlag.DefValue)
 			if err != nil {
@@ -117,8 +117,8 @@ func initialize() {
 	if logFlag.Changed {
 		logPath = logFlag.Value.String()
 	} else {
-		if cfg.InConfig("log") {
-			logPath = cfg.GetString("log")
+		if cfg.InConfig("Log") {
+			logPath = cfg.GetString("Log")
 		} else {
 			logPath = logFlag.DefValue
 		}
@@ -129,7 +129,7 @@ func initialize() {
 	}
 
 	// 设置 conf 对象中的属性
-	conf.Env = cfg.GetString("env")
+	conf.Env = cfg.GetString("Env")
 	conf.Log = logPath
 
 	// 设置全局日志对象
