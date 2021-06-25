@@ -1,10 +1,10 @@
-package controllers
+package handlers
 
 import (
-	"gin-scaffold/app/appcontext"
-	"gin-scaffold/app/logics"
-	"gin-scaffold/app/types"
-	"gin-scaffold/app/utils/http/response"
+	appcontext "gin-scaffold/internal/context"
+	"gin-scaffold/internal/logics"
+	"gin-scaffold/internal/types"
+	"gin-scaffold/internal/utils/http/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

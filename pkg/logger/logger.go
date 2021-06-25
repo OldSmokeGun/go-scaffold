@@ -1,8 +1,8 @@
 package logger
 
 import (
-	"gin-scaffold/internal/global"
-	"gin-scaffold/internal/utils"
+	"gin-scaffold/global"
+	"gin-scaffold/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"

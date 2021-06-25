@@ -2,8 +2,8 @@ package configurator
 
 import (
 	"errors"
-	"gin-scaffold/internal/global"
-	"gin-scaffold/internal/utils"
+	"gin-scaffold/global"
+	"gin-scaffold/pkg/utils"
 	"github.com/spf13/viper"
 	"path/filepath"
 	"strings"

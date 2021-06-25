@@ -1,8 +1,8 @@
 package logics
 
 import (
-	"gin-scaffold/app/appcontext"
-	"gin-scaffold/app/types"
+	appcontext "gin-scaffold/internal/context"
+	"gin-scaffold/internal/types"
 	"github.com/gin-gonic/gin"
 )
 

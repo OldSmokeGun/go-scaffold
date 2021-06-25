@@ -2,8 +2,8 @@ package orm
 
 import (
 	"errors"
-	"gin-scaffold/internal/components/orm/mysql"
-	"gin-scaffold/internal/components/orm/postgres"
+	"gin-scaffold/pkg/orm/mysql"
+	"gin-scaffold/pkg/orm/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"time"

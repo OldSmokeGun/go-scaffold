@@ -1,6 +1,6 @@
 .PHONY: linux-build windows-build mac-build clean test help
 
-BINARY = bin/server
+BINARY = bin/app
 MAIN_PATH = internal
 
 linux-build:

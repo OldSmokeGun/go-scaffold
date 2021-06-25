@@ -1,15 +1,25 @@
 package config
 
+import (
+	"time"
+)
+
 type (
 	Config struct {
-		ServerConfig
+		AppConf AppConf
+		JwtConf JwtConf
 	}
 
-	ServerConfig struct {
+	AppConf struct {
 		Host         string
 		Port         int
 		Env          string
 		Log          string
 		TemplateGlob string
+	}
+
+	JwtConf struct {
+		Key    string
+		Expire time.Duration
 	}
 )
