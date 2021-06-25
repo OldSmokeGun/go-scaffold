@@ -4,27 +4,31 @@ import (
 	"gin-scaffold/global"
 	"gin-scaffold/internal"
 	"gin-scaffold/internal/commands"
-	appcontext "gin-scaffold/internal/context"
+	"gin-scaffold/internal/config"
+	"gin-scaffold/internal/ctx"
 	"gin-scaffold/pkg/configurator"
 	"gin-scaffold/pkg/logger"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"path/filepath"
+	"strconv"
 )
 
 const (
 	appName     = "app"       // 命令名称
 	defaultHost = "127.0.0.1" // 默认监听地址
-	defaultPort = "9527"      // 默认监听端口
+	defaultPort = 9527        // 默认监听端口
 )
 
 var (
-	appCtx            = appcontext.Default()
+	appCtx            = ctx.Default()
 	defaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "config/config.yaml") // 默认配置文件路径
 	defaultLogPath    = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "logs/framework.log") // 默认日志文件路径
 )
 
 func main() {
-	cobra.OnInitialize(initialize)
+	// 初始化基本参数
+	initialize()
 
 	rootCmd := &cobra.Command{
 		Use: appName,
@@ -33,13 +37,8 @@ func main() {
 		},
 	}
 
-	rootCmd.Flags().StringP("host", "", defaultHost, "监听地址")
-	rootCmd.Flags().StringP("port", "p", defaultPort, "监听端口")
-	rootCmd.Flags().StringP("config", "c", defaultConfigPath, "配置文件路径")
-	rootCmd.Flags().StringP("log", "l", defaultLogPath, "日志文件路径")
-
 	// 子命令注册钩子
-	commands.Register(rootCmd)
+	commands.Register(rootCmd, appCtx)
 
 	// 传递根命令对象
 	appCtx.SetRootCommand(rootCmd)
@@ -49,22 +48,32 @@ func main() {
 	}
 }
 
-// 初始化基本依赖
+// initialize 初始化基本参数
 func initialize() {
 	var (
-		configPath, logPath string
-		flag                = appCtx.GetRootCommand().Flags()
+		configPath string
+		logPath    string
+		host       string
+		port       int
+		env        string
 	)
 
-	// 注册配置对象
-	configPath = flag.Lookup("config").Value.String()
-	cfg, err := configurator.Register(configPath)
+	pflag.StringVarP(&configPath, "config", "c", defaultConfigPath, "配置文件路径")
+	pflag.StringP("log", "l", defaultLogPath, "日志文件路径")
+	pflag.StringP("host", "", defaultHost, "监听地址")
+	pflag.IntP("port", "p", defaultPort, "监听端口")
+	pflag.StringP("env", "", defaultHost, "运行环境")
+
+	pflag.Parse()
+
+	// 构建配置对象
+	cfg, err := configurator.Build(configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	// 注册日志对象
-	logFlag := flag.Lookup("log")
+	// 构建日志对象
+	logFlag := pflag.Lookup("log")
 	if logFlag.Changed {
 		logPath = logFlag.Value.String()
 	} else {
@@ -74,17 +83,61 @@ func initialize() {
 			logPath = logFlag.DefValue
 		}
 	}
-	lg, err := logger.Register(logPath)
+	log, err := logger.Build(logPath)
 	if err != nil {
 		panic(err)
 	}
 
-	// 设置 conf 对象中的属性
-	appCtx.Config.AppConf.Env = cfg.GetString("Env")
-	appCtx.Config.AppConf.Log = logPath
+	hostFlag := pflag.Lookup("host")
+	if hostFlag.Changed {
+		host = hostFlag.Value.String()
+	} else {
+		if cfg.InConfig("Host") {
+			host = cfg.GetString("Host")
+		} else {
+			host = hostFlag.DefValue
+		}
+	}
 
-	// 传递日志对象
-	appCtx.SetLogger(lg)
+	portFlag := pflag.Lookup("port")
+	if portFlag.Changed {
+		port, err = strconv.Atoi(portFlag.Value.String())
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		if cfg.InConfig("Port") {
+			port = cfg.GetInt("Port")
+		} else {
+			port, err = strconv.Atoi(portFlag.DefValue)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	envFlag := pflag.Lookup("env")
+	if envFlag.Changed {
+		env = envFlag.Value.String()
+	} else {
+		if cfg.InConfig("Env") {
+			env = cfg.GetString("Env")
+		} else {
+			env = envFlag.DefValue
+		}
+	}
+
+	appCtx.Config.AppConf = config.AppConf{
+		Host: host,
+		Port: port,
+		Env:  env,
+		Log:  logPath,
+	}
 	// 传递配置对象
 	appCtx.SetConfigurator(cfg)
+	// 传递日志对象
+	appCtx.SetLogger(log)
+
+	// 应用全局初始化
+	internal.Initialize(appCtx)
 }

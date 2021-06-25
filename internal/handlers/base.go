@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	appcontext "gin-scaffold/internal/context"
+	"gin-scaffold/internal/ctx"
 	"gin-scaffold/internal/utils/http/response"
 	"gin-scaffold/internal/utils/validator"
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func responseValidateError(ctx *gin.Context, appCtx *appcontext.Context, err error, errTrans map[string]string) {
+func responseValidateError(ctx *gin.Context, appCtx *ctx.Context, err error, errTrans map[string]string) {
 	validationErrors, ok := err.(validator2.ValidationErrors)
 	if ok {
 		errs := validator.Translate(validationErrors, errTrans)
@@ -23,7 +23,7 @@ func responseValidateError(ctx *gin.Context, appCtx *appcontext.Context, err err
 	}
 }
 
-func ValidateQueryError(ctx *gin.Context, appCtx *appcontext.Context, obj interface{}, errTrans map[string]string) bool {
+func ValidateQueryError(ctx *gin.Context, appCtx *ctx.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := ctx.ShouldBindQuery(obj); err != nil {
 		appCtx.GetLogger().Error(err)
 		responseValidateError(ctx, appCtx, err, errTrans)
@@ -32,7 +32,7 @@ func ValidateQueryError(ctx *gin.Context, appCtx *appcontext.Context, obj interf
 	return true
 }
 
-func ValidateFormError(ctx *gin.Context, appCtx *appcontext.Context, obj interface{}, errTrans map[string]string) bool {
+func ValidateFormError(ctx *gin.Context, appCtx *ctx.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := ctx.ShouldBind(obj); err != nil {
 		appCtx.GetLogger().Error(err)
 		responseValidateError(ctx, appCtx, err, errTrans)

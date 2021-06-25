@@ -13,8 +13,8 @@ var (
 	ErrFileNotExist = errors.New("the specified file does not exist")
 )
 
-// Register 注册全局配置对象
-func Register(configPath string) (*viper.Viper, error) {
+// Build 构建配置对象
+func Build(configPath string) (*viper.Viper, error) {
 	var configurator = viper.New()
 
 	if configPath != "" {

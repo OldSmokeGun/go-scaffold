@@ -19,8 +19,31 @@ func FailedFormat(msg string) Schema {
 func Format(code string, msg string, data interface{}) Schema {
 	if data != nil {
 		val := reflect.ValueOf(data)
-		if val.IsNil() {
-			data = map[string]interface{}{}
+		switch val.Kind() {
+		case reflect.Ptr:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
+		case reflect.Slice:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
+		case reflect.Map:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
+		case reflect.Chan:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
+		case reflect.Func:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
+		case reflect.Interface:
+			if val.IsNil() {
+				data = map[string]interface{}{}
+			}
 		}
 	} else {
 		data = map[string]interface{}{}

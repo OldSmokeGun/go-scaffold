@@ -11,11 +11,14 @@ type (
 	}
 
 	AppConf struct {
-		Host         string
-		Port         int
-		Env          string
-		Log          string
-		TemplateGlob string
+		Host string
+		Port int
+		Env  string
+		Log  string
+	}
+
+	TemplateConf struct {
+		Glob string
 	}
 
 	JwtConf struct {

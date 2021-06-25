@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 )
 
-// Register 注册全局日志对象
-func Register(logPath string) (*logrus.Logger, error) {
+// Build 构建日志对象
+func Build(logPath string) (*logrus.Logger, error) {
 	var (
 		err       error
 		logWriter *os.File

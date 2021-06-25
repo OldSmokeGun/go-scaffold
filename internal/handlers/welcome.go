@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	appcontext "gin-scaffold/internal/context"
+	"gin-scaffold/internal/ctx"
 	"gin-scaffold/internal/logics"
 	"gin-scaffold/internal/types"
 	"gin-scaffold/internal/utils/http/response"
@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func Welcome(appCtx *appcontext.Context) gin.HandlerFunc {
+func Welcome(appCtx *ctx.Context) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		welcomeLogic := logics.NewWelcomeLogic(ctx, appCtx)
 		req := types.WelcomeReq{}

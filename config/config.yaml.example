@@ -2,7 +2,9 @@
 # Port: "9527"
 # Env: "local"
 # Log: "../logs/framework.log"
-# TemplateGlob: "../app/templates/*"
+
+# Template:
+#   Glob: "../app/templates/*"
 
 # JWT:
 #   Key: ""
