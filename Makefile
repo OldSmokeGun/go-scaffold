@@ -5,11 +5,13 @@ HTTPSERVER_HTTPSERVER_MAIN_DIR = cmd/httpserver
 
 build:
 	go generate -x ./...
-	@binaryPath=${BINARY_PATH}; \
-	os=`go env GOOS`; \
-	echo "os: $${os}"; \
-	if [ $${os} = "windows" ]; then binaryPath=$${binaryPath}.exe; fi; \
-	CGO_ENABLED=0 go build -o $${binaryPath} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+ifeq (${OS}, Windows_NT)
+	set CGO_ENABLED=0
+	set GOOS=windows
+	go build -o ${BINARY_PATH}.exe ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+else
+	CGO_ENABLED=0 go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+endif
 
 linux-build:
 	go generate -x ./...
