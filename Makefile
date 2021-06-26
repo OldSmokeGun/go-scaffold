@@ -1,24 +1,36 @@
-.PHONY: linux-build windows-build mac-build clean test help
+.PHONY: build linux-build windows-build mac-build clean test help
 
-BINARY = bin/app
-MAIN_PATH = internal
+BINARY_PATH = bin/httpserver
+HTTPSERVER_HTTPSERVER_MAIN_DIR = cmd/httpserver
+
+
+build:
+	go generate -x ./...
+	@binaryPath=${BINARY_PATH}; \
+	os=`go env GOOS`; \
+	echo "os: $${os}"; \
+	if [ $${os} == "windows" ]; then binaryPath=$${binaryPath}.exe; fi; \
+	CGO_ENABLED=0 go build -o $${binaryPath} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
 
 linux-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY} ${MAIN_PATH}/main.go
+	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
 
 windows-build:
 	go generate -x ./...
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -o ${BINARY}.exe ${MAIN_PATH}/main.go
+	go build -o ${BINARY_PATH}.exe ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
 
 mac-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY} ${MAIN_PATH}/main.go
+	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+
+download:
+	go env -w GOPROXY=https://goproxy.cn,direct; go mod download
 
 clean:
-	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
+	@if [ -f ${BINARY_PATH} ] ; then rm ${BINARY_PATH} ; fi
 
 test:
 	go test -v ./...

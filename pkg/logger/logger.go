@@ -2,46 +2,64 @@ package logger
 
 import (
 	"gin-scaffold/global"
-	"gin-scaffold/pkg/utils"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-// Build 构建日志对象
-func Build(logPath string) (*logrus.Logger, error) {
+var logger = logrus.New()
+
+// Setup 返回 *logrus.Logger
+func Setup(conf Config) (*logrus.Logger, error) {
 	var (
 		err       error
 		logWriter *os.File
-		logger    = logrus.New()
 	)
 
-	if logPath != "" {
-		if !filepath.IsAbs(logPath) {
-			logPath = filepath.Join(filepath.Dir(global.GetBinPath()), logPath)
+	path := conf.Path
+
+	if path != "" {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(filepath.Dir(global.GetBinPath()), path)
 		}
 
-		if ok := utils.PathExist(logPath); !ok {
-			logDir := logPath
-			if ok, _ := utils.IsDir(logPath); !ok {
-				logDir = filepath.Dir(logPath)
-			}
-			if err := os.MkdirAll(logDir, 0666); err != nil {
-				return nil, err
+		// 如果路径不存在，则创建
+		_, err = os.Stat(path)
+		if err != nil {
+			if os.IsNotExist(err) {
+				dir := path
+				if filepath.Ext(path) != "" {
+					dir = filepath.Dir(path)
+				}
+				if err := os.MkdirAll(dir, 0666); err != nil {
+					return nil, err
+				}
 			}
 		}
 
-		logWriter, err = os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+		logWriter, err = os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
-	logger.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: "2006-01-02 15:04:05.000",
-	})
+
+	switch conf.Format {
+	case "text":
+		logger.SetFormatter(&logrus.TextFormatter{
+			TimestampFormat: "2006-01-02 15:04:05.000",
+		})
+	case "json":
+		logger.SetFormatter(&logrus.JSONFormatter{
+			TimestampFormat: "2006-01-02 15:04:05.000",
+		})
+	default:
+		logger.SetFormatter(&logrus.TextFormatter{
+			TimestampFormat: "2006-01-02 15:04:05.000",
+		})
+	}
 
 	return logger, nil
 }

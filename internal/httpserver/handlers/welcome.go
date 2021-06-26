@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	"gin-scaffold/internal/ctx"
-	"gin-scaffold/internal/logics"
-	"gin-scaffold/internal/types"
-	"gin-scaffold/internal/utils/http/response"
+	"gin-scaffold/internal/httpserver/appcontext"
+	"gin-scaffold/internal/httpserver/logics"
+	"gin-scaffold/internal/httpserver/types"
+	"gin-scaffold/internal/pkg/http/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func Welcome(appCtx *ctx.Context) gin.HandlerFunc {
+func Welcome(appCtx *appcontext.Context) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		welcomeLogic := logics.NewWelcomeLogic(ctx, appCtx)
 		req := types.WelcomeReq{}

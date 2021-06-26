@@ -1,17 +1,17 @@
 package logics
 
 import (
-	"gin-scaffold/internal/ctx"
-	"gin-scaffold/internal/types"
+	"gin-scaffold/internal/httpserver/appcontext"
+	"gin-scaffold/internal/httpserver/types"
 	"github.com/gin-gonic/gin"
 )
 
 type WelcomeLogic struct {
 	ctx    *gin.Context
-	appCtx *ctx.Context
+	appCtx *appcontext.Context
 }
 
-func NewWelcomeLogic(ctx *gin.Context, appCtx *ctx.Context) *WelcomeLogic {
+func NewWelcomeLogic(ctx *gin.Context, appCtx *appcontext.Context) *WelcomeLogic {
 	return &WelcomeLogic{
 		ctx:    ctx,
 		appCtx: appCtx,

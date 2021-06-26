@@ -5,7 +5,6 @@ import (
 	"gin-scaffold/pkg/orm/mysql"
 	"gin-scaffold/pkg/orm/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"time"
 )
 
@@ -13,25 +12,11 @@ var (
 	ErrUnsupportedType = errors.New("unsupported database type")
 )
 
-type Config struct {
-	Driver          string
-	Host            string
-	Port            string
-	Database        string
-	Username        string
-	Password        string
-	Options         []string
-	MaxIdleConn     int
-	MaxOpenConn     int
-	ConnMaxLifeTime int64
-	LogLevel        string
-}
-
-// Initialize 初始化 orm
-func Initialize(c *Config) (db *gorm.DB, err error) {
+// Setup 初始化 orm，返回 *gorm.DB
+func Setup(c Config) (db *gorm.DB, err error) {
 	switch c.Driver {
 	case "mysql":
-		db, err = mysql.GetDB(mysql.Config{
+		db, err = mysql.NewDB(mysql.Config{
 			Driver:                    c.Driver,
 			Host:                      c.Host,
 			Port:                      c.Port,
@@ -54,7 +39,7 @@ func Initialize(c *Config) (db *gorm.DB, err error) {
 			return
 		}
 	case "postgres":
-		db, err = postgres.GetDB(postgres.Config{
+		db, err = postgres.NewDB(postgres.Config{
 			Driver:               c.Driver,
 			Host:                 c.Host,
 			Port:                 c.Port,
@@ -77,21 +62,4 @@ func Initialize(c *Config) (db *gorm.DB, err error) {
 	}
 
 	return db, nil
-}
-
-type LogMode string
-
-func (l LogMode) Convert() logger.Interface {
-	switch l {
-	case "silent":
-		return logger.Default.LogMode(logger.Silent)
-	case "error":
-		return logger.Default.LogMode(logger.Error)
-	case "warn":
-		return logger.Default.LogMode(logger.Warn)
-	case "info":
-		return logger.Default.LogMode(logger.Info)
-	default:
-		return logger.Default.LogMode(logger.Info)
-	}
 }

@@ -3,35 +3,14 @@ package mysql
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"strings"
-	"time"
 )
 
-type Config struct {
-	Driver                    string
-	Host                      string
-	Port                      string
-	Database                  string
-	Username                  string
-	Password                  string
-	Options                   []string
-	MaxIdleConn               int
-	MaxOpenConn               int
-	ConnMaxLifeTime           time.Duration
-	LogLevel                  logger.Interface
-	Conn                      gorm.ConnPool
-	SkipInitializeWithVersion bool
-	DefaultStringSize         uint
-	DisableDatetimePrecision  bool
-	DontSupportRenameIndex    bool
-	DontSupportRenameColumn   bool
-}
-
-func GetDB(c Config) (*gorm.DB, error) {
+// NewDB 返回 *gorm.DB
+func NewDB(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DriverName:                c.Driver,
-		DSN:                       GetDNS(c),
+		DSN:                       buildDNS(c),
 		Conn:                      c.Conn,
 		SkipInitializeWithVersion: c.SkipInitializeWithVersion,
 		DefaultStringSize:         c.DefaultStringSize,
@@ -67,7 +46,8 @@ func GetDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func GetDNS(c Config) string {
+// buildDNS 构建连接数据库的 dns
+func buildDNS(c Config) string {
 	options := strings.Join(c.Options, "&")
 	dsn := c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + c.Port + ")/" + c.Database + "?" + options
 	return dsn

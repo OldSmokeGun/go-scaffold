@@ -1,34 +1,16 @@
 package postgres
 
 import (
-	"database/sql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"strings"
-	"time"
 )
 
-type Config struct {
-	Driver               string
-	Host                 string
-	Port                 string
-	Database             string
-	Username             string
-	Password             string
-	Options              []string
-	MaxIdleConn          int
-	MaxOpenConn          int
-	ConnMaxLifeTime      time.Duration
-	LogLevel             logger.Interface
-	Conn                 *sql.DB
-	PreferSimpleProtocol bool
-}
-
-func GetDB(c Config) (*gorm.DB, error) {
+// NewDB 返回 *gorm.DB
+func NewDB(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName:           c.Driver,
-		DSN:                  GetDNS(c),
+		DSN:                  buildDNS(c),
 		PreferSimpleProtocol: c.PreferSimpleProtocol,
 		Conn:                 c.Conn,
 	}), &gorm.Config{
@@ -60,7 +42,8 @@ func GetDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func GetDNS(c Config) string {
+// buildDNS 构建连接数据库的 dns
+func buildDNS(c Config) string {
 	options := strings.Join(c.Options, " ")
 	dsn := "host=" + c.Host + " port=" + c.Port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
 	return dsn

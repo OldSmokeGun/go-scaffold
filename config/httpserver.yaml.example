@@ -1,10 +1,13 @@
-# Host: "127.0.0.1"
-# Port: "9527"
-# Env: "local"
-# Log: "../logs/framework.log"
+Host: "0.0.0.0"
+Port: "9527"
+Env: "local"
+
+# Log:
+#   Path: "../logs/framework.log"
+#   Format: "json"
 
 # Template:
-#   Glob: "../app/templates/*"
+#   Glob: "../internal/httpserver/templates/*"
 
 # JWT:
 #   Key: ""
@@ -39,3 +42,11 @@
 #  MaxOpenConn: 40
 #  ConnMaxLifeTime: 86400
 #  LogLevel: "warn"
+
+# Redis:
+#   Host: "127.0.0.1"
+#   Port: "6379"
+#   Password: "",
+#   DB: "", # 连接到服务器后要选择的数据库
+#   PoolSize: 20, # 连接池最大连接数
+#   MinIdleConns: 10, # 连接池空闲连接数

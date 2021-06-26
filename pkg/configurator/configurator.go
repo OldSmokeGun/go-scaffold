@@ -3,8 +3,9 @@ package configurator
 import (
 	"errors"
 	"gin-scaffold/global"
-	"gin-scaffold/pkg/utils"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -13,33 +14,49 @@ var (
 	ErrFileNotExist = errors.New("the specified file does not exist")
 )
 
-// Build 构建配置对象
-func Build(configPath string) (*viper.Viper, error) {
-	var configurator = viper.New()
+// LoadConfig 加载配置
+func LoadConfig(path string, v interface{}) error {
+	var cfg = viper.New()
 
-	if configPath != "" {
-		if !filepath.IsAbs(configPath) {
-			configPath = filepath.Join(filepath.Dir(global.GetBinPath()), configPath)
+	if path != "" {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(filepath.Dir(global.GetBinPath()), path)
 		}
 
-		if ok := utils.PathExist(configPath); !ok {
-			return nil, ErrFileNotExist
+		_, err := os.Stat(path)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return ErrFileNotExist
+			}
 		}
 
-		configurator.SetConfigName(strings.TrimSuffix(filepath.Base(configPath), filepath.Ext(configPath)))
+		cfg.SetConfigName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 
-		if filepath.IsAbs(configPath) {
-			configurator.AddConfigPath(filepath.Dir(configPath))
+		if filepath.IsAbs(path) {
+			cfg.AddConfigPath(filepath.Dir(path))
 		} else {
-			configurator.AddConfigPath(filepath.Dir(filepath.Join(filepath.Dir(global.GetBinPath()), configPath)))
+			cfg.AddConfigPath(filepath.Dir(filepath.Join(filepath.Dir(global.GetBinPath()), path)))
 		}
 
-		configurator.WatchConfig()
+		cfg.WatchConfig()
 
-		if err := configurator.ReadInConfig(); err != nil {
-			return nil, err
+		cfg.OnConfigChange(func(in fsnotify.Event) {
+			if err := cfg.MergeInConfig(); err != nil {
+				panic(err)
+			}
+			if err := cfg.Unmarshal(v); err != nil {
+				panic(err)
+			}
+		})
+
+		if err := cfg.ReadInConfig(); err != nil {
+			return err
+		}
+
+		if err := cfg.Unmarshal(v); err != nil {
+			return err
 		}
 	}
 
-	return configurator, nil
+	return nil
 }
