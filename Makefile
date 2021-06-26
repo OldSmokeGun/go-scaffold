@@ -37,8 +37,11 @@ test:
 	go test -v ./...
 
 help:
-	@printf "%-30s %-100s\n" "make" "默认编译 linux 平台的二进制文件"
+	@printf "%-30s %-100s\n" "make" "默认自动根据平台编译二进制文件"
+	@printf "%-30s %-100s\n" "make build" "自动根据平台编译二进制文件"
 	@printf "%-30s %-100s\n" "make linux-build" "编译 linux 平台的二进制文件"
 	@printf "%-30s %-100s\n" "make windows-build" "编译 windows 平台的二进制文件"
 	@printf "%-30s %-100s\n" "make mac-build" "编译 mac 平台的二进制文件"
+	@printf "%-30s %-100s\n" "make download" "下载编译所需的依赖包"
 	@printf "%-30s %-100s\n" "make clean" "清理编译生成的二进制文件"
+	@printf "%-30s %-100s\n" "test" "单元测试"
