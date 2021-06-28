@@ -12,7 +12,7 @@ import (
 	"gin-scaffold/pkg/orm"
 	"gin-scaffold/pkg/redisclient"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"

@@ -1,4 +1,4 @@
-.PHONY: build linux-build windows-build mac-build clean test help
+.PHONY: build linux-build windows-build mac-build download clean test help
 
 BINARY_PATH = bin/httpserver
 HTTPSERVER_HTTPSERVER_MAIN_DIR = cmd/httpserver
