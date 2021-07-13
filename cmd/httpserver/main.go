@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gin-scaffold/global"
@@ -19,8 +20,13 @@ import (
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"
 	"io"
+	"log"
+	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"syscall"
+	"time"
 )
 
 // defaultConfigPath 默认配置文件路径
@@ -35,7 +41,7 @@ func main() {
 		configPath string
 		appConf    = &appconfig.Config{}
 		logRotate  *rotatelogs.RotateLogs
-		log        *logrus.Logger
+		l          *logrus.Logger
 		db         *gorm.DB
 		rdb        *redis.Client
 		err        error
@@ -73,7 +79,7 @@ func main() {
 	// 日志初始化
 	appConf.LoggerConf.Output = logRotate // 设置日志的输出
 	if appConf.LoggerConf != nil {
-		log, err = logger.Setup(*appConf.LoggerConf)
+		l, err = logger.Setup(*appConf.LoggerConf)
 		if err != nil {
 			panic(err)
 		}
@@ -99,7 +105,7 @@ func main() {
 	// 创建上下文依赖
 	appCtx := appcontext.New()
 	appCtx.SetConfig(appConf)
-	appCtx.SetLogger(log)
+	appCtx.SetLogger(l)
 	appCtx.SetDB(db)
 	appCtx.SetRedisClient(rdb)
 
@@ -123,10 +129,12 @@ func main() {
 		}
 	}(appCtx)
 
-	// 设置 http 引擎日志输出
-	gin.DefaultWriter = io.MultiWriter(logRotate, os.Stdout)
+	// 监听信号
+	signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer signalStop()
 
-	// 创建 http 引擎和注册路由
+	// 初始化 router
+	gin.DefaultWriter = io.MultiWriter(logRotate, os.Stdout)
 	router := gin.Default()
 	routes.Register(router, appCtx)
 
@@ -136,7 +144,31 @@ func main() {
 	}
 
 	// 启动 http 服务
-	if err := router.Run(fmt.Sprintf("%s:%d", appCtx.GetConfig().AppConf.Host, appCtx.GetConfig().AppConf.Port)); err != nil {
-		panic(err)
+	addr := fmt.Sprintf("%s:%d", appCtx.GetConfig().AppConf.Host, appCtx.GetConfig().AppConf.Port)
+	server := &http.Server{
+		Addr:    addr,
+		Handler: router,
 	}
+	go func() {
+		log.Printf("Listening and serving HTTP on %s", addr)
+
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			panic(err)
+		}
+	}()
+
+	// 等待信号
+	<-signalCtx.Done()
+
+	signalStop() // 取消信号的监听
+
+	log.Println("The server is shutting down ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalln("Server forced to shutdown:", err)
+	}
+
+	log.Println("Server has been shutdown")
 }

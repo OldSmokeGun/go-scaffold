@@ -32,7 +32,7 @@ Database:
     - "loc=Local"
   MaxIdleConn: 20
   MaxOpenConn: 40
-  ConnMaxLifeTime: 86400
+  ConnMaxLifeTime: 120
   LogLevel: "info"
 
 #  Driver: "postgres"
@@ -46,7 +46,7 @@ Database:
 #    - "TimeZone=Asia/Shanghai"
 #  MaxIdleConn: 20
 #  MaxOpenConn: 40
-#  ConnMaxLifeTime: 86400
+#  ConnMaxLifeTime: 120
 #  LogLevel: "warn"
 
 # redis 配置
