@@ -1,7 +1,7 @@
 # http 服务监听 ip
 Host: "0.0.0.0"
 # http 服务监听端口
-Port: "9599"
+Port: "9527"
 # 当前环境（local，test，prod）
 Env: "local"
 
@@ -15,25 +15,25 @@ Logger:
   Format: "json"
 
 # 模板
-Template:
-  Glob: "../internal/httpserver/templates/*"
+# Template:
+#   Glob: "../internal/httpserver/templates/*"
 
 # 数据库配置
-Database:
-  Driver: "mysql"
-  Host: "127.0.0.1"
-  Port: "3306"
-  Database: "lifeupdbdev"
-  Username: "root"
-  Password: "root"
-  Options:
-    - "charset=utf8mb4"
-    - "parseTime=True"
-    - "loc=Local"
-  MaxIdleConn: 20
-  MaxOpenConn: 40
-  ConnMaxLifeTime: 120
-  LogLevel: "info"
+# Database:
+#   Driver: "mysql"
+#   Host: "127.0.0.1"
+#   Port: "3306"
+#   Database: "lifeupdbdev"
+#   Username: "root"
+#   Password: "root"
+#   Options:
+#     - "charset=utf8mb4"
+#     - "parseTime=True"
+#     - "loc=Local"
+#   MaxIdleConn: 20
+#   MaxOpenConn: 40
+#   ConnMaxLifeTime: 120
+#   LogLevel: "info"
 
 #  Driver: "postgres"
 #  Host: "127.0.0.1"
@@ -50,16 +50,16 @@ Database:
 #  LogLevel: "warn"
 
 # redis 配置
-Redis:
-  Host: "127.0.0.1"
-  Port: "6379"
-  Password: ""
-  DB: 0 # 连接到服务器后要选择的数据库
-  PoolSize: 20 # 连接池最大连接数
-  MinIdleConns: 10 # 连接池空闲连接数
-  IdleTimeout: 600 # 连接池空闲连接数
+# Redis:
+#   Host: "127.0.0.1"
+#   Port: "6379"
+#   Password: ""
+#   DB: 0 # 连接到服务器后要选择的数据库
+#   PoolSize: 20 # 连接池最大连接数
+#   MinIdleConns: 10 # 连接池空闲连接数
+#   IdleTimeout: 600 # 连接池空闲连接数
 
 # JWT 配置
-JWT:
-  Key: ""
-  Expire: 604800
+# JWT:
+#   Key: ""
+#   Expire: 604800
