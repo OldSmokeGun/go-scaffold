@@ -5,6 +5,10 @@ import (
 	"gin-scaffold/pkg/orm/mysql"
 	"gin-scaffold/pkg/orm/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"io"
+	"log"
+	"os"
 	"time"
 )
 
@@ -14,6 +18,13 @@ var (
 
 // Setup 初始化 orm，返回 *gorm.DB
 func Setup(c Config) (db *gorm.DB, err error) {
+	// 设置 logger
+	l := logger.New(log.New(io.MultiWriter(c.Output, os.Stdout), "\r\n", log.LstdFlags), logger.Config{
+		SlowThreshold: 200 * time.Millisecond,
+		LogLevel:      c.LogLevel.Convert(),
+		Colorful:      true,
+	})
+
 	switch c.Driver {
 	case "mysql":
 		db, err = mysql.NewDB(mysql.Config{
@@ -27,7 +38,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 			MaxIdleConn:               c.MaxIdleConn,
 			MaxOpenConn:               c.MaxOpenConn,
 			ConnMaxLifeTime:           time.Second * time.Duration(c.ConnMaxLifeTime),
-			LogLevel:                  LogMode(c.LogLevel).Convert(),
+			Logger:                    l,
 			Conn:                      nil,
 			SkipInitializeWithVersion: false,
 			DefaultStringSize:         0,
@@ -50,7 +61,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 			MaxIdleConn:          c.MaxIdleConn,
 			MaxOpenConn:          c.MaxOpenConn,
 			ConnMaxLifeTime:      time.Second * time.Duration(c.ConnMaxLifeTime),
-			LogLevel:             LogMode(c.LogLevel).Convert(),
+			Logger:               l,
 			Conn:                 nil,
 			PreferSimpleProtocol: false,
 		})

@@ -7,20 +7,37 @@ import (
 	"time"
 )
 
+type AppEnv string
+
+const (
+	Local      AppEnv = "local"
+	Test       AppEnv = "test"
+	Production AppEnv = "prod"
+)
+
+func (a AppEnv) String() string {
+	return string(a)
+}
+
 type (
 	Config struct {
 		AppConf      `mapstructure:",squash"`
-		LogConf      *logger.Config      `mapstructure:"Log"`
+		LogConf      LogConf             `mapstructure:"Log"`
+		LoggerConf   *logger.Config      `mapstructure:"Logger"`
 		TemplateConf *TemplateConf       `mapstructure:"Template"`
-		JwtConf      *JwtConf            `mapstructure:"Jwt"`
-		DatabaseConf *orm.Config         `mapstructure:"DB"`
+		DatabaseConf *orm.Config         `mapstructure:"Database"`
 		RedisConf    *redisclient.Config `mapstructure:"Redis"`
+		JwtConf      *JwtConf            `mapstructure:"Jwt"`
 	}
 
 	AppConf struct {
 		Host string
 		Port int
-		Env  string
+		Env  AppEnv
+	}
+
+	LogConf struct {
+		Path string
 	}
 
 	TemplateConf struct {

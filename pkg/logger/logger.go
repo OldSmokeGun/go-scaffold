@@ -12,14 +12,13 @@ var logger = logrus.New()
 
 // Setup 返回 *logrus.Logger
 func Setup(conf Config) (*logrus.Logger, error) {
-	var (
-		err       error
-		logWriter *os.File
-	)
+	var err error
 
 	path := conf.Path
 
-	if path != "" {
+	if path == "" {
+		logger.SetOutput(io.MultiWriter(conf.Output, os.Stdout))
+	} else {
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(filepath.Dir(global.GetBinPath()), path)
 		}
@@ -38,20 +37,20 @@ func Setup(conf Config) (*logrus.Logger, error) {
 			}
 		}
 
-		logWriter, err = os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+		logWriter, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
 		if err != nil {
 			return nil, err
 		}
+
+		logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
 	}
 
-	logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
-
 	switch conf.Format {
-	case "text":
+	case FormatText:
 		logger.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat: "2006-01-02 15:04:05.000",
 		})
-	case "json":
+	case FormatJson:
 		logger.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: "2006-01-02 15:04:05.000",
 		})

@@ -17,7 +17,7 @@ type Config struct {
 	MaxIdleConn               int
 	MaxOpenConn               int
 	ConnMaxLifeTime           time.Duration
-	LogLevel                  logger.Interface
+	Logger                    logger.Interface
 	Conn                      gorm.ConnPool
 	SkipInitializeWithVersion bool
 	DefaultStringSize         uint

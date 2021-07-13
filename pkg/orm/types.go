@@ -1,6 +1,9 @@
 package orm
 
-import "gorm.io/gorm/logger"
+import (
+	"gorm.io/gorm/logger"
+	"io"
+)
 
 type Config struct {
 	Driver          string
@@ -13,22 +16,30 @@ type Config struct {
 	MaxIdleConn     int
 	MaxOpenConn     int
 	ConnMaxLifeTime int64
-	LogLevel        string
+	LogLevel        LogLevel
+	Output          io.Writer
 }
 
-type LogMode string
+type LogLevel string
 
-func (l LogMode) Convert() logger.Interface {
+const (
+	Silent LogLevel = "silent"
+	Error  LogLevel = "error"
+	Warn   LogLevel = "warn"
+	Info   LogLevel = "info"
+)
+
+func (l LogLevel) Convert() logger.LogLevel {
 	switch l {
-	case "silent":
-		return logger.Default.LogMode(logger.Silent)
-	case "error":
-		return logger.Default.LogMode(logger.Error)
-	case "warn":
-		return logger.Default.LogMode(logger.Warn)
-	case "info":
-		return logger.Default.LogMode(logger.Info)
+	case Silent:
+		return logger.Silent
+	case Error:
+		return logger.Error
+	case Warn:
+		return logger.Warn
+	case Info:
+		return logger.Info
 	default:
-		return logger.Default.LogMode(logger.Info)
+		return logger.Info
 	}
 }

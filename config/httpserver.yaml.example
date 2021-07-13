@@ -1,33 +1,35 @@
 Host: "0.0.0.0"
-Port: "9527"
+Port: "9599"
 Env: "local"
 
-# Log:
-#   Path: "../logs/framework.log"
-#   Format: "json"
+# 全局日志
+Log:
+  # 全局日志路径（相对于项目的根目录）
+  Path: "logs/framework_%Y%m%d.log"
 
-# Template:
-#   Glob: "../internal/httpserver/templates/*"
+Logger:
+  # 如果指定此路径，则 logger 的内容不写入全局日志
+  # Path: "../logs/logger.log"
+  Format: "json"
 
-# JWT:
-#   Key: ""
-#   Expire: 604800
+Template:
+  Glob: "../internal/httpserver/templates/*"
 
-# DB:
-#   Driver: "mysql"
-#   Host: "127.0.0.1"
-#   Port: "3306"
-#   Database: "test"
-#   Username: "root"
-#   Password: "root"
-#   Options:
-#     - "charset=utf8mb4"
-#     - "parseTime=True"
-#     - "loc=Local"
-#   MaxIdleConn: 20
-#   MaxOpenConn: 40
-#   ConnMaxLifeTime: 86400
-#   LogLevel: "warn"
+Database:
+  Driver: "mysql"
+  Host: "127.0.0.1"
+  Port: "3306"
+  Database: "lifeupdbdev"
+  Username: "root"
+  Password: "root"
+  Options:
+    - "charset=utf8mb4"
+    - "parseTime=True"
+    - "loc=Local"
+  MaxIdleConn: 20
+  MaxOpenConn: 40
+  ConnMaxLifeTime: 86400
+  LogLevel: "info"
 
 #  Driver: "postgres"
 #  Host: "127.0.0.1"
@@ -43,10 +45,15 @@ Env: "local"
 #  ConnMaxLifeTime: 86400
 #  LogLevel: "warn"
 
-# Redis:
-#   Host: "127.0.0.1"
-#   Port: 6379
-#   Password: ""
-#   DB: 0 # 连接到服务器后要选择的数据库
-#   PoolSize: 20 # 连接池最大连接数
-#   MinIdleConns: 10 # 连接池空闲连接数
+Redis:
+  Host: "127.0.0.1"
+  Port: "6379"
+  Password: ""
+  DB: 0 # 连接到服务器后要选择的数据库
+  PoolSize: 20 # 连接池最大连接数
+  MinIdleConns: 10 # 连接池空闲连接数
+  IdleTimeout: 600 # 连接池空闲连接数
+
+JWT:
+  Key: ""
+  Expire: 604800

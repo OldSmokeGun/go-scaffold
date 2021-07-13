@@ -16,7 +16,7 @@ func NewDB(c Config) (*gorm.DB, error) {
 	}), &gorm.Config{
 		SkipDefaultTransaction:                   true,
 		DisableForeignKeyConstraintWhenMigrating: true,
-		Logger:                                   c.LogLevel,
+		Logger:                                   c.Logger,
 	})
 	if err != nil {
 		return nil, err
