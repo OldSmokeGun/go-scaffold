@@ -33,7 +33,7 @@ var (
 func main() {
 	var (
 		configPath string
-		conf       appconfig.Config
+		appConf    = &appconfig.Config{}
 		logRotate  *rotatelogs.RotateLogs
 		log        *logrus.Logger
 		db         *gorm.DB
@@ -45,20 +45,20 @@ func main() {
 	pflag.Parse()
 
 	// 加载配置
-	if err = configurator.LoadConfig(configPath, &conf); err != nil {
+	if err = configurator.LoadConfig(configPath, appConf); err != nil {
 		panic(err)
 	}
 
 	// 检查环境是否设置正确
-	if conf.AppConf.Env.String() != appconfig.Local.String() &&
-		conf.AppConf.Env.String() != appconfig.Test.String() &&
-		conf.AppConf.Env.String() != appconfig.Production.String() {
+	if appConf.AppConf.Env.String() != appconfig.Local.String() &&
+		appConf.AppConf.Env.String() != appconfig.Test.String() &&
+		appConf.AppConf.Env.String() != appconfig.Production.String() {
 		panic(fmt.Sprintf(ErrConfIncorrectValue.Error(), "Env"))
 	}
 
 	// 日志轮转
 	logRotate, err = rotatelogs.New(
-		conf.LogConf.Path,
+		appConf.LogConf.Path,
 		rotatelogs.WithClock(rotatelogs.Local),
 	)
 	defer func() {
@@ -71,26 +71,26 @@ func main() {
 	}
 
 	// 日志初始化
-	conf.LoggerConf.Output = logRotate // 设置日志的输出
-	if conf.LoggerConf != nil {
-		log, err = logger.Setup(*conf.LoggerConf)
+	appConf.LoggerConf.Output = logRotate // 设置日志的输出
+	if appConf.LoggerConf != nil {
+		log, err = logger.Setup(*appConf.LoggerConf)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	// orm 初始化
-	conf.DatabaseConf.Output = logRotate // 设置日志的输出
-	if conf.DatabaseConf != nil {
-		db, err = orm.Setup(*conf.DatabaseConf)
+	appConf.DatabaseConf.Output = logRotate // 设置日志的输出
+	if appConf.DatabaseConf != nil {
+		db, err = orm.Setup(*appConf.DatabaseConf)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	// redis 初始化
-	if conf.RedisConf != nil {
-		rdb, err = redisclient.Setup(*conf.RedisConf)
+	if appConf.RedisConf != nil {
+		rdb, err = redisclient.Setup(*appConf.RedisConf)
 		if err != nil {
 			panic(err)
 		}
@@ -98,7 +98,7 @@ func main() {
 
 	// 创建上下文依赖
 	appCtx := appcontext.New()
-	appCtx.SetConfig(conf)
+	appCtx.SetConfig(appConf)
 	appCtx.SetLogger(log)
 	appCtx.SetDB(db)
 	appCtx.SetRedisClient(rdb)

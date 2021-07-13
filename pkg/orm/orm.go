@@ -22,7 +22,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 	l := logger.New(log.New(io.MultiWriter(c.Output, os.Stdout), "\r\n", log.LstdFlags), logger.Config{
 		SlowThreshold: 200 * time.Millisecond,
 		LogLevel:      c.LogLevel.Convert(),
-		Colorful:      true,
+		Colorful:      false,
 	})
 
 	switch c.Driver {

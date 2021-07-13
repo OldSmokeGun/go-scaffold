@@ -9,7 +9,7 @@ import (
 
 // Context 是传递给应用的依赖
 type Context struct {
-	config      appconfig.Config
+	config      *appconfig.Config
 	logger      *logrus.Logger
 	db          *gorm.DB
 	redisClient *redis.Client
@@ -20,12 +20,12 @@ func New() *Context {
 }
 
 // SetConfig 设置日志对象
-func (c *Context) SetConfig(config appconfig.Config) {
+func (c *Context) SetConfig(config *appconfig.Config) {
 	c.config = config
 }
 
 // GetConfig 获取日志对象
-func (c *Context) GetConfig() appconfig.Config {
+func (c *Context) GetConfig() *appconfig.Config {
 	return c.config
 }
 

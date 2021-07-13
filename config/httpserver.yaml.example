@@ -1,20 +1,24 @@
+# http 服务监听 ip
 Host: "0.0.0.0"
+# http 服务监听端口
 Port: "9599"
+# 当前环境（local，test，prod）
 Env: "local"
 
 # 全局日志
 Log:
-  # 全局日志路径（相对于项目的根目录）
-  Path: "logs/framework_%Y%m%d.log"
+  Path: "logs/framework_%Y%m%d.log" # 全局日志路径（相对于项目的根目录）
 
+# logger 日志
 Logger:
-  # 如果指定此路径，则 logger 的内容不写入全局日志
-  # Path: "../logs/logger.log"
+  # Path: "../logs/logger.log" # 如果指定此路径，则 logger 的输出内容不写入全局日志，而是写入此路径指定的文件
   Format: "json"
 
+# 模板
 Template:
   Glob: "../internal/httpserver/templates/*"
 
+# 数据库配置
 Database:
   Driver: "mysql"
   Host: "127.0.0.1"
@@ -45,6 +49,7 @@ Database:
 #  ConnMaxLifeTime: 86400
 #  LogLevel: "warn"
 
+# redis 配置
 Redis:
   Host: "127.0.0.1"
   Port: "6379"
@@ -54,6 +59,7 @@ Redis:
   MinIdleConns: 10 # 连接池空闲连接数
   IdleTimeout: 600 # 连接池空闲连接数
 
+# JWT 配置
 JWT:
   Key: ""
   Expire: 604800
