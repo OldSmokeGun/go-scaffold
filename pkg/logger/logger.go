@@ -45,12 +45,15 @@ func Setup(conf Config) (*logrus.Logger, error) {
 		logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
 	}
 
+	logger.SetLevel(conf.Level.Convert())
+	logger.SetReportCaller(conf.ReportCaller)
+
 	switch conf.Format {
-	case FormatText:
+	case Text:
 		logger.SetFormatter(&logrus.TextFormatter{
 			TimestampFormat: "2006-01-02 15:04:05.000",
 		})
-	case FormatJson:
+	case Json:
 		logger.SetFormatter(&logrus.JSONFormatter{
 			TimestampFormat: "2006-01-02 15:04:05.000",
 		})
