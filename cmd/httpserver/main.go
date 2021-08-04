@@ -111,8 +111,8 @@ func main() {
 
 	// 资源回收
 	defer func(appCtx *appcontext.Context) {
-		if appCtx.GetDB() != nil {
-			sqlDB, err := appCtx.GetDB().DB()
+		if appCtx.DB() != nil {
+			sqlDB, err := appCtx.DB().DB()
 			if err != nil {
 				panic(err)
 			}
@@ -122,8 +122,8 @@ func main() {
 			}
 		}
 
-		if appCtx.GetRedisClient() != nil {
-			if err := appCtx.GetRedisClient().Close(); err != nil {
+		if appCtx.RedisClient() != nil {
+			if err := appCtx.RedisClient().Close(); err != nil {
 				panic(err)
 			}
 		}
@@ -144,7 +144,7 @@ func main() {
 	}
 
 	// 启动 http 服务
-	addr := fmt.Sprintf("%s:%d", appCtx.GetConfig().AppConf.Host, appCtx.GetConfig().AppConf.Port)
+	addr := fmt.Sprintf("%s:%d", appCtx.Config().AppConf.Host, appCtx.Config().AppConf.Port)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: router,

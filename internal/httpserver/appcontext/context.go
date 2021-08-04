@@ -24,8 +24,8 @@ func (c *Context) SetConfig(config *appconfig.Config) {
 	c.config = config
 }
 
-// GetConfig 获取日志对象
-func (c *Context) GetConfig() *appconfig.Config {
+// Config 获取日志对象
+func (c *Context) Config() *appconfig.Config {
 	return c.config
 }
 
@@ -34,8 +34,8 @@ func (c *Context) SetLogger(logger *logrus.Logger) {
 	c.logger = logger
 }
 
-// GetLogger 获取日志对象
-func (c *Context) GetLogger() *logrus.Logger {
+// Logger 获取日志对象
+func (c *Context) Logger() *logrus.Logger {
 	return c.logger
 }
 
@@ -44,8 +44,8 @@ func (c *Context) SetDB(db *gorm.DB) {
 	c.db = db
 }
 
-// GetDB 获取数据库对象
-func (c *Context) GetDB() *gorm.DB {
+// DB 获取数据库对象
+func (c *Context) DB() *gorm.DB {
 	return c.db
 }
 
@@ -54,7 +54,7 @@ func (c *Context) SetRedisClient(rc *redis.Client) {
 	c.redisClient = rc
 }
 
-// GetRedisClient 获取 redis 客户端对象
-func (c *Context) GetRedisClient() *redis.Client {
+// RedisClient 获取 redis 客户端对象
+func (c *Context) RedisClient() *redis.Client {
 	return c.redisClient
 }

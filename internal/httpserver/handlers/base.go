@@ -25,7 +25,7 @@ func responseValidateError(ctx *gin.Context, appCtx *appcontext.Context, err err
 
 func ValidateQueryError(ctx *gin.Context, appCtx *appcontext.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := ctx.ShouldBindQuery(obj); err != nil {
-		appCtx.GetLogger().Error(err)
+		appCtx.Logger().Error(err)
 		responseValidateError(ctx, appCtx, err, errTrans)
 		return false
 	}
@@ -34,7 +34,7 @@ func ValidateQueryError(ctx *gin.Context, appCtx *appcontext.Context, obj interf
 
 func ValidateFormError(ctx *gin.Context, appCtx *appcontext.Context, obj interface{}, errTrans map[string]string) bool {
 	if err := ctx.ShouldBind(obj); err != nil {
-		appCtx.GetLogger().Error(err)
+		appCtx.Logger().Error(err)
 		responseValidateError(ctx, appCtx, err, errTrans)
 		return false
 	}
