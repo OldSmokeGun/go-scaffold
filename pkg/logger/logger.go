@@ -65,3 +65,13 @@ func Setup(conf Config) (*logrus.Logger, error) {
 
 	return logger, nil
 }
+
+// MustSetup 返回 *logrus.Logger
+func MustSetup(conf Config) *logrus.Logger {
+	l, err := Setup(conf)
+	if err != nil {
+		panic(err)
+	}
+
+	return l
+}

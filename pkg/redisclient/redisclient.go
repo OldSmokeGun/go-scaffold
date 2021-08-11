@@ -67,3 +67,13 @@ func Setup(config Config) (*redis.Client, error) {
 
 	return client, nil
 }
+
+// MustSetup 返回 *redis.Client
+func MustSetup(config Config) *redis.Client {
+	client, err := Setup(config)
+	if err != nil {
+		panic(err)
+	}
+
+	return client
+}

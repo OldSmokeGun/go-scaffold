@@ -74,3 +74,13 @@ func Setup(c Config) (db *gorm.DB, err error) {
 
 	return db, nil
 }
+
+// MustSetup 初始化 orm，返回 *gorm.DB
+func MustSetup(c Config) *gorm.DB {
+	db, err := Setup(c)
+	if err != nil {
+		panic(err)
+	}
+
+	return db
+}

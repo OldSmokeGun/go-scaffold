@@ -2,7 +2,7 @@
 Host: "0.0.0.0"
 # http 服务监听端口
 Port: "9527"
-# 当前环境（local，test，prod）
+# 当前环境（local、test 或 prod）
 Env: "local"
 
 # 全局日志

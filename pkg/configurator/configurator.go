@@ -60,3 +60,10 @@ func LoadConfig(path string, v interface{}) error {
 
 	return nil
 }
+
+// MustLoadConfig 加载配置
+func MustLoadConfig(path string, v interface{}) {
+	if err := LoadConfig(path, v); err != nil {
+		panic(err)
+	}
+}

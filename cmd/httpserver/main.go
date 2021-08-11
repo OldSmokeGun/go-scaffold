@@ -2,27 +2,23 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"gin-scaffold/global"
 	"gin-scaffold/internal/httpserver"
 	"gin-scaffold/internal/httpserver/appconfig"
 	"gin-scaffold/internal/httpserver/appcontext"
-	"gin-scaffold/internal/httpserver/routes"
+	"gin-scaffold/internal/httpserver/router"
 	"gin-scaffold/pkg/configurator"
 	"gin-scaffold/pkg/logger"
 	"gin-scaffold/pkg/orm"
 	"gin-scaffold/pkg/redisclient"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"
-	"io"
 	"log"
 	"net/http"
-	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
@@ -33,7 +29,8 @@ import (
 var defaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "config/httpserver.yaml")
 
 var (
-	ErrConfIncorrectValue = errors.New("in the configuration file, the value of key %s is configured incorrectly")
+	ValidEnvValues         = [3]appconfig.AppEnv{appconfig.Local, appconfig.Test, appconfig.Production}
+	ErrConfValueEnvInvalid = fmt.Errorf("in the configuration file,the value of key Env is invalid,allowed value is one of %s,%s,%s", appconfig.Local, appconfig.Test, appconfig.Production)
 )
 
 func main() {
@@ -51,15 +48,16 @@ func main() {
 	pflag.Parse()
 
 	// 加载配置
-	if err = configurator.LoadConfig(configPath, appConf); err != nil {
-		panic(err)
-	}
-
+	configurator.MustLoadConfig(configPath, appConf)
 	// 检查环境是否设置正确
-	if appConf.AppConf.Env.String() != appconfig.Local.String() &&
-		appConf.AppConf.Env.String() != appconfig.Test.String() &&
-		appConf.AppConf.Env.String() != appconfig.Production.String() {
-		panic(fmt.Sprintf(ErrConfIncorrectValue.Error(), "Env"))
+	var exist bool
+	for _, value := range ValidEnvValues {
+		if appConf.AppConf.Env == value {
+			exist = true
+		}
+	}
+	if !exist {
+		panic(ErrConfValueEnvInvalid)
 	}
 
 	// 日志轮转
@@ -77,33 +75,27 @@ func main() {
 	}
 
 	// 日志初始化
-	appConf.LoggerConf.Output = logRotate // 设置日志的输出
 	if appConf.LoggerConf != nil {
-		l, err = logger.Setup(*appConf.LoggerConf)
-		if err != nil {
-			panic(err)
-		}
+		// 设置日志的输出
+		appConf.LoggerConf.Output = logRotate
+		l = logger.MustSetup(*appConf.LoggerConf)
 	}
 
 	// orm 初始化
-	appConf.DatabaseConf.Output = logRotate // 设置日志的输出
 	if appConf.DatabaseConf != nil {
-		db, err = orm.Setup(*appConf.DatabaseConf)
-		if err != nil {
-			panic(err)
-		}
+		// 设置日志的输出
+		appConf.DatabaseConf.Output = logRotate
+		db = orm.MustSetup(*appConf.DatabaseConf)
 	}
 
 	// redis 初始化
 	if appConf.RedisConf != nil {
-		rdb, err = redisclient.Setup(*appConf.RedisConf)
-		if err != nil {
-			panic(err)
-		}
+		rdb = redisclient.MustSetup(*appConf.RedisConf)
 	}
 
 	// 创建上下文依赖
 	appCtx := appcontext.New()
+	appCtx.SetLogRotate(logRotate)
 	appCtx.SetConfig(appConf)
 	appCtx.SetLogger(l)
 	appCtx.SetDB(db)
@@ -134,12 +126,11 @@ func main() {
 	defer signalStop()
 
 	// 初始化 router
-	gin.DefaultWriter = io.MultiWriter(logRotate, os.Stdout)
-	router := gin.Default()
-	routes.Register(router, appCtx)
+	r := router.Setup(appCtx)
+	appCtx.SetRouter(r)
 
 	// 调用应用钩子
-	if err := httpserver.BeforeRun(router, appCtx); err != nil {
+	if err := httpserver.BeforeRun(r, appCtx); err != nil {
 		panic(err)
 	}
 
@@ -147,7 +138,7 @@ func main() {
 	addr := fmt.Sprintf("%s:%d", appCtx.Config().AppConf.Host, appCtx.Config().AppConf.Port)
 	server := &http.Server{
 		Addr:    addr,
-		Handler: router,
+		Handler: r,
 	}
 	go func() {
 		log.Printf("Listening and serving HTTP on %s", addr)
