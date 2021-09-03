@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"gin-scaffold/global"
-	"gin-scaffold/internal/httpserver"
-	"gin-scaffold/internal/httpserver/appconfig"
-	"gin-scaffold/internal/httpserver/appcontext"
-	"gin-scaffold/internal/httpserver/router"
+	"gin-scaffold/internal/web"
+	"gin-scaffold/internal/web/config"
+	"gin-scaffold/internal/web/router"
 	"gin-scaffold/pkg/configurator"
+	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"
 	"gin-scaffold/pkg/orm"
 	"gin-scaffold/pkg/redisclient"
@@ -17,7 +17,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"
-	"log"
 	"net/http"
 	"os/signal"
 	"path/filepath"
@@ -26,19 +25,19 @@ import (
 )
 
 // defaultConfigPath 默认配置文件路径
-var defaultConfigPath = filepath.Join(filepath.Dir(filepath.Dir(global.GetBinPath())), "config/httpserver.yaml")
+var defaultConfigPath = filepath.Join(helper.RootPath(), "config/web.yaml")
 
 var (
-	ValidEnvValues         = [3]appconfig.AppEnv{appconfig.Local, appconfig.Test, appconfig.Production}
-	ErrConfValueEnvInvalid = fmt.Errorf("in the configuration file,the value of key Env is invalid,allowed value is one of %s,%s,%s", appconfig.Local, appconfig.Test, appconfig.Production)
+	ValidEnvValues         = [3]config.Env{config.Local, config.Test, config.Production}
+	ErrConfValueEnvInvalid = fmt.Errorf("in the configuration file,the value of key Env is invalid,allowed value is one of %s, %s, %s", config.Local, config.Test, config.Production)
 )
 
 func main() {
 	var (
 		configPath string
-		appConf    = &appconfig.Config{}
+		conf       = &config.Config{}
 		logRotate  *rotatelogs.RotateLogs
-		l          *logrus.Logger
+		log        *logrus.Logger
 		db         *gorm.DB
 		rdb        *redis.Client
 		err        error
@@ -48,11 +47,15 @@ func main() {
 	pflag.Parse()
 
 	// 加载配置
-	configurator.MustLoadConfig(configPath, appConf)
+	if !filepath.IsAbs(configPath) {
+		configPath = filepath.Join(helper.RootPath(), configPath)
+	}
+	configurator.MustLoad(configPath, conf)
+
 	// 检查环境是否设置正确
 	var exist bool
 	for _, value := range ValidEnvValues {
-		if appConf.AppConf.Env == value {
+		if conf.App.Env == value {
 			exist = true
 		}
 	}
@@ -60,9 +63,13 @@ func main() {
 		panic(ErrConfValueEnvInvalid)
 	}
 
-	// 日志轮转
+	// 日志切割
+	if !filepath.IsAbs(conf.Log.Path) {
+		conf.Log.Path = filepath.Join(helper.RootPath(), conf.Log.Path)
+	}
+
 	logRotate, err = rotatelogs.New(
-		appConf.LogConf.Path,
+		conf.Log.Path,
 		rotatelogs.WithClock(rotatelogs.Local),
 	)
 	defer func() {
@@ -75,36 +82,42 @@ func main() {
 	}
 
 	// 日志初始化
-	if appConf.LoggerConf != nil {
+	if conf.Logger != nil {
+		// 设置日志的路径
+		if conf.Logger.Path != "" {
+			if !filepath.IsAbs(conf.Logger.Path) {
+				conf.Logger.Path = filepath.Join(helper.RootPath(), conf.Logger.Path)
+			}
+		}
+
 		// 设置日志的输出
-		appConf.LoggerConf.Output = logRotate
-		l = logger.MustSetup(*appConf.LoggerConf)
+		conf.Logger.Output = logRotate
+		log = logger.MustSetup(conf.Logger)
 	}
 
 	// orm 初始化
-	if appConf.DatabaseConf != nil {
+	if conf.DB != nil {
 		// 设置日志的输出
-		appConf.DatabaseConf.Output = logRotate
-		db = orm.MustSetup(*appConf.DatabaseConf)
+		conf.DB.Output = logRotate
+		db = orm.MustSetup(conf.DB)
 	}
 
 	// redis 初始化
-	if appConf.RedisConf != nil {
-		rdb = redisclient.MustSetup(*appConf.RedisConf)
+	if conf.Redis != nil {
+		rdb = redisclient.MustSetup(conf.Redis)
 	}
 
 	// 创建上下文依赖
-	appCtx := appcontext.New()
-	appCtx.SetLogRotate(logRotate)
-	appCtx.SetConfig(appConf)
-	appCtx.SetLogger(l)
-	appCtx.SetDB(db)
-	appCtx.SetRedisClient(rdb)
+	global.SetLogRotate(logRotate)
+	global.SetConfig(conf)
+	global.SetLogger(log)
+	global.SetDB(db)
+	global.SetRedisClient(rdb)
 
 	// 资源回收
-	defer func(appCtx *appcontext.Context) {
-		if appCtx.DB() != nil {
-			sqlDB, err := appCtx.DB().DB()
+	defer func() {
+		if db != nil {
+			sqlDB, err := db.DB()
 			if err != nil {
 				panic(err)
 			}
@@ -114,28 +127,27 @@ func main() {
 			}
 		}
 
-		if appCtx.RedisClient() != nil {
-			if err := appCtx.RedisClient().Close(); err != nil {
+		if rdb != nil {
+			if err := rdb.Close(); err != nil {
 				panic(err)
 			}
 		}
-	}(appCtx)
+	}()
 
 	// 监听信号
 	signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer signalStop()
 
 	// 初始化 router
-	r := router.Setup(appCtx)
-	appCtx.SetRouter(r)
+	r := router.Setup()
 
 	// 调用应用钩子
-	if err := httpserver.BeforeRun(r, appCtx); err != nil {
+	if err := web.Run(r); err != nil {
 		panic(err)
 	}
 
 	// 启动 http 服务
-	addr := fmt.Sprintf("%s:%d", appCtx.Config().AppConf.Host, appCtx.Config().AppConf.Port)
+	addr := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	server := &http.Server{
 		Addr:    addr,
 		Handler: r,

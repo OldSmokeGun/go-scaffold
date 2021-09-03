@@ -2,7 +2,6 @@ package configurator
 
 import (
 	"errors"
-	"gin-scaffold/global"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"os"
@@ -14,15 +13,11 @@ var (
 	ErrFileNotExist = errors.New("the specified file does not exist")
 )
 
-// LoadConfig 加载配置
-func LoadConfig(path string, v interface{}) error {
+// Load 加载配置
+func Load(path string, v interface{}) error {
 	var cfg = viper.New()
 
 	if path != "" {
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(filepath.Dir(global.GetBinPath()), path)
-		}
-
 		_, err := os.Stat(path)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -32,11 +27,7 @@ func LoadConfig(path string, v interface{}) error {
 
 		cfg.SetConfigName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 
-		if filepath.IsAbs(path) {
-			cfg.AddConfigPath(filepath.Dir(path))
-		} else {
-			cfg.AddConfigPath(filepath.Dir(filepath.Join(filepath.Dir(global.GetBinPath()), path)))
-		}
+		cfg.AddConfigPath(filepath.Dir(path))
 
 		cfg.WatchConfig()
 
@@ -61,9 +52,9 @@ func LoadConfig(path string, v interface{}) error {
 	return nil
 }
 
-// MustLoadConfig 加载配置
-func MustLoadConfig(path string, v interface{}) {
-	if err := LoadConfig(path, v); err != nil {
+// MustLoad 加载配置
+func MustLoad(path string, v interface{}) {
+	if err := Load(path, v); err != nil {
 		panic(err)
 	}
 }

@@ -16,10 +16,6 @@ Logger:
   Format: "json"
   ReportCaller: false
 
-# 模板
-# Template:
-#   Glob: "../internal/httpserver/templates/*"
-
 # 数据库配置
 # Database:
 #   Driver: "mysql"

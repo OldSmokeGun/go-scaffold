@@ -9,7 +9,7 @@ import (
 var ctx = context.Background()
 
 // Setup 返回 *redis.Client
-func Setup(config Config) (*redis.Client, error) {
+func Setup(config *Config) (*redis.Client, error) {
 	option := &redis.Options{
 		Addr: fmt.Sprintf("%s:%d", config.Host, config.Port),
 	}
@@ -69,7 +69,7 @@ func Setup(config Config) (*redis.Client, error) {
 }
 
 // MustSetup 返回 *redis.Client
-func MustSetup(config Config) *redis.Client {
+func MustSetup(config *Config) *redis.Client {
 	client, err := Setup(config)
 	if err != nil {
 		panic(err)

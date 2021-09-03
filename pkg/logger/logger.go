@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"gin-scaffold/global"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
@@ -11,7 +10,7 @@ import (
 var logger = logrus.New()
 
 // Setup 返回 *logrus.Logger
-func Setup(conf Config) (*logrus.Logger, error) {
+func Setup(conf *Config) (*logrus.Logger, error) {
 	var err error
 
 	path := conf.Path
@@ -19,10 +18,6 @@ func Setup(conf Config) (*logrus.Logger, error) {
 	if path == "" {
 		logger.SetOutput(io.MultiWriter(conf.Output, os.Stdout))
 	} else {
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(filepath.Dir(global.GetBinPath()), path)
-		}
-
 		// 如果路径不存在，则创建
 		_, err = os.Stat(path)
 		if err != nil {
@@ -67,7 +62,7 @@ func Setup(conf Config) (*logrus.Logger, error) {
 }
 
 // MustSetup 返回 *logrus.Logger
-func MustSetup(conf Config) *logrus.Logger {
+func MustSetup(conf *Config) *logrus.Logger {
 	l, err := Setup(conf)
 	if err != nil {
 		panic(err)

@@ -1,13 +1,12 @@
-package httpserver
+package web
 
 import (
-	"gin-scaffold/internal/httpserver/appcontext"
 	"gin-scaffold/internal/pkg/validator"
 	"github.com/gin-gonic/gin"
 )
 
-// BeforeRun 是 http 服务启动前的钩子函数
-func BeforeRun(router *gin.Engine, appCtx *appcontext.Context) error {
+// Run 是 http 服务启动前的钩子函数
+func Run(router *gin.Engine) error {
 	err := validator.RegisterValidator([]validator.CustomValidator{
 		{"phone", validator.IsPhone},
 	})

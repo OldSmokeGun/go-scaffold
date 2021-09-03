@@ -1,31 +1,31 @@
 .PHONY: build linux-build windows-build mac-build download clean test help
 
-BINARY_PATH = bin/httpserver
-HTTPSERVER_HTTPSERVER_MAIN_DIR = cmd/httpserver
+BINARY_PATH = bin/web
+web_web_MAIN_DIR = cmd/web
 
 build:
 	go generate -x ./...
 ifeq (${OS}, Windows_NT)
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -o ${BINARY_PATH}.exe ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+	go build -o ${BINARY_PATH}.exe ${web_web_MAIN_DIR}/main.go
 else
-	CGO_ENABLED=0 go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+	CGO_ENABLED=0 go build -o ${BINARY_PATH} ${web_web_MAIN_DIR}/main.go
 endif
 
 linux-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+	CGO_ENABLED=0 GOOS=linux go build -o ${BINARY_PATH} ${web_web_MAIN_DIR}/main.go
 
 windows-build:
 	go generate -x ./...
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -o ${BINARY_PATH}.exe ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+	go build -o ${BINARY_PATH}.exe ${web_web_MAIN_DIR}/main.go
 
 mac-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY_PATH} ${HTTPSERVER_HTTPSERVER_MAIN_DIR}/main.go
+	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY_PATH} ${web_web_MAIN_DIR}/main.go
 
 download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download
