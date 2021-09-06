@@ -7,7 +7,7 @@ import (
 	"gin-scaffold/internal/web"
 	"gin-scaffold/internal/web/config"
 	"gin-scaffold/internal/web/router"
-	"gin-scaffold/pkg/configurator"
+	"gin-scaffold/pkg/configure"
 	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"
 	"gin-scaffold/pkg/orm"
@@ -50,7 +50,7 @@ func main() {
 	if !filepath.IsAbs(configPath) {
 		configPath = filepath.Join(helper.RootPath(), configPath)
 	}
-	configurator.MustLoad(configPath, conf)
+	configure.MustLoad(configPath, conf)
 
 	// 检查环境是否设置正确
 	var exist bool
