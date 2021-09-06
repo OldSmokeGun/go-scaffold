@@ -10,9 +10,9 @@ import (
 type Env string
 
 const (
-	Local      Env = "local"
-	Test       Env = "test"
-	Production Env = "prod"
+	Local Env = "local"
+	Test  Env = "test"
+	Prod  Env = "prod"
 )
 
 func (a Env) String() string {

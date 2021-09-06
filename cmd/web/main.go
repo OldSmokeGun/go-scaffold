@@ -6,7 +6,6 @@ import (
 	"gin-scaffold/global"
 	"gin-scaffold/internal/web"
 	"gin-scaffold/internal/web/config"
-	"gin-scaffold/internal/web/router"
 	"gin-scaffold/pkg/configure"
 	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"
@@ -17,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"gorm.io/gorm"
+	"log"
 	"net/http"
 	"os/signal"
 	"path/filepath"
@@ -27,17 +27,12 @@ import (
 // defaultConfigPath 默认配置文件路径
 var defaultConfigPath = filepath.Join(helper.RootPath(), "config/web.yaml")
 
-var (
-	ValidEnvValues         = [3]config.Env{config.Local, config.Test, config.Production}
-	ErrConfValueEnvInvalid = fmt.Errorf("in the configuration file,the value of key Env is invalid,allowed value is one of %s, %s, %s", config.Local, config.Test, config.Production)
-)
-
 func main() {
 	var (
 		configPath string
 		conf       = &config.Config{}
 		logRotate  *rotatelogs.RotateLogs
-		log        *logrus.Logger
+		lgr        *logrus.Logger
 		db         *gorm.DB
 		rdb        *redis.Client
 		err        error
@@ -53,14 +48,12 @@ func main() {
 	configure.MustLoad(configPath, conf)
 
 	// 检查环境是否设置正确
-	var exist bool
-	for _, value := range ValidEnvValues {
-		if conf.App.Env == value {
-			exist = true
-		}
-	}
-	if !exist {
-		panic(ErrConfValueEnvInvalid)
+	switch conf.App.Env {
+	case config.Local:
+	case config.Test:
+	case config.Prod:
+	default:
+		panic("unknown Env value: " + conf.Env)
 	}
 
 	// 日志切割
@@ -92,7 +85,7 @@ func main() {
 
 		// 设置日志的输出
 		conf.Logger.Output = logRotate
-		log = logger.MustSetup(conf.Logger)
+		lgr = logger.MustSetup(conf.Logger)
 	}
 
 	// orm 初始化
@@ -110,7 +103,7 @@ func main() {
 	// 创建上下文依赖
 	global.SetLogRotate(logRotate)
 	global.SetConfig(conf)
-	global.SetLogger(log)
+	global.SetLogger(lgr)
 	global.SetDB(db)
 	global.SetRedisClient(rdb)
 
@@ -138,19 +131,11 @@ func main() {
 	signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer signalStop()
 
-	// 初始化 router
-	r := router.Setup()
-
-	// 调用应用钩子
-	if err := web.Run(r); err != nil {
-		panic(err)
-	}
-
 	// 启动 http 服务
 	addr := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 	server := &http.Server{
 		Addr:    addr,
-		Handler: r,
+		Handler: web.MustSetup(),
 	}
 	go func() {
 		log.Printf("Listening and serving HTTP on %s", addr)
