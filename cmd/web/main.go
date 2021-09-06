@@ -48,7 +48,7 @@ func main() {
 	configure.MustLoad(configPath, conf)
 
 	// 检查环境是否设置正确
-	switch conf.App.Env {
+	switch conf.Env {
 	case config.Local:
 	case config.Test:
 	case config.Prod:
