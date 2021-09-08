@@ -138,7 +138,7 @@ func main() {
 		Handler: web.MustSetup(),
 	}
 	go func() {
-		log.Printf("Listening and serving HTTP on %s", addr)
+		log.Printf("Http server started on %s", addr)
 
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)

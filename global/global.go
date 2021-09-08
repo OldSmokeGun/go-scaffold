@@ -2,7 +2,6 @@ package global
 
 import (
 	"gin-scaffold/internal/web/config"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
@@ -16,7 +15,6 @@ var (
 	logger      *logrus.Logger
 	db          *gorm.DB
 	redisClient *redis.Client
-	router      *gin.Engine
 )
 
 // SetLogRotate 设置日志轮转对象
@@ -67,14 +65,4 @@ func SetRedisClient(rc *redis.Client) {
 // RedisClient 获取 redis 客户端对象
 func RedisClient() *redis.Client {
 	return redisClient
-}
-
-// SetRouter 设置路由对象
-func SetRouter(r *gin.Engine) {
-	router = r
-}
-
-// Router 获取路由对象
-func Router() *gin.Engine {
-	return router
 }

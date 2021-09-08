@@ -14,11 +14,11 @@ func responseValidateError(ctx *gin.Context, err error, errTrans map[string]stri
 	if ok {
 		errs := validator.Translate(validationErrors, errTrans)
 		for _, err := range errs {
-			ctx.JSON(http.StatusOK, response.FailedFormat(err))
+			ctx.JSON(http.StatusOK, response.ServerError.WithMsg(err))
 			return
 		}
 	} else {
-		ctx.JSON(http.StatusOK, response.Format(response.ArgumentsInvalidCode, response.ArgumentsInvalidCodeMessage, nil))
+		ctx.JSON(http.StatusOK, response.ArgumentError)
 		return
 	}
 }

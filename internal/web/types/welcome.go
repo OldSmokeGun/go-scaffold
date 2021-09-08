@@ -5,6 +5,6 @@ type (
 	}
 
 	WelcomeResp struct {
-		Msg  string `json:"msg"`
+		Msg string `json:"msg"`
 	}
 )

@@ -19,7 +19,7 @@ func (w *Welcome) Hello(ctx *gin.Context) {
 	req := types.WelcomeReq{}
 	resp, err := welcomeLogic.Hello(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, err.Error())
+		ctx.JSON(http.StatusInternalServerError, response.ServerError)
 	}
-	ctx.JSON(http.StatusOK, response.SuccessFormat(resp))
+	ctx.JSON(http.StatusOK, response.Success.WithData(resp))
 }

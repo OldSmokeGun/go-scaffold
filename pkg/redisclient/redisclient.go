@@ -6,8 +6,6 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var ctx = context.Background()
-
 // Setup 返回 *redis.Client
 func Setup(config *Config) (*redis.Client, error) {
 	option := &redis.Options{
@@ -60,6 +58,8 @@ func Setup(config *Config) (*redis.Client, error) {
 	}
 
 	client := redis.NewClient(option)
+
+	ctx := context.Background()
 
 	if _, err := client.Ping(ctx).Result(); err != nil {
 		return nil, err
