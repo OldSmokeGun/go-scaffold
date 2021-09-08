@@ -30,12 +30,8 @@ func Translate(errs validator.ValidationErrors, tm map[string]string) map[string
 
 	if errs != nil {
 		for _, v := range errs {
-			if len(strings.Split(v.Namespace(), ".")) > 2 {
-				rep := regexp.MustCompile(`\[\d\]`).ReplaceAllString(v.Namespace(), "")
-				key = strings.Join(strings.Split(rep, ".")[1:], ".") + "." + v.Tag()
-			} else {
-				key = v.Field() + "." + v.Tag()
-			}
+			rep := regexp.MustCompile(`\[\d\]`).ReplaceAllString(v.Namespace(), "")
+			key = strings.Join(strings.Split(rep, ".")[1:], ".") + "." + v.Tag()
 
 			if _, ok := tm[key]; ok {
 				if v.Param() != "" {
