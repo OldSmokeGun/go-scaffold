@@ -34,19 +34,29 @@ func (r *Response) WithMsg(msg string) *Response {
 func (r *Response) WithData(data interface{}) *Response {
 	if data != nil {
 		val := reflect.ValueOf(data)
-		if val.IsNil() {
-			switch val.Kind() {
-			case reflect.Ptr:
+		switch val.Kind() {
+		case reflect.Ptr:
+			if val.IsNil() {
 				data = map[string]interface{}{}
-			case reflect.Slice:
+			}
+		case reflect.Slice:
+			if val.IsNil() {
 				data = make([]interface{}, 0)
-			case reflect.Map:
+			}
+		case reflect.Map:
+			if val.IsNil() {
 				data = map[string]interface{}{}
-			case reflect.Chan:
+			}
+		case reflect.Chan:
+			if val.IsNil() {
 				data = map[string]interface{}{}
-			case reflect.Func:
+			}
+		case reflect.Func:
+			if val.IsNil() {
 				data = map[string]interface{}{}
-			case reflect.Interface:
+			}
+		case reflect.Interface:
+			if val.IsNil() {
 				data = map[string]interface{}{}
 			}
 		}
