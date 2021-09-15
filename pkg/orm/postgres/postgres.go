@@ -7,7 +7,7 @@ import (
 )
 
 // NewDB 返回 *gorm.DB
-func NewDB(c *Config) (*gorm.DB, error) {
+func NewDB(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName:           c.Driver,
 		DSN:                  buildDNS(c),
@@ -43,7 +43,7 @@ func NewDB(c *Config) (*gorm.DB, error) {
 }
 
 // buildDNS 构建连接数据库的 dns
-func buildDNS(c *Config) string {
+func buildDNS(c Config) string {
 	options := strings.Join(c.Options, " ")
 	dsn := "host=" + c.Host + " port=" + c.Port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
 	return dsn

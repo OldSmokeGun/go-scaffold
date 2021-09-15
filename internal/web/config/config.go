@@ -4,6 +4,7 @@ import (
 	"gin-scaffold/pkg/logger"
 	"gin-scaffold/pkg/orm"
 	"gin-scaffold/pkg/redisclient"
+	"io"
 	"time"
 )
 
@@ -21,12 +22,11 @@ func (a Env) String() string {
 
 type (
 	Config struct {
-		App    `mapstructure:",squash"`
-		Log    Log                 `mapstructure:"Log"`
-		Logger *logger.Config      `mapstructure:"Logger"`
-		DB     *orm.Config         `mapstructure:"DB"`
-		Redis  *redisclient.Config `mapstructure:"Redis"`
-		Jwt    *Jwt                `mapstructure:"Jwt"`
+		App   `mapstructure:",squash"`
+		Log   *Log                `mapstructure:"Log"`
+		DB    *orm.Config         `mapstructure:"DB"`
+		Redis *redisclient.Config `mapstructure:"Redis"`
+		Jwt   *Jwt                `mapstructure:"Jwt"`
 	}
 
 	App struct {
@@ -36,7 +36,11 @@ type (
 	}
 
 	Log struct {
-		Path string
+		Path         string
+		Level        logger.Level
+		Format       logger.Format
+		ReportCaller bool
+		Output       io.Writer
 	}
 
 	Jwt struct {

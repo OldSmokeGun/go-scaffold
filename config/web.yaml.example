@@ -8,10 +8,6 @@ Env: "local"
 # 全局日志
 Log:
   Path: "logs/framework_%Y%m%d.log" # 全局日志路径（相对于项目的根目录）
-
-# logger 日志
-Logger:
-  # Path: "../logs/logger.log" # 如果指定此路径，则 logger 的输出内容不写入全局日志，而是写入此路径指定的文件
   Level: "info"
   Format: "json"
   ReportCaller: false

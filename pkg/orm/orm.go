@@ -17,17 +17,23 @@ var (
 )
 
 // Setup 初始化 orm，返回 *gorm.DB
-func Setup(c *Config) (db *gorm.DB, err error) {
-	// 设置 logger
-	l := logger.New(log.New(io.MultiWriter(c.Output, os.Stdout), "\r\n", log.LstdFlags), logger.Config{
-		SlowThreshold: 200 * time.Millisecond,
-		LogLevel:      c.LogLevel.Convert(),
-		Colorful:      false,
-	})
+func Setup(c Config) (db *gorm.DB, err error) {
+	var l logger.Interface
+
+	if c.Log {
+		// 设置 logger
+		l = logger.New(log.New(io.MultiWriter(c.Output, os.Stdout), "\r\n", log.LstdFlags), logger.Config{
+			SlowThreshold: 200 * time.Millisecond,
+			LogLevel:      c.LogLevel.Convert(),
+			Colorful:      false,
+		})
+	} else {
+		l = logger.Default.LogMode(c.LogLevel.Convert())
+	}
 
 	switch c.Driver {
 	case "mysql":
-		db, err = mysql.NewDB(&mysql.Config{
+		db, err = mysql.NewDB(mysql.Config{
 			Driver:                    c.Driver,
 			Host:                      c.Host,
 			Port:                      c.Port,
@@ -50,7 +56,7 @@ func Setup(c *Config) (db *gorm.DB, err error) {
 			return
 		}
 	case "postgres":
-		db, err = postgres.NewDB(&postgres.Config{
+		db, err = postgres.NewDB(postgres.Config{
 			Driver:               c.Driver,
 			Host:                 c.Host,
 			Port:                 c.Port,
@@ -76,7 +82,7 @@ func Setup(c *Config) (db *gorm.DB, err error) {
 }
 
 // MustSetup 初始化 orm，返回 *gorm.DB
-func MustSetup(c *Config) *gorm.DB {
+func MustSetup(c Config) *gorm.DB {
 	db, err := Setup(c)
 	if err != nil {
 		panic(err)

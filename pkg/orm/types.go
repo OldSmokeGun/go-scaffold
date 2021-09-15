@@ -16,6 +16,7 @@ type Config struct {
 	MaxIdleConn     int
 	MaxOpenConn     int
 	ConnMaxLifeTime int64
+	Log             bool
 	LogLevel        LogLevel
 	Output          io.Writer
 }

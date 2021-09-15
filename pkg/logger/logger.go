@@ -10,7 +10,7 @@ import (
 var logger = logrus.New()
 
 // Setup 返回 *logrus.Logger
-func Setup(conf *Config) (*logrus.Logger, error) {
+func Setup(conf Config) (*logrus.Logger, error) {
 	var err error
 
 	path := conf.Path
@@ -62,7 +62,7 @@ func Setup(conf *Config) (*logrus.Logger, error) {
 }
 
 // MustSetup 返回 *logrus.Logger
-func MustSetup(conf *Config) *logrus.Logger {
+func MustSetup(conf Config) *logrus.Logger {
 	l, err := Setup(conf)
 	if err != nil {
 		panic(err)

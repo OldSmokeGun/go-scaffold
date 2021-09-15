@@ -56,48 +56,47 @@ func main() {
 		panic("unknown Env value: " + conf.Env)
 	}
 
-	// 日志切割
-	if !filepath.IsAbs(conf.Log.Path) {
-		conf.Log.Path = filepath.Join(helper.RootPath(), conf.Log.Path)
-	}
+	if conf.Log.Path != "" {
+		logPath := conf.Log.Path
+		if !filepath.IsAbs(conf.Log.Path) {
+			logPath = filepath.Join(helper.RootPath(), conf.Log.Path)
+		}
 
-	logRotate, err = rotatelogs.New(
-		conf.Log.Path,
-		rotatelogs.WithClock(rotatelogs.Local),
-	)
-	defer func() {
-		if err := logRotate.Close(); err != nil {
+		// 日志切割
+		logRotate, err = rotatelogs.New(
+			logPath,
+			rotatelogs.WithClock(rotatelogs.Local),
+		)
+		defer func() {
+			if err := logRotate.Close(); err != nil {
+				panic(err)
+			}
+		}()
+		if err != nil {
 			panic(err)
 		}
-	}()
-	if err != nil {
-		panic(err)
-	}
 
-	// 日志初始化
-	if conf.Logger != nil {
-		// 设置日志的路径
-		if conf.Logger.Path != "" {
-			if !filepath.IsAbs(conf.Logger.Path) {
-				conf.Logger.Path = filepath.Join(helper.RootPath(), conf.Logger.Path)
-			}
-		}
-
-		// 设置日志的输出
-		conf.Logger.Output = logRotate
-		lgr = logger.MustSetup(conf.Logger)
+		// 日志初始化
+		lgr = logger.MustSetup(logger.Config{
+			Path:         logPath,
+			Level:        conf.Log.Level,
+			Format:       conf.Log.Format,
+			ReportCaller: conf.Log.ReportCaller,
+			Output:       logRotate,
+		})
 	}
 
 	// orm 初始化
 	if conf.DB != nil {
+		ormConf := *conf.DB
 		// 设置日志的输出
-		conf.DB.Output = logRotate
-		db = orm.MustSetup(conf.DB)
+		ormConf.Output = logRotate
+		db = orm.MustSetup(ormConf)
 	}
 
 	// redis 初始化
 	if conf.Redis != nil {
-		rdb = redisclient.MustSetup(conf.Redis)
+		rdb = redisclient.MustSetup(*conf.Redis)
 	}
 
 	// 创建上下文依赖
