@@ -17,7 +17,7 @@ Log:
 #   Driver: "mysql"
 #   Host: "127.0.0.1"
 #   Port: "3306"
-#   Database: "lifeupdbdev"
+#   Database: "gin-scaffold"
 #   Username: "root"
 #   Password: "root"
 #   Options:
@@ -51,7 +51,7 @@ Log:
 #   DB: 0 # 连接到服务器后要选择的数据库
 #   PoolSize: 20 # 连接池最大连接数
 #   MinIdleConns: 10 # 连接池空闲连接数
-#   IdleTimeout: 600 # 连接池空闲连接数
+#   IdleTimeout: 600 # 客户端关闭空闲连接的时间
 
 # JWT 配置
 # JWT:

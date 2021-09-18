@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:latest
+    networks:
+      gin-scaffold:
+        aliases:
+          - mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: gin-scaffold
+    ports:
+      - "13306:3306"
+    command: >
+      bash -c "chmod 644 /etc/mysql/conf.d/*.cnf && /entrypoint.sh mysqld"
+    volumes:
+      - "./deploy/docker-compose/mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "./deploy/docker-compose/mysql/data:/var/lib/mysql"
+
+  redis:
+    image: redis:latest
+    networks:
+      gin-scaffold:
+        aliases:
+          - redis
+    ports:
+      - "16379:6379"
+    command:
+      - "redis-server"
+      - "/usr/local/etc/redis/redis.conf"
+    volumes:
+      - "./deploy/docker-compose/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./deploy/docker-compose/redis/data:/data"
+
+  app:
+    build: .
+    networks:
+      gin-scaffold:
+        aliases:
+          - app
+    ports:
+      - "19527:9527"
+    command:
+      - "./dockerize"
+      - "-wait"
+      - "tcp://mysql:3306"
+      - "./bin/web"
+    volumes:
+      - "./deploy/docker-compose/dockerize:/app/dockerize"
+      - "./config/web.yaml.example:/app/config/web.yaml"
+    depends_on:
+      - mysql
+      - redis
+    restart: always
+
+networks:
+  gin-scaffold:
