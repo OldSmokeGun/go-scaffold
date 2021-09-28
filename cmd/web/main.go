@@ -13,8 +13,8 @@ import (
 	"gin-scaffold/pkg/redisclient"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
@@ -29,13 +29,13 @@ var defaultConfigPath = filepath.Join(helper.RootPath(), "config/web.yaml")
 
 func main() {
 	var (
-		configPath string
-		conf       = &config.Config{}
-		logRotate  *rotatelogs.RotateLogs
-		lgr        *logrus.Logger
-		db         *gorm.DB
-		rdb        *redis.Client
-		err        error
+		configPath   string
+		conf         = &config.Config{}
+		loggerOutput *rotatelogs.RotateLogs
+		zlogger      *zap.Logger
+		db           *gorm.DB
+		rdb          *redis.Client
+		err          error
 	)
 
 	pflag.StringVarP(&configPath, "config", "c", defaultConfigPath, "配置文件路径")
@@ -63,46 +63,43 @@ func main() {
 		}
 
 		// 日志切割
-		logRotate, err = rotatelogs.New(
+		loggerOutput, err = rotatelogs.New(
 			logPath,
 			rotatelogs.WithClock(rotatelogs.Local),
 		)
 		defer func() {
-			if err := logRotate.Close(); err != nil {
+			if err := loggerOutput.Close(); err != nil {
 				panic(err)
 			}
 		}()
 		if err != nil {
 			panic(err)
 		}
-
 		// 日志初始化
-		lgr = logger.MustSetup(logger.Config{
-			Path:         logPath,
-			Level:        conf.Log.Level,
-			Format:       conf.Log.Format,
-			ReportCaller: conf.Log.ReportCaller,
-			Output:       logRotate,
+		zlogger = logger.MustNew(logger.Config{
+			Path:   conf.Log.Path,
+			Level:  conf.Log.Level,
+			Format: conf.Log.Format,
+			Caller: conf.Log.Caller,
+			Mode:   conf.Log.Mode,
+			Output: loggerOutput,
 		})
 	}
 
 	// orm 初始化
 	if conf.DB != nil {
-		ormConf := *conf.DB
-		// 设置日志的输出
-		ormConf.Output = logRotate
-		db = orm.MustSetup(ormConf)
+		db = orm.MustNew(*conf.DB)
 	}
 
 	// redis 初始化
 	if conf.Redis != nil {
-		rdb = redisclient.MustSetup(*conf.Redis)
+		rdb = redisclient.MustNew(*conf.Redis)
 	}
 
 	// 创建上下文依赖
-	global.SetLogRotate(logRotate)
+	global.SetLoggerOutput(loggerOutput)
 	global.SetConfig(conf)
-	global.SetLogger(lgr)
+	global.SetLogger(zlogger)
 	global.SetDB(db)
 	global.SetRedisClient(rdb)
 

@@ -6,9 +6,6 @@ import (
 	"gin-scaffold/pkg/orm/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"io"
-	"log"
-	"os"
 	"time"
 )
 
@@ -16,24 +13,11 @@ var (
 	ErrUnsupportedType = errors.New("unsupported database type")
 )
 
-// Setup 初始化 orm，返回 *gorm.DB
-func Setup(c Config) (db *gorm.DB, err error) {
-	var l logger.Interface
-
-	if c.Log {
-		// 设置 logger
-		l = logger.New(log.New(io.MultiWriter(c.Output, os.Stdout), "\r\n", log.LstdFlags), logger.Config{
-			SlowThreshold: 200 * time.Millisecond,
-			LogLevel:      c.LogLevel.Convert(),
-			Colorful:      false,
-		})
-	} else {
-		l = logger.Default.LogMode(c.LogLevel.Convert())
-	}
-
+// New 初始化 orm，返回 *gorm.DB
+func New(c Config) (db *gorm.DB, err error) {
 	switch c.Driver {
 	case "mysql":
-		db, err = mysql.NewDB(mysql.Config{
+		db, err = mysql.New(mysql.Config{
 			Driver:                    c.Driver,
 			Host:                      c.Host,
 			Port:                      c.Port,
@@ -44,7 +28,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 			MaxIdleConn:               c.MaxIdleConn,
 			MaxOpenConn:               c.MaxOpenConn,
 			ConnMaxLifeTime:           time.Second * time.Duration(c.ConnMaxLifeTime),
-			Logger:                    l,
+			Logger:                    logger.Default.LogMode(c.LogLevel.Convert()),
 			Conn:                      nil,
 			SkipInitializeWithVersion: false,
 			DefaultStringSize:         0,
@@ -56,7 +40,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 			return
 		}
 	case "postgres":
-		db, err = postgres.NewDB(postgres.Config{
+		db, err = postgres.New(postgres.Config{
 			Driver:               c.Driver,
 			Host:                 c.Host,
 			Port:                 c.Port,
@@ -67,7 +51,7 @@ func Setup(c Config) (db *gorm.DB, err error) {
 			MaxIdleConn:          c.MaxIdleConn,
 			MaxOpenConn:          c.MaxOpenConn,
 			ConnMaxLifeTime:      time.Second * time.Duration(c.ConnMaxLifeTime),
-			Logger:               l,
+			Logger:               logger.Default.LogMode(c.LogLevel.Convert()),
 			Conn:                 nil,
 			PreferSimpleProtocol: false,
 		})
@@ -81,9 +65,9 @@ func Setup(c Config) (db *gorm.DB, err error) {
 	return db, nil
 }
 
-// MustSetup 初始化 orm，返回 *gorm.DB
-func MustSetup(c Config) *gorm.DB {
-	db, err := Setup(c)
+// MustNew 初始化 orm，返回 *gorm.DB
+func MustNew(c Config) *gorm.DB {
+	db, err := New(c)
 	if err != nil {
 		panic(err)
 	}

@@ -4,27 +4,27 @@ import (
 	"gin-scaffold/internal/web/config"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 // Global 是传递给应用的依赖
 var (
-	logRotate   *rotatelogs.RotateLogs
-	conf        *config.Config
-	logger      *logrus.Logger
-	db          *gorm.DB
-	redisClient *redis.Client
+	loggerOutput *rotatelogs.RotateLogs
+	conf         *config.Config
+	logger       *zap.Logger
+	db           *gorm.DB
+	redisClient  *redis.Client
 )
 
-// SetLogRotate 设置日志轮转对象
-func SetLogRotate(lr *rotatelogs.RotateLogs) {
-	logRotate = lr
+// SetLoggerOutput 设置日志轮转对象
+func SetLoggerOutput(lr *rotatelogs.RotateLogs) {
+	loggerOutput = lr
 }
 
-// LogRotate 获取日志轮转对象
-func LogRotate() *rotatelogs.RotateLogs {
-	return logRotate
+// LoggerOutput 获取日志轮转对象
+func LoggerOutput() *rotatelogs.RotateLogs {
+	return loggerOutput
 }
 
 // SetConfig 设置日志对象
@@ -38,12 +38,12 @@ func Config() *config.Config {
 }
 
 // SetLogger 设置日志对象
-func SetLogger(l *logrus.Logger) {
+func SetLogger(l *zap.Logger) {
 	logger = l
 }
 
 // Logger 获取日志对象
-func Logger() *logrus.Logger {
+func Logger() *zap.Logger {
 	return logger
 }
 

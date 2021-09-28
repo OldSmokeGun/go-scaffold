@@ -2,7 +2,6 @@ package orm
 
 import (
 	"gorm.io/gorm/logger"
-	"io"
 )
 
 type Config struct {
@@ -16,9 +15,7 @@ type Config struct {
 	MaxIdleConn     int
 	MaxOpenConn     int
 	ConnMaxLifeTime int64
-	Log             bool
 	LogLevel        LogLevel
-	Output          io.Writer
 }
 
 type LogLevel string

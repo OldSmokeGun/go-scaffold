@@ -36,11 +36,12 @@ type (
 	}
 
 	Log struct {
-		Path         string
-		Level        logger.Level
-		Format       logger.Format
-		ReportCaller bool
-		Output       io.Writer
+		Path   string
+		Level  logger.Level
+		Format logger.Format
+		Caller bool
+		Mode   logger.Mode
+		Output io.Writer
 	}
 
 	Jwt struct {

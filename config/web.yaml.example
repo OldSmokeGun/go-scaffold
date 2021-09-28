@@ -9,8 +9,8 @@ Env: "local"
 Log:
   Path: "logs/framework_%Y%m%d.log" # 全局日志路径（相对于项目的根目录）
   Level: "info"
-  Format: "json"
-  ReportCaller: false
+  Format: "text"
+  Caller: false
 
 # 数据库配置
 # Database:

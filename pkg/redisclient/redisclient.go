@@ -6,8 +6,8 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// Setup 返回 *redis.Client
-func Setup(config Config) (*redis.Client, error) {
+// New 返回 *redis.Client
+func New(config Config) (*redis.Client, error) {
 	option := &redis.Options{
 		Addr: fmt.Sprintf("%s:%d", config.Host, config.Port),
 	}
@@ -68,9 +68,9 @@ func Setup(config Config) (*redis.Client, error) {
 	return client, nil
 }
 
-// MustSetup 返回 *redis.Client
-func MustSetup(config Config) *redis.Client {
-	client, err := Setup(config)
+// MustNew 返回 *redis.Client
+func MustNew(config Config) *redis.Client {
+	client, err := New(config)
 	if err != nil {
 		panic(err)
 	}

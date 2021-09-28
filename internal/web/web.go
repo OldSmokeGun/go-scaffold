@@ -21,7 +21,7 @@ func Setup() (http.Handler, error) {
 	}
 
 	// 初始化 router
-	gin.DefaultWriter = io.MultiWriter(global.LogRotate(), os.Stdout)
+	gin.DefaultWriter = io.MultiWriter(global.LoggerOutput(), os.Stdout)
 
 	switch global.Config().Env {
 	case config.Local:

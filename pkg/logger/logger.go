@@ -1,69 +1,64 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"io"
 	"os"
-	"path/filepath"
 )
 
-var logger = logrus.New()
+// New 返回 *zap.Logger
+func New(conf Config) (logger *zap.Logger, err error) {
+	var (
+		encoderConfig zapcore.EncoderConfig
+		encoder       zapcore.Encoder
+		writeSyncer   zapcore.WriteSyncer
+	)
 
-// Setup 返回 *logrus.Logger
-func Setup(conf Config) (*logrus.Logger, error) {
-	var err error
-
-	path := conf.Path
-
-	if path == "" {
-		logger.SetOutput(io.MultiWriter(conf.Output, os.Stdout))
-	} else {
-		// 如果路径不存在，则创建
-		_, err = os.Stat(path)
-		if err != nil {
-			if os.IsNotExist(err) {
-				dir := path
-				if filepath.Ext(path) != "" {
-					dir = filepath.Dir(path)
-				}
-				if err := os.MkdirAll(dir, 0666); err != nil {
-					return nil, err
-				}
-			}
-		}
-
-		logWriter, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
-		if err != nil {
-			return nil, err
-		}
-
-		logger.SetOutput(io.MultiWriter(logWriter, os.Stdout))
+	switch conf.Mode {
+	case Development:
+		encoderConfig = zap.NewDevelopmentEncoderConfig()
+	case Production:
+		encoderConfig = zap.NewProductionEncoderConfig()
+	default:
+		encoderConfig = zap.NewDevelopmentEncoderConfig()
 	}
-
-	logger.SetLevel(conf.Level.Convert())
-	logger.SetReportCaller(conf.ReportCaller)
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 日志等级设置大写
+	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder
 
 	switch conf.Format {
 	case Text:
-		logger.SetFormatter(&logrus.TextFormatter{
-			TimestampFormat: "2006-01-02 15:04:05.000",
-		})
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
 	case Json:
-		logger.SetFormatter(&logrus.JSONFormatter{
-			TimestampFormat: "2006-01-02 15:04:05.000",
-		})
+		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	default:
-		logger.SetFormatter(&logrus.TextFormatter{
-			TimestampFormat: "2006-01-02 15:04:05.000",
-		})
+		encoder = zapcore.NewConsoleEncoder(encoderConfig)
+	}
+
+	if conf.Output == nil {
+		writeSyncer = zapcore.AddSync(os.Stderr)
+	} else {
+		writeSyncer = zapcore.AddSync(io.MultiWriter(conf.Output, os.Stderr))
+	}
+
+	core := zapcore.NewCore(
+		encoder,
+		writeSyncer,
+		conf.Level.Convert(),
+	)
+
+	if conf.Caller {
+		logger = zap.New(core, zap.AddCaller())
+	} else {
+		logger = zap.New(core)
 	}
 
 	return logger, nil
 }
 
-// MustSetup 返回 *logrus.Logger
-func MustSetup(conf Config) *logrus.Logger {
-	l, err := Setup(conf)
+// MustNew 返回 *zap.Logger
+func MustNew(conf Config) *zap.Logger {
+	l, err := New(conf)
 	if err != nil {
 		panic(err)
 	}

@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap/zapcore"
 	"io"
 )
 
@@ -15,40 +15,48 @@ const (
 type Level string
 
 const (
-	Trace Level = "trace"
-	Debug Level = "debug"
-	Info  Level = "info"
-	Warn  Level = "warn"
-	Error Level = "error"
-	Fatal Level = "fatal"
-	Panic Level = "panic"
+	Debug  Level = "debug"
+	Info   Level = "info"
+	Warn   Level = "warn"
+	Error  Level = "error"
+	DPanic Level = "dpanic"
+	Panic  Level = "panic"
+	Fatal  Level = "fatal"
 )
 
-func (l Level) Convert() logrus.Level {
+func (l Level) Convert() zapcore.Level {
 	switch l {
-	case Trace:
-		return logrus.TraceLevel
 	case Debug:
-		return logrus.DebugLevel
+		return zapcore.DebugLevel
 	case Info:
-		return logrus.InfoLevel
+		return zapcore.InfoLevel
 	case Warn:
-		return logrus.WarnLevel
+		return zapcore.WarnLevel
 	case Error:
-		return logrus.ErrorLevel
-	case Fatal:
-		return logrus.FatalLevel
+		return zapcore.ErrorLevel
+	case DPanic:
+		return zapcore.DPanicLevel
 	case Panic:
-		return logrus.PanicLevel
+		return zapcore.PanicLevel
+	case Fatal:
+		return zapcore.FatalLevel
 	default:
-		return logrus.InfoLevel
+		return zapcore.InfoLevel
 	}
 }
 
+type Mode string
+
+const (
+	Development Mode = "development"
+	Production  Mode = "production"
+)
+
 type Config struct {
-	Path         string
-	Level        Level
-	Format       Format
-	ReportCaller bool
-	Output       io.Writer
+	Path   string
+	Level  Level
+	Format Format
+	Caller bool
+	Mode   Mode
+	Output io.Writer
 }

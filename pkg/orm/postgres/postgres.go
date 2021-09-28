@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// NewDB 返回 *gorm.DB
-func NewDB(c Config) (*gorm.DB, error) {
+// New 返回 *gorm.DB
+func New(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName:           c.Driver,
 		DSN:                  buildDNS(c),
