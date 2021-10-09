@@ -32,7 +32,7 @@ func main() {
 		configPath   string
 		conf         = &config.Config{}
 		loggerOutput *rotatelogs.RotateLogs
-		zlogger      *zap.Logger
+		zLogger      *zap.Logger
 		db           *gorm.DB
 		rdb          *redis.Client
 		err          error
@@ -67,16 +67,12 @@ func main() {
 			logPath,
 			rotatelogs.WithClock(rotatelogs.Local),
 		)
-		defer func() {
-			if err := loggerOutput.Close(); err != nil {
-				panic(err)
-			}
-		}()
 		if err != nil {
 			panic(err)
 		}
+		defer loggerOutput.Close()
 		// 日志初始化
-		zlogger = logger.MustNew(logger.Config{
+		zLogger = logger.MustNew(logger.Config{
 			Path:   conf.Log.Path,
 			Level:  conf.Log.Level,
 			Format: conf.Log.Format,
@@ -99,7 +95,7 @@ func main() {
 	// 创建上下文依赖
 	global.SetLoggerOutput(loggerOutput)
 	global.SetConfig(conf)
-	global.SetLogger(zlogger)
+	global.SetLogger(zLogger)
 	global.SetDB(db)
 	global.SetRedisClient(rdb)
 
