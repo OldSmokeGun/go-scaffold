@@ -35,6 +35,10 @@ services:
 
   web:
     image: cosmtrek/air
+    networks:
+      web-scaffold:
+        aliases:
+          - web
     ports:
       - "$PORT:9527"
     environment:
