@@ -1,4 +1,6 @@
-FROM golang:1.16.0 as build
+FROM golang:1.17-alpine3.13 as builder
+
+RUN apk add make
 
 WORKDIR /app/
 
@@ -6,17 +8,17 @@ COPY . .
 
 RUN make download && make build
 
-FROM scratch
+FROM alpine:3.15
 
 ENV TZ=Asia/Shanghai
 ENV ZONEINFO=/usr/local/go/lib/time/zoneinfo.zip
 
 WORKDIR /app/
 
-COPY --from=build /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /app/config/web.yaml.example /app/config/web.yaml
-COPY --from=build /app/bin/web /app/bin/web
+COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /app/config/web.yaml.example /app/config/web.yaml
+COPY --from=builder /app/bin/web /app/bin/web
 
 EXPOSE 9527
 

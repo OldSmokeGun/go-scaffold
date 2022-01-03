@@ -4,14 +4,14 @@ services:
   mysql:
     image: mysql:latest
     networks:
-      gin-scaffold:
+      web-scaffold:
         aliases:
           - mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gin-scaffold
+      MYSQL_DATABASE: web-scaffold
     ports:
-      - "13306:3306"
+      - "$PORT:3306"
     command: >
       bash -c "chmod 644 /etc/mysql/conf.d/*.cnf && /entrypoint.sh mysqld"
     volumes:
@@ -21,11 +21,11 @@ services:
   redis:
     image: redis:latest
     networks:
-      gin-scaffold:
+      web-scaffold:
         aliases:
           - redis
     ports:
-      - "16379:6379"
+      - "$PORT:6379"
     command:
       - "redis-server"
       - "/usr/local/etc/redis/redis.conf"
@@ -33,26 +33,26 @@ services:
       - "./deploy/docker-compose/redis/redis.conf:/usr/local/etc/redis/redis.conf"
       - "./deploy/docker-compose/redis/data:/data"
 
-  app:
-    build: .
-    networks:
-      gin-scaffold:
-        aliases:
-          - app
+  web:
+    image: cosmtrek/air
     ports:
-      - "19527:9527"
+      - "$PORT:9527"
+    environment:
+      - GOOS=linux
+      - CGO_ENABLED=0
+      - GOPROXY=https://goproxy.cn,direct
+    working_dir: /app
     command:
       - "./dockerize"
       - "-wait"
       - "tcp://mysql:3306"
-      - "./bin/web"
+      - "air"
     volumes:
-      - "./deploy/docker-compose/dockerize:/app/dockerize"
-      - "./config/web.yaml.example:/app/config/web.yaml"
+      - "../../.:/app"
     depends_on:
       - mysql
       - redis
     restart: always
 
 networks:
-  gin-scaffold:
+  web-scaffold:
