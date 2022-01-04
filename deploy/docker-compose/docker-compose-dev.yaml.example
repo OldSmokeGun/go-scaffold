@@ -34,21 +34,25 @@ services:
       - "./redis/data:/data"
 
   web:
-    build: ../../
+    image: cosmtrek/air
     networks:
       web-scaffold:
         aliases:
           - web
     ports:
       - "$PORT:9527"
+    environment:
+      - GOOS=linux
+      - CGO_ENABLED=0
+      - GOPROXY=https://goproxy.cn,direct
+    working_dir: /app
     command:
       - "./dockerize"
       - "-wait"
       - "tcp://mysql:3306"
-      - "./bin/web"
+      - "air"
     volumes:
-      - "./dockerize:/app/dockerize"
-      - "$CONFIG_PATH:/app/config/web.yaml"
+      - "../../.:/app"
     depends_on:
       - mysql
       - redis
