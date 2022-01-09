@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"gin-scaffold/global"
 	"gin-scaffold/internal/web"
 	"gin-scaffold/internal/web/config"
+	"gin-scaffold/internal/web/global"
 	"gin-scaffold/pkg/configure"
 	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"

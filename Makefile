@@ -2,6 +2,9 @@
 
 BINARY_PATH = bin/web
 WEB_MAIN_DIR = cmd/web
+DOC_GENERATE_SCAN_DIR = internal/web
+DOC_GENERATE_SCAN_ENTRY = web.go
+DOC_GENERATE_OUT_DIR = internal/web/docs
 
 build:
 	go generate -x ./...
@@ -28,13 +31,18 @@ mac-build:
 	CGO_ENABLED=0 GOOS=darwin go build -o ${BINARY_PATH} ${WEB_MAIN_DIR}/main.go
 
 download:
-	go env -w GOPROXY=https://goproxy.cn,direct; go mod download
+	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
+	go install github.com/swaggo/swag/cmd/swag@latest
 
 clean:
 	@if [ -f ${BINARY_PATH} ] ; then rm ${BINARY_PATH} ; fi
 
 test:
 	go test -v ./...
+
+doc:
+	swag fmt -d ${DOC_GENERATE_SCAN_DIR} -g ${DOC_GENERATE_SCAN_ENTRY}
+	swag init -d ${DOC_GENERATE_SCAN_DIR} -g ${DOC_GENERATE_SCAN_ENTRY} -o ${DOC_GENERATE_OUT_DIR} --parseInternal
 
 help:
 	@printf "%-30s %-100s\n" "make" "默认自动根据平台编译二进制文件"
