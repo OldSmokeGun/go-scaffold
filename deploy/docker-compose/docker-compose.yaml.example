@@ -45,7 +45,7 @@ services:
       - "./dockerize"
       - "-wait"
       - "tcp://mysql:3306"
-      - "./bin/web"
+      - "./bin/app"
     volumes:
       - "./dockerize:/app/dockerize"
       - "$CONFIG_PATH:/app/config/web.yaml"
