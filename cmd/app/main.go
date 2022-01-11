@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"gin-scaffold/internal/web"
-	"gin-scaffold/internal/web/config"
-	"gin-scaffold/internal/web/global"
+	"gin-scaffold/internal/app"
+	"gin-scaffold/internal/app/global"
+	"gin-scaffold/internal/app/rest/config"
 	"gin-scaffold/pkg/configure"
 	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"
@@ -17,7 +16,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
-	"net/http"
 	"os/signal"
 	"path/filepath"
 	"syscall"
@@ -70,7 +68,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		defer loggerOutput.Close()
+
 		// 日志初始化
 		zLogger = logger.MustNew(logger.Config{
 			Path:   conf.Log.Path,
@@ -101,54 +99,57 @@ func main() {
 
 	// 资源回收
 	defer func() {
+		if rdb != nil {
+			if err = rdb.Close(); err != nil {
+				log.Println(err.Error())
+			}
+		}
+
 		if db != nil {
 			sqlDB, err := db.DB()
 			if err != nil {
-				panic(err)
+				log.Println(err.Error())
 			}
 
 			if err := sqlDB.Close(); err != nil {
-				panic(err)
+				log.Println(err.Error())
 			}
 		}
 
-		if rdb != nil {
-			if err := rdb.Close(); err != nil {
-				panic(err)
-			}
+		if err = zLogger.Sync(); err != nil {
+			log.Println(err)
+		}
+
+		if err = loggerOutput.Close(); err != nil {
+			log.Println(err)
 		}
 	}()
 
-	// 监听信号
+	// 监听退出信号
 	signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer signalStop()
 
-	// 启动 http 服务
-	addr := fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	server := &http.Server{
-		Addr:    addr,
-		Handler: web.MustSetup(),
-	}
+	// 启动应用
 	go func() {
-		log.Printf("Http server started on %s", addr)
-
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err = app.Start(); err != nil {
 			panic(err)
 		}
 	}()
 
-	// 等待信号
+	// 等待退出信号
 	<-signalCtx.Done()
 
 	signalStop() // 取消信号的监听
 
-	log.Println("The server is shutting down ...")
+	log.Println("the app is shutting down ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatalln("Server forced to shutdown:", err)
+
+	// 关闭应用
+	if err = app.Stop(ctx); err != nil {
+		panic(err)
 	}
 
-	log.Println("Server has been shutdown")
+	log.Println("the app has been stop")
 }

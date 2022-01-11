@@ -18,8 +18,6 @@ WORKDIR /app/
 COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /app/config/web.yaml.example /app/config/web.yaml
-COPY --from=builder /app/bin/web /app/bin/web
+COPY --from=builder /app/bin/app /app/bin/app
 
-EXPOSE 9527
-
-CMD ["./bin/web"]
+CMD ["./bin/app"]

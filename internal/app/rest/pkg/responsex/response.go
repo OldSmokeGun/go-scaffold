@@ -1,16 +1,16 @@
-package response
+package responsex
 
 import "reflect"
 
 // Response 响应格式
 type Response struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
+	Code StatusCode `json:"code"`
+	Msg  string     `json:"msg"`
+	Data interface{}  `json:"data,omitempty"`
 }
 
 // NewResponse 返回 *Response
-func NewResponse(code int, msg string, data interface{}) *Response {
+func NewResponse(code StatusCode, msg string, data interface{}) *Response {
 	return &Response{
 		Code: code,
 		Msg:  msg,
@@ -19,7 +19,7 @@ func NewResponse(code int, msg string, data interface{}) *Response {
 }
 
 // WithCode 设置响应码
-func (r *Response) WithCode(code int) *Response {
+func (r *Response) WithCode(code StatusCode) *Response {
 	r.Code = code
 	return r
 }

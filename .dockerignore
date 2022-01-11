@@ -6,3 +6,5 @@
 /deploy
 /logs
 /tmp
+config/*
+!config/*.example

@@ -1,7 +1,7 @@
 package global
 
 import (
-	"gin-scaffold/internal/web/config"
+	"gin-scaffold/internal/app/rest/config"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"

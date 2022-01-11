@@ -1,0 +1,127 @@
+definitions:
+  api.ClientError:
+    properties:
+      code:
+        description: code 类型应为 int，string 仅为了表达多个错误码
+        example: 10002|10003
+        type: string
+      msg:
+        example: 客户端请求错误|参数校验错误
+        type: string
+    type: object
+  api.PermissionDenied:
+    properties:
+      code:
+        example: 10005
+        type: integer
+      msg:
+        example: 暂无权限
+        type: string
+    type: object
+  api.ResourceNotFound:
+    properties:
+      code:
+        example: 10006
+        type: integer
+      msg:
+        example: 资源不存在
+        type: string
+    type: object
+  api.ServerError:
+    properties:
+      code:
+        example: 10001
+        type: integer
+      msg:
+        example: 服务器出错
+        type: string
+    type: object
+  api.Success:
+    properties:
+      code:
+        example: 10000
+        type: integer
+      data: {}
+      msg:
+        example: OK
+        type: string
+    type: object
+  api.TooManyRequest:
+    properties:
+      code:
+        example: 10007
+        type: integer
+      msg:
+        example: 请求过于频繁
+        type: string
+    type: object
+  api.Unauthorized:
+    properties:
+      code:
+        example: 10004
+        type: integer
+      msg:
+        example: 登陆失效
+        type: string
+    type: object
+  greet.HelloResp:
+    properties:
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /greet:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 示例接口
+      parameters:
+      - default: Tom
+        description: 名称
+        format: string
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.Success'
+            - properties:
+                data:
+                  $ref: '#/definitions/greet.HelloResp'
+              type: object
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/api.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/api.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/api.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/api.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/api.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/api.ServerError'
+      summary: 示例接口
+      tags:
+      - 实例
+swagger: "2.0"

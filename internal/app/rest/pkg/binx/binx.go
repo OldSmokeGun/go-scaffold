@@ -2,9 +2,9 @@ package binx
 
 import (
 	"errors"
-	"gin-scaffold/internal/web/global"
-	"gin-scaffold/internal/web/pkg/response"
-	"gin-scaffold/internal/web/pkg/validatorx"
+	"gin-scaffold/internal/app/global"
+	"gin-scaffold/internal/app/rest/pkg/responsex"
+	"gin-scaffold/internal/app/rest/pkg/validatorx"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -52,14 +52,12 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) boo
 			errsMap := validatorx.Translate(errs, m.ErrorMessage())
 
 			if len(errsMap) == 0 {
-				ctx.JSON(http.StatusOK, response.ServerError.WithMsg(ErrValidateMessageTransformFailed.Error()))
-				ctx.Abort()
+				ctx.JSON(http.StatusInternalServerError, responsex.ServerError.WithMsg(ErrValidateMessageTransformFailed.Error()))
 				return false
 			}
 
 			for _, e := range errsMap {
-				ctx.JSON(http.StatusOK, response.ArgumentError.WithMsg(e))
-				ctx.Abort()
+				ctx.JSON(http.StatusBadRequest, responsex.ValidateError.WithMsg(e))
 				return false
 			}
 
@@ -68,8 +66,7 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) boo
 
 		global.Logger().Error(err.Error())
 
-		ctx.JSON(http.StatusOK, response.ServerError)
-		ctx.Abort()
+		ctx.JSON(http.StatusInternalServerError, responsex.ServerError)
 		return false
 	}
 

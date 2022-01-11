@@ -1,9 +1,6 @@
 .idea
 .vscode
 
-!.gitkeep
-
 tmp
 config/*
 !config/*.example
-/internal/web/docs/*

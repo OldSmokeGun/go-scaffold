@@ -1,0 +1,193 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/greet": {
+            "get": {
+                "description": "示例接口",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "实例"
+                ],
+                "summary": "示例接口",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "default": "Tom",
+                        "description": "名称",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/greet.HelloResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/api.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/api.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/api.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/api.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/api.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/api.ServerError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.ClientError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "code 类型应为 int，string 仅为了表达多个错误码",
+                    "type": "string",
+                    "example": "10002|10003"
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "客户端请求错误|参数校验错误"
+                }
+            }
+        },
+        "api.PermissionDenied": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10005
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "暂无权限"
+                }
+            }
+        },
+        "api.ResourceNotFound": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10006
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "资源不存在"
+                }
+            }
+        },
+        "api.ServerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10001
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "服务器出错"
+                }
+            }
+        },
+        "api.Success": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10000
+                },
+                "data": {},
+                "msg": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "api.TooManyRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10007
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "请求过于频繁"
+                }
+            }
+        },
+        "api.Unauthorized": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 10004
+                },
+                "msg": {
+                    "type": "string",
+                    "example": "登陆失效"
+                }
+            }
+        },
+        "greet.HelloResp": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
