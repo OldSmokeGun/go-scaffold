@@ -1,8 +1,24 @@
 {
+    "consumes": [
+        "application/json",
+        "application/x-www-form-urlencoded"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API 接口文档",
+        "title": "API 接口文档",
+        "contact": {},
+        "version": "1.0.0"
     },
+    "host": "localhost",
+    "basePath": "/",
     "paths": {
         "/greet": {
             "get": {
@@ -188,6 +204,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "LoginAuth": {
+            "type": "apiKey",
+            "name": "Token",
+            "in": "header"
         }
     }
 }

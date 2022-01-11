@@ -1,3 +1,7 @@
+basePath: /
+consumes:
+- application/json
+- application/x-www-form-urlencoded
 definitions:
   api.ClientError:
     properties:
@@ -69,8 +73,12 @@ definitions:
       msg:
         type: string
     type: object
+host: localhost
 info:
   contact: {}
+  description: API 接口文档
+  title: API 接口文档
+  version: 1.0.0
 paths:
   /greet:
     get:
@@ -124,4 +132,14 @@ paths:
       summary: 示例接口
       tags:
       - 实例
+produces:
+- application/json
+schemes:
+- http
+- https
+securityDefinitions:
+  LoginAuth:
+    in: header
+    name: Token
+    type: apiKey
 swagger: "2.0"

@@ -13,6 +13,13 @@ import (
 
 var doc = `{
     "schemes": {{ marshal .Schemes }},
+    "consumes": [
+        "application/json",
+        "application/x-www-form-urlencoded"
+    ],
+    "produces": [
+        "application/json"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "{{escape .Description}}",
@@ -208,6 +215,13 @@ var doc = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "LoginAuth": {
+            "type": "apiKey",
+            "name": "Token",
+            "in": "header"
+        }
     }
 }`
 
@@ -222,12 +236,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
-	Host:        "",
-	BasePath:    "",
-	Schemes:     []string{},
-	Title:       "",
-	Description: "",
+	Version:     "1.0.0",
+	Host:        "localhost",
+	BasePath:    "/",
+	Schemes:     []string{"http", "https"},
+	Title:       "API 接口文档",
+	Description: "API 接口文档",
 }
 
 type s struct{}

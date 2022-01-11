@@ -16,7 +16,7 @@ import (
 // @title                       API 接口文档
 // @description                 API 接口文档
 // @version                     1.0.0
-// @host                        localhost:9527
+// @host                        localhost
 // @BasePath                    /
 // @schemes                     http https
 // @accept                      json
