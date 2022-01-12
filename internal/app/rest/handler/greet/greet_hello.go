@@ -6,7 +6,6 @@ import (
 	"gin-scaffold/internal/app/rest/pkg/responsex"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"net/http"
 )
 
 type (
@@ -49,14 +48,14 @@ func (h *handler) Hello(ctx *gin.Context) {
 	param := new(greet.HelloParam)
 	if err := copier.Copy(param, req); err != nil {
 		h.logger.Error(err.Error())
-		ctx.JSON(http.StatusInternalServerError, responsex.ServerError)
+		responsex.ServerError(ctx)
 		return
 	}
 
 	logic := greet.NewLogic(ctx)
 	greetString, err := logic.Hello(param)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, responsex.ServerError.WithMsg(err.Error()))
+		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
 	}
 
@@ -64,6 +63,6 @@ func (h *handler) Hello(ctx *gin.Context) {
 		Msg: greetString,
 	}
 
-	ctx.JSON(http.StatusOK, responsex.Success.WithData(resp))
+	responsex.Success(ctx, responsex.WithData(resp))
 	return
 }

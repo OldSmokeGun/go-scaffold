@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"net/http"
 )
 
 var (
@@ -52,12 +51,12 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) boo
 			errsMap := validatorx.Translate(errs, m.ErrorMessage())
 
 			if len(errsMap) == 0 {
-				ctx.JSON(http.StatusInternalServerError, responsex.ServerError.WithMsg(ErrValidateMessageTransformFailed.Error()))
+				responsex.ServerError(ctx, responsex.WithMsg(ErrValidateMessageTransformFailed.Error()))
 				return false
 			}
 
 			for _, e := range errsMap {
-				ctx.JSON(http.StatusBadRequest, responsex.ValidateError.WithMsg(e))
+				responsex.ValidateError(ctx, responsex.WithMsg(e))
 				return false
 			}
 
@@ -66,7 +65,8 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) boo
 
 		global.Logger().Error(err.Error())
 
-		ctx.JSON(http.StatusInternalServerError, responsex.ServerError)
+		responsex.ServerError(ctx)
+
 		return false
 	}
 

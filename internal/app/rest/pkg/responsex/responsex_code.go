@@ -36,12 +36,3 @@ func (r StatusCode) String() string {
 
 	return ""
 }
-
-var (
-	Success          = NewResponse(SuccessCode, SuccessCode.String(), nil)
-	ServerError      = NewResponse(ServerErrorCode, ServerErrorCode.String(), nil)
-	ClientError      = NewResponse(ClientErrorCode, ClientErrorCode.String(), nil)
-	ValidateError    = NewResponse(ValidateErrorCode, ValidateErrorCode.String(), nil)
-	Unauthorized     = NewResponse(UnauthorizedCode, UnauthorizedCode.String(), nil)
-	PermissionDenied = NewResponse(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
-)
