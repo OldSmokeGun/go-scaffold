@@ -41,8 +41,8 @@ func Start() (err error) {
 	// 启动 http 服务
 	addr := fmt.Sprintf(
 		"%s:%d",
-		global.Config().App.Host,
-		global.Config().App.Port,
+		global.Config().REST.Host,
+		global.Config().REST.Port,
 	)
 	httpServer = &http.Server{
 		Addr:    addr,

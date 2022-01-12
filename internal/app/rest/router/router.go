@@ -2,10 +2,10 @@ package router
 
 import (
 	"fmt"
+	"gin-scaffold/internal/app/config"
 	"gin-scaffold/internal/app/global"
 	"gin-scaffold/internal/app/rest/api/docs"
 	_ "gin-scaffold/internal/app/rest/api/docs"
-	"gin-scaffold/internal/app/rest/config"
 	"gin-scaffold/internal/app/rest/handler/greet"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -35,7 +35,11 @@ func New() *gin.Engine {
 
 	// 覆盖 swagger 配置
 	if global.Config().Env != config.Prod {
-		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", docs.SwaggerInfo.Host, global.Config().Port)
+		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", docs.SwaggerInfo.Host, global.Config().REST.Port)
+		if global.Config().REST.ExternalUrl != "" {
+			docs.SwaggerInfo.Host = global.Config().REST.ExternalUrl
+		}
+
 		// swagger
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}

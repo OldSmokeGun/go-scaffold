@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"gin-scaffold/internal/app"
+	"gin-scaffold/internal/app/config"
 	"gin-scaffold/internal/app/global"
-	"gin-scaffold/internal/app/rest/config"
 	"gin-scaffold/pkg/configure"
 	"gin-scaffold/pkg/helper"
 	"gin-scaffold/pkg/logger"
@@ -143,7 +143,7 @@ func main() {
 
 	log.Println("the app is shutting down ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.ShutdownWaitTime)*time.Second)
 	defer cancel()
 
 	// 关闭应用

@@ -1,23 +1,20 @@
-# http 服务监听 ip
-Host: "0.0.0.0"
-# http 服务监听端口
-Port: "9527"
-# 当前环境（local、test 或 prod）
-Env: "local"
+Env: "local"            # 当前环境（local、test 或 prod）
+ShutdownWaitTime: 5     # 停止应用的等待时间
 
 # 全局日志
 Log:
-  Path: "logs/framework_%Y%m%d.log" # 全局日志路径（相对于项目的根目录）
-  Level: "info"
-  Format: "text"
-  Caller: false
+  Path: "logs/framework_%Y%m%d.log"     # 全局日志路径（相对于项目的根目录）
+  Level: "info"                         # 日志等级
+  Format: "text"                        # 日志格式化方式
+  Mode: ""                              # 日志的模式（development（默认） 或 production）
+  Caller: true                          # 日志是否打印调用者
 
 # 数据库配置
-# Database:
+# DB:
 #   Driver: "mysql"
 #   Host: "127.0.0.1"
 #   Port: "3306"
-#   Database: "gin-scaffold"
+#   Database: "web-scaffold"
 #   Username: "root"
 #   Password: "root"
 #   Options:
@@ -27,7 +24,7 @@ Log:
 #   MaxIdleConn: 20
 #   MaxOpenConn: 40
 #   ConnMaxLifeTime: 120
-#   LogLevel: "info"
+#   LogLevel: "error"
 
 #  Driver: "postgres"
 #  Host: "127.0.0.1"
@@ -45,15 +42,19 @@ Log:
 
 # redis 配置
 # Redis:
-#   Host: "127.0.0.1"
+#   Host: "localhost"
 #   Port: "6379"
 #   Password: ""
-#   DB: 0 # 连接到服务器后要选择的数据库
-#   PoolSize: 20 # 连接池最大连接数
-#   MinIdleConns: 10 # 连接池空闲连接数
-#   IdleTimeout: 600 # 客户端关闭空闲连接的时间
+#   DB: 0               # 连接到服务器后要选择的数据库
+#   PoolSize: 20        # 连接池最大连接数
+#   MinIdleConns: 10    # 连接池空闲连接数
+#   IdleTimeout: 600    # 连接池空闲连接数
 
-# JWT 配置
-# JWT:
-#   Key: ""
-#   Expire: 604800
+REST:
+  Host: "localhost"     # http 服务监听 ip
+  Port: "9527"          # http 服务监听端口
+  ExternalUrl: ""       # 如果配置了反向代理，此配置为反向代理的 url
+  # JWT 配置
+  JWT:
+    Key: ""             # JWT 密钥
+    Expire: 604800      # JWT 过期时间
