@@ -5,11 +5,11 @@ import (
 	"gin-scaffold/internal/app/config"
 	"gin-scaffold/internal/app/global"
 	"gin-scaffold/internal/app/rest/api/docs"
-	_ "gin-scaffold/internal/app/rest/api/docs"
+
 	"gin-scaffold/internal/app/rest/handler/greet"
+	"gin-scaffold/internal/app/rest/pkg/swagger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"io"
 	"os"
@@ -33,15 +33,16 @@ func New() *gin.Engine {
 	// 允许跨越
 	router.Use(cors.Default())
 
-	// 覆盖 swagger 配置
+	// swagger 配置
 	if global.Config().Env != config.Prod {
 		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", docs.SwaggerInfo.Host, global.Config().REST.Port)
 		if global.Config().REST.ExternalUrl != "" {
 			docs.SwaggerInfo.Host = global.Config().REST.ExternalUrl
 		}
 
-		// swagger
-		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		swagger.Setup(router, swagger.Config{Path: "/docs", OptionFunc: func(c *ginSwagger.Config) {
+			c.DefaultModelsExpandDepth = -1
+		}})
 	}
 
 	greetHandler := greet.NewHandler()
