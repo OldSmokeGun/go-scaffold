@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gin-scaffold/internal/app/global"
-	"gin-scaffold/internal/app/rest/pkg/validatorx"
+	"gin-scaffold/internal/app/pkg/validatorx"
 	"gin-scaffold/internal/app/rest/router"
 	"log"
 	"net/http"

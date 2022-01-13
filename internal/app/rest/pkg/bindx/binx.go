@@ -1,10 +1,10 @@
-package binx
+package bindx
 
 import (
 	"errors"
 	"gin-scaffold/internal/app/global"
+	"gin-scaffold/internal/app/pkg/validatorx"
 	"gin-scaffold/internal/app/rest/pkg/responsex"
-	"gin-scaffold/internal/app/rest/pkg/validatorx"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"

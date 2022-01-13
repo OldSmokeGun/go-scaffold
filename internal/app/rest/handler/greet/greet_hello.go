@@ -2,7 +2,7 @@ package greet
 
 import (
 	"gin-scaffold/internal/app/logic/greet"
-	"gin-scaffold/internal/app/rest/pkg/binx"
+	"gin-scaffold/internal/app/rest/pkg/bindx"
 	"gin-scaffold/internal/app/rest/pkg/responsex"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
@@ -41,7 +41,7 @@ func (HelloReq) ErrorMessage() map[string]string {
 // @Failure      429   {object}  api.TooManyRequest           "请求过于频繁"
 func (h *handler) Hello(ctx *gin.Context) {
 	req := new(HelloReq)
-	if !binx.ShouldBindQuery(ctx, req) {
+	if !bindx.ShouldBindQuery(ctx, req) {
 		return
 	}
 

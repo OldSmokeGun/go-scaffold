@@ -32,6 +32,7 @@ mac-build:
 
 download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
+	go install github.com/cosmtrek/air@latest; \
 	go install github.com/swaggo/swag/cmd/swag@latest
 
 clean:
