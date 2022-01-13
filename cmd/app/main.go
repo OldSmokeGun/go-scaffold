@@ -2,17 +2,17 @@ package main
 
 import (
 	"context"
-	"gin-scaffold/internal/app"
-	"gin-scaffold/internal/app/config"
-	"gin-scaffold/internal/app/global"
-	"gin-scaffold/pkg/configure"
-	"gin-scaffold/pkg/helper"
-	"gin-scaffold/pkg/logger"
-	"gin-scaffold/pkg/orm"
-	"gin-scaffold/pkg/redisclient"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/pflag"
+	"go-scaffold/internal/app"
+	"go-scaffold/internal/app/config"
+	"go-scaffold/internal/app/global"
+	"go-scaffold/pkg/configure"
+	"go-scaffold/pkg/helper"
+	"go-scaffold/pkg/logger"
+	"go-scaffold/pkg/orm"
+	"go-scaffold/pkg/redisclient"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
@@ -23,7 +23,7 @@ import (
 )
 
 // defaultConfigPath 默认配置文件路径
-var defaultConfigPath = filepath.Join(helper.RootPath(), "config/app.yaml")
+var defaultConfigPath = filepath.Join(helper.RootPath(), "etc/app.yaml")
 
 func main() {
 	var (
@@ -36,7 +36,7 @@ func main() {
 		err          error
 	)
 
-	pflag.StringVarP(&configPath, "config", "c", defaultConfigPath, "配置文件路径")
+	pflag.StringVarP(&configPath, "etc", "c", defaultConfigPath, "配置文件路径")
 	pflag.Parse()
 
 	// 加载配置

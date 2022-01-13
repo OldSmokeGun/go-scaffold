@@ -1,11 +1,11 @@
 package greet
 
 import (
-	"gin-scaffold/internal/app/logic/greet"
-	"gin-scaffold/internal/app/rest/pkg/bindx"
-	"gin-scaffold/internal/app/rest/pkg/responsex"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	"go-scaffold/internal/app/logic/greet"
+	"go-scaffold/internal/app/rest/pkg/bindx"
+	"go-scaffold/internal/app/rest/pkg/responsex"
 )
 
 type (

@@ -1,4 +1,4 @@
-module gin-scaffold
+module go-scaffold
 
 go 1.16
 

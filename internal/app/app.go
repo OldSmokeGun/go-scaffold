@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"gin-scaffold/internal/app/rest"
+	"go-scaffold/internal/app/rest"
 )
 
 // Start 应用启动入口

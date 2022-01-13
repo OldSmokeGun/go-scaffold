@@ -1,8 +1,8 @@
 package greet
 
 import (
-	"gin-scaffold/internal/app/global"
 	"github.com/gin-gonic/gin"
+	"go-scaffold/internal/app/global"
 	"go.uber.org/zap"
 )
 

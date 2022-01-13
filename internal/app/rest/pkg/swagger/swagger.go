@@ -1,10 +1,10 @@
 package swagger
 
 import (
-	_ "gin-scaffold/internal/app/rest/api/docs"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	_ "go-scaffold/internal/app/rest/api/docs"
 	"net/http"
 	"strings"
 )

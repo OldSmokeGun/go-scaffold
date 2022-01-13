@@ -2,15 +2,15 @@ package router
 
 import (
 	"fmt"
-	"gin-scaffold/internal/app/config"
-	"gin-scaffold/internal/app/global"
-	"gin-scaffold/internal/app/rest/api/docs"
+	"go-scaffold/internal/app/config"
+	"go-scaffold/internal/app/global"
+	"go-scaffold/internal/app/rest/api/docs"
 
-	"gin-scaffold/internal/app/rest/handler/greet"
-	"gin-scaffold/internal/app/rest/pkg/swagger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go-scaffold/internal/app/rest/handler/greet"
+	"go-scaffold/internal/app/rest/pkg/swagger"
 	"io"
 	"os"
 )

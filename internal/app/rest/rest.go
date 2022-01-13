@@ -3,9 +3,9 @@ package rest
 import (
 	"context"
 	"fmt"
-	"gin-scaffold/internal/app/global"
-	"gin-scaffold/internal/app/pkg/validatorx"
-	"gin-scaffold/internal/app/rest/router"
+	"go-scaffold/internal/app/global"
+	"go-scaffold/internal/app/pkg/validatorx"
+	"go-scaffold/internal/app/rest/router"
 	"log"
 	"net/http"
 )

@@ -1,10 +1,10 @@
 package config
 
 import (
-	restconfig "gin-scaffold/internal/app/rest/config"
-	"gin-scaffold/pkg/logger"
-	"gin-scaffold/pkg/orm"
-	"gin-scaffold/pkg/redisclient"
+	restconfig "go-scaffold/internal/app/rest/config"
+	"go-scaffold/pkg/logger"
+	"go-scaffold/pkg/orm"
+	"go-scaffold/pkg/redisclient"
 )
 
 type Env string
