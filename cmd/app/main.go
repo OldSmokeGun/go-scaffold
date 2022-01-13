@@ -23,7 +23,7 @@ import (
 )
 
 // defaultConfigPath 默认配置文件路径
-var defaultConfigPath = filepath.Join(helper.RootPath(), "config/web.yaml")
+var defaultConfigPath = filepath.Join(helper.RootPath(), "config/app.yaml")
 
 func main() {
 	var (

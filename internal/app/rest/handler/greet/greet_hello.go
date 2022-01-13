@@ -1,7 +1,7 @@
 package greet
 
 import (
-	"gin-scaffold/internal/app/rest/logic/greet"
+	"gin-scaffold/internal/app/logic/greet"
 	"gin-scaffold/internal/app/rest/pkg/binx"
 	"gin-scaffold/internal/app/rest/pkg/responsex"
 	"github.com/gin-gonic/gin"
