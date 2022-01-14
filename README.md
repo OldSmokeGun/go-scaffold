@@ -11,12 +11,12 @@
   - `app`：主程序编译入口
   - 辅助程序编译入口目录（如 `ctl` 等命令行生成工具）
   - ...
-- `etc`：配置文件目录
 - `deploy`：环境和部署相关目录
   - `docker-compose`：`docker-compose` 容器编排目录
   - `kubernetes` 编排配置目录
   - ...
 - `docs`：文档目录
+- `etc`：配置文件目录
 - `internal`：
   - `app`：主程序逻辑代码
     - `config`：主程序配置模型
