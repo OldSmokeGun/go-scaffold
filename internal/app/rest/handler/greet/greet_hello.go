@@ -41,7 +41,8 @@ func (HelloReq) ErrorMessage() map[string]string {
 // @Failure      429   {object}  api.TooManyRequest           "请求过于频繁"
 func (h *handler) Hello(ctx *gin.Context) {
 	req := new(HelloReq)
-	if !bindx.ShouldBindQuery(ctx, req) {
+	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
+		h.logger.Error(err.Error())
 		return
 	}
 
