@@ -12,7 +12,7 @@ import (
 func Start() (err error) {
 	// 数据迁移
 	if global.DB() != nil {
-		if err = migratorx.New(global.DB()).Exec(model.MigrationTasks()); err != nil {
+		if err = migratorx.New(global.DB()).Run(model.MigrationTasks()); err != nil {
 			return
 		}
 	}

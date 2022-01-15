@@ -15,8 +15,8 @@ func New(db *gorm.DB) *Migrator {
 	}
 }
 
-// Exec 执行迁移任务
-func (m Migrator) Exec(tasks []*Task) (err error) {
+// Run 执行迁移任务
+func (m Migrator) Run(tasks []*Task) (err error) {
 	for _, task := range tasks {
 		if task.Execute == nil {
 			if err = m.db.Set(
