@@ -1,4 +1,4 @@
-package responsex
+package response
 
 // StatusCode 响应状态码
 type StatusCode int

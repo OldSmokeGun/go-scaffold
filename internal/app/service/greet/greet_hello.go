@@ -8,6 +8,6 @@ type HelloParam struct {
 	Name string
 }
 
-func (l *logic) Hello(param *HelloParam) (string, error) {
+func (l *service) Hello(param *HelloParam) (string, error) {
 	return fmt.Sprintf("Hello, %s!", param.Name), nil
 }

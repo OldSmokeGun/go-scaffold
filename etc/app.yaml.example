@@ -14,7 +14,7 @@ Log:
 #   Driver: "mysql"
 #   Host: "127.0.0.1"
 #   Port: "3306"
-#   Database: "web-scaffold"
+#   Database: "go-scaffold"
 #   Username: "root"
 #   Password: "root"
 #   Options:
@@ -29,7 +29,7 @@ Log:
 #  Driver: "postgres"
 #  Host: "127.0.0.1"
 #  Port: "5432"
-#  Database: "postgres"
+#  Database: "go-scaffold"
 #  Username: "postgres"
 #  Password: "root"
 #  Options:
