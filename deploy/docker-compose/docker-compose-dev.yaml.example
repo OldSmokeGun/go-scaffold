@@ -4,12 +4,12 @@ services:
   mysql:
     image: mysql:latest
     networks:
-      web-scaffold:
+      go-scaffold:
         aliases:
           - mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: web-scaffold
+      MYSQL_DATABASE: go-scaffold
     ports:
       - "$PORT:3306"
     command: >
@@ -21,7 +21,7 @@ services:
   redis:
     image: redis:latest
     networks:
-      web-scaffold:
+      go-scaffold:
         aliases:
           - redis
     ports:
@@ -36,7 +36,7 @@ services:
   web:
     image: cosmtrek/air
     networks:
-      web-scaffold:
+      go-scaffold:
         aliases:
           - web
     ports:
@@ -59,4 +59,4 @@ services:
     restart: always
 
 networks:
-  web-scaffold:
+  go-scaffold:
