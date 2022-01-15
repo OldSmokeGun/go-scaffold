@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"go-scaffold/internal/app/pkg/validatorx"
-	"go-scaffold/internal/app/rest/pkg/response"
+	"go-scaffold/internal/app/rest/pkg/responsex"
 )
 
 var (
@@ -50,19 +50,19 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) err
 			errsMap := validatorx.Translate(errs, m.ErrorMessage())
 
 			if len(errsMap) == 0 {
-				response.ServerError(ctx)
+				responsex.ServerError(ctx)
 				return ErrValidateErrorTranslateFailed
 			}
 
 			for _, e := range errsMap {
-				response.ValidateError(ctx, response.WithMsg(e))
+				responsex.ValidateError(ctx, responsex.WithMsg(e))
 				return errors.New(e)
 			}
 
 			return nil
 		}
 
-		response.ServerError(ctx)
+		responsex.ServerError(ctx)
 		return err
 	}
 

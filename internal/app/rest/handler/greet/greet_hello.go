@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/rest/pkg/bindx"
-	"go-scaffold/internal/app/rest/pkg/response"
+	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/service/greet"
 )
 
@@ -49,14 +49,14 @@ func (h *handler) Hello(ctx *gin.Context) {
 	param := new(greet.HelloParam)
 	if err := copier.Copy(param, req); err != nil {
 		h.logger.Error(err.Error())
-		response.ServerError(ctx)
+		responsex.ServerError(ctx)
 		return
 	}
 
 	service := greet.NewService(ctx)
 	greetString, err := service.Hello(param)
 	if err != nil {
-		response.ServerError(ctx, response.WithMsg(err.Error()))
+		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
 	}
 
@@ -64,6 +64,6 @@ func (h *handler) Hello(ctx *gin.Context) {
 		Msg: greetString,
 	}
 
-	response.Success(ctx, response.WithData(resp))
+	responsex.Success(ctx, responsex.WithData(resp))
 	return
 }

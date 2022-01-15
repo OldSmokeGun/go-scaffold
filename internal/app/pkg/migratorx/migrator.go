@@ -1,4 +1,4 @@
-package migrator
+package migratorx
 
 import "gorm.io/gorm"
 

@@ -1,7 +1,7 @@
 package model
 
 import (
-	"go-scaffold/internal/app/pkg/migrator"
+	"go-scaffold/internal/app/pkg/migratorx"
 	"gorm.io/plugin/soft_delete"
 )
 
@@ -15,8 +15,8 @@ type BaseModel struct {
 }
 
 // MigrationTasks 注册数据迁移任务
-func MigrationTasks() []*migrator.Task {
-	return []*migrator.Task{
+func MigrationTasks() []*migratorx.Task {
+	return []*migratorx.Task{
 		{Comment: "用户表", Model: &User{}},
 	}
 }

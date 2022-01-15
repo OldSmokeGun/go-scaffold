@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
-	"go-scaffold/internal/app/pkg/migrator"
+	"go-scaffold/internal/app/pkg/migratorx"
 	"go-scaffold/internal/app/rest"
 )
 
@@ -12,7 +12,7 @@ import (
 func Start() (err error) {
 	// 数据迁移
 	if global.DB() != nil {
-		if err = migrator.New(global.DB()).Exec(model.MigrationTasks()); err != nil {
+		if err = migratorx.New(global.DB()).Exec(model.MigrationTasks()); err != nil {
 			return
 		}
 	}
