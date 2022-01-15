@@ -33,12 +33,12 @@ services:
       - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
       - "./redis/data:/data"
 
-  web:
+  rest:
     image: cosmtrek/air
     networks:
       go-scaffold:
         aliases:
-          - web
+          - rest
     ports:
       - "$PORT:9527"
     environment:
