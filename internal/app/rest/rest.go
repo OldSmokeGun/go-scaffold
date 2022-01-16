@@ -28,7 +28,7 @@ import (
 
 var httpServer *http.Server
 
-// Start HTTP 接口服务启动入口
+// Start HTTP 服务启动
 func Start() (err error) {
 	// 注册自定义验证器
 	err = validatorx.RegisterCustomValidation([]validatorx.CustomValidator{
@@ -58,7 +58,7 @@ func Start() (err error) {
 	return nil
 }
 
-// Stop HTTP 接口服务关闭入口
+// Stop HTTP 服务关闭
 func Stop(ctx context.Context) (err error) {
 	if err = httpServer.Shutdown(ctx); err != nil {
 		return

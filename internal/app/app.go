@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"go-scaffold/internal/app/cli"
+	"go-scaffold/internal/app/cron"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/pkg/migratorx"
@@ -29,12 +30,12 @@ func Start() (err error) {
 		}
 	}
 
-	// 初始化命令行
-	if err = cli.Setup(); err != nil {
+	// 启动 cron 服务
+	if err = cron.Start(); err != nil {
 		return
 	}
 
-	// 启动 HTTP 接口服务
+	// 启动 HTTP 服务
 	if err = rest.Start(); err != nil {
 		return
 	}
@@ -44,6 +45,12 @@ func Start() (err error) {
 
 // Stop 应用关闭钩子
 func Stop(ctx context.Context) (err error) {
+	// 关闭 cron 服务
+	if err = cron.Stop(ctx); err != nil {
+		return
+	}
+
+	// 关闭 HTTP 服务
 	if err = rest.Stop(ctx); err != nil {
 		return
 	}

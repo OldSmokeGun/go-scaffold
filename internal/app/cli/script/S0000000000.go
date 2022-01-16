@@ -7,7 +7,7 @@ import (
 )
 
 // s0000000000 示例脚本
-// 脚本用途：TODO
+// 脚本说明：TODO
 type s0000000000 struct {
 	logger *zap.Logger
 }

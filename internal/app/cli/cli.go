@@ -8,9 +8,14 @@ import (
 	"go-scaffold/internal/app/global"
 )
 
-// Setup 命令行应用初始化入口
+// Setup 命令行应用初始化
 func Setup() error {
-	cli := commandx.NewCommandLine(global.Command())
+	// 根命令
+	rootCommand := global.Command()
+
+	cli := commandx.NewCommandLine(rootCommand)
+
+	// TODO 编写子命令
 
 	// 注册业务的子命令
 	greetHandler := greet.NewHandler()

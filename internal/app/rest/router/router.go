@@ -45,6 +45,8 @@ func New() *gin.Engine {
 		}})
 	}
 
+	// TODO 编写路由
+
 	greetHandler := greet.NewHandler()
 
 	router.GET("/greet", greetHandler.Hello)
