@@ -40,7 +40,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "实例"
+                    "示例"
                 ],
                 "summary": "示例接口",
                 "parameters": [

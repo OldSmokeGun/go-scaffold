@@ -131,7 +131,7 @@ paths:
             $ref: '#/definitions/api.ServerError'
       summary: 示例接口
       tags:
-      - 实例
+      - 示例
 produces:
 - application/json
 schemes:
