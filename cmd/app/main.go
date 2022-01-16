@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/config"
@@ -37,7 +38,6 @@ func main() {
 	)
 
 	pflag.StringVarP(&configPath, "etc", "c", defaultConfigPath, "配置文件路径")
-	pflag.Parse()
 
 	// 加载配置
 	if !filepath.IsAbs(configPath) {
@@ -90,7 +90,7 @@ func main() {
 		rdb = redisclient.MustNew(*conf.Redis)
 	}
 
-	// 创建上下文依赖
+	// 设置全局变量
 	global.SetLoggerOutput(loggerOutput)
 	global.SetConfig(conf)
 	global.SetLogger(zLogger)
@@ -125,31 +125,48 @@ func main() {
 		}
 	}()
 
-	// 监听退出信号
-	signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer signalStop()
+	cmd := &cobra.Command{
+		Use: "app",
+		Run: func(cmd *cobra.Command, args []string) {
+			// 监听退出信号
+			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+			defer signalStop()
 
-	// 启动应用
-	go func() {
-		if err = app.Start(); err != nil {
-			panic(err)
-		}
-	}()
+			// 调用 app 启动钩子
+			go func() {
+				if err = app.Start(); err != nil {
+					panic(err)
+				}
+			}()
 
-	// 等待退出信号
-	<-signalCtx.Done()
+			// 等待退出信号
+			<-signalCtx.Done()
 
-	signalStop() // 取消信号的监听
+			signalStop() // 取消信号的监听
 
-	log.Println("the app is shutting down ...")
+			log.Println("the app is shutting down ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.ShutdownWaitTime)*time.Second)
-	defer cancel()
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.ShutdownWaitTime)*time.Second)
+			defer cancel()
 
-	// 关闭应用
-	if err = app.Stop(ctx); err != nil {
+			// 关闭应用
+			if err = app.Stop(ctx); err != nil {
+				panic(err)
+			}
+
+			log.Println("the app has been stop")
+		},
+	}
+
+	// 设置全局变量
+	global.SetCommand(cmd)
+
+	// 调用 app 初始化钩子
+	if err = app.Setup(); err != nil {
 		panic(err)
 	}
 
-	log.Println("the app has been stop")
+	if err = cmd.Execute(); err != nil {
+		panic(err)
+	}
 }

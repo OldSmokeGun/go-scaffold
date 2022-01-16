@@ -3,6 +3,7 @@ package global
 import (
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/spf13/cobra"
 	"go-scaffold/internal/app/config"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -10,12 +11,23 @@ import (
 
 // Global 是传递给应用的依赖
 var (
+	command      *cobra.Command         // 命令行实例
 	loggerOutput *rotatelogs.RotateLogs // 日志输出实例
 	conf         *config.Config         // 配置实例
 	logger       *zap.Logger            // 日志实例
 	db           *gorm.DB               // 数据库实例
 	redisClient  *redis.Client          // redis 实例
 )
+
+// SetCommand 设置命令行实例
+func SetCommand(cmd *cobra.Command) {
+	command = cmd
+}
+
+// Command 获取命令行实例
+func Command() *cobra.Command {
+	return command
+}
 
 // SetLoggerOutput 设置日志轮转实例
 func SetLoggerOutput(lr *rotatelogs.RotateLogs) {

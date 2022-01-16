@@ -28,7 +28,7 @@ func (HelloReq) ErrorMessage() map[string]string {
 // @Router       /greet [get]
 // @Summary      示例接口
 // @Description  示例接口
-// @Tags         实例
+// @Tags         示例
 // @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        name  query     string                       true  "名称"  format(string)  default(Tom)

@@ -2,19 +2,36 @@ package app
 
 import (
 	"context"
+	"go-scaffold/internal/app/cli"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/pkg/migratorx"
 	"go-scaffold/internal/app/rest"
 )
 
-// Start 应用启动入口
+// Setup 应用初始化钩子
+// 在这里可以执行一些初始化操作，例如：命令行 flag 的注册
+func Setup() (err error) {
+	// 初始化命令行
+	if err = cli.Setup(); err != nil {
+		return
+	}
+
+	return nil
+}
+
+// Start 应用启动钩子
 func Start() (err error) {
 	// 数据迁移
 	if global.DB() != nil {
 		if err = migratorx.New(global.DB()).Run(model.MigrationTasks()); err != nil {
 			return
 		}
+	}
+
+	// 初始化命令行
+	if err = cli.Setup(); err != nil {
+		return
 	}
 
 	// 启动 HTTP 接口服务
@@ -25,7 +42,7 @@ func Start() (err error) {
 	return nil
 }
 
-// Stop 应用关闭入口
+// Stop 应用关闭钩子
 func Stop(ctx context.Context) (err error) {
 	if err = rest.Stop(ctx); err != nil {
 		return
