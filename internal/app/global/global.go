@@ -11,7 +11,7 @@ import (
 
 // Global 是传递给应用的依赖
 var (
-	command      *cobra.Command         // 命令行实例
+	command      *cobra.Command         // 根命令实例
 	loggerOutput *rotatelogs.RotateLogs // 日志输出实例
 	conf         *config.Config         // 配置实例
 	logger       *zap.Logger            // 日志实例

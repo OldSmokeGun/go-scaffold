@@ -23,10 +23,10 @@ func Start() (err error) {
 	// if _, err = cronServer.AddFunc("*/5 * * * * *", func() {}); err != nil { // 每 5 秒钟运行一次
 	// 	return err
 	// }
-	// if _, err = cronServer.AddJob("@daily", job.NewExampleJob()); err != nil { // 每天 00:00 运行一次
+	// if _, err = cronServer.AddJob("@daily", job.NewExample()); err != nil { // 每天 00:00 运行一次
 	// 	return err
 	// }
-	// if _, err = cronServer.AddJob("@every 1h30m10s", job.NewExampleJob()); err != nil { // 每 1 小时 30 分 10 秒运行一次
+	// if _, err = cronServer.AddJob("@every 1h30m10s", job.NewExample()); err != nil { // 每 1 小时 30 分 10 秒运行一次
 	// 	return err
 	// }
 

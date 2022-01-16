@@ -5,20 +5,20 @@ import (
 	"go.uber.org/zap"
 )
 
-// exampleJob 示例任务
+// example 示例任务
 // 任务说明：TODO
-type exampleJob struct {
+type example struct {
 	logger *zap.Logger
 }
 
-// NewExampleJob 构造函数
-func NewExampleJob() *exampleJob {
-	return &exampleJob{
+// NewExample 构造函数
+func NewExample() *example {
+	return &example{
 		logger: global.Logger(),
 	}
 }
 
 // Run 任务执行方法
-func (s exampleJob) Run() {
-	s.logger.Info("exampleJob 任务执行成功")
+func (s example) Run() {
+	s.logger.Info("example 任务执行成功")
 }
