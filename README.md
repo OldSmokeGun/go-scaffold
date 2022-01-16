@@ -19,6 +19,13 @@
 - `etc`：配置文件目录
 - `internal`：
   - `app`：主程序逻辑代码
+    - `cli`：命令行功能
+      - `command`：命令行功能入口
+        - 模块目录
+        - ...
+      - `pkg`：功能增强包目录
+        - ...
+      - `script`：临时脚本
     - `config`：主程序配置模型
     - `global`：全局对象
     - `model`：数据库模型
@@ -96,8 +103,22 @@ $ docker-compose -f deploy/docker-compose/docker-compose.yaml up
 
 ## 热重启
 
+热重启功能基于 `air` 包，[文档地址](https://github.com/cosmtrek/air)
+
 ```shell
 $ air
+```
+
+## 运行命令行程序或脚本
+
+命令行程序功能基于 `cobra` 包，[文档地址](https://github.com/cosmtrek/air)
+
+```shell
+$ ./bin/app [标志] <子命令> [标志] [参数]
+
+# 帮助信息
+$ ./bin/app -h
+$ ./bin/app <子命令> -h
 ```
 
 # 全局对象
@@ -174,7 +195,7 @@ type (
 
 # `rest` 服务
 
-`rest` 服务提供 `HTTP` 的相关服务
+`rest` 服务基于 `gin` 提供 `HTTP` 的相关服务，[文档地址](https://github.com/gin-gonic/gin)
 
 ## 数据校验和绑定
 
@@ -305,3 +326,7 @@ $ make doc
 ```shell
 $ go generate
 ```
+
+## 如何访问 `swagger` 文档
+
+浏览器打开 `<yourAddress>:/docs`

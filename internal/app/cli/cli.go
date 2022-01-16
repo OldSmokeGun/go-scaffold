@@ -3,8 +3,8 @@ package cli
 import (
 	"github.com/spf13/cobra"
 	"go-scaffold/internal/app/cli/command/greet"
-	"go-scaffold/internal/app/cli/command/script"
 	"go-scaffold/internal/app/cli/pkg/commandx"
+	"go-scaffold/internal/app/cli/script"
 	"go-scaffold/internal/app/global"
 )
 
