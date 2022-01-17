@@ -1,4 +1,4 @@
-package api
+package example
 
 // Success 成功
 type Success struct {

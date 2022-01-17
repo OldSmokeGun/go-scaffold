@@ -1,9 +1,9 @@
-basePath: /
+basePath: /api
 consumes:
 - application/json
 - application/x-www-form-urlencoded
 definitions:
-  api.ClientError:
+  example.ClientError:
     properties:
       code:
         description: code 类型应为 int，string 仅为了表达多个错误码
@@ -13,7 +13,7 @@ definitions:
         example: 客户端请求错误|参数校验错误
         type: string
     type: object
-  api.PermissionDenied:
+  example.PermissionDenied:
     properties:
       code:
         example: 10005
@@ -22,7 +22,7 @@ definitions:
         example: 暂无权限
         type: string
     type: object
-  api.ResourceNotFound:
+  example.ResourceNotFound:
     properties:
       code:
         example: 10006
@@ -31,7 +31,7 @@ definitions:
         example: 资源不存在
         type: string
     type: object
-  api.ServerError:
+  example.ServerError:
     properties:
       code:
         example: 10001
@@ -40,7 +40,7 @@ definitions:
         example: 服务器出错
         type: string
     type: object
-  api.Success:
+  example.Success:
     properties:
       code:
         example: 10000
@@ -50,7 +50,7 @@ definitions:
         example: OK
         type: string
     type: object
-  api.TooManyRequest:
+  example.TooManyRequest:
     properties:
       code:
         example: 10007
@@ -59,7 +59,7 @@ definitions:
         example: 请求过于频繁
         type: string
     type: object
-  api.Unauthorized:
+  example.Unauthorized:
     properties:
       code:
         example: 10004
@@ -78,9 +78,9 @@ info:
   contact: {}
   description: API 接口文档
   title: API 接口文档
-  version: 1.0.0
+  version: 0.0.0
 paths:
-  /greet:
+  /v1/greet:
     get:
       consumes:
       - application/x-www-form-urlencoded
@@ -100,7 +100,7 @@ paths:
           description: 成功响应
           schema:
             allOf:
-            - $ref: '#/definitions/api.Success'
+            - $ref: '#/definitions/example.Success'
             - properties:
                 data:
                   $ref: '#/definitions/greet.HelloResp'
@@ -108,27 +108,27 @@ paths:
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/api.ClientError'
+            $ref: '#/definitions/example.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/api.Unauthorized'
+            $ref: '#/definitions/example.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/api.PermissionDenied'
+            $ref: '#/definitions/example.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/api.ResourceNotFound'
+            $ref: '#/definitions/example.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/api.TooManyRequest'
+            $ref: '#/definitions/example.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/api.ServerError'
+            $ref: '#/definitions/example.ServerError'
       summary: 示例接口
       tags:
       - 示例

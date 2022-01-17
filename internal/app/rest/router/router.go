@@ -1,16 +1,11 @@
 package router
 
 import (
-	"fmt"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/internal/app/rest/api/docs"
+	"go-scaffold/internal/app/rest/router/api"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"go-scaffold/internal/app/rest/handler/greet"
-	"go-scaffold/internal/app/rest/pkg/swagger"
 	"io"
 	"os"
 )
@@ -30,26 +25,8 @@ func New() *gin.Engine {
 
 	router := gin.Default()
 
-	// 允许跨越
-	router.Use(cors.Default())
-
-	// swagger 配置
-	if global.Config().Env != config.Prod {
-		docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", docs.SwaggerInfo.Host, global.Config().REST.Port)
-		if global.Config().REST.ExternalUrl != "" {
-			docs.SwaggerInfo.Host = global.Config().REST.ExternalUrl
-		}
-
-		swagger.Setup(router, swagger.Config{Path: "/docs", OptionFunc: func(c *ginSwagger.Config) {
-			c.DefaultModelsExpandDepth = -1
-		}})
-	}
-
-	// TODO 编写路由
-
-	greetHandler := greet.NewHandler()
-
-	router.GET("/greet", greetHandler.Hello)
+	// 注册 api 路由组
+	api.NewGroup().Registry(router)
 
 	// ...
 

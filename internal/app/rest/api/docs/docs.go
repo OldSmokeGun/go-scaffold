@@ -30,7 +30,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/greet": {
+        "/v1/greet": {
             "get": {
                 "description": "示例接口",
                 "consumes": [
@@ -60,7 +60,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.Success"
+                                    "$ref": "#/definitions/example.Success"
                                 },
                                 {
                                     "type": "object",
@@ -76,37 +76,37 @@ var doc = `{
                     "400": {
                         "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
                         "schema": {
-                            "$ref": "#/definitions/api.ClientError"
+                            "$ref": "#/definitions/example.ClientError"
                         }
                     },
                     "401": {
                         "description": "登陆失效",
                         "schema": {
-                            "$ref": "#/definitions/api.Unauthorized"
+                            "$ref": "#/definitions/example.Unauthorized"
                         }
                     },
                     "403": {
                         "description": "没有权限",
                         "schema": {
-                            "$ref": "#/definitions/api.PermissionDenied"
+                            "$ref": "#/definitions/example.PermissionDenied"
                         }
                     },
                     "404": {
                         "description": "资源不存在",
                         "schema": {
-                            "$ref": "#/definitions/api.ResourceNotFound"
+                            "$ref": "#/definitions/example.ResourceNotFound"
                         }
                     },
                     "429": {
                         "description": "请求过于频繁",
                         "schema": {
-                            "$ref": "#/definitions/api.TooManyRequest"
+                            "$ref": "#/definitions/example.TooManyRequest"
                         }
                     },
                     "500": {
                         "description": "服务器出错",
                         "schema": {
-                            "$ref": "#/definitions/api.ServerError"
+                            "$ref": "#/definitions/example.ServerError"
                         }
                     }
                 }
@@ -114,7 +114,7 @@ var doc = `{
         }
     },
     "definitions": {
-        "api.ClientError": {
+        "example.ClientError": {
             "type": "object",
             "properties": {
                 "code": {
@@ -128,7 +128,7 @@ var doc = `{
                 }
             }
         },
-        "api.PermissionDenied": {
+        "example.PermissionDenied": {
             "type": "object",
             "properties": {
                 "code": {
@@ -141,7 +141,7 @@ var doc = `{
                 }
             }
         },
-        "api.ResourceNotFound": {
+        "example.ResourceNotFound": {
             "type": "object",
             "properties": {
                 "code": {
@@ -154,7 +154,7 @@ var doc = `{
                 }
             }
         },
-        "api.ServerError": {
+        "example.ServerError": {
             "type": "object",
             "properties": {
                 "code": {
@@ -167,7 +167,7 @@ var doc = `{
                 }
             }
         },
-        "api.Success": {
+        "example.Success": {
             "type": "object",
             "properties": {
                 "code": {
@@ -181,7 +181,7 @@ var doc = `{
                 }
             }
         },
-        "api.TooManyRequest": {
+        "example.TooManyRequest": {
             "type": "object",
             "properties": {
                 "code": {
@@ -194,7 +194,7 @@ var doc = `{
                 }
             }
         },
-        "api.Unauthorized": {
+        "example.Unauthorized": {
             "type": "object",
             "properties": {
                 "code": {
@@ -236,9 +236,9 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "1.0.0",
+	Version:     "0.0.0",
 	Host:        "localhost",
-	BasePath:    "/",
+	BasePath:    "/api",
 	Schemes:     []string{"http", "https"},
 	Title:       "API 接口文档",
 	Description: "API 接口文档",

@@ -34,15 +34,19 @@
     - `model`：数据库模型
     - `pkg`：功能增强包目录
     - `rest`：`HTTP` 功能模块
-      - `api`：`api` 文档相关定义
+      - `api`：`api` 入口
         - `docs`：`swagger` 生成的定义文件
+        - `example`：`swagger` 文档的示例模型定义
+        - `v1`：`v1` 版本接口入口
+          - `handler`：接口请求处理
+            - 模块目录
+            - ...
       - `config`：`rest` 配置模型
-      - `handler`：`HTTP` 请求处理入口
-        - 模块目录
-        - ...
       - `middleware`：中间件目录
       - `pkg`：功能增强包目录
       - `router`：路由定义目录
+        - `api`：`api` 路由组注册
+          - `v1`：`api v1` 版本路由组注册
     - `rpc`：`RPC` 功能模块
     - `service`：逻辑代码
       - 模块目录

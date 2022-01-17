@@ -10,22 +10,6 @@ import (
 	"net/http"
 )
 
-//go:generate swag fmt -g rest.go
-//go:generate swag init -g rest.go -o ./api/docs --parseInternal
-
-// @title                       API 接口文档
-// @description                 API 接口文档
-// @version                     1.0.0
-// @host                        localhost
-// @BasePath                    /
-// @schemes                     http https
-// @accept                      json
-// @accept                      x-www-form-urlencoded
-// @produce                     json
-// @securityDefinitions.apikey  LoginAuth
-// @in                          header
-// @name                        Token
-
 var httpServer *http.Server
 
 // Start HTTP 服务启动
