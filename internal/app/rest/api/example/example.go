@@ -19,10 +19,10 @@ type ClientError struct {
 	Msg  string `json:"msg" example:"客户端请求错误|参数校验错误"`
 }
 
-// Unauthorized 登陆失效
+// Unauthorized 未经授权
 type Unauthorized struct {
 	Code int    `json:"code" example:"10004"`
-	Msg  string `json:"msg" example:"登陆失效"`
+	Msg  string `json:"msg" example:"未经授权"`
 }
 
 // PermissionDenied 没有权限

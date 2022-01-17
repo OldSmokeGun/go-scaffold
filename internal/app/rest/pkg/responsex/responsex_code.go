@@ -8,7 +8,7 @@ const (
 	ServerErrorCode      StatusCode = 10001 // 服务器出错
 	ClientErrorCode      StatusCode = 10002 // 客户端请求错误
 	ValidateErrorCode    StatusCode = 10003 // 参数校验错误
-	UnauthorizedCode     StatusCode = 10004 // 登陆失效
+	UnauthorizedCode     StatusCode = 10004 // 未经授权
 	PermissionDeniedCode StatusCode = 10005 // 没有权限
 	ResourceNotFoundCode StatusCode = 10006 // 资源不存在
 	TooManyRequestCode   StatusCode = 10007 // 请求过于频繁
@@ -25,7 +25,7 @@ func (r StatusCode) String() string {
 	case ValidateErrorCode:
 		return "参数校验错误"
 	case UnauthorizedCode:
-		return "登陆失效"
+		return "未经授权"
 	case PermissionDeniedCode:
 		return "暂无权限"
 	case ResourceNotFoundCode:

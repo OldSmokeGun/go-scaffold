@@ -65,7 +65,7 @@ definitions:
         example: 10004
         type: integer
       msg:
-        example: 登陆失效
+        example: 未经授权
         type: string
     type: object
   greet.HelloResp:

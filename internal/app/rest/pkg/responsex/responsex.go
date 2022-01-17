@@ -6,24 +6,24 @@ import (
 	"reflect"
 )
 
-// Payload 响应格式
-type Payload struct {
+// Body 响应格式
+type Body struct {
 	Code StatusCode  `json:"code"`
 	Msg  string      `json:"msg"`
 	Data interface{} `json:"data,omitempty"`
 }
 
-// NewPayload 返回 *Payload
-func NewPayload(code StatusCode, msg string, data interface{}) *Payload {
-	return &Payload{
+// NewBody 返回 *Body
+func NewBody(code StatusCode, msg string, data interface{}) *Body {
+	return &Body{
 		Code: code,
 		Msg:  msg,
 		Data: data,
 	}
 }
 
-// Response 使用 application/json 类型返回 Payload
-func Response(ctx *gin.Context, c int, p *Payload) {
+// Response 使用 application/json 类型返回 Body
+func Response(ctx *gin.Context, c int, p *Body) {
 	if p.Data != nil {
 		val := reflect.ValueOf(p.Data)
 		switch val.Kind() {
@@ -59,33 +59,52 @@ func Response(ctx *gin.Context, c int, p *Payload) {
 	ctx.JSON(c, p)
 }
 
-// OptionFunc Payload 属性设置函数
-type OptionFunc func(*Payload)
+// OptionFunc Body 属性设置函数
+type OptionFunc func(*Body)
 
-// WithCode 设置 Payload 的 Code
+// WithCode 设置 Body 的 Code
 func WithCode(code StatusCode) OptionFunc {
-	return func(p *Payload) {
+	return func(p *Body) {
 		p.Code = code
 	}
 }
 
-// WithMsg 设置 Payload 的 Msg
+// WithMsg 设置 Body 的 Msg
 func WithMsg(msg string) OptionFunc {
-	return func(p *Payload) {
+	return func(p *Body) {
 		p.Msg = msg
 	}
 }
 
-// WithData 设置 Payload 的 Data
+// WithData 设置 Body 的 Data
 func WithData(data interface{}) OptionFunc {
-	return func(p *Payload) {
+	return func(p *Body) {
 		p.Data = data
 	}
 }
 
+var (
+	// SuccessBody 成功响应 body
+	SuccessBody = NewBody(SuccessCode, SuccessCode.String(), nil)
+	// ServerErrorBody 服务器错误响应
+	ServerErrorBody = NewBody(ServerErrorCode, ServerErrorCode.String(), nil)
+	// ClientErrorBody 客户端错误响应
+	ClientErrorBody = NewBody(ClientErrorCode, ClientErrorCode.String(), nil)
+	// ValidateErrorBody 参数校验错误响应
+	ValidateErrorBody = NewBody(ValidateErrorCode, ValidateErrorCode.String(), nil)
+	// UnauthorizedBody 未经授权响应
+	UnauthorizedBody = NewBody(UnauthorizedCode, UnauthorizedCode.String(), nil)
+	// PermissionDeniedBody 暂无权限响应
+	PermissionDeniedBody = NewBody(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
+	// ResourceNotFoundBody 资源不存在响应
+	ResourceNotFoundBody = NewBody(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
+	// TooManyRequestBody 请求过于频繁响应
+	TooManyRequestBody = NewBody(TooManyRequestCode, TooManyRequestCode.String(), nil)
+)
+
 // Success 成功响应
 func Success(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(SuccessCode, SuccessCode.String(), nil)
+	p := SuccessBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -94,7 +113,7 @@ func Success(ctx *gin.Context, ops ...OptionFunc) {
 
 // ServerError 服务器错误响应
 func ServerError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(ServerErrorCode, ServerErrorCode.String(), nil)
+	p := ServerErrorBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -103,7 +122,7 @@ func ServerError(ctx *gin.Context, ops ...OptionFunc) {
 
 // ClientError 客户端错误响应
 func ClientError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(ClientErrorCode, ClientErrorCode.String(), nil)
+	p := ClientErrorBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -112,16 +131,16 @@ func ClientError(ctx *gin.Context, ops ...OptionFunc) {
 
 // ValidateError 参数校验错误响应
 func ValidateError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(ValidateErrorCode, ValidateErrorCode.String(), nil)
+	p := ValidateErrorBody
 	for _, op := range ops {
 		op(p)
 	}
 	Response(ctx, http.StatusBadRequest, p)
 }
 
-// Unauthorized 登陆失效响应
+// Unauthorized 未经授权响应
 func Unauthorized(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(UnauthorizedCode, UnauthorizedCode.String(), nil)
+	p := UnauthorizedBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -130,7 +149,7 @@ func Unauthorized(ctx *gin.Context, ops ...OptionFunc) {
 
 // PermissionDenied 暂无权限响应
 func PermissionDenied(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
+	p := PermissionDeniedBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -139,7 +158,7 @@ func PermissionDenied(ctx *gin.Context, ops ...OptionFunc) {
 
 // ResourceNotFound 资源不存在响应
 func ResourceNotFound(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
+	p := ResourceNotFoundBody
 	for _, op := range ops {
 		op(p)
 	}
@@ -148,7 +167,7 @@ func ResourceNotFound(ctx *gin.Context, ops ...OptionFunc) {
 
 // TooManyRequest 请求过于频繁响应
 func TooManyRequest(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPayload(TooManyRequestCode, TooManyRequestCode.String(), nil)
+	p := TooManyRequestBody
 	for _, op := range ops {
 		op(p)
 	}

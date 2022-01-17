@@ -57,4 +57,3 @@ REST:
   # JWT 配置
   JWT:
     Key: ""             # JWT 密钥
-    Expire: 604800      # JWT 过期时间

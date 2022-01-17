@@ -203,7 +203,7 @@ var doc = `{
                 },
                 "msg": {
                     "type": "string",
-                    "example": "登陆失效"
+                    "example": "未经授权"
                 }
             }
         },

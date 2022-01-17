@@ -29,8 +29,16 @@ func NewGroup() *Group {
 // Registry 注册路由
 func (g Group) Registry(router *gin.Engine) {
 	group := router.Group(g.BasePath)
-	// 允许跨越
-	group.Use(cors.Default())
+	group.Use(
+		cors.Default(), // 允许跨越
+		// jwt.Auth(jwt.Config{
+		// 	Key:                       global.Config().REST.Jwt.Key,
+		// 	ErrorResponseBody:         responsex.ServerErrorBody,
+		// 	ValidateErrorResponseBody: responsex.UnauthorizedBody,
+		// 	Logger:                    global.Logger().Sugar(),
+		// 	ContextKey:                "AuthInfo",
+		// }), // jwt 认证
+	)
 	{
 		// swagger 配置
 		if g.Config.Env != config.Prod {

@@ -1,9 +1,5 @@
 package config
 
-import (
-	"time"
-)
-
 type (
 	Config struct {
 		Host        string
@@ -13,7 +9,6 @@ type (
 	}
 
 	Jwt struct {
-		Key    string
-		Expire time.Duration
+		Key string
 	}
 )
