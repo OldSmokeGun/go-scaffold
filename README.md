@@ -55,13 +55,7 @@
 
 ## 生命周期
 
-### 程序启动生命周期
-
-![image](./docs/images/程序启动生命周期.png)
-
-### 程序结束生命周期
-
-![image](./docs/images/程序结束生命周期.png)
+![image](./docs/images/app主程序生命周期.png)
 
 ## 如何运行
 
