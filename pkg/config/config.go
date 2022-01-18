@@ -12,77 +12,43 @@ var (
 	ErrFileNotSpecified = errors.New("the file not specified")
 )
 
-// Config 配置
-type Config struct {
-
-	// Path 配置文件路径
-	Path string
-
-	// Model 配置文件加载到的模型
-	Model interface{}
-
-	// OnConfigChange 配置文件发生改变时的回调函数
-	OnConfigChange OnConfigChange
-
-	// Viper viper 实例
-	Viper *viper.Viper
-}
-
-// New 构造函数
-func New(path string, model interface{}, ops ...OptionFunc) *Config {
-	config := &Config{
-		Path:           path,
-		Model:          model,
-		OnConfigChange: nil,
-	}
-
-	for _, op := range ops {
-		op(config)
-	}
-
-	return config
-}
-
 // OnConfigChange 配置文件发生改变时的回调函数
-type OnConfigChange func(*Config, fsnotify.Event)
-
-// OptionFunc 选项函数
-type OptionFunc func(config *Config)
-
-// WithOnConfigChange 设置 config 的 OnConfigChange 属性
-func WithOnConfigChange(f OnConfigChange) OptionFunc {
-	return func(config *Config) {
-		config.OnConfigChange = f
-	}
-}
+type OnConfigChange func(*viper.Viper, interface{}, fsnotify.Event)
 
 // Load 加载配置
-func (c *Config) Load() error {
+func Load(path string, model interface{}, onConfigChange ...OnConfigChange) error {
 	var v = viper.New()
 
-	if c.Path == "" {
+	if path == "" {
 		return ErrFileNotSpecified
 	}
 
-	v.SetConfigName(strings.TrimSuffix(filepath.Base(c.Path), filepath.Ext(c.Path)))
+	v.SetConfigName(strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)))
 
-	v.AddConfigPath(filepath.Dir(c.Path))
+	v.AddConfigPath(filepath.Dir(path))
 
 	v.WatchConfig()
 
 	v.OnConfigChange(func(e fsnotify.Event) {
-		c.OnConfigChange(c, e)
+		for _, f := range onConfigChange {
+			f(v, model, e)
+		}
 	})
 
 	if err := v.ReadInConfig(); err != nil {
 		return err
 	}
 
-	if err := v.Unmarshal(c.Model); err != nil {
+	if err := v.Unmarshal(model); err != nil {
 		return err
 	}
 
-	c.Viper = v
-
 	return nil
+}
+
+// MustLoad 加载配置
+func MustLoad(path string, model interface{}, onConfigChange ...OnConfigChange) {
+	if err := Load(path, model, onConfigChange...); err != nil {
+		panic(err)
+	}
 }
