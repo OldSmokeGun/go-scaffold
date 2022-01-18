@@ -86,19 +86,19 @@ func WithData(data interface{}) OptionFunc {
 var (
 	// SuccessBody 成功响应 body
 	SuccessBody = NewBody(SuccessCode, SuccessCode.String(), nil)
-	// ServerErrorBody 服务器错误响应
+	// ServerErrorBody 服务器错误响应 body
 	ServerErrorBody = NewBody(ServerErrorCode, ServerErrorCode.String(), nil)
-	// ClientErrorBody 客户端错误响应
+	// ClientErrorBody 客户端错误响应 body
 	ClientErrorBody = NewBody(ClientErrorCode, ClientErrorCode.String(), nil)
-	// ValidateErrorBody 参数校验错误响应
+	// ValidateErrorBody 参数校验错误响应 body
 	ValidateErrorBody = NewBody(ValidateErrorCode, ValidateErrorCode.String(), nil)
-	// UnauthorizedBody 未经授权响应
+	// UnauthorizedBody 未经授权响应 body
 	UnauthorizedBody = NewBody(UnauthorizedCode, UnauthorizedCode.String(), nil)
-	// PermissionDeniedBody 暂无权限响应
+	// PermissionDeniedBody 暂无权限响应 body
 	PermissionDeniedBody = NewBody(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
-	// ResourceNotFoundBody 资源不存在响应
+	// ResourceNotFoundBody 资源不存在响应 body
 	ResourceNotFoundBody = NewBody(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
-	// TooManyRequestBody 请求过于频繁响应
+	// TooManyRequestBody 请求过于频繁响应 body
 	TooManyRequestBody = NewBody(TooManyRequestCode, TooManyRequestCode.String(), nil)
 )
 
