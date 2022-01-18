@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"github.com/fsnotify/fsnotify"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go-scaffold/internal/app"
-	"go-scaffold/internal/app/config"
+	appconfig "go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/pkg/configure"
+	"go-scaffold/pkg/config"
 	"go-scaffold/pkg/helper"
 	"go-scaffold/pkg/logger"
 	"go-scaffold/pkg/orm"
@@ -29,7 +30,7 @@ var defaultConfigPath = filepath.Join(helper.RootPath(), "etc/app.yaml")
 func main() {
 	var (
 		configPath   string
-		conf         = &config.Config{}
+		conf         = &appconfig.Config{}
 		loggerOutput *rotatelogs.RotateLogs
 		zLogger      *zap.Logger
 		db           *gorm.DB
@@ -43,13 +44,26 @@ func main() {
 	if !filepath.IsAbs(configPath) {
 		configPath = filepath.Join(helper.RootPath(), configPath)
 	}
-	configure.MustLoad(configPath, conf)
+	if err = config.New(
+		configPath,
+		conf,
+		config.WithOnConfigChange(func(c *config.Config, e fsnotify.Event) {
+			if err := c.Viper.MergeInConfig(); err != nil {
+				panic(err)
+			}
+			if err := c.Viper.Unmarshal(c.Model); err != nil {
+				panic(err)
+			}
+		}),
+	).Load(); err != nil {
+		panic(err)
+	}
 
 	// 检查环境是否设置正确
 	switch conf.Env {
-	case config.Local:
-	case config.Test:
-	case config.Prod:
+	case appconfig.Local:
+	case appconfig.Test:
+	case appconfig.Prod:
 	default:
 		panic("unknown Env value: " + conf.Env)
 	}

@@ -1,0 +1,191 @@
+package config
+
+import (
+	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+	"math/rand"
+	"os"
+	"testing"
+	"time"
+)
+
+type testConfigModel struct {
+	Test  string
+	Test1 struct {
+		Key1 int
+		Key2 string
+	}
+	Test2 []struct {
+		Key1 int
+		Key2 string
+	}
+}
+
+func TestConfig_Load(t *testing.T) {
+	var (
+		newRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+	)
+
+	t.Run("config_file_normal", func(t *testing.T) {
+		configFilePath := fmt.Sprintf("%s/test_load_%d%d.yaml", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
+		configContent := `Test: "value"
+Test1:
+  Key1: 123
+  Key2: "value2"
+Test2:
+  - Key1: 123
+    Key2: "value2"`
+		testConfigCompareModel := &testConfigModel{
+			Test: "value",
+			Test1: struct {
+				Key1 int
+				Key2 string
+			}{
+				Key1: 123,
+				Key2: "value2",
+			},
+			Test2: []struct {
+				Key1 int
+				Key2 string
+			}{
+				{
+					Key1: 123,
+					Key2: "value2",
+				},
+			},
+		}
+
+		f, err := os.Create(configFilePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = f.WriteString(configContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if err = os.Remove(configFilePath); err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		m := new(testConfigModel)
+		assert.NoError(t, New(configFilePath, m).Load())
+		assert.Equal(t, testConfigCompareModel, m)
+	})
+	t.Run("config_file_not_exist", func(t *testing.T) {
+		assert.ErrorAs(t, New("./test.yaml", new(testConfigModel)).Load(), &viper.ConfigFileNotFoundError{})
+	})
+	t.Run("config_file_is_empty", func(t *testing.T) {
+		m := new(testConfigModel)
+		assert.ErrorIs(t, New("", m).Load(), ErrFileNotSpecified)
+		assert.Equal(t, new(testConfigModel), m)
+	})
+	t.Run("config_file_read_error", func(t *testing.T) {
+		// 设置不支持的配置文件类型
+		configFilePath := fmt.Sprintf("%s/test_load_%d%d.test", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
+
+		f, err := os.Create(configFilePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if err = os.Remove(configFilePath); err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		assert.ErrorAs(t, New(configFilePath, new(testConfigModel)).Load(), &viper.ConfigFileNotFoundError{})
+	})
+	t.Run("config_file_unmarshal_error", func(t *testing.T) {
+		// 设置不支持的配置文件类型
+		configFilePath := fmt.Sprintf("%s/test_load_%d%d.yaml", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
+		configContent := `Test: "value"`
+
+		f, err := os.Create(configFilePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = f.WriteString(configContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err = f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if err = os.Remove(configFilePath); err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		exceptedError := "'' expected type 'string', got unconvertible type 'map[string]interface {}', value: 'map[test:value]'"
+		assert.EqualError(t, New(configFilePath, new(string)).Load(), exceptedError)
+	})
+	t.Run("config_file_live_reload", func(t *testing.T) {
+		configFilePath := fmt.Sprintf("%s/test_load_%d%d.yaml", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
+		configContent := `Test: "value"`
+		testConfigCompareModel := &testConfigModel{
+			Test: "value",
+		}
+
+		f, err := os.Create(configFilePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		_, err = f.WriteString(configContent)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = f.Close(); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if err = os.Remove(configFilePath); err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		var ch = make(chan struct{}, 1)
+
+		m := new(testConfigModel)
+		assert.NoError(t, New(configFilePath, m, WithOnConfigChange(func(c *Config, e fsnotify.Event) {
+			if err := c.Viper.MergeInConfig(); err != nil {
+				panic(err)
+			}
+			if err := c.Viper.Unmarshal(c.Model); err != nil {
+				panic(err)
+			}
+
+			ch <- struct{}{}
+		})).Load())
+		assert.Equal(t, testConfigCompareModel, m)
+
+		f, err = os.OpenFile(configFilePath, os.O_RDWR, 0666)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = f.WriteAt([]byte("VALUE"), 7); err != nil {
+			t.Fatal(err)
+		}
+		if err = f.Close(); err != nil {
+			t.Fatal(err)
+		}
+
+		<-ch
+
+		assert.Equal(t, "VALUE", m.Test)
+	})
+}
