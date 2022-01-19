@@ -3,6 +3,7 @@ package greet
 import (
 	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/global"
+	"go-scaffold/internal/app/service/greet"
 	"go.uber.org/zap"
 )
 
@@ -11,11 +12,13 @@ type Handler interface {
 }
 
 type handler struct {
-	logger *zap.Logger
+	logger  *zap.Logger
+	service greet.Service
 }
 
-func NewHandler() *handler {
+func New() *handler {
 	return &handler{
-		logger: global.Logger(),
+		logger:  global.Logger(),
+		service: greet.New(),
 	}
 }

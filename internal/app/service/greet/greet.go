@@ -1,7 +1,8 @@
 package greet
 
 import (
-	"github.com/gin-gonic/gin"
+	"go-scaffold/internal/app/global"
+	"go.uber.org/zap"
 )
 
 type Service interface {
@@ -9,11 +10,11 @@ type Service interface {
 }
 
 type service struct {
-	ctx *gin.Context
+	logger *zap.Logger
 }
 
-func NewService(ctx *gin.Context) *service {
+func New() *service {
 	return &service{
-		ctx: ctx,
+		logger: global.Logger(),
 	}
 }

@@ -53,8 +53,7 @@ func (h *handler) Hello(ctx *gin.Context) {
 		return
 	}
 
-	service := greet.NewService(ctx)
-	greetString, err := service.Hello(param)
+	greetString, err := h.service.Hello(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

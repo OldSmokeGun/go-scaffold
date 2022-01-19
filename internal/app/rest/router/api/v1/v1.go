@@ -23,7 +23,7 @@ func (g Group) Registry(rg *gin.RouterGroup) {
 
 	// TODO 编写路由
 
-	greetHandler := greet.NewHandler()
+	greetHandler := greet.New()
 
 	group.GET("/greet", greetHandler.Hello)
 }
