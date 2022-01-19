@@ -73,6 +73,55 @@ definitions:
       msg:
         type: string
     type: object
+  user.CreateReq:
+    properties:
+      age:
+        description: 年龄
+        minimum: 1
+        type: integer
+      name:
+        description: 名称
+        type: string
+      phone:
+        description: 电话
+        type: string
+    required:
+    - name
+    - phone
+    type: object
+  user.DetailResp:
+    properties:
+      age:
+        description: 年龄
+        type: integer
+      id:
+        type: integer
+      name:
+        description: 名称
+        type: string
+      phone:
+        description: 电话
+        type: string
+    type: object
+  user.SaveReq:
+    properties:
+      age:
+        description: 年龄
+        minimum: 1
+        type: integer
+      id:
+        type: integer
+      name:
+        description: 名称
+        type: string
+      phone:
+        description: 电话
+        type: string
+    required:
+    - id
+    - name
+    - phone
+    type: object
 host: localhost
 info:
   contact: {}
@@ -132,6 +181,261 @@ paths:
       summary: 示例接口
       tags:
       - 示例
+  /v1/user:
+    post:
+      consumes:
+      - application/json
+      description: 创建用户
+      parameters:
+      - description: 用户信息
+        format: string
+        in: body
+        name: user_info
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/example.Success'
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/example.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/example.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/example.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/example.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/example.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/example.ServerError'
+      summary: 创建用户
+      tags:
+      - 用户
+    put:
+      consumes:
+      - application/json
+      description: 更新用户
+      parameters:
+      - description: 用户信息
+        format: string
+        in: body
+        name: user_info
+        required: true
+        schema:
+          $ref: '#/definitions/user.SaveReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/example.Success'
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/example.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/example.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/example.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/example.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/example.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/example.ServerError'
+      summary: 更新用户
+      tags:
+      - 用户
+  /v1/user/{id}:
+    delete:
+      consumes:
+      - text/plain
+      description: 删除用户
+      parameters:
+      - description: 用户 ID
+        format: uint
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            $ref: '#/definitions/example.Success'
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/example.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/example.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/example.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/example.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/example.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/example.ServerError'
+      summary: 删除用户
+      tags:
+      - 用户
+    get:
+      consumes:
+      - text/plain
+      description: 用户详情
+      parameters:
+      - description: 用户 ID
+        format: uint
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/example.Success'
+            - properties:
+                data:
+                  $ref: '#/definitions/user.DetailResp'
+              type: object
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/example.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/example.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/example.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/example.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/example.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/example.ServerError'
+      summary: 用户详情
+      tags:
+      - 用户
+  /v1/users:
+    get:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 用户列表
+      parameters:
+      - description: 查询字符串
+        format: string
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功响应
+          schema:
+            allOf:
+            - $ref: '#/definitions/example.Success'
+            - properties:
+                data:
+                  items:
+                    properties:
+                      age:
+                        description: 年龄
+                        type: integer
+                      id:
+                        type: integer
+                      name:
+                        description: 名称
+                        type: string
+                      phone:
+                        description: 电话
+                        type: string
+                    type: object
+                  type: array
+              type: object
+        "400":
+          description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
+          schema:
+            $ref: '#/definitions/example.ClientError'
+        "401":
+          description: 登陆失效
+          schema:
+            $ref: '#/definitions/example.Unauthorized'
+        "403":
+          description: 没有权限
+          schema:
+            $ref: '#/definitions/example.PermissionDenied'
+        "404":
+          description: 资源不存在
+          schema:
+            $ref: '#/definitions/example.ResourceNotFound'
+        "429":
+          description: 请求过于频繁
+          schema:
+            $ref: '#/definitions/example.TooManyRequest'
+        "500":
+          description: 服务器出错
+          schema:
+            $ref: '#/definitions/example.ServerError'
+      summary: 用户列表
+      tags:
+      - 用户
 produces:
 - application/json
 schemes:

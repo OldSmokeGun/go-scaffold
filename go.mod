@@ -12,6 +12,7 @@ require (
 	github.com/jackc/pgx/v4 v4.9.2 // indirect
 	github.com/jinzhu/copier v0.3.4
 	github.com/jonboulle/clockwork v0.1.0 // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

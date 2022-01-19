@@ -33,8 +33,8 @@ func (g Group) Registry(router *gin.Engine) {
 		cors.Default(), // 允许跨越
 		// jwt.Auth(jwt.Config{
 		// 	Key:                       global.Config().REST.Jwt.Key,
-		// 	ErrorResponseBody:         responsex.ServerErrorBody,
-		// 	ValidateErrorResponseBody: responsex.UnauthorizedBody,
+		// 	ErrorResponseBody:         responsex.NewServerErrorBody(),
+		// 	ValidateErrorResponseBody: responsex.NewUnauthorizedBody(),
 		// 	Logger:                    global.Logger().Sugar(),
 		// 	ContextKey:                "AuthInfo",
 		// }), // jwt 认证

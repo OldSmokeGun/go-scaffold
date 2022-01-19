@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/rest/api/v1/handler/greet"
+	"go-scaffold/internal/app/rest/api/v1/handler/user"
 )
 
 // Group api v1 路由组
@@ -23,7 +24,16 @@ func (g Group) Registry(rg *gin.RouterGroup) {
 
 	// TODO 编写路由
 
-	greetHandler := greet.New()
+	var (
+		greetHandler = greet.New()
+		userHandler  = user.New()
+	)
 
 	group.GET("/greet", greetHandler.Hello)
+
+	group.GET("/users", userHandler.List)
+	group.GET("/user/:id", userHandler.Detail)
+	group.POST("/user", userHandler.Create)
+	group.PUT("/user", userHandler.Save)
+	group.DELETE("/user/:id", userHandler.Delete)
 }

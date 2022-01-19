@@ -101,6 +101,396 @@
                     }
                 }
             }
+        },
+        "/v1/user": {
+            "put": {
+                "description": "更新用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "更新用户",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "用户信息",
+                        "name": "user_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.SaveReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "用户信息",
+                        "name": "user_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.CreateReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/{id}": {
+            "get": {
+                "description": "用户详情",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "用户详情",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "uint",
+                        "description": "用户 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/example.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/user.DetailResp"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "删除用户",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "uint",
+                        "description": "用户 ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users": {
+            "get": {
+                "description": "用户列表",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "查询字符串",
+                        "name": "keyword",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/example.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "age": {
+                                                        "description": "年龄",
+                                                        "type": "integer"
+                                                    },
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "description": "名称",
+                                                        "type": "string"
+                                                    },
+                                                    "phone": {
+                                                        "description": "电话",
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -201,6 +591,74 @@
             "type": "object",
             "properties": {
                 "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.CreateReq": {
+            "type": "object",
+            "required": [
+                "name",
+                "phone"
+            ],
+            "properties": {
+                "age": {
+                    "description": "年龄",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "电话",
+                    "type": "string"
+                }
+            }
+        },
+        "user.DetailResp": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "description": "年龄",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "电话",
+                    "type": "string"
+                }
+            }
+        },
+        "user.SaveReq": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "phone"
+            ],
+            "properties": {
+                "age": {
+                    "description": "年龄",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "电话",
                     "type": "string"
                 }
             }
