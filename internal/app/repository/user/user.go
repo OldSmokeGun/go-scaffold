@@ -8,7 +8,16 @@ import (
 )
 
 type Repository interface {
-	QueryOneByID(id int) *model.User
+	// 示例方法，根据业务编写
+
+	FindOneByID(id uint, columns []string) *model.User
+	FindOneWhere(where map[string]interface{}, columns []string, order string) *model.User
+	FindAll(columns []string, order string) []*model.User
+	FindWhere(where map[string]interface{}, columns []string, order string) []*model.User
+	Create(user *model.User) (*model.User, error)
+	Save(user *model.User) (*model.User, error)
+	Delete(user *model.User) error
+	Paginate(limit int, columns []string, order string)
 }
 
 type repository struct {
@@ -24,7 +33,37 @@ func New() *repository {
 }
 
 func (r repository) QueryOneByID(id int) *model.User {
-	// TODO
-	
-	return new(model.User)
+	panic("implement me")
+}
+
+func (r repository) FindOneByID(id uint, columns []string) *model.User {
+	panic("implement me")
+}
+
+func (r repository) FindOneWhere(where map[string]interface{}, columns []string, order string) *model.User {
+	panic("implement me")
+}
+
+func (r repository) FindAll(columns []string, order string) []*model.User {
+	panic("implement me")
+}
+
+func (r repository) FindWhere(where map[string]interface{}, columns []string, order string) []*model.User {
+	panic("implement me")
+}
+
+func (r repository) Create(user *model.User) (*model.User, error) {
+	panic("implement me")
+}
+
+func (r repository) Save(user *model.User) (*model.User, error) {
+	panic("implement me")
+}
+
+func (r repository) Delete(user *model.User) error {
+	panic("implement me")
+}
+
+func (r repository) Paginate(limit int, columns []string, order string) {
+	panic("implement me")
 }

@@ -44,6 +44,7 @@
       - `config`：`rest` 配置模型
       - `middleware`：中间件目录
       - `pkg`：功能增强包目录
+      - `repository`：数据库交互
       - `router`：路由定义目录
         - `api`：`api` 路由组注册
           - `v1`：`api v1` 版本路由组注册
