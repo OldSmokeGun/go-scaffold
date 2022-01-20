@@ -11,24 +11,24 @@ build:
 ifeq (${OS}, Windows_NT)
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go
+	go build -tags=jsoniter -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go
 else
-	CGO_ENABLED=0 go build -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
+	CGO_ENABLED=0 go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
 endif
 
 linux-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=linux go build -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
+	CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
 
 windows-build:
 	go generate -x ./...
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go
+	go build -tags=jsoniter -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go
 
 mac-build:
 	go generate -x ./...
-	CGO_ENABLED=0 GOOS=darwin go build -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
+	CGO_ENABLED=0 GOOS=darwin go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
 
 download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
