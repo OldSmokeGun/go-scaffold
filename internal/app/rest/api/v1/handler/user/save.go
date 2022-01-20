@@ -8,14 +8,16 @@ import (
 	"go-scaffold/internal/app/service/user"
 )
 
-type CreateReq struct {
+type SaveReq struct {
+	ID    uint   `json:"id" binding:"required"`
 	Name  string `json:"name" binding:"required"`        // 名称
 	Age   int8   `json:"age" binding:"min=1"`            // 年龄
 	Phone string `json:"phone" binding:"required,phone"` // 电话
 }
 
-func (CreateReq) ErrorMessage() map[string]string {
+func (SaveReq) ErrorMessage() map[string]string {
 	return map[string]string{
+		"ID.required":    "用户 ID 不能为空",
 		"Name.required":  "名称不能为空",
 		"Age.min":        "年龄不能小于 {min}",
 		"Phone.required": "手机号码不能为空",
@@ -23,14 +25,14 @@ func (CreateReq) ErrorMessage() map[string]string {
 	}
 }
 
-// Create 创建用户
-// @Router       /v1/user [post]
-// @Summary      创建用户
-// @Description  创建用户
+// Save 更新用户
+// @Router       /v1/user [put]
+// @Summary      更新用户
+// @Description  更新用户
 // @Tags         用户
 // @Accept       json
 // @Produce      json
-// @Param        user_info  body      CreateReq                 true  "用户信息"  format(string)
+// @Param        user_info  body      SaveReq                   true  "用户信息"  format(string)
 // @Success      200        {object}  example.Success           "成功响应"
 // @Failure      500        {object}  example.ServerError       "服务器出错"
 // @Failure      400        {object}  example.ClientError       "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -38,21 +40,21 @@ func (CreateReq) ErrorMessage() map[string]string {
 // @Failure      403        {object}  example.PermissionDenied  "没有权限"
 // @Failure      404        {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429        {object}  example.TooManyRequest    "请求过于频繁"
-func (h *handler) Create(ctx *gin.Context) {
-	req := new(CreateReq)
+func (h *handler) Save(ctx *gin.Context) {
+	req := new(SaveReq)
 	if err := bindx.ShouldBindJSON(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		return
 	}
 
-	param := new(user.CreateParam)
+	param := new(user.SaveParam)
 	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}
 
-	err := h.service.Create(param)
+	err := h.Service.Save(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

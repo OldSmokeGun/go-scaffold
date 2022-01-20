@@ -11,21 +11,21 @@ type DeleteParam struct {
 
 // Delete 删除用户
 func (s *service) Delete(param *DeleteParam) error {
-	user, err := s.repository.FindOneByID(
+	user, err := s.Repository.FindOneByID(
 		param.ID,
 		[]string{"*"},
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("用户不存在")
+			return ErrUserNotExist
 		}
-		s.logger.Error(err.Error())
-		return errors.New("数据查询失败")
+		s.Logger.Error(err.Error())
+		return ErrDataQueryFailed
 	}
 
-	if err = s.repository.Delete(user); err != nil {
-		s.logger.Error(err.Error())
-		return errors.New("数据删除失败")
+	if err = s.Repository.Delete(user); err != nil {
+		s.Logger.Error(err.Error())
+		return ErrDataDeleteFailed
 	}
 
 	return nil

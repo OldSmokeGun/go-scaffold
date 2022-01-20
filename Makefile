@@ -33,7 +33,8 @@ mac-build:
 download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
 	go install github.com/cosmtrek/air@latest; \
-	go install github.com/swaggo/swag/cmd/swag@latest
+	go install github.com/swaggo/swag/cmd/swag@latest; \
+	go install github.com/golang/mock/mockgen@latest
 
 clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi

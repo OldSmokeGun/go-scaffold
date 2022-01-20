@@ -12,16 +12,16 @@ type DetailParam struct {
 
 // Detail 用户详情
 func (s *service) Detail(param *DetailParam) (*model.User, error) {
-	user, err := s.repository.FindOneByID(
+	user, err := s.Repository.FindOneByID(
 		param.ID,
 		[]string{"*"},
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("用户不存在")
+			return nil, ErrUserNotExist
 		}
-		s.logger.Error(err.Error())
-		return nil, errors.New("数据查询失败")
+		s.Logger.Error(err.Error())
+		return nil, ErrDataQueryFailed
 	}
 
 	return user, nil

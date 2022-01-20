@@ -43,18 +43,18 @@ func (ListReq) ErrorMessage() map[string]string {
 func (h *handler) List(ctx *gin.Context) {
 	req := new(ListReq)
 	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		return
 	}
 
 	param := new(user.ListParam)
 	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}
 
-	result, err := h.service.List(param)
+	result, err := h.Service.List(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
@@ -62,7 +62,7 @@ func (h *handler) List(ctx *gin.Context) {
 
 	data := new(ListResp)
 	if err := copier.Copy(data, result); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}

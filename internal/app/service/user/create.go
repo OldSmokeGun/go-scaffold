@@ -17,13 +17,13 @@ type CreateParam struct {
 func (s *service) Create(param *CreateParam) error {
 	m := new(model.User)
 	if err := copier.Copy(m, param); err != nil {
-		s.logger.Error(err.Error())
+		s.Logger.Error(err.Error())
 		return errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err := s.repository.Create(m); err != nil {
-		s.logger.Error(err.Error())
-		return errors.New("数据保存失败")
+	if _, err := s.Repository.Create(m); err != nil {
+		s.Logger.Error(err.Error())
+		return ErrDataStoreFailed
 	}
 
 	return nil

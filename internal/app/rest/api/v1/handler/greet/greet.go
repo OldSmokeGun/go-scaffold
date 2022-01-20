@@ -7,18 +7,18 @@ import (
 	"go.uber.org/zap"
 )
 
-type Handler interface {
+type Interface interface {
 	Hello(ctx *gin.Context)
 }
 
 type handler struct {
-	logger  *zap.Logger
-	service greet.Service
+	Logger  *zap.Logger
+	Service greet.Interface
 }
 
 func New() *handler {
 	return &handler{
-		logger:  global.Logger(),
-		service: greet.New(),
+		Logger:  global.Logger(),
+		Service: greet.New(),
 	}
 }

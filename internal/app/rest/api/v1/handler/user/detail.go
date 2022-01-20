@@ -45,18 +45,18 @@ func (DetailReq) ErrorMessage() map[string]string {
 func (h *handler) Detail(ctx *gin.Context) {
 	req := new(DetailReq)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		return
 	}
 
 	param := new(user.DetailParam)
 	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}
 
-	result, err := h.service.Detail(param)
+	result, err := h.Service.Detail(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
@@ -64,7 +64,7 @@ func (h *handler) Detail(ctx *gin.Context) {
 
 	data := new(DetailResp)
 	if err := copier.Copy(data, result); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}

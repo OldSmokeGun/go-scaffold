@@ -42,18 +42,18 @@ func (HelloReq) ErrorMessage() map[string]string {
 func (h *handler) Hello(ctx *gin.Context) {
 	req := new(HelloReq)
 	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		return
 	}
 
 	param := new(greet.HelloParam)
 	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}
 
-	greetString, err := h.service.Hello(param)
+	greetString, err := h.Service.Hello(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

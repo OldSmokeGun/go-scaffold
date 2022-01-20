@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type Repository interface {
+type Interface interface {
 	// FindByKeyword 根据关键字查询用户列表
 	FindByKeyword(columns []string, keyword string, order string) ([]*model.User, error)
 

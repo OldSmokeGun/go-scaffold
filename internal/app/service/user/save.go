@@ -16,26 +16,26 @@ type SaveParam struct {
 
 // Save 更新用户
 func (s *service) Save(param *SaveParam) error {
-	user, err := s.repository.FindOneByID(
+	user, err := s.Repository.FindOneByID(
 		param.ID,
 		[]string{"*"},
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("用户不存在")
+			return ErrUserNotExist
 		}
-		s.logger.Error(err.Error())
-		return errors.New("数据查询失败")
+		s.Logger.Error(err.Error())
+		return ErrDataQueryFailed
 	}
 
 	if err = copier.Copy(user, param); err != nil {
-		s.logger.Error(err.Error())
+		s.Logger.Error(err.Error())
 		return errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err = s.repository.Save(user); err != nil {
-		s.logger.Error(err.Error())
-		return errors.New("数据保存失败")
+	if _, err = s.Repository.Save(user); err != nil {
+		s.Logger.Error(err.Error())
+		return ErrDataStoreFailed
 	}
 
 	return nil

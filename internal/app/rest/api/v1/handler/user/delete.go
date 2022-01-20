@@ -36,18 +36,18 @@ func (DeleteReq) ErrorMessage() map[string]string {
 func (h *handler) Delete(ctx *gin.Context) {
 	req := new(DeleteReq)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		return
 	}
 
 	param := new(user.DeleteParam)
 	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
+		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return
 	}
 
-	err := h.service.Delete(param)
+	err := h.Service.Delete(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
