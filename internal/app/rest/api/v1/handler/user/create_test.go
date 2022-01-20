@@ -7,11 +7,9 @@ import (
 	"github.com/jinzhu/copier"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
-	"go-scaffold/internal/app/pkg/validatorx"
 	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/service/user"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+	"go-scaffold/internal/app/test"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -19,12 +17,7 @@ import (
 )
 
 func init() {
-	err := validatorx.RegisterCustomValidation([]validatorx.CustomValidator{
-		{"phone", validatorx.ValidatePhone},
-	})
-	if err != nil {
-		panic(err)
-	}
+	test.Init()
 }
 
 // mockRequest 模拟请求
@@ -53,13 +46,6 @@ func TestCreateReq_ErrorMessage(t *testing.T) {
 }
 
 func Test_handler_Create(t *testing.T) {
-	// 初始化测试环境
-	logger := zap.New(zapcore.NewCore(
-		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
-		zapcore.AddSync(io.Discard),
-		zap.InfoLevel,
-	))
-
 	t.Run("create_success", func(t *testing.T) {
 		createReq := &CreateReq{
 			Name:  "test",
@@ -82,7 +68,7 @@ func Test_handler_Create(t *testing.T) {
 			Return(nil)
 
 		newHandler := New()
-		newHandler.Logger = logger
+		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
 		w := mockRequest(t, newHandler, createReq)
@@ -102,7 +88,7 @@ func Test_handler_Create(t *testing.T) {
 		t.Run("req_name_required", func(t *testing.T) {
 			createReq := &CreateReq{"", 1, "13000000000"}
 			newHandler := New()
-			newHandler.Logger = logger
+			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
 			w := mockRequest(t, newHandler, createReq)
@@ -120,7 +106,7 @@ func Test_handler_Create(t *testing.T) {
 		t.Run("req_age_min", func(t *testing.T) {
 			createReq := &CreateReq{"test", 0, "13000000000"}
 			newHandler := New()
-			newHandler.Logger = logger
+			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
 			w := mockRequest(t, newHandler, createReq)
@@ -138,7 +124,7 @@ func Test_handler_Create(t *testing.T) {
 		t.Run("req_phone_phone", func(t *testing.T) {
 			createReq := &CreateReq{"test", 1, "100"}
 			newHandler := New()
-			newHandler.Logger = logger
+			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
 			w := mockRequest(t, newHandler, createReq)
@@ -176,7 +162,7 @@ func Test_handler_Create(t *testing.T) {
 			Return(user.ErrDataStoreFailed)
 
 		newHandler := New()
-		newHandler.Logger = logger
+		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
 		w := mockRequest(t, newHandler, createReq)

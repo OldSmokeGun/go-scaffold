@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/internal/app/pkg/validatorx"
 	"go-scaffold/internal/app/rest/router"
 	"log"
 	"net/http"
@@ -14,14 +13,6 @@ var httpServer *http.Server
 
 // Start HTTP 服务启动
 func Start() (err error) {
-	// 注册自定义验证器
-	err = validatorx.RegisterCustomValidation([]validatorx.CustomValidator{
-		{"phone", validatorx.ValidatePhone},
-	})
-	if err != nil {
-		return
-	}
-
 	// 启动 http 服务
 	addr := fmt.Sprintf(
 		"%s:%d",

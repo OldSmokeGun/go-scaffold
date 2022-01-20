@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+func init() {
+	if err := RegisterCustomValidation([]CustomValidator{
+		{"phone", ValidatePhone},
+	}); err != nil {
+		panic(err)
+	}
+}
+
 type CustomValidator struct {
 	Tag  string
 	Func validator.Func

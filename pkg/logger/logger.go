@@ -13,17 +13,20 @@ func New(conf Config) (logger *zap.Logger, err error) {
 		encoderConfig zapcore.EncoderConfig
 		encoder       zapcore.Encoder
 		writeSyncer   zapcore.WriteSyncer
+		stackLevel    zapcore.Level
 	)
 
 	switch conf.Mode {
 	case Development:
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
+		stackLevel = zapcore.WarnLevel
 	case Production:
 		encoderConfig = zap.NewProductionEncoderConfig()
+		stackLevel = zapcore.ErrorLevel
 	default:
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
 	}
-	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 日志等级设置大写
+	encoderConfig.EncodeLevel = zapcore.LowercaseLevelEncoder
 	encoderConfig.EncodeTime = zapcore.RFC3339TimeEncoder
 
 	switch conf.Format {
@@ -48,9 +51,16 @@ func New(conf Config) (logger *zap.Logger, err error) {
 	)
 
 	if conf.Caller {
-		logger = zap.New(core, zap.AddCaller())
+		logger = zap.New(
+			core,
+			zap.AddStacktrace(stackLevel),
+			zap.AddCaller(),
+		)
 	} else {
-		logger = zap.New(core)
+		logger = zap.New(
+			core,
+			zap.AddStacktrace(stackLevel),
+		)
 	}
 
 	return logger, nil
