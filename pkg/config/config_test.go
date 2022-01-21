@@ -77,14 +77,17 @@ Test2:
 		assert.NoError(t, Load(configFilePath, m))
 		assert.Equal(t, testConfigCompareModel, m)
 	})
+
 	t.Run("config_file_not_exist", func(t *testing.T) {
 		assert.ErrorAs(t, Load("./6620aa46-4ff3-4943-b227-af3a334b81a3.yaml", new(testConfigModel)), &viper.ConfigFileNotFoundError{})
 	})
+
 	t.Run("config_file_is_empty", func(t *testing.T) {
 		m := new(testConfigModel)
 		assert.ErrorIs(t, Load("", m), ErrFileNotSpecified)
 		assert.Equal(t, new(testConfigModel), m)
 	})
+
 	t.Run("config_file_read_error", func(t *testing.T) {
 		// 设置不支持的配置文件类型
 		configFilePath := fmt.Sprintf("%s/test_load_%d%d.test", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
@@ -104,6 +107,7 @@ Test2:
 
 		assert.ErrorAs(t, Load(configFilePath, new(testConfigModel)), &viper.ConfigFileNotFoundError{})
 	})
+
 	t.Run("config_file_unmarshal_error", func(t *testing.T) {
 		// 设置不支持的配置文件类型
 		configFilePath := fmt.Sprintf("%s/test_load_%d%d.yaml", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
@@ -131,6 +135,7 @@ Test2:
 		exceptedError := "'' expected type 'string', got unconvertible type 'map[string]interface {}', value: 'map[test:value]'"
 		assert.EqualError(t, Load(configFilePath, new(string)), exceptedError)
 	})
+
 	t.Run("config_file_live_reload", func(t *testing.T) {
 		configFilePath := fmt.Sprintf("%s/test_load_%d%d.yaml", t.TempDir(), time.Now().UnixNano(), newRand.Intn(99999))
 		configContent := `Test: "value"`
@@ -211,6 +216,7 @@ func TestMustLoad(t *testing.T) {
 			MustLoad(configFilePath, m)
 		})
 	})
+	
 	t.Run("panic", func(t *testing.T) {
 		m := new(testConfigModel)
 		assert.Panics(t, func() {
