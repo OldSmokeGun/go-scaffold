@@ -46,103 +46,145 @@ func WithData(data interface{}) OptionFunc {
 }
 
 // NewSuccessBody 成功响应 body
-func NewSuccessBody() *Body { return NewBody(SuccessCode, SuccessCode.String(), nil) }
+func NewSuccessBody(ops ...OptionFunc) *Body {
+	b := NewBody(SuccessCode, SuccessCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
+}
 
 // NewServerErrorBody 服务器错误响应 body
-func NewServerErrorBody() *Body { return NewBody(ServerErrorCode, ServerErrorCode.String(), nil) }
+func NewServerErrorBody(ops ...OptionFunc) *Body {
+	b := NewBody(ServerErrorCode, ServerErrorCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
+}
 
 // NewClientErrorBody 客户端错误响应 body
-func NewClientErrorBody() *Body { return NewBody(ClientErrorCode, ClientErrorCode.String(), nil) }
+func NewClientErrorBody(ops ...OptionFunc) *Body {
+	b := NewBody(ClientErrorCode, ClientErrorCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
+}
 
 // NewValidateErrorBody 参数校验错误响应 body
-func NewValidateErrorBody() *Body { return NewBody(ValidateErrorCode, ValidateErrorCode.String(), nil) }
+func NewValidateErrorBody(ops ...OptionFunc) *Body {
+	b := NewBody(ValidateErrorCode, ValidateErrorCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
+}
 
 // NewUnauthorizedBody 未经授权响应 body
-func NewUnauthorizedBody() *Body { return NewBody(UnauthorizedCode, UnauthorizedCode.String(), nil) }
+func NewUnauthorizedBody(ops ...OptionFunc) *Body {
+	b := NewBody(UnauthorizedCode, UnauthorizedCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
+}
 
 // NewPermissionDeniedBody 暂无权限响应 body
-func NewPermissionDeniedBody() *Body {
-	return NewBody(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
+func NewPermissionDeniedBody(ops ...OptionFunc) *Body {
+	b := NewBody(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
 }
 
 // NewResourceNotFoundBody 资源不存在响应 body
-func NewResourceNotFoundBody() *Body {
-	return NewBody(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
+func NewResourceNotFoundBody(ops ...OptionFunc) *Body {
+	b := NewBody(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
 }
 
 // NewTooManyRequestBody 请求过于频繁响应 body
-func NewTooManyRequestBody() *Body {
-	return NewBody(TooManyRequestCode, TooManyRequestCode.String(), nil)
+func NewTooManyRequestBody(ops ...OptionFunc) *Body {
+	b := NewBody(TooManyRequestCode, TooManyRequestCode.String(), nil)
+	for _, op := range ops {
+		op(b)
+	}
+	return b
 }
 
 // Success 成功响应
 func Success(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewSuccessBody()
+	b := NewSuccessBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusOK, p)
+	ctx.JSON(http.StatusOK, b)
 }
 
 // ServerError 服务器错误响应
 func ServerError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewServerErrorBody()
+	b := NewServerErrorBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusInternalServerError, p)
+	ctx.JSON(http.StatusInternalServerError, b)
 }
 
 // ClientError 客户端错误响应
 func ClientError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewClientErrorBody()
+	b := NewClientErrorBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusBadRequest, p)
+	ctx.JSON(http.StatusBadRequest, b)
 }
 
 // ValidateError 参数校验错误响应
 func ValidateError(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewValidateErrorBody()
+	b := NewValidateErrorBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusBadRequest, p)
+	ctx.JSON(http.StatusBadRequest, b)
 }
 
 // Unauthorized 未经授权响应
 func Unauthorized(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewUnauthorizedBody()
+	b := NewUnauthorizedBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusUnauthorized, p)
+	ctx.JSON(http.StatusUnauthorized, b)
 }
 
 // PermissionDenied 暂无权限响应
 func PermissionDenied(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewPermissionDeniedBody()
+	b := NewPermissionDeniedBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusForbidden, p)
+	ctx.JSON(http.StatusForbidden, b)
 }
 
 // ResourceNotFound 资源不存在响应
 func ResourceNotFound(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewResourceNotFoundBody()
+	b := NewResourceNotFoundBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusNotFound, p)
+	ctx.JSON(http.StatusNotFound, b)
 }
 
 // TooManyRequest 请求过于频繁响应
 func TooManyRequest(ctx *gin.Context, ops ...OptionFunc) {
-	p := NewTooManyRequestBody()
+	b := NewTooManyRequestBody()
 	for _, op := range ops {
-		op(p)
+		op(b)
 	}
-	ctx.JSON(http.StatusTooManyRequests, p)
+	ctx.JSON(http.StatusTooManyRequests, b)
 }

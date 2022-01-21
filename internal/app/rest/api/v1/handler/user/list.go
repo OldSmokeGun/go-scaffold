@@ -3,7 +3,6 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
-	"go-scaffold/internal/app/rest/pkg/bindx"
 	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/service/user"
 )
@@ -41,10 +40,8 @@ func (ListReq) ErrorMessage() map[string]string {
 // @Failure      404      {object}  example.ResourceNotFound        "资源不存在"
 // @Failure      429      {object}  example.TooManyRequest          "请求过于频繁"
 func (h *handler) List(ctx *gin.Context) {
-	req := new(ListReq)
-	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
-		h.Logger.Error(err.Error())
-		return
+	req := &ListReq{
+		Keyword: ctx.Query("keyword"),
 	}
 
 	param := new(user.ListParam)
@@ -60,8 +57,8 @@ func (h *handler) List(ctx *gin.Context) {
 		return
 	}
 
-	data := new(ListResp)
-	if err := copier.Copy(data, result); err != nil {
+	var data ListResp
+	if err := copier.Copy(&data, result); err != nil {
 		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return

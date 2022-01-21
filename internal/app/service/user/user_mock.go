@@ -5,7 +5,6 @@
 package user
 
 import (
-	model "go-scaffold/internal/app/model"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -63,10 +62,10 @@ func (mr *MockServiceMockRecorder) Delete(param interface{}) *gomock.Call {
 }
 
 // Detail mocks base method.
-func (m *MockService) Detail(param *DetailParam) (*model.User, error) {
+func (m *MockService) Detail(param *DetailParam) (*DetailResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Detail", param)
-	ret0, _ := ret[0].(*model.User)
+	ret0, _ := ret[0].(*DetailResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -78,10 +77,10 @@ func (mr *MockServiceMockRecorder) Detail(param interface{}) *gomock.Call {
 }
 
 // List mocks base method.
-func (m *MockService) List(param *ListParam) ([]*model.User, error) {
+func (m *MockService) List(param *ListParam) (ListResult, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", param)
-	ret0, _ := ret[0].([]*model.User)
+	ret0, _ := ret[0].(ListResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

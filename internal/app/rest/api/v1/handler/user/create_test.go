@@ -21,18 +21,18 @@ func init() {
 	test.Init()
 }
 
-// mockRequest 模拟请求
-func mockRequest(t *testing.T, h Interface, req *CreateReq) *httptest.ResponseRecorder {
+// mockCreateRequest 模拟请求
+func mockCreateRequest(t *testing.T, h Interface, req *CreateReq) *httptest.ResponseRecorder {
 	gin.DefaultWriter = io.Discard
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()
 	engine.Handle("POST", "/api/v1/user", h.Create)
 
-	jsonCreateReq, err := jsoniter.Marshal(req)
+	jsonReq, err := jsoniter.Marshal(req)
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := httptest.NewRequest("POST", "/api/v1/user", bytes.NewReader(jsonCreateReq))
+	r := httptest.NewRequest("POST", "/api/v1/user", bytes.NewReader(jsonReq))
 	w := httptest.NewRecorder()
 
 	engine.ServeHTTP(w, r)
@@ -47,6 +47,7 @@ func TestCreateReq_ErrorMessage(t *testing.T) {
 }
 
 func Test_handler_Create(t *testing.T) {
+
 	t.Run("create_success", func(t *testing.T) {
 		createReq := &CreateReq{
 			Name:  "test",
@@ -70,16 +71,15 @@ func Test_handler_Create(t *testing.T) {
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockRequest(t, newHandler, createReq)
+		w := mockCreateRequest(t, newHandler, createReq)
 
-		respBody := &responsex.Body{}
-		if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+		respJson, err := jsoniter.Marshal(responsex.NewSuccessBody())
+		if err != nil {
 			t.Fatal(err)
 		}
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		assert.Equal(t, responsex.SuccessCode, respBody.Code)
-		assert.Equal(t, responsex.SuccessCode.String(), respBody.Msg)
+		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
 	t.Run("req_validate_failed", func(t *testing.T) {
@@ -90,16 +90,15 @@ func Test_handler_Create(t *testing.T) {
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockRequest(t, newHandler, createReq)
+			w := mockCreateRequest(t, newHandler, createReq)
 
-			respBody := &responsex.Body{}
-			if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Name.required"])))
+			if err != nil {
 				t.Fatal(err)
 			}
 
 			assert.Equal(t, http.StatusBadRequest, w.Code)
-			assert.Equal(t, responsex.ValidateErrorCode, respBody.Code)
-			assert.Equal(t, createReq.ErrorMessage()["Name.required"], respBody.Msg)
+			assert.JSONEq(t, string(respJson), w.Body.String())
 		})
 
 		t.Run("req_age_min", func(t *testing.T) {
@@ -108,16 +107,15 @@ func Test_handler_Create(t *testing.T) {
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockRequest(t, newHandler, createReq)
+			w := mockCreateRequest(t, newHandler, createReq)
 
-			respBody := &responsex.Body{}
-			if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Age.min"])))
+			if err != nil {
 				t.Fatal(err)
 			}
 
 			assert.Equal(t, http.StatusBadRequest, w.Code)
-			assert.Equal(t, responsex.ValidateErrorCode, respBody.Code)
-			assert.Equal(t, createReq.ErrorMessage()["Age.min"], respBody.Msg)
+			assert.JSONEq(t, string(respJson), w.Body.String())
 		})
 
 		t.Run("req_phone_phone", func(t *testing.T) {
@@ -126,20 +124,19 @@ func Test_handler_Create(t *testing.T) {
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockRequest(t, newHandler, createReq)
+			w := mockCreateRequest(t, newHandler, createReq)
 
-			respBody := &responsex.Body{}
-			if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Phone.phone"])))
+			if err != nil {
 				t.Fatal(err)
 			}
 
 			assert.Equal(t, http.StatusBadRequest, w.Code)
-			assert.Equal(t, responsex.ValidateErrorCode, respBody.Code)
-			assert.Equal(t, createReq.ErrorMessage()["Phone.phone"], respBody.Msg)
+			assert.JSONEq(t, string(respJson), w.Body.String())
 		})
 	})
 
-	t.Run("req_copier_error", func(t *testing.T) {
+	t.Run("req_copy_req_error", func(t *testing.T) {
 		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -150,16 +147,15 @@ func Test_handler_Create(t *testing.T) {
 		})
 		defer monkey.Unpatch(copier.Copy)
 
-		w := mockRequest(t, newHandler, createReq)
+		w := mockCreateRequest(t, newHandler, createReq)
 
-		respBody := &responsex.Body{}
-		if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody())
+		if err != nil {
 			t.Fatal(err)
 		}
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.Equal(t, responsex.ServerErrorCode, respBody.Code)
-		assert.Equal(t, responsex.ServerErrorCode.String(), respBody.Msg)
+		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
 	t.Run("req_create_error", func(t *testing.T) {
@@ -185,15 +181,14 @@ func Test_handler_Create(t *testing.T) {
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockRequest(t, newHandler, createReq)
+		w := mockCreateRequest(t, newHandler, createReq)
 
-		respBody := &responsex.Body{}
-		if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody(responsex.WithMsg(user.ErrDataStoreFailed.Error())))
+		if err != nil {
 			t.Fatal(err)
 		}
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.Equal(t, responsex.ServerErrorCode, respBody.Code)
-		assert.Equal(t, user.ErrDataStoreFailed.Error(), respBody.Msg)
+		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 }

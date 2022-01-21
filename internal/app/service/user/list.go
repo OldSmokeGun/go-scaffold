@@ -1,15 +1,22 @@
 package user
 
 import (
-	"go-scaffold/internal/app/model"
+	"github.com/jinzhu/copier"
 )
 
 type ListParam struct {
 	Keyword string // 查询字符串
 }
 
+type ListResult []*struct {
+	ID    uint
+	Name  string
+	Age   int8
+	Phone string
+}
+
 // List 用户列表
-func (s *service) List(param *ListParam) ([]*model.User, error) {
+func (s *service) List(param *ListParam) (ListResult, error) {
 	users, err := s.Repository.FindByKeyword(
 		[]string{"*"},
 		param.Keyword,
@@ -20,5 +27,11 @@ func (s *service) List(param *ListParam) ([]*model.User, error) {
 		return nil, ErrDataQueryFailed
 	}
 
-	return users, nil
+	var result ListResult
+	if err = copier.Copy(result, users); err != nil {
+		s.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	return result, nil
 }

@@ -5,15 +5,14 @@ package user
 import (
 	"errors"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/repository/user"
 	"go.uber.org/zap"
 )
 
 type Interface interface {
 	Create(param *CreateParam) error
-	List(param *ListParam) ([]*model.User, error)
-	Detail(param *DetailParam) (*model.User, error)
+	List(param *ListParam) (ListResult, error)
+	Detail(param *DetailParam) (*DetailResult, error)
 	Save(param *SaveParam) error
 	Delete(param *DeleteParam) error
 }

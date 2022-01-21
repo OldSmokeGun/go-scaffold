@@ -2,16 +2,25 @@ package user
 
 import (
 	"errors"
-	"go-scaffold/internal/app/model"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
-type DetailParam struct {
-	ID uint // 用户 ID
-}
+type (
+	DetailParam struct {
+		ID uint // 用户 ID
+	}
+
+	DetailResult struct {
+		ID    uint
+		Name  string
+		Age   int8
+		Phone string
+	}
+)
 
 // Detail 用户详情
-func (s *service) Detail(param *DetailParam) (*model.User, error) {
+func (s *service) Detail(param *DetailParam) (*DetailResult, error) {
 	user, err := s.Repository.FindOneByID(
 		param.ID,
 		[]string{"*"},
@@ -24,5 +33,11 @@ func (s *service) Detail(param *DetailParam) (*model.User, error) {
 		return nil, ErrDataQueryFailed
 	}
 
-	return user, nil
+	result := new(DetailResult)
+	if err = copier.Copy(result, user); err != nil {
+		s.Logger.Error(err.Error())
+		return nil, err
+	}
+
+	return result, nil
 }
