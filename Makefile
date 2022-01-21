@@ -40,7 +40,7 @@ clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi
 
 test:
-	go test -v ./...
+	go test -gcflags=-l -v ./...
 
 doc:
 	swag fmt -d ${REST_DOC_SCAN_DIR} -g ${REST_DOC_SCAN_ENTRY}

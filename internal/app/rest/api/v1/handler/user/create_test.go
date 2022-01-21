@@ -1,6 +1,7 @@
 package user
 
 import (
+	"bou.ke/monkey"
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -59,9 +60,7 @@ func Test_handler_Create(t *testing.T) {
 		}
 
 		ctrl := gomock.NewController(t)
-		t.Cleanup(func() {
-			ctrl.Finish()
-		})
+		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
 			Create(createParam).
@@ -140,6 +139,29 @@ func Test_handler_Create(t *testing.T) {
 		})
 	})
 
+	t.Run("req_copier_error", func(t *testing.T) {
+		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
+		newHandler := New()
+		newHandler.Logger = test.Logger()
+		newHandler.Service = nil
+
+		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
+			return copier.ErrInvalidCopyDestination
+		})
+		defer monkey.Unpatch(copier.Copy)
+
+		w := mockRequest(t, newHandler, createReq)
+
+		respBody := &responsex.Body{}
+		if err := jsoniter.Unmarshal(w.Body.Bytes(), respBody); err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, responsex.ServerErrorCode, respBody.Code)
+		assert.Equal(t, responsex.ServerErrorCode.String(), respBody.Msg)
+	})
+
 	t.Run("req_create_error", func(t *testing.T) {
 		createReq := &CreateReq{
 			Name:  "test",
@@ -153,9 +175,7 @@ func Test_handler_Create(t *testing.T) {
 		}
 
 		ctrl := gomock.NewController(t)
-		t.Cleanup(func() {
-			ctrl.Finish()
-		})
+		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
 			Create(createParam).

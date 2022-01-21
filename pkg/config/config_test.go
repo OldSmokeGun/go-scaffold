@@ -67,11 +67,11 @@ Test2:
 		if err = f.Close(); err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() {
+		defer func() {
 			if err = os.Remove(configFilePath); err != nil {
 				t.Fatal(err)
 			}
-		})
+		}()
 
 		m := new(testConfigModel)
 		assert.NoError(t, Load(configFilePath, m))
@@ -99,11 +99,11 @@ Test2:
 		if err = f.Close(); err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() {
+		defer func() {
 			if err = os.Remove(configFilePath); err != nil {
 				t.Fatal(err)
 			}
-		})
+		}()
 
 		assert.ErrorAs(t, Load(configFilePath, new(testConfigModel)), &viper.ConfigFileNotFoundError{})
 	})
@@ -126,11 +126,11 @@ Test2:
 		if err = f.Close(); err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() {
+		defer func() {
 			if err = os.Remove(configFilePath); err != nil {
 				t.Fatal(err)
 			}
-		})
+		}()
 
 		exceptedError := "'' expected type 'string', got unconvertible type 'map[string]interface {}', value: 'map[test:value]'"
 		assert.EqualError(t, Load(configFilePath, new(string)), exceptedError)
@@ -155,11 +155,11 @@ Test2:
 		if err = f.Close(); err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() {
+		defer func() {
 			if err = os.Remove(configFilePath); err != nil {
 				t.Fatal(err)
 			}
-		})
+		}()
 
 		var ch = make(chan struct{}, 1)
 
@@ -205,18 +205,18 @@ func TestMustLoad(t *testing.T) {
 		if err = f.Close(); err != nil {
 			t.Fatal(err)
 		}
-		t.Cleanup(func() {
+		defer func() {
 			if err = os.Remove(configFilePath); err != nil {
 				t.Fatal(err)
 			}
-		})
+		}()
 
 		m := new(testConfigModel)
 		assert.NotPanics(t, func() {
 			MustLoad(configFilePath, m)
 		})
 	})
-	
+
 	t.Run("panic", func(t *testing.T) {
 		m := new(testConfigModel)
 		assert.Panics(t, func() {

@@ -19,6 +19,7 @@ func Init() {
 		return zapcore.NewCore(
 			zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
 			zapcore.AddSync(io.Discard),
+			// zapcore.AddSync(os.Stdout),
 			zapcore.ErrorLevel,
 		)
 	}))
