@@ -2,7 +2,6 @@ package user
 
 import (
 	"bou.ke/monkey"
-	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -29,13 +28,8 @@ func mockListRequest(t *testing.T, h Interface, req *ListReq) *httptest.Response
 	engine := gin.Default()
 	engine.Handle("GET", "/api/v1/users", h.List)
 
-	jsonReq, err := jsoniter.Marshal(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/users"), bytes.NewReader(jsonReq))
+	r := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/users?keyword=%s", req.Keyword), nil)
 	w := httptest.NewRecorder()
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	engine.ServeHTTP(w, r)
 
@@ -50,9 +44,13 @@ func TestListReq_ErrorMessage(t *testing.T) {
 func Test_handler_List(t *testing.T) {
 
 	t.Run("get_list_success", func(t *testing.T) {
-		listReq := &ListReq{""}
+		listReq := &ListReq{"fef"}
 
 		listParam := new(user.ListParam)
+
+		if err := copier.Copy(listParam, listReq); err != nil {
+			t.Fatal(err)
+		}
 
 		listResult := user.ListResult{
 			{ID: 1, Name: "Tom", Age: 18, Phone: "13500000000"},

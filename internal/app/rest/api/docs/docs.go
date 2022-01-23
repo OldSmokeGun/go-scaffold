@@ -438,24 +438,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "age": {
-                                                        "description": "年龄",
-                                                        "type": "integer"
-                                                    },
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "name": {
-                                                        "description": "名称",
-                                                        "type": "string"
-                                                    },
-                                                    "phone": {
-                                                        "description": "电话",
-                                                        "type": "string"
-                                                    }
-                                                }
+                                                "$ref": "#/definitions/user.ListItem"
                                             }
                                         }
                                     }
@@ -628,6 +611,26 @@ var doc = `{
             }
         },
         "user.DetailResp": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "description": "年龄",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "名称",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "电话",
+                    "type": "string"
+                }
+            }
+        },
+        "user.ListItem": {
             "type": "object",
             "properties": {
                 "age": {

@@ -19,7 +19,7 @@ func (SaveReq) ErrorMessage() map[string]string {
 	return map[string]string{
 		"ID.required":    "用户 ID 不能为空",
 		"Name.required":  "名称不能为空",
-		"Age.min":        "年龄不能小于 {min}",
+		"Age.min":        "年龄不能小于 1",
 		"Phone.required": "手机号码不能为空",
 		"Phone.phone":    "手机号码格式错误",
 	}

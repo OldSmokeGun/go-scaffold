@@ -2,7 +2,6 @@ package user
 
 import (
 	"bou.ke/monkey"
-	"bytes"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -29,11 +28,7 @@ func mockDetailRequest(t *testing.T, h Interface, req *DetailReq) *httptest.Resp
 	engine := gin.Default()
 	engine.Handle("GET", "/api/v1/user/:id", h.Detail)
 
-	jsonReq, err := jsoniter.Marshal(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	r := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/user/%d", req.ID), bytes.NewReader(jsonReq))
+	r := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/user/%d", req.ID), nil)
 	w := httptest.NewRecorder()
 
 	engine.ServeHTTP(w, r)

@@ -21,18 +21,18 @@ func init() {
 	test.Init()
 }
 
-// mockCreateRequest 模拟请求
-func mockCreateRequest(t *testing.T, h Interface, req *CreateReq) *httptest.ResponseRecorder {
+// mockSaveRequest 模拟请求
+func mockSaveRequest(t *testing.T, h Interface, req *SaveReq) *httptest.ResponseRecorder {
 	gin.DefaultWriter = io.Discard
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()
-	engine.Handle("POST", "/api/v1/user", h.Create)
+	engine.Handle("PUT", "/api/v1/user", h.Save)
 
 	jsonReq, err := jsoniter.Marshal(req)
 	if err != nil {
 		t.Fatal(err)
 	}
-	r := httptest.NewRequest("POST", "/api/v1/user", bytes.NewReader(jsonReq))
+	r := httptest.NewRequest("PUT", "/api/v1/user", bytes.NewReader(jsonReq))
 	w := httptest.NewRecorder()
 
 	engine.ServeHTTP(w, r)
@@ -40,19 +40,19 @@ func mockCreateRequest(t *testing.T, h Interface, req *CreateReq) *httptest.Resp
 	return w
 }
 
-func TestCreateReq_ErrorMessage(t *testing.T) {
-	cr := new(CreateReq)
+func TestSaveReq_ErrorMessage(t *testing.T) {
+	cr := new(SaveReq)
 	assert.NotNil(t, cr.ErrorMessage())
 	assert.Greater(t, len(cr.ErrorMessage()), 0)
 }
 
-func Test_handler_Create(t *testing.T) {
+func Test_handler_Save(t *testing.T) {
 
-	t.Run("create_success", func(t *testing.T) {
-		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
+	t.Run("save_success", func(t *testing.T) {
+		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
 
-		createParam := new(user.CreateParam)
-		if err := copier.Copy(createParam, createReq); err != nil {
+		saveParam := new(user.SaveParam)
+		if err := copier.Copy(saveParam, saveReq); err != nil {
 			t.Fatal(err)
 		}
 
@@ -60,14 +60,14 @@ func Test_handler_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Create(createParam).
+			Save(saveParam).
 			Return(nil)
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockCreateRequest(t, newHandler, createReq)
+		w := mockSaveRequest(t, newHandler, saveReq)
 
 		respJson, err := jsoniter.Marshal(responsex.NewSuccessBody())
 		if err != nil {
@@ -80,15 +80,32 @@ func Test_handler_Create(t *testing.T) {
 
 	t.Run("req_validate_failed", func(t *testing.T) {
 
-		t.Run("req_name_required", func(t *testing.T) {
-			createReq := &CreateReq{"", 1, "13000000000"}
+		t.Run("req_id_required", func(t *testing.T) {
+			saveReq := &SaveReq{0, "test", 18, "13000000000"}
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockCreateRequest(t, newHandler, createReq)
+			w := mockSaveRequest(t, newHandler, saveReq)
 
-			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Name.required"])))
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(saveReq.ErrorMessage()["ID.required"])))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			assert.Equal(t, http.StatusBadRequest, w.Code)
+			assert.JSONEq(t, string(respJson), w.Body.String())
+		})
+
+		t.Run("req_name_required", func(t *testing.T) {
+			saveReq := &SaveReq{1, "", 1, "13000000000"}
+			newHandler := New()
+			newHandler.Logger = test.Logger()
+			newHandler.Service = nil
+
+			w := mockSaveRequest(t, newHandler, saveReq)
+
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(saveReq.ErrorMessage()["Name.required"])))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -98,14 +115,14 @@ func Test_handler_Create(t *testing.T) {
 		})
 
 		t.Run("req_age_min", func(t *testing.T) {
-			createReq := &CreateReq{"test", 0, "13000000000"}
+			saveReq := &SaveReq{1, "test", 0, "13000000000"}
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockCreateRequest(t, newHandler, createReq)
+			w := mockSaveRequest(t, newHandler, saveReq)
 
-			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Age.min"])))
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(saveReq.ErrorMessage()["Age.min"])))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -115,14 +132,14 @@ func Test_handler_Create(t *testing.T) {
 		})
 
 		t.Run("req_phone_phone", func(t *testing.T) {
-			createReq := &CreateReq{"test", 1, "100"}
+			saveReq := &SaveReq{1, "test", 1, "100"}
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
 
-			w := mockCreateRequest(t, newHandler, createReq)
+			w := mockSaveRequest(t, newHandler, saveReq)
 
-			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(createReq.ErrorMessage()["Phone.phone"])))
+			respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(saveReq.ErrorMessage()["Phone.phone"])))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -133,7 +150,7 @@ func Test_handler_Create(t *testing.T) {
 	})
 
 	t.Run("req_copy_req_error", func(t *testing.T) {
-		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
+		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil
@@ -143,7 +160,7 @@ func Test_handler_Create(t *testing.T) {
 		})
 		defer monkey.Unpatch(copier.Copy)
 
-		w := mockCreateRequest(t, newHandler, createReq)
+		w := mockSaveRequest(t, newHandler, saveReq)
 
 		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody())
 		if err != nil {
@@ -154,11 +171,11 @@ func Test_handler_Create(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_create_error", func(t *testing.T) {
-		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
+	t.Run("req_save_error", func(t *testing.T) {
+		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
 
-		createParam := new(user.CreateParam)
-		if err := copier.Copy(createParam, createReq); err != nil {
+		saveParam := new(user.SaveParam)
+		if err := copier.Copy(saveParam, saveReq); err != nil {
 			t.Fatal(err)
 		}
 
@@ -166,14 +183,14 @@ func Test_handler_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Create(createParam).
+			Save(saveParam).
 			Return(user.ErrDataStoreFailed)
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockCreateRequest(t, newHandler, createReq)
+		w := mockSaveRequest(t, newHandler, saveReq)
 
 		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody(responsex.WithMsg(user.ErrDataStoreFailed.Error())))
 		if err != nil {

@@ -103,6 +103,20 @@ definitions:
         description: 电话
         type: string
     type: object
+  user.ListItem:
+    properties:
+      age:
+        description: 年龄
+        type: integer
+      id:
+        type: integer
+      name:
+        description: 名称
+        type: string
+      phone:
+        description: 电话
+        type: string
+    type: object
   user.SaveReq:
     properties:
       age:
@@ -394,19 +408,7 @@ paths:
             - properties:
                 data:
                   items:
-                    properties:
-                      age:
-                        description: 年龄
-                        type: integer
-                      id:
-                        type: integer
-                      name:
-                        description: 名称
-                        type: string
-                      phone:
-                        description: 电话
-                        type: string
-                    type: object
+                    $ref: '#/definitions/user.ListItem'
                   type: array
               type: object
         "400":
