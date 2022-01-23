@@ -108,36 +108,6 @@ func Test_handler_List(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_copy_result_error", func(t *testing.T) {
-		listReq := &ListReq{""}
-
-		listParam := new(user.ListParam)
-		if err := copier.Copy(listParam, listReq); err != nil {
-			t.Fatal(err)
-		}
-
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-		mockService := user.NewMockService(ctrl)
-		mockService.EXPECT().
-			List(listParam).
-			Return(nil, nil)
-
-		newHandler := New()
-		newHandler.Logger = test.Logger()
-		newHandler.Service = mockService
-
-		w := mockListRequest(t, newHandler, listReq)
-
-		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody())
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		assert.Equal(t, http.StatusInternalServerError, w.Code)
-		assert.JSONEq(t, string(respJson), w.Body.String())
-	})
-
 	t.Run("get_list_error", func(t *testing.T) {
 		listReq := &ListReq{""}
 

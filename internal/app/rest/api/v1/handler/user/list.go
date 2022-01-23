@@ -12,12 +12,14 @@ type (
 		Keyword string `form:"keyword"` // 查询字符串
 	}
 
-	ListResp []*struct {
+	ListItem struct {
 		ID    uint   `json:"id"`
 		Name  string `json:"name"`  // 名称
 		Age   int8   `json:"age"`   // 年龄
 		Phone string `json:"phone"` // 电话
 	}
+
+	ListResp []*ListItem
 )
 
 func (ListReq) ErrorMessage() map[string]string {
@@ -58,10 +60,13 @@ func (h *handler) List(ctx *gin.Context) {
 	}
 
 	var data ListResp
-	if err := copier.Copy(&data, result); err != nil {
-		h.Logger.Error(err.Error())
-		responsex.ServerError(ctx)
-		return
+	for _, res := range result {
+		data = append(data, &ListItem{
+			ID:    res.ID,
+			Name:  res.Name,
+			Age:   res.Age,
+			Phone: res.Phone,
+		})
 	}
 
 	responsex.Success(ctx, responsex.WithData(data))
