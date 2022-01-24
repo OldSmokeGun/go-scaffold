@@ -56,14 +56,14 @@ func (h *handler) Detail(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.Service.Detail(param)
+	ret, err := h.Service.Detail(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
 	}
 
 	data := new(DetailResp)
-	if err := copier.Copy(data, result); err != nil {
+	if err := copier.Copy(data, ret); err != nil {
 		h.Logger.Error(err.Error())
 		responsex.ServerError(ctx)
 		return

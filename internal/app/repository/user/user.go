@@ -1,5 +1,7 @@
 package user
 
+//go:generate mockgen -source=user.go -destination=user_mock.go -package=user -mock_names=Interface=MockRepository
+
 import (
 	"context"
 	"errors"

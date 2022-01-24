@@ -132,7 +132,7 @@ func Test_handler_Create(t *testing.T) {
 		})
 	})
 
-	t.Run("req_copy_req_error", func(t *testing.T) {
+	t.Run("req_copy_error", func(t *testing.T) {
 		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -154,7 +154,7 @@ func Test_handler_Create(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_create_error", func(t *testing.T) {
+	t.Run("create_failed", func(t *testing.T) {
 		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
 
 		createParam := new(user.CreateParam)

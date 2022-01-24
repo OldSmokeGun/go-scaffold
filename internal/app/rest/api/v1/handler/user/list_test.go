@@ -84,7 +84,7 @@ func Test_handler_List(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_copy_req_error", func(t *testing.T) {
+	t.Run("req_copy_error", func(t *testing.T) {
 		listReq := &ListReq{""}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -106,7 +106,7 @@ func Test_handler_List(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("get_list_error", func(t *testing.T) {
+	t.Run("get_list_failed", func(t *testing.T) {
 		listReq := &ListReq{""}
 
 		listParam := new(user.ListParam)

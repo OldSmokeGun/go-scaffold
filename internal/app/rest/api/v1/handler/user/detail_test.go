@@ -98,7 +98,7 @@ func Test_handler_Detail(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_copy_req_error", func(t *testing.T) {
+	t.Run("req_copy_error", func(t *testing.T) {
 		detailReq := &DetailReq{1}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -120,7 +120,7 @@ func Test_handler_Detail(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_copy_result_error", func(t *testing.T) {
+	t.Run("result_copy_error", func(t *testing.T) {
 		detailReq := &DetailReq{1}
 
 		detailParam := new(user.DetailParam)
@@ -150,7 +150,7 @@ func Test_handler_Detail(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("get_detail_error", func(t *testing.T) {
+	t.Run("get_detail_failed", func(t *testing.T) {
 		detailReq := &DetailReq{1}
 
 		detailParam := new(user.DetailParam)

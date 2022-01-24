@@ -149,7 +149,7 @@ func Test_handler_Save(t *testing.T) {
 		})
 	})
 
-	t.Run("req_copy_req_error", func(t *testing.T) {
+	t.Run("req_copy_error", func(t *testing.T) {
 		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -171,7 +171,7 @@ func Test_handler_Save(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_save_error", func(t *testing.T) {
+	t.Run("save_failed", func(t *testing.T) {
 		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
 
 		saveParam := new(user.SaveParam)

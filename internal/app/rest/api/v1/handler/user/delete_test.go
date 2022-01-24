@@ -91,7 +91,7 @@ func Test_handler_Delete(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_copy_req_error", func(t *testing.T) {
+	t.Run("req_copy_error", func(t *testing.T) {
 		deleteReq := &DeleteReq{1}
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -113,7 +113,7 @@ func Test_handler_Delete(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_delete_error", func(t *testing.T) {
+	t.Run("delete_failed", func(t *testing.T) {
 		deleteReq := &DeleteReq{100}
 
 		deleteParam := new(user.DeleteParam)

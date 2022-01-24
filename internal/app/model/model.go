@@ -9,8 +9,8 @@ import (
 // 自动更新时间戳、软删除
 type BaseModel struct {
 	ID        uint `gorm:"primaryKey"`
-	CreatedAt int
-	UpdatedAt int
+	CreatedAt int64
+	UpdatedAt int64
 	DeletedAt soft_delete.DeletedAt `gorm:"index"`
 }
 

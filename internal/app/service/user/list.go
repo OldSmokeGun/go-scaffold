@@ -1,7 +1,9 @@
 package user
 
 import (
+	"errors"
 	"github.com/jinzhu/copier"
+	"go-scaffold/internal/app/rest/pkg/responsex"
 )
 
 type ListParam struct {
@@ -30,7 +32,7 @@ func (s *service) List(param *ListParam) (ListResult, error) {
 	var result ListResult
 	if err = copier.Copy(result, users); err != nil {
 		s.Logger.Error(err.Error())
-		return nil, err
+		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 
 	return result, nil

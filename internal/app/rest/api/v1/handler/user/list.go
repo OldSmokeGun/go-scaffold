@@ -53,14 +53,14 @@ func (h *handler) List(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.Service.List(param)
+	ret, err := h.Service.List(param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
 	}
 
 	var data ListResp
-	for _, res := range result {
+	for _, res := range ret {
 		data = append(data, &ListItem{
 			ID:    res.ID,
 			Name:  res.Name,
