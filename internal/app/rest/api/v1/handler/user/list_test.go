@@ -64,8 +64,8 @@ func Test_handler_List(t *testing.T) {
 			List(listParam).
 			Return(listResult, nil)
 
-		listResp := new(ListResp)
-		if err := copier.Copy(listResp, listResult); err != nil {
+		var listResp ListResp
+		if err := copier.Copy(&listResp, listResult); err != nil {
 			t.Fatal(err)
 		}
 

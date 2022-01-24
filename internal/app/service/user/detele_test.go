@@ -1,13 +1,10 @@
 package user
 
 import (
-	"bou.ke/monkey"
 	"github.com/golang/mock/gomock"
-	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
 	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/repository/user"
-	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/test"
 	"gorm.io/gorm"
 	"testing"
@@ -18,10 +15,10 @@ func init() {
 	test.Init()
 }
 
-func Test_service_Detail(t *testing.T) {
+func Test_service_Delete(t *testing.T) {
 
-	t.Run("get_detail_success", func(t *testing.T) {
-		detailParam := &DetailParam{ID: 1}
+	t.Run("delete_success", func(t *testing.T) {
+		deleteParam := &DeleteParam{ID: 1}
 		columns := []string{"*"}
 
 		userModel := &model.User{
@@ -34,69 +31,67 @@ func Test_service_Detail(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
-		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
-			Return(userModel, nil)
+		gomock.InOrder(
+			mockRepository.EXPECT().
+				FindOneByID(deleteParam.ID, columns).
+				Return(userModel, nil),
+
+			mockRepository.EXPECT().
+				Delete(userModel).
+				Return(nil),
+		)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		detailResult := new(DetailResult)
-		if err := copier.Copy(detailResult, userModel); err != nil {
-			t.Fatal(err)
-		}
-
-		ret, err := newService.Detail(detailParam)
+		err := newService.Delete(deleteParam)
 
 		assert.NoError(t, err)
-		assert.Equal(t, detailResult, ret)
 	})
 
-	t.Run("get_detail_not_found", func(t *testing.T) {
-		detailParam := &DetailParam{ID: 0}
+	t.Run("delete_find_one_not_found", func(t *testing.T) {
+		deleteParam := &DeleteParam{ID: 0}
 		columns := []string{"*"}
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
+			FindOneByID(deleteParam.ID, columns).
 			Return(nil, gorm.ErrRecordNotFound)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		ret, err := newService.Detail(detailParam)
+		err := newService.Delete(deleteParam)
 
 		assert.ErrorIs(t, err, ErrUserNotExist)
-		assert.Nil(t, ret)
 	})
 
-	t.Run("get_detail_failed", func(t *testing.T) {
-		detailParam := &DetailParam{ID: 1}
+	t.Run("delete_find_one_error", func(t *testing.T) {
+		deleteParam := &DeleteParam{ID: 1}
 		columns := []string{"*"}
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
-			Return(nil, gorm.ErrInvalidField)
+			FindOneByID(deleteParam.ID, columns).
+			Return(nil, gorm.ErrInvalidValue)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		ret, err := newService.Detail(detailParam)
+		err := newService.Delete(deleteParam)
 
-		assert.ErrorIs(t, err, ErrDataQueryFailed)
-		assert.Nil(t, ret)
+		assert.EqualError(t, err, ErrDataQueryFailed.Error())
 	})
 
-	t.Run("result_copy_error", func(t *testing.T) {
-		detailParam := &DetailParam{ID: 1}
+	t.Run("delete_failed", func(t *testing.T) {
+		deleteParam := &DeleteParam{ID: 1}
 		columns := []string{"*"}
 
 		userModel := &model.User{
@@ -109,22 +104,22 @@ func Test_service_Detail(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
-		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
-			Return(userModel, nil)
+		gomock.InOrder(
+			mockRepository.EXPECT().
+				FindOneByID(deleteParam.ID, columns).
+				Return(userModel, nil),
+
+			mockRepository.EXPECT().
+				Delete(userModel).
+				Return(gorm.ErrInvalidValue),
+		)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
-		})
-		defer monkey.Unpatch(copier.Copy)
+		err := newService.Delete(deleteParam)
 
-		ret, err := newService.Detail(detailParam)
-
-		assert.EqualError(t, err, responsex.ServerErrorCode.String())
-		assert.Nil(t, ret)
+		assert.ErrorIs(t, err, ErrDataDeleteFailed)
 	})
 }

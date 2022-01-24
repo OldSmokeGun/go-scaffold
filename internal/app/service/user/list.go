@@ -30,7 +30,7 @@ func (s *service) List(param *ListParam) (ListResult, error) {
 	}
 
 	var result ListResult
-	if err = copier.Copy(result, users); err != nil {
+	if err = copier.Copy(&result, users); err != nil {
 		s.Logger.Error(err.Error())
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
