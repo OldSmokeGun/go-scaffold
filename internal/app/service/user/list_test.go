@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,6 @@ import (
 	"go-scaffold/internal/app/repository/user"
 	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/test"
-	"gorm.io/gorm"
 	"testing"
 	"time"
 )
@@ -70,7 +70,7 @@ func Test_service_List(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
 			FindByKeyword(columns, listParam.Keyword, "updated_at DESC").
-			Return(nil, gorm.ErrInvalidField)
+			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
@@ -113,7 +113,7 @@ func Test_service_List(t *testing.T) {
 		newService.Repository = mockRepository
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
+			return errors.New("test error")
 		})
 		defer monkey.Unpatch(copier.Copy)
 

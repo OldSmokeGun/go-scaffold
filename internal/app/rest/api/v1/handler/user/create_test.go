@@ -3,6 +3,7 @@ package user
 import (
 	"bou.ke/monkey"
 	"bytes"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -139,7 +140,7 @@ func Test_handler_Create(t *testing.T) {
 		newHandler.Service = nil
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
+			return errors.New("test error")
 		})
 		defer monkey.Unpatch(copier.Copy)
 

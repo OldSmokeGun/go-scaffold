@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
@@ -82,7 +83,7 @@ func Test_service_Save(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
 			FindOneByID(saveParam.ID, columns).
-			Return(nil, gorm.ErrInvalidValue)
+			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
@@ -112,7 +113,7 @@ func Test_service_Save(t *testing.T) {
 			Return(userModel, nil)
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
+			return errors.New("test error")
 		})
 		defer monkey.Unpatch(copier.Copy)
 
@@ -146,7 +147,7 @@ func Test_service_Save(t *testing.T) {
 
 			mockRepository.EXPECT().
 				Save(userModel).
-				Return(nil, gorm.ErrInvalidValueOfLength),
+				Return(nil, errors.New("test error")),
 		)
 
 		newService := New()

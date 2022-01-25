@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
 	"github.com/stretchr/testify/assert"
@@ -9,7 +10,6 @@ import (
 	"go-scaffold/internal/app/repository/user"
 	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go-scaffold/internal/app/test"
-	"gorm.io/gorm"
 	"testing"
 	"time"
 )
@@ -53,7 +53,7 @@ func Test_service_Create(t *testing.T) {
 		createParam := &CreateParam{Name: "test", Age: 18, Phone: "13000000000"}
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
+			return errors.New("test error")
 		})
 		defer monkey.Unpatch(copier.Copy)
 
@@ -78,7 +78,7 @@ func Test_service_Create(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
 			Create(userModel).
-			Return(nil, gorm.ErrInvalidValueOfLength)
+			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()

@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -98,7 +99,7 @@ func Test_handler_Delete(t *testing.T) {
 		newHandler.Service = nil
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
-			return copier.ErrInvalidCopyDestination
+			return errors.New("test error")
 		})
 		defer monkey.Unpatch(copier.Copy)
 

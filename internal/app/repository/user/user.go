@@ -57,7 +57,7 @@ func (r *repository) FindByKeyword(columns []string, keyword string, order strin
 			Or("phone LIKE ?", "%"+keyword+"%")
 	}
 
-	err := query.Order("updated_at DESC").Find(&users).Error
+	err := query.Order(order).Find(&users).Error
 	if err != nil {
 		return nil, err
 	}

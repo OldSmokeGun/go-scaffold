@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"go-scaffold/internal/app/model"
@@ -79,7 +80,7 @@ func Test_service_Delete(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
 			FindOneByID(deleteParam.ID, columns).
-			Return(nil, gorm.ErrInvalidValue)
+			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
@@ -111,7 +112,7 @@ func Test_service_Delete(t *testing.T) {
 
 			mockRepository.EXPECT().
 				Delete(userModel).
-				Return(gorm.ErrInvalidValue),
+				Return(errors.New("test error")),
 		)
 
 		newService := New()
