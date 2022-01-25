@@ -5,10 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alicebob/miniredis/v2"
-
-	// "github.com/alicebob/miniredis/v2"
-	"github.com/go-redis/redis/v8"
 	"github.com/go-redis/redismock/v8"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
@@ -22,14 +18,14 @@ import (
 func Test_repository_FindByKeyword(t *testing.T) {
 
 	t.Run("keyword_is_empty", func(t *testing.T) {
-		mockDB, err := test.NewMockDB()
+		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer mockDB.MDB.Close()
+		defer mdb.Close()
 
 		repo := New()
-		repo.db = mockDB.GDB
+		repo.db = gdb
 		now := time.Now()
 
 		exceptedUsers := []*model.User{
@@ -37,7 +33,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 			{BaseModel: model.BaseModel{ID: 2, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test2", Age: 28, Phone: "13800000000"},
 		}
 
-		rows := mockDB.Mock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
+		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
 		for _, exceptedUser := range exceptedUsers {
 			rows.AddRow(
 				exceptedUser.ID,
@@ -50,7 +46,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 			)
 		}
 
-		mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
+		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
 		users, err := repo.FindByKeyword([]string{"*"}, "", "updated_at DESC")
@@ -58,20 +54,20 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		assert.Equal(t, exceptedUsers, users)
 		assert.NoError(t, err)
 
-		if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+		if err = dmock.ExpectationsWereMet(); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("keyword_is_not_empty", func(t *testing.T) {
-		mockDB, err := test.NewMockDB()
+		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer mockDB.MDB.Close()
+		defer mdb.Close()
 
 		repo := New()
-		repo.db = mockDB.GDB
+		repo.db = gdb
 		now := time.Now()
 
 		exceptedUsers := []*model.User{
@@ -79,7 +75,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 			{BaseModel: model.BaseModel{ID: 2, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test2", Age: 28, Phone: "13800000000"},
 		}
 
-		rows := mockDB.Mock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
+		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
 		for _, exceptedUser := range exceptedUsers {
 			rows.AddRow(
 				exceptedUser.ID,
@@ -92,7 +88,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 			)
 		}
 
-		mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE \\(name LIKE (.+) OR phone LIKE (.+)\\) AND (.+)\\.`deleted_at` = \\?  ORDER BY updated_at DESC").
+		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE \\(name LIKE (.+) OR phone LIKE (.+)\\) AND (.+)\\.`deleted_at` = \\?  ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
 		users, err := repo.FindByKeyword([]string{"*"}, "test", "updated_at DESC")
@@ -100,30 +96,30 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		assert.Equal(t, exceptedUsers, users)
 		assert.NoError(t, err)
 
-		if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+		if err = dmock.ExpectationsWereMet(); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("query_error", func(t *testing.T) {
-		mockDB, err := test.NewMockDB()
+		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer mockDB.MDB.Close()
+		defer mdb.Close()
 
 		repo := New()
-		repo.db = mockDB.GDB
+		repo.db = gdb
 
-		mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
-			WillReturnError(gorm.ErrInvalidValue)
+		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
+			WillReturnError(errors.New("test error"))
 
 		users, err := repo.FindByKeyword([]string{"*"}, "", "updated_at DESC")
 
 		assert.Nil(t, users)
-		assert.ErrorIs(t, err, gorm.ErrInvalidValue)
+		assert.EqualError(t, err, "test error")
 
-		if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+		if err = dmock.ExpectationsWereMet(); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -139,72 +135,77 @@ func Test_repository_FindOneByID(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		rdb := miniredis.RunT(t)
-
-		if err := rdb.Set(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID), string(exceptedUserJson)); err != nil {
-			t.Fatal(err)
-		}
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
 
 		repo := New()
-		repo.rdb = test.NewMockRedisClient(rdb.Addr())
+		repo.rdb = rdb
+
+		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(string(exceptedUserJson))
 
 		user, err := repo.FindOneByID(exceptedUser.ID, []string{"*"})
 
 		assert.Equal(t, exceptedUser, user)
 		assert.NoError(t, err)
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
 	})
 
 	t.Run("get_cache_error", func(t *testing.T) {
-		rdb := miniredis.RunT(t)
-
-		if err := rdb.Set(fmt.Sprintf(cacheKeyFormat, 1), ""); err != nil {
-			t.Fatal(err)
-		}
-
-		client := test.NewMockRedisClient(rdb.Addr())
-		client.Close()
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
 
 		repo := New()
-		repo.rdb = client
+		repo.rdb = rdb
+
+		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 1)).SetErr(errors.New("test error"))
 
 		user, err := repo.FindOneByID(1, []string{"*"})
 
 		assert.Nil(t, user)
-		assert.ErrorIs(t, err, redis.ErrClosed)
+		assert.EqualError(t, err, "test error")
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
 	})
 
 	t.Run("cache_unmarshal_error", func(t *testing.T) {
-		rdb := miniredis.RunT(t)
-
-		if err := rdb.Set(fmt.Sprintf(cacheKeyFormat, 1), ""); err != nil {
-			t.Fatal(err)
-		}
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
 
 		repo := New()
-		repo.rdb = test.NewMockRedisClient(rdb.Addr())
+		repo.rdb = rdb
+
+		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 1)).SetVal("test")
 
 		user, err := repo.FindOneByID(1, []string{"*"})
 
 		assert.Nil(t, user)
-		assert.EqualError(t, err, "readObjectStart: expect { or n, but found \x00, error found in #0 byte of ...||..., bigger context ...||...")
+		assert.EqualError(t, err, "readObjectStart: expect { or n, but found t, error found in #1 byte of ...|test|..., bigger context ...|test|...")
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
 	})
 
 	t.Run("cache_is_invalid", func(t *testing.T) {
 
 		t.Run("query_ok", func(t *testing.T) {
-			mockDB, err := test.NewMockDB()
+			mdb, dmock, gdb, err := test.NewDBMock()
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer mockDB.MDB.Close()
+			defer mdb.Close()
 
-			rdb := miniredis.RunT(t)
-
-			redisClient := test.NewMockRedisClient(rdb.Addr())
+			rdb, rmock := redismock.NewClientMock()
+			defer rdb.Close()
 
 			repo := New()
-			repo.db = mockDB.GDB
-			repo.rdb = redisClient
+			repo.db = gdb
+			repo.rdb = rdb
 
 			now := time.Now()
 
@@ -214,71 +215,93 @@ func Test_repository_FindOneByID(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			rows := mockDB.Mock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
+			rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
 				AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
 
-			mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
+			dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 				WillReturnRows(rows)
+
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal("")
+			rmock.ExpectSet(
+				fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
+				string(exceptedUserJson),
+				time.Duration(cacheExpire)*time.Second,
+			).SetVal(string(exceptedUserJson))
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(string(exceptedUserJson))
 
 			user, err := repo.FindOneByID(exceptedUser.ID, []string{"*"})
 
 			assert.Equal(t, exceptedUser, user)
 			assert.NoError(t, err)
-			assert.JSONEq(t, string(exceptedUserJson), redisClient.Get(context.Background(), fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).Val())
+			assert.JSONEq(t, string(exceptedUserJson), rdb.Get(context.Background(), fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).Val())
 
-			if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+			if err = dmock.ExpectationsWereMet(); err != nil {
 				t.Fatal(err)
+			}
+
+			if err = rmock.ExpectationsWereMet(); err != nil {
+				t.Error(err)
 			}
 		})
 
 		t.Run("query_not_found", func(t *testing.T) {
-			mockDB, err := test.NewMockDB()
+			mdb, dmock, gdb, err := test.NewDBMock()
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer mockDB.MDB.Close()
+			defer mdb.Close()
 
-			rdb := miniredis.RunT(t)
+			rdb, rmock := redismock.NewClientMock()
+			defer rdb.Close()
 
 			repo := New()
-			repo.db = mockDB.GDB
-			repo.rdb = test.NewMockRedisClient(rdb.Addr())
+			repo.db = gdb
+			repo.rdb = rdb
 
-			mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
-				WillReturnRows(mockDB.Mock.NewRows([]string{}))
+			dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
+				WillReturnRows(dmock.NewRows([]string{}))
+
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 0)).SetVal("")
 
 			user, err := repo.FindOneByID(0, []string{"*"})
 
 			assert.Nil(t, user)
 			assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
 
-			if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+			if err = dmock.ExpectationsWereMet(); err != nil {
 				t.Fatal(err)
+			}
+
+			if err = rmock.ExpectationsWereMet(); err != nil {
+				t.Error(err)
 			}
 		})
 
 		t.Run("query_record_marshal_error", func(t *testing.T) {
-			mockDB, err := test.NewMockDB()
+			mdb, dmock, gdb, err := test.NewDBMock()
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer mockDB.MDB.Close()
+			defer mdb.Close()
 
-			rdb := miniredis.RunT(t)
+			rdb, rmock := redismock.NewClientMock()
+			defer rdb.Close()
 
 			repo := New()
-			repo.db = mockDB.GDB
-			repo.rdb = test.NewMockRedisClient(rdb.Addr())
+			repo.db = gdb
+			repo.rdb = rdb
 
 			now := time.Now()
 
 			exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
-			rows := mockDB.Mock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
+			rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
 				AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
 
-			mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
+			dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 				WillReturnRows(rows)
+
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 0)).SetVal("")
 
 			monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
 				return nil, errors.New("test error")
@@ -290,23 +313,28 @@ func Test_repository_FindOneByID(t *testing.T) {
 			assert.Nil(t, user)
 			assert.EqualError(t, err, "test error")
 
-			if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+			if err = dmock.ExpectationsWereMet(); err != nil {
 				t.Fatal(err)
+			}
+
+			if err = rmock.ExpectationsWereMet(); err != nil {
+				t.Error(err)
 			}
 		})
 	})
 
 	t.Run("cache_set_error", func(t *testing.T) {
-		mockDB, err := test.NewMockDB()
+		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer mockDB.MDB.Close()
+		defer mdb.Close()
 
 		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
 
 		repo := New()
-		repo.db = mockDB.GDB
+		repo.db = gdb
 		repo.rdb = rdb
 
 		now := time.Now()
@@ -317,10 +345,10 @@ func Test_repository_FindOneByID(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		rows := mockDB.Mock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
+		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
 			AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
 
-		mockDB.Mock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
+		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 			WillReturnRows(rows)
 
 		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal("")
@@ -335,7 +363,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
 
-		if err = mockDB.Mock.ExpectationsWereMet(); err != nil {
+		if err = dmock.ExpectationsWereMet(); err != nil {
 			t.Fatal(err)
 		}
 

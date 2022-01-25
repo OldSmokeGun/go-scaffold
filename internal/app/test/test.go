@@ -3,7 +3,6 @@ package test
 import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/driver/mysql"
@@ -40,18 +39,18 @@ func Logger() *zap.Logger {
 	return logger
 }
 
-// MockDB 测试用 db
-type MockDB struct {
+// DBMock 测试用 db
+type DBMock struct {
 	MDB  *sql.DB
 	Mock sqlmock.Sqlmock
 	GDB  *gorm.DB
 }
 
-// NewMockDB 返回用于测试的 db
-func NewMockDB() (*MockDB, error) {
+// NewDBMock 返回用于测试的 db
+func NewDBMock() (*sql.DB, sqlmock.Sqlmock, *gorm.DB, error) {
 	mdb, mock, err := sqlmock.New()
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
 	gdb, err := gorm.Open(
@@ -60,20 +59,13 @@ func NewMockDB() (*MockDB, error) {
 			SkipInitializeWithVersion: true,
 		}),
 		&gorm.Config{
-			// Logger: glogger.Discard,
-			Logger: glogger.Default,
+			Logger: glogger.Discard,
+			// Logger: glogger.Default,
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	return &MockDB{MDB: mdb, Mock: mock, GDB: gdb}, nil
-}
-
-// NewMockRedisClient 返回用于测试的 redis 客户端
-func NewMockRedisClient(addr string) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr: addr,
-	})
+	return mdb, mock, gdb, nil
 }

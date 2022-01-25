@@ -4,14 +4,13 @@ go 1.16
 
 require (
 	bou.ke/monkey v1.0.2
-	github.com/DATA-DOG/go-sqlmock v1.5.0 // indirect
-	github.com/alicebob/miniredis/v2 v2.18.0 // indirect
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-redis/redis/v8 v8.10.0
-	github.com/go-redis/redismock/v8 v8.0.6 // indirect
+	github.com/go-redis/redismock/v8 v8.0.6
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v4 v4.9.2 // indirect
@@ -33,7 +32,6 @@ require (
 	github.com/swaggo/gin-swagger v1.3.3
 	github.com/swaggo/swag v1.7.8
 	github.com/ugorji/go v1.2.6 // indirect
-	github.com/yuin/gopher-lua v0.0.0-20210529063254-f4c35e4016d9 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.19.1
