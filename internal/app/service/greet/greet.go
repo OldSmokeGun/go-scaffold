@@ -1,5 +1,7 @@
 package greet
 
+//go:generate mockgen -source=greet.go -destination=greet_mock.go -package=greet -mock_names=Interface=MockService
+
 import (
 	"go-scaffold/internal/app/global"
 	"go.uber.org/zap"

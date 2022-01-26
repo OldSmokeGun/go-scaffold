@@ -84,6 +84,7 @@ func Test_handler_Detail(t *testing.T) {
 
 	t.Run("req_id_required", func(t *testing.T) {
 		detailReq := &DetailReq{}
+
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil
@@ -101,6 +102,7 @@ func Test_handler_Detail(t *testing.T) {
 
 	t.Run("req_copy_error", func(t *testing.T) {
 		detailReq := &DetailReq{1}
+
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil

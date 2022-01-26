@@ -30,21 +30,21 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUsers := []*model.User{
+		expectedUsers := []*model.User{
 			{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test1", Age: 18, Phone: "13000000000"},
 			{BaseModel: model.BaseModel{ID: 2, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test2", Age: 28, Phone: "13800000000"},
 		}
 
 		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
-		for _, exceptedUser := range exceptedUsers {
+		for _, expectedUser := range expectedUsers {
 			rows.AddRow(
-				exceptedUser.ID,
-				exceptedUser.Name,
-				exceptedUser.Age,
-				exceptedUser.Phone,
-				exceptedUser.CreatedAt,
-				exceptedUser.UpdatedAt,
-				exceptedUser.DeletedAt,
+				expectedUser.ID,
+				expectedUser.Name,
+				expectedUser.Age,
+				expectedUser.Phone,
+				expectedUser.CreatedAt,
+				expectedUser.UpdatedAt,
+				expectedUser.DeletedAt,
 			)
 		}
 
@@ -53,7 +53,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		users, err := repo.FindByKeyword([]string{"*"}, "", "updated_at DESC")
 
-		assert.Equal(t, exceptedUsers, users)
+		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
 
 		if err = dmock.ExpectationsWereMet(); err != nil {
@@ -73,21 +73,21 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUsers := []*model.User{
+		expectedUsers := []*model.User{
 			{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test1", Age: 18, Phone: "13000000000"},
 			{BaseModel: model.BaseModel{ID: 2, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test2", Age: 28, Phone: "13800000000"},
 		}
 
 		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"})
-		for _, exceptedUser := range exceptedUsers {
+		for _, expectedUser := range expectedUsers {
 			rows.AddRow(
-				exceptedUser.ID,
-				exceptedUser.Name,
-				exceptedUser.Age,
-				exceptedUser.Phone,
-				exceptedUser.CreatedAt,
-				exceptedUser.UpdatedAt,
-				exceptedUser.DeletedAt,
+				expectedUser.ID,
+				expectedUser.Name,
+				expectedUser.Age,
+				expectedUser.Phone,
+				expectedUser.CreatedAt,
+				expectedUser.UpdatedAt,
+				expectedUser.DeletedAt,
 			)
 		}
 
@@ -96,7 +96,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		users, err := repo.FindByKeyword([]string{"*"}, "test", "updated_at DESC")
 
-		assert.Equal(t, exceptedUsers, users)
+		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
 
 		if err = dmock.ExpectationsWereMet(); err != nil {
@@ -133,8 +133,8 @@ func Test_repository_FindOneByID(t *testing.T) {
 	t.Run("cache_is_valid", func(t *testing.T) {
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -145,11 +145,11 @@ func Test_repository_FindOneByID(t *testing.T) {
 		repo := New()
 		repo.rdb = rdb
 
-		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(string(exceptedUserJson))
+		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(string(expectedUserJson))
 
-		user, err := repo.FindOneByID(exceptedUser.ID, []string{"*"})
+		user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
 
-		assert.Equal(t, exceptedUser, user)
+		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
 
 		if err = rmock.ExpectationsWereMet(); err != nil {
@@ -213,31 +213,31 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 			now := time.Now()
 
-			exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-			exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+			expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+			expectedUserJson, err := jsoniter.Marshal(expectedUser)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
-				AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
+				AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Age, expectedUser.Phone, expectedUser.CreatedAt, expectedUser.UpdatedAt, expectedUser.DeletedAt)
 
 			dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 				WillReturnRows(rows)
 
-			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal("")
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal("")
 			rmock.ExpectSet(
-				fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-				string(exceptedUserJson),
+				fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+				string(expectedUserJson),
 				time.Duration(cacheExpire)*time.Second,
-			).SetVal(string(exceptedUserJson))
-			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(string(exceptedUserJson))
+			).SetVal(string(expectedUserJson))
+			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(string(expectedUserJson))
 
-			user, err := repo.FindOneByID(exceptedUser.ID, []string{"*"})
+			user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
 
-			assert.Equal(t, exceptedUser, user)
+			assert.Equal(t, expectedUser, user)
 			assert.NoError(t, err)
-			assert.JSONEq(t, string(exceptedUserJson), rdb.Get(context.Background(), fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).Val())
+			assert.JSONEq(t, string(expectedUserJson), rdb.Get(context.Background(), fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).Val())
 
 			if err = dmock.ExpectationsWereMet(); err != nil {
 				t.Fatal(err)
@@ -297,10 +297,10 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 			now := time.Now()
 
-			exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+			expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 			rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
-				AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
+				AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Age, expectedUser.Phone, expectedUser.CreatedAt, expectedUser.UpdatedAt, expectedUser.DeletedAt)
 
 			dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 				WillReturnRows(rows)
@@ -343,26 +343,26 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		rows := dmock.NewRows([]string{"id", "name", "age", "phone", "created_at", "updated_at", "deleted_at"}).
-			AddRow(exceptedUser.ID, exceptedUser.Name, exceptedUser.Age, exceptedUser.Phone, exceptedUser.CreatedAt, exceptedUser.UpdatedAt, exceptedUser.DeletedAt)
+			AddRow(expectedUser.ID, expectedUser.Name, expectedUser.Age, expectedUser.Phone, expectedUser.CreatedAt, expectedUser.UpdatedAt, expectedUser.DeletedAt)
 
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE id = (.+) AND (.+)\\.`deleted_at` = \\? LIMIT 1").
 			WillReturnRows(rows)
 
-		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal("")
+		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal("")
 		rmock.ExpectSet(
-			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-			string(exceptedUserJson),
+			fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+			string(expectedUserJson),
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.FindOneByID(exceptedUser.ID, []string{"*"})
+		user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -395,8 +395,8 @@ func Test_repository_Create(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -405,14 +405,14 @@ func Test_repository_Create(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
 		rmock.ExpectSet(
-			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-			string(exceptedUserJson),
+			fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+			string(expectedUserJson),
 			time.Duration(cacheExpire)*time.Second,
-		).SetVal(string(exceptedUserJson))
+		).SetVal(string(expectedUserJson))
 
-		user, err := repo.Create(exceptedUser)
+		user, err := repo.Create(expectedUser)
 
-		assert.Equal(t, exceptedUser, user)
+		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
 
 		if err = dmock.ExpectationsWereMet(); err != nil {
@@ -436,12 +436,12 @@ func Test_repository_Create(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("INSERT INTO (.+)").
 			WillReturnError(errors.New("test error"))
 
-		user, err := repo.Create(exceptedUser)
+		user, err := repo.Create(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -463,7 +463,7 @@ func Test_repository_Create(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("INSERT INTO (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
@@ -473,7 +473,7 @@ func Test_repository_Create(t *testing.T) {
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)
 
-		user, err := repo.Create(exceptedUser)
+		user, err := repo.Create(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -499,8 +499,8 @@ func Test_repository_Create(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -509,12 +509,12 @@ func Test_repository_Create(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
 		rmock.ExpectSet(
-			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-			string(exceptedUserJson),
+			fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+			string(expectedUserJson),
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.Create(exceptedUser)
+		user, err := repo.Create(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -547,8 +547,8 @@ func Test_repository_Save(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -557,14 +557,14 @@ func Test_repository_Save(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
 		rmock.ExpectSet(
-			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-			string(exceptedUserJson),
+			fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+			string(expectedUserJson),
 			time.Duration(cacheExpire)*time.Second,
-		).SetVal(string(exceptedUserJson))
+		).SetVal(string(expectedUserJson))
 
-		user, err := repo.Save(exceptedUser)
+		user, err := repo.Save(expectedUser)
 
-		assert.Equal(t, exceptedUser, user)
+		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
 
 		if err = dmock.ExpectationsWereMet(); err != nil {
@@ -588,12 +588,12 @@ func Test_repository_Save(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnError(errors.New("test error"))
 
-		user, err := repo.Save(exceptedUser)
+		user, err := repo.Save(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -615,7 +615,7 @@ func Test_repository_Save(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
@@ -625,7 +625,7 @@ func Test_repository_Save(t *testing.T) {
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)
 
-		user, err := repo.Save(exceptedUser)
+		user, err := repo.Save(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -651,8 +651,8 @@ func Test_repository_Save(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
-		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUserJson, err := jsoniter.Marshal(expectedUser)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -661,12 +661,12 @@ func Test_repository_Save(t *testing.T) {
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
 		rmock.ExpectSet(
-			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
-			string(exceptedUserJson),
+			fmt.Sprintf(cacheKeyFormat, expectedUser.ID),
+			string(expectedUserJson),
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.Save(exceptedUser)
+		user, err := repo.Save(expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -699,14 +699,14 @@ func Test_repository_Delete(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
-		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(1)
+		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(1)
 
-		err = repo.Delete(exceptedUser)
+		err = repo.Delete(expectedUser)
 
 		assert.NoError(t, err)
 
@@ -731,12 +731,12 @@ func Test_repository_Delete(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnError(errors.New("test error"))
 
-		err = repo.Delete(exceptedUser)
+		err = repo.Delete(expectedUser)
 
 		assert.EqualError(t, err, "test error")
 
@@ -761,14 +761,14 @@ func Test_repository_Delete(t *testing.T) {
 
 		now := time.Now()
 
-		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		expectedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
-		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetErr(errors.New("test error"))
+		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetErr(errors.New("test error"))
 
-		err = repo.Delete(exceptedUser)
+		err = repo.Delete(expectedUser)
 
 		assert.EqualError(t, err, "test error")
 

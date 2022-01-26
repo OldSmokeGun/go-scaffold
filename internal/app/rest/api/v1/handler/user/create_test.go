@@ -83,6 +83,7 @@ func Test_handler_Create(t *testing.T) {
 
 		t.Run("req_name_required", func(t *testing.T) {
 			createReq := &CreateReq{"", 1, "13000000000"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -100,6 +101,7 @@ func Test_handler_Create(t *testing.T) {
 
 		t.Run("req_age_min", func(t *testing.T) {
 			createReq := &CreateReq{"test", 0, "13000000000"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -117,6 +119,7 @@ func Test_handler_Create(t *testing.T) {
 
 		t.Run("req_phone_phone", func(t *testing.T) {
 			createReq := &CreateReq{"test", 1, "100"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -135,6 +138,7 @@ func Test_handler_Create(t *testing.T) {
 
 	t.Run("req_copy_error", func(t *testing.T) {
 		createReq := &CreateReq{Name: "test", Age: 18, Phone: "13000000000"}
+
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil

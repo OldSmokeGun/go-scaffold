@@ -132,8 +132,8 @@ Test2:
 			}
 		}(configFilePath)
 
-		exceptedError := "'' expected type 'string', got unconvertible type 'map[string]interface {}', value: 'map[test:value]'"
-		assert.EqualError(t, Load(configFilePath, new(string)), exceptedError)
+		expectedError := "'' expected type 'string', got unconvertible type 'map[string]interface {}', value: 'map[test:value]'"
+		assert.EqualError(t, Load(configFilePath, new(string)), expectedError)
 	})
 
 	t.Run("config_file_live_reload", func(t *testing.T) {

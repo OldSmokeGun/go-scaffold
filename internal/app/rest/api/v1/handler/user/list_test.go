@@ -87,6 +87,7 @@ func Test_handler_List(t *testing.T) {
 
 	t.Run("req_copy_error", func(t *testing.T) {
 		listReq := &ListReq{""}
+
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil

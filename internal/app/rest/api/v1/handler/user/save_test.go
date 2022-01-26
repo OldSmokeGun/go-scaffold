@@ -83,6 +83,7 @@ func Test_handler_Save(t *testing.T) {
 
 		t.Run("req_id_required", func(t *testing.T) {
 			saveReq := &SaveReq{0, "test", 18, "13000000000"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -100,6 +101,7 @@ func Test_handler_Save(t *testing.T) {
 
 		t.Run("req_name_required", func(t *testing.T) {
 			saveReq := &SaveReq{1, "", 1, "13000000000"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -117,6 +119,7 @@ func Test_handler_Save(t *testing.T) {
 
 		t.Run("req_age_min", func(t *testing.T) {
 			saveReq := &SaveReq{1, "test", 0, "13000000000"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -134,6 +137,7 @@ func Test_handler_Save(t *testing.T) {
 
 		t.Run("req_phone_phone", func(t *testing.T) {
 			saveReq := &SaveReq{1, "test", 1, "100"}
+
 			newHandler := New()
 			newHandler.Logger = test.Logger()
 			newHandler.Service = nil
@@ -152,6 +156,7 @@ func Test_handler_Save(t *testing.T) {
 
 	t.Run("req_copy_error", func(t *testing.T) {
 		saveReq := &SaveReq{ID: 1, Name: "test", Age: 18, Phone: "13000000000"}
+
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil

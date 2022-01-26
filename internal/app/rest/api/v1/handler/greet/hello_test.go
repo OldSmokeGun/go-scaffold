@@ -1,4 +1,4 @@
-package user
+package greet
 
 import (
 	"bou.ke/monkey"
@@ -10,7 +10,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
 	"go-scaffold/internal/app/rest/pkg/responsex"
-	"go-scaffold/internal/app/service/user"
+	"go-scaffold/internal/app/service/greet"
 	"go-scaffold/internal/app/test"
 	"io"
 	"net/http"
@@ -22,14 +22,14 @@ func init() {
 	test.Init()
 }
 
-// mockDeleteRequest 模拟请求
-func mockDeleteRequest(t *testing.T, h Interface, req *DeleteReq) *httptest.ResponseRecorder {
+// mockHelloRequest 模拟请求
+func mockHelloRequest(t *testing.T, h Interface, req *HelloReq) *httptest.ResponseRecorder {
 	gin.DefaultWriter = io.Discard
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.Default()
-	engine.Handle("DELETE", "/api/v1/user/:id", h.Delete)
+	engine.Handle("GET", "/api/v1/greet", h.Hello)
 
-	r := httptest.NewRequest("DELETE", fmt.Sprintf("/api/v1/user/%d", req.ID), nil)
+	r := httptest.NewRequest("GET", fmt.Sprintf("/api/v1/greet?name=%s", req.Name), nil)
 	w := httptest.NewRecorder()
 
 	engine.ServeHTTP(w, r)
@@ -37,36 +37,40 @@ func mockDeleteRequest(t *testing.T, h Interface, req *DeleteReq) *httptest.Resp
 	return w
 }
 
-func TestDeleteReq_ErrorMessage(t *testing.T) {
-	cr := new(DeleteReq)
+func TestHelloReq_ErrorMessage(t *testing.T) {
+	cr := new(HelloReq)
 	assert.NotNil(t, cr.ErrorMessage())
 	assert.Greater(t, len(cr.ErrorMessage()), 0)
 }
 
-func Test_handler_Delete(t *testing.T) {
+func Test_handler_Hello(t *testing.T) {
 
-	t.Run("delete_success", func(t *testing.T) {
-		deleteReq := &DeleteReq{1}
+	t.Run("success", func(t *testing.T) {
+		helloReq := &HelloReq{"Tom"}
 
-		deleteParam := new(user.DeleteParam)
-		if err := copier.Copy(deleteParam, deleteReq); err != nil {
+		helloParam := new(greet.HelloParam)
+		if err := copier.Copy(helloParam, helloReq); err != nil {
 			t.Fatal(err)
 		}
 
+		helloResult := fmt.Sprintf("Hello, %s!", helloParam.Name)
+
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockService := user.NewMockService(ctrl)
+		mockService := greet.NewMockService(ctrl)
 		mockService.EXPECT().
-			Delete(deleteParam).
-			Return(nil)
+			Hello(helloParam).
+			Return(helloResult, nil)
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockDeleteRequest(t, newHandler, deleteReq)
+		w := mockHelloRequest(t, newHandler, helloReq)
 
-		respJson, err := jsoniter.Marshal(responsex.NewSuccessBody())
+		helloResp := HelloResp{helloResult}
+
+		respJson, err := jsoniter.Marshal(responsex.NewSuccessBody(responsex.WithData(helloResp)))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -75,16 +79,16 @@ func Test_handler_Delete(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("req_id_required", func(t *testing.T) {
-		deleteReq := &DeleteReq{}
+	t.Run("req_name_required", func(t *testing.T) {
+		helloReq := &HelloReq{}
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = nil
 
-		w := mockDeleteRequest(t, newHandler, deleteReq)
+		w := mockHelloRequest(t, newHandler, helloReq)
 
-		respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(deleteReq.ErrorMessage()["ID.required"])))
+		respJson, err := jsoniter.Marshal(responsex.NewValidateErrorBody(responsex.WithMsg(helloReq.ErrorMessage()["Name.required"])))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -94,7 +98,7 @@ func Test_handler_Delete(t *testing.T) {
 	})
 
 	t.Run("req_copy_error", func(t *testing.T) {
-		deleteReq := &DeleteReq{1}
+		helloReq := &HelloReq{"Tom"}
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
@@ -105,7 +109,7 @@ func Test_handler_Delete(t *testing.T) {
 		})
 		defer monkey.Unpatch(copier.Copy)
 
-		w := mockDeleteRequest(t, newHandler, deleteReq)
+		w := mockHelloRequest(t, newHandler, helloReq)
 
 		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody())
 		if err != nil {
@@ -116,28 +120,28 @@ func Test_handler_Delete(t *testing.T) {
 		assert.JSONEq(t, string(respJson), w.Body.String())
 	})
 
-	t.Run("delete_failed", func(t *testing.T) {
-		deleteReq := &DeleteReq{100}
+	t.Run("call_hello_failed", func(t *testing.T) {
+		helloReq := &HelloReq{"Tom"}
 
-		deleteParam := new(user.DeleteParam)
-		if err := copier.Copy(deleteParam, deleteReq); err != nil {
+		helloParam := new(greet.HelloParam)
+		if err := copier.Copy(helloParam, helloReq); err != nil {
 			t.Fatal(err)
 		}
 
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		mockService := user.NewMockService(ctrl)
+		mockService := greet.NewMockService(ctrl)
 		mockService.EXPECT().
-			Delete(deleteParam).
-			Return(user.ErrDataDeleteFailed)
+			Hello(helloParam).
+			Return("", errors.New("test error"))
 
 		newHandler := New()
 		newHandler.Logger = test.Logger()
 		newHandler.Service = mockService
 
-		w := mockDeleteRequest(t, newHandler, deleteReq)
+		w := mockHelloRequest(t, newHandler, helloReq)
 
-		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody(responsex.WithMsg(user.ErrDataDeleteFailed.Error())))
+		respJson, err := jsoniter.Marshal(responsex.NewServerErrorBody(responsex.WithMsg("test error")))
 		if err != nil {
 			t.Fatal(err)
 		}
