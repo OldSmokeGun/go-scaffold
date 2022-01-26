@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/go-redis/redismock/v8"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
@@ -26,6 +27,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		repo := New()
 		repo.db = gdb
+
 		now := time.Now()
 
 		exceptedUsers := []*model.User{
@@ -68,6 +70,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 
 		repo := New()
 		repo.db = gdb
+
 		now := time.Now()
 
 		exceptedUsers := []*model.User{
@@ -101,7 +104,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		}
 	})
 
-	t.Run("query_error", func(t *testing.T) {
+	t.Run("query_failed", func(t *testing.T) {
 		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
@@ -129,6 +132,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 	t.Run("cache_is_valid", func(t *testing.T) {
 		now := time.Now()
+
 		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
 		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
 		if err != nil {
@@ -153,7 +157,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 		}
 	})
 
-	t.Run("get_cache_error", func(t *testing.T) {
+	t.Run("get_cache_failed", func(t *testing.T) {
 		rdb, rmock := redismock.NewClientMock()
 		defer rdb.Close()
 
@@ -323,7 +327,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 		})
 	})
 
-	t.Run("cache_set_error", func(t *testing.T) {
+	t.Run("cache_set_failed", func(t *testing.T) {
 		mdb, dmock, gdb, err := test.NewDBMock()
 		if err != nil {
 			t.Fatal(err)
@@ -374,10 +378,406 @@ func Test_repository_FindOneByID(t *testing.T) {
 }
 
 func Test_repository_Create(t *testing.T) {
+
+	t.Run("create_success", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		dmock.ExpectExec("INSERT INTO (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectSet(
+			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
+			string(exceptedUserJson),
+			time.Duration(cacheExpire)*time.Second,
+		).SetVal(string(exceptedUserJson))
+
+		user, err := repo.Create(exceptedUser)
+
+		assert.Equal(t, exceptedUser, user)
+		assert.NoError(t, err)
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("create_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		repo := New()
+		repo.db = gdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("INSERT INTO (.+)").
+			WillReturnError(errors.New("test error"))
+
+		user, err := repo.Create(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("model_marshal_error", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		repo := New()
+		repo.db = gdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("INSERT INTO (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
+			return nil, errors.New("test error")
+		})
+		defer monkey.Unpatch(jsoniter.Marshal)
+
+		user, err := repo.Create(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("cache_set_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		dmock.ExpectExec("INSERT INTO (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectSet(
+			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
+			string(exceptedUserJson),
+			time.Duration(cacheExpire)*time.Second,
+		).SetErr(errors.New("test error"))
+
+		user, err := repo.Create(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
 }
 
 func Test_repository_Save(t *testing.T) {
+
+	t.Run("save_success", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectSet(
+			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
+			string(exceptedUserJson),
+			time.Duration(cacheExpire)*time.Second,
+		).SetVal(string(exceptedUserJson))
+
+		user, err := repo.Save(exceptedUser)
+
+		assert.Equal(t, exceptedUser, user)
+		assert.NoError(t, err)
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("save_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		repo := New()
+		repo.db = gdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnError(errors.New("test error"))
+
+		user, err := repo.Save(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("model_marshal_error", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		repo := New()
+		repo.db = gdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
+			return nil, errors.New("test error")
+		})
+		defer monkey.Unpatch(jsoniter.Marshal)
+
+		user, err := repo.Save(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("cache_set_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+		exceptedUserJson, err := jsoniter.Marshal(exceptedUser)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectSet(
+			fmt.Sprintf(cacheKeyFormat, exceptedUser.ID),
+			string(exceptedUserJson),
+			time.Duration(cacheExpire)*time.Second,
+		).SetErr(errors.New("test error"))
+
+		user, err := repo.Save(exceptedUser)
+
+		assert.Nil(t, user)
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
 }
 
 func Test_repository_Delete(t *testing.T) {
+
+	t.Run("delete_success", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetVal(1)
+
+		err = repo.Delete(exceptedUser)
+
+		assert.NoError(t, err)
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
+
+	t.Run("delete_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		repo := New()
+		repo.db = gdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnError(errors.New("test error"))
+
+		err = repo.Delete(exceptedUser)
+
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("cache_del_failed", func(t *testing.T) {
+		mdb, dmock, gdb, err := test.NewDBMock()
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer mdb.Close()
+
+		rdb, rmock := redismock.NewClientMock()
+		defer rdb.Close()
+
+		repo := New()
+		repo.db = gdb
+		repo.rdb = rdb
+
+		now := time.Now()
+
+		exceptedUser := &model.User{BaseModel: model.BaseModel{ID: 1, CreatedAt: now.Unix(), UpdatedAt: now.Unix(), DeletedAt: 0}, Name: "test", Age: 18, Phone: "13000000000"}
+
+		dmock.ExpectExec("UPDATE (.+) SET (.+)").
+			WillReturnResult(sqlmock.NewResult(0, 1))
+
+		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, exceptedUser.ID)).SetErr(errors.New("test error"))
+
+		err = repo.Delete(exceptedUser)
+
+		assert.EqualError(t, err, "test error")
+
+		if err = dmock.ExpectationsWereMet(); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = rmock.ExpectationsWereMet(); err != nil {
+			t.Error(err)
+		}
+	})
 }
