@@ -39,5 +39,5 @@ func Stop(ctx context.Context) (err error) {
 		return
 	}
 
-	return
+	return nil
 }

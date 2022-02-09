@@ -19,17 +19,12 @@ func (a Env) String() string {
 	return string(a)
 }
 
-type (
-	Config struct {
-		App  `mapstructure:",squash"`
-		REST restconfig.Config `mapstructure:"REST"`
-	}
-
-	App struct {
-		Env              Env
-		ShutdownWaitTime int
-		Log              *logger.Config
-		DB               *orm.Config
-		Redis            *redisclient.Config
-	}
-)
+type Config struct {
+	Name             string
+	Env              Env
+	ShutdownWaitTime int
+	Log              *logger.Config
+	DB               *orm.Config
+	Redis            *redisclient.Config
+	REST             restconfig.Config `mapstructure:"REST"`
+}

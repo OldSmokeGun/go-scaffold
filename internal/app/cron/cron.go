@@ -40,5 +40,5 @@ func Start() (err error) {
 func Stop(ctx context.Context) (err error) {
 	cronServer.Stop()
 
-	return
+	return nil
 }
