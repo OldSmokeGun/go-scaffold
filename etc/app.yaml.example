@@ -51,6 +51,11 @@ Log:
 #   MinIdleConns: 10    # 连接池空闲连接数
 #   IdleTimeout: 600    # 连接池空闲连接数
 
+Trace:
+  Endpoint: "localhost:6831"                        # 链路数据上报到 jaeger 的 agent 组件
+  # Endpoint: "http://localhost:14268/api/traces"   # 链路数据上报到 jaeger 的 collector 组件
+  ShutdownWaitTime: 5                               # 停止 span processors 的等待时间
+
 REST:
   Host: "localhost"     # http 服务监听 ip
   Port: "9527"          # http 服务监听端口

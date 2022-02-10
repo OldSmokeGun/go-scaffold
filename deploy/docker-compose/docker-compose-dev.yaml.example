@@ -33,6 +33,23 @@ services:
       - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
       - "./redis/data:/data"
 
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    networks:
+      trace:
+        aliases:
+          - jaeger
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"     # agent 组件端口
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"       # UI 端口
+      - "14250:14250"
+      - "14268:14268"       # collector 组件端口
+      - "14269:14269"
+      - "9411:9411"
+
   rest:
     image: cosmtrek/air
     networks:

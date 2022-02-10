@@ -4,6 +4,7 @@ import (
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/rest/router/api"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"github.com/gin-gonic/gin"
 	"io"
@@ -24,6 +25,10 @@ func New() *gin.Engine {
 	}
 
 	router := gin.Default()
+
+	if global.Config().Trace != nil {
+		router.Use(otelgin.Middleware(global.Config().Name))
+	}
 
 	// 注册 api 路由组
 	api.NewGroup().Registry(router)

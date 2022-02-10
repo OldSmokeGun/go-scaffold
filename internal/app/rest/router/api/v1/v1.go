@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/rest/api/v1/handler/greet"
+	"go-scaffold/internal/app/rest/api/v1/handler/trace"
 	"go-scaffold/internal/app/rest/api/v1/handler/user"
 )
 
@@ -26,10 +27,12 @@ func (g Group) Registry(rg *gin.RouterGroup) {
 
 	var (
 		greetHandler = greet.New()
+		traceHandler = trace.New()
 		userHandler  = user.New()
 	)
 
 	group.GET("/greet", greetHandler.Hello)
+	group.GET("/trace", traceHandler.Example)
 
 	group.GET("/users", userHandler.List)
 	group.GET("/user/:id", userHandler.Detail)

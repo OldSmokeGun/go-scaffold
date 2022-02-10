@@ -16,6 +16,9 @@ import (
 	"go-scaffold/pkg/logger"
 	"go-scaffold/pkg/orm"
 	"go-scaffold/pkg/redisclient"
+	"go-scaffold/pkg/trace"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"log"
@@ -31,11 +34,13 @@ var defaultConfigPath = filepath.Join(helper.RootPath(), "etc/app.yaml")
 func main() {
 	var (
 		configPath   string
-		conf         = &appconfig.Config{}
-		loggerOutput *rotatelogs.RotateLogs
-		zLogger      *zap.Logger
-		db           *gorm.DB
-		rdb          *redis.Client
+		conf         = &appconfig.Config{}    // app 配置实例
+		loggerOutput *rotatelogs.RotateLogs   // 日志输出对象
+		zLogger      *zap.Logger              // 日志实例
+		db           *gorm.DB                 // 数据库实例
+		rdb          *redis.Client            // redis 客户端实例
+		tp           *sdktrace.TracerProvider // otel TracerProvider
+		tracer       oteltrace.Tracer         // otel Tracer
 		err          error
 	)
 
@@ -99,12 +104,23 @@ func main() {
 		rdb = redisclient.MustNew(*conf.Redis)
 	}
 
+	// tracer 初始化
+	if conf.Trace != nil {
+		tp = trace.MustNew(trace.Config{
+			Endpoint:    conf.Trace.Endpoint,
+			ServiceName: conf.Name,
+			Env:         conf.Env.String(),
+		})
+		tracer = tp.Tracer(conf.Name)
+	}
+
 	// 设置全局变量
 	global.SetLoggerOutput(loggerOutput)
 	global.SetConfig(conf)
 	global.SetLogger(zLogger)
 	global.SetDB(db)
 	global.SetRedisClient(rdb)
+	global.SetTracer(tracer)
 
 	// 资源回收
 	defer func() {
@@ -130,6 +146,12 @@ func main() {
 		}
 
 		if err = loggerOutput.Close(); err != nil {
+			log.Println(err)
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.Trace.ShutdownWaitTime)*time.Second)
+		defer cancel()
+		if err = tp.Shutdown(ctx); err != nil {
 			log.Println(err)
 		}
 	}()

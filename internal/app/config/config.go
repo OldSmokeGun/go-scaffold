@@ -26,5 +26,9 @@ type Config struct {
 	Log              *logger.Config
 	DB               *orm.Config
 	Redis            *redisclient.Config
-	REST             restconfig.Config `mapstructure:"REST"`
+	Trace            *struct {
+		Endpoint         string
+		ShutdownWaitTime int
+	}
+	REST restconfig.Config `mapstructure:"REST"`
 }

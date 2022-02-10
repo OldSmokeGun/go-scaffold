@@ -5,6 +5,7 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
 	"go-scaffold/internal/app/config"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -17,6 +18,7 @@ var (
 	logger       *zap.Logger            // 日志实例
 	db           *gorm.DB               // 数据库实例
 	redisClient  *redis.Client          // redis 实例
+	tracer       oteltrace.Tracer       // Tracer 实例
 )
 
 // SetCommand 设置命令行实例
@@ -77,4 +79,14 @@ func SetRedisClient(rc *redis.Client) {
 // RedisClient 获取 redis 客户端实例
 func RedisClient() *redis.Client {
 	return redisClient
+}
+
+// SetTracer 设置 Tracer 实例
+func SetTracer(t oteltrace.Tracer) {
+	tracer = t
+}
+
+// Tracer 获取 Tracer 实例
+func Tracer() oteltrace.Tracer {
+	return tracer
 }
