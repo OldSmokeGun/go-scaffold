@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -57,7 +58,7 @@ func Test_handler_Delete(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Delete(deleteParam).
+			Delete(context.TODO(), deleteParam).
 			Return(nil)
 
 		newHandler := New()
@@ -128,7 +129,7 @@ func Test_handler_Delete(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Delete(deleteParam).
+			Delete(context.TODO(), deleteParam).
 			Return(user.ErrDataDeleteFailed)
 
 		newHandler := New()

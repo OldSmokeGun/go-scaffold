@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -43,7 +44,7 @@ func Test_service_List(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindByKeyword(columns, listParam.Keyword, "updated_at DESC").
+			FindByKeyword(context.TODO(), columns, listParam.Keyword, "updated_at DESC").
 			Return(users, nil)
 
 		newService := New()
@@ -55,7 +56,7 @@ func Test_service_List(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		ret, err := newService.List(listParam)
+		ret, err := newService.List(context.TODO(), listParam)
 
 		assert.NoError(t, err)
 		assert.Equal(t, listResult, ret)
@@ -69,14 +70,14 @@ func Test_service_List(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindByKeyword(columns, listParam.Keyword, "updated_at DESC").
+			FindByKeyword(context.TODO(), columns, listParam.Keyword, "updated_at DESC").
 			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		ret, err := newService.List(listParam)
+		ret, err := newService.List(context.TODO(), listParam)
 
 		assert.ErrorIs(t, err, ErrDataQueryFailed)
 		assert.Nil(t, ret)
@@ -105,7 +106,7 @@ func Test_service_List(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindByKeyword(columns, listParam.Keyword, "updated_at DESC").
+			FindByKeyword(context.TODO(), columns, listParam.Keyword, "updated_at DESC").
 			Return(users, nil)
 
 		newService := New()
@@ -117,7 +118,7 @@ func Test_service_List(t *testing.T) {
 		})
 		defer monkey.Unpatch(copier.Copy)
 
-		ret, err := newService.List(listParam)
+		ret, err := newService.List(context.TODO(), listParam)
 
 		assert.EqualError(t, err, responsex.ServerErrorCode.String())
 		assert.Nil(t, ret)

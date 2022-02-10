@@ -51,7 +51,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
-		users, err := repo.FindByKeyword([]string{"*"}, "", "updated_at DESC")
+		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "", "updated_at DESC")
 
 		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
@@ -94,7 +94,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE \\(name LIKE (.+) OR phone LIKE (.+)\\) AND (.+)\\.`deleted_at` = \\?  ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
-		users, err := repo.FindByKeyword([]string{"*"}, "test", "updated_at DESC")
+		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "test", "updated_at DESC")
 
 		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
@@ -117,7 +117,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
 			WillReturnError(errors.New("test error"))
 
-		users, err := repo.FindByKeyword([]string{"*"}, "", "updated_at DESC")
+		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "", "updated_at DESC")
 
 		assert.Nil(t, users)
 		assert.EqualError(t, err, "test error")
@@ -147,7 +147,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(string(expectedUserJson))
 
-		user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
+		user, err := repo.FindOneByID(context.TODO(), expectedUser.ID, []string{"*"})
 
 		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
@@ -166,7 +166,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 1)).SetErr(errors.New("test error"))
 
-		user, err := repo.FindOneByID(1, []string{"*"})
+		user, err := repo.FindOneByID(context.TODO(), 1, []string{"*"})
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -185,7 +185,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 		rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 1)).SetVal("test")
 
-		user, err := repo.FindOneByID(1, []string{"*"})
+		user, err := repo.FindOneByID(context.TODO(), 1, []string{"*"})
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "readObjectStart: expect { or n, but found t, error found in #1 byte of ...|test|..., bigger context ...|test|...")
@@ -233,7 +233,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 			).SetVal(string(expectedUserJson))
 			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(string(expectedUserJson))
 
-			user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
+			user, err := repo.FindOneByID(context.TODO(), expectedUser.ID, []string{"*"})
 
 			assert.Equal(t, expectedUser, user)
 			assert.NoError(t, err)
@@ -267,7 +267,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 
 			rmock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 0)).SetVal("")
 
-			user, err := repo.FindOneByID(0, []string{"*"})
+			user, err := repo.FindOneByID(context.TODO(), 0, []string{"*"})
 
 			assert.Nil(t, user)
 			assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
@@ -312,7 +312,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 			})
 			defer monkey.Unpatch(jsoniter.Marshal)
 
-			user, err := repo.FindOneByID(0, []string{"*"})
+			user, err := repo.FindOneByID(context.TODO(), 0, []string{"*"})
 
 			assert.Nil(t, user)
 			assert.EqualError(t, err, "test error")
@@ -362,7 +362,7 @@ func Test_repository_FindOneByID(t *testing.T) {
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.FindOneByID(expectedUser.ID, []string{"*"})
+		user, err := repo.FindOneByID(context.TODO(), expectedUser.ID, []string{"*"})
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -410,7 +410,7 @@ func Test_repository_Create(t *testing.T) {
 			time.Duration(cacheExpire)*time.Second,
 		).SetVal(string(expectedUserJson))
 
-		user, err := repo.Create(expectedUser)
+		user, err := repo.Create(context.TODO(), expectedUser)
 
 		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
@@ -441,7 +441,7 @@ func Test_repository_Create(t *testing.T) {
 		dmock.ExpectExec("INSERT INTO (.+)").
 			WillReturnError(errors.New("test error"))
 
-		user, err := repo.Create(expectedUser)
+		user, err := repo.Create(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -473,7 +473,7 @@ func Test_repository_Create(t *testing.T) {
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)
 
-		user, err := repo.Create(expectedUser)
+		user, err := repo.Create(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -514,7 +514,7 @@ func Test_repository_Create(t *testing.T) {
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.Create(expectedUser)
+		user, err := repo.Create(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -562,7 +562,7 @@ func Test_repository_Save(t *testing.T) {
 			time.Duration(cacheExpire)*time.Second,
 		).SetVal(string(expectedUserJson))
 
-		user, err := repo.Save(expectedUser)
+		user, err := repo.Save(context.TODO(), expectedUser)
 
 		assert.Equal(t, expectedUser, user)
 		assert.NoError(t, err)
@@ -593,7 +593,7 @@ func Test_repository_Save(t *testing.T) {
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnError(errors.New("test error"))
 
-		user, err := repo.Save(expectedUser)
+		user, err := repo.Save(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -625,7 +625,7 @@ func Test_repository_Save(t *testing.T) {
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)
 
-		user, err := repo.Save(expectedUser)
+		user, err := repo.Save(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -666,7 +666,7 @@ func Test_repository_Save(t *testing.T) {
 			time.Duration(cacheExpire)*time.Second,
 		).SetErr(errors.New("test error"))
 
-		user, err := repo.Save(expectedUser)
+		user, err := repo.Save(context.TODO(), expectedUser)
 
 		assert.Nil(t, user)
 		assert.EqualError(t, err, "test error")
@@ -706,7 +706,7 @@ func Test_repository_Delete(t *testing.T) {
 
 		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetVal(1)
 
-		err = repo.Delete(expectedUser)
+		err = repo.Delete(context.TODO(), expectedUser)
 
 		assert.NoError(t, err)
 
@@ -736,7 +736,7 @@ func Test_repository_Delete(t *testing.T) {
 		dmock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnError(errors.New("test error"))
 
-		err = repo.Delete(expectedUser)
+		err = repo.Delete(context.TODO(), expectedUser)
 
 		assert.EqualError(t, err, "test error")
 
@@ -768,7 +768,7 @@ func Test_repository_Delete(t *testing.T) {
 
 		rmock.ExpectDel(fmt.Sprintf(cacheKeyFormat, expectedUser.ID)).SetErr(errors.New("test error"))
 
-		err = repo.Delete(expectedUser)
+		err = repo.Delete(context.TODO(), expectedUser)
 
 		assert.EqualError(t, err, "test error")
 

@@ -36,7 +36,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     networks:
-      trace:
+      go-scaffold:
         aliases:
           - jaeger
     ports:

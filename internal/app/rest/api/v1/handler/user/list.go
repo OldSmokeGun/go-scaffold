@@ -53,7 +53,7 @@ func (h *handler) List(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := h.Service.List(param)
+	ret, err := h.Service.List(ctx.Request.Context(), param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

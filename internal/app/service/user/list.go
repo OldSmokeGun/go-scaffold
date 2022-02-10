@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/rest/pkg/responsex"
@@ -18,8 +19,9 @@ type ListResult []*struct {
 }
 
 // List 用户列表
-func (s *service) List(param *ListParam) (ListResult, error) {
+func (s *service) List(ctx context.Context, param *ListParam) (ListResult, error) {
 	users, err := s.Repository.FindByKeyword(
+		context.TODO(),
 		[]string{"*"},
 		param.Keyword,
 		"updated_at DESC",

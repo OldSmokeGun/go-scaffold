@@ -52,7 +52,7 @@ func (h *handler) Create(ctx *gin.Context) {
 		return
 	}
 
-	err := h.Service.Create(param)
+	err := h.Service.Create(ctx.Request.Context(), param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

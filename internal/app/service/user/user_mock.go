@@ -5,6 +5,7 @@
 package user
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,73 +35,73 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockService) Create(param *CreateParam) error {
+func (m *MockService) Create(ctx context.Context, param *CreateParam) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", param)
+	ret := m.ctrl.Call(m, "Create", ctx, param)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockServiceMockRecorder) Create(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Create(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), ctx, param)
 }
 
 // Delete mocks base method.
-func (m *MockService) Delete(param *DeleteParam) error {
+func (m *MockService) Delete(ctx context.Context, param *DeleteParam) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", param)
+	ret := m.ctrl.Call(m, "Delete", ctx, param)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockServiceMockRecorder) Delete(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Delete(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), ctx, param)
 }
 
 // Detail mocks base method.
-func (m *MockService) Detail(param *DetailParam) (*DetailResult, error) {
+func (m *MockService) Detail(ctx context.Context, param *DetailParam) (*DetailResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Detail", param)
+	ret := m.ctrl.Call(m, "Detail", ctx, param)
 	ret0, _ := ret[0].(*DetailResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Detail indicates an expected call of Detail.
-func (mr *MockServiceMockRecorder) Detail(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Detail(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Detail", reflect.TypeOf((*MockService)(nil).Detail), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Detail", reflect.TypeOf((*MockService)(nil).Detail), ctx, param)
 }
 
 // List mocks base method.
-func (m *MockService) List(param *ListParam) (ListResult, error) {
+func (m *MockService) List(ctx context.Context, param *ListParam) (ListResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", param)
+	ret := m.ctrl.Call(m, "List", ctx, param)
 	ret0, _ := ret[0].(ListResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockServiceMockRecorder) List(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) List(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockService)(nil).List), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockService)(nil).List), ctx, param)
 }
 
 // Save mocks base method.
-func (m *MockService) Save(param *SaveParam) error {
+func (m *MockService) Save(ctx context.Context, param *SaveParam) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", param)
+	ret := m.ctrl.Call(m, "Save", ctx, param)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockServiceMockRecorder) Save(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Save(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockService)(nil).Save), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockService)(nil).Save), ctx, param)
 }

@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func Test_handler_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Detail(detailParam).
+			Detail(context.TODO(), detailParam).
 			Return(detailResult, nil)
 
 		detailResp := new(DetailResp)
@@ -135,7 +136,7 @@ func Test_handler_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Detail(detailParam).
+			Detail(context.TODO(), detailParam).
 			Return(nil, nil)
 
 		newHandler := New()
@@ -165,7 +166,7 @@ func Test_handler_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Detail(detailParam).
+			Detail(context.TODO(), detailParam).
 			Return(nil, user.ErrUserNotExist)
 
 		newHandler := New()

@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -37,14 +38,14 @@ func Test_service_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			Create(userModel).
+			Create(context.TODO(), userModel).
 			Return(&createdUserModel, nil)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Create(createParam)
+		err := newService.Create(context.TODO(), createParam)
 
 		assert.NoError(t, err)
 	})
@@ -60,7 +61,7 @@ func Test_service_Create(t *testing.T) {
 		newService := New()
 		newService.Logger = test.Logger()
 
-		err := newService.Create(createParam)
+		err := newService.Create(context.TODO(), createParam)
 
 		assert.EqualError(t, err, responsex.ServerErrorCode.String())
 	})
@@ -77,14 +78,14 @@ func Test_service_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			Create(userModel).
+			Create(context.TODO(), userModel).
 			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Create(createParam)
+		err := newService.Create(context.TODO(), createParam)
 
 		assert.ErrorIs(t, err, ErrDataStoreFailed)
 	})

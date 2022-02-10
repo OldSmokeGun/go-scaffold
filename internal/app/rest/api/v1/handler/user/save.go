@@ -54,7 +54,7 @@ func (h *handler) Save(ctx *gin.Context) {
 		return
 	}
 
-	err := h.Service.Save(param)
+	err := h.Service.Save(ctx.Request.Context(), param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

@@ -5,6 +5,7 @@
 package greet
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,16 +35,16 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // Hello mocks base method.
-func (m *MockService) Hello(param *HelloParam) (string, error) {
+func (m *MockService) Hello(ctx context.Context, param *HelloParam) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Hello", param)
+	ret := m.ctrl.Call(m, "Hello", ctx, param)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Hello indicates an expected call of Hello.
-func (mr *MockServiceMockRecorder) Hello(param interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) Hello(ctx, param interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Hello", reflect.TypeOf((*MockService)(nil).Hello), param)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Hello", reflect.TypeOf((*MockService)(nil).Hello), ctx, param)
 }

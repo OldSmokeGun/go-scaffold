@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/model"
@@ -14,14 +15,14 @@ type CreateParam struct {
 }
 
 // Create 创建用户
-func (s *service) Create(param *CreateParam) error {
+func (s *service) Create(ctx context.Context, param *CreateParam) error {
 	m := new(model.User)
 	if err := copier.Copy(m, param); err != nil {
 		s.Logger.Error(err.Error())
 		return errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err := s.Repository.Create(m); err != nil {
+	if _, err := s.Repository.Create(context.TODO(), m); err != nil {
 		s.Logger.Error(err.Error())
 		return ErrDataStoreFailed
 	}

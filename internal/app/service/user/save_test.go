@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -37,11 +38,11 @@ func Test_service_Save(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		gomock.InOrder(
 			mockRepository.EXPECT().
-				FindOneByID(saveParam.ID, columns).
+				FindOneByID(context.TODO(), saveParam.ID, columns).
 				Return(userModel, nil),
 
 			mockRepository.EXPECT().
-				Save(userModel).
+				Save(context.TODO(), userModel).
 				Return(userModel, nil),
 		)
 
@@ -49,7 +50,7 @@ func Test_service_Save(t *testing.T) {
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Save(saveParam)
+		err := newService.Save(context.TODO(), saveParam)
 
 		assert.NoError(t, err)
 	})
@@ -62,14 +63,14 @@ func Test_service_Save(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(saveParam.ID, columns).
+			FindOneByID(context.TODO(), saveParam.ID, columns).
 			Return(nil, gorm.ErrRecordNotFound)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Save(saveParam)
+		err := newService.Save(context.TODO(), saveParam)
 
 		assert.ErrorIs(t, err, ErrUserNotExist)
 	})
@@ -82,14 +83,14 @@ func Test_service_Save(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(saveParam.ID, columns).
+			FindOneByID(context.TODO(), saveParam.ID, columns).
 			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Save(saveParam)
+		err := newService.Save(context.TODO(), saveParam)
 
 		assert.EqualError(t, err, ErrDataQueryFailed.Error())
 	})
@@ -109,7 +110,7 @@ func Test_service_Save(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(saveParam.ID, columns).
+			FindOneByID(context.TODO(), saveParam.ID, columns).
 			Return(userModel, nil)
 
 		monkey.Patch(copier.Copy, func(toValue interface{}, fromValue interface{}) error {
@@ -121,7 +122,7 @@ func Test_service_Save(t *testing.T) {
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Save(saveParam)
+		err := newService.Save(context.TODO(), saveParam)
 
 		assert.EqualError(t, err, responsex.ServerErrorCode.String())
 	})
@@ -142,11 +143,11 @@ func Test_service_Save(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		gomock.InOrder(
 			mockRepository.EXPECT().
-				FindOneByID(saveParam.ID, columns).
+				FindOneByID(context.TODO(), saveParam.ID, columns).
 				Return(userModel, nil),
 
 			mockRepository.EXPECT().
-				Save(userModel).
+				Save(context.TODO(), userModel).
 				Return(nil, errors.New("test error")),
 		)
 
@@ -154,7 +155,7 @@ func Test_service_Save(t *testing.T) {
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Save(saveParam)
+		err := newService.Save(context.TODO(), saveParam)
 
 		assert.ErrorIs(t, err, ErrDataStoreFailed)
 	})

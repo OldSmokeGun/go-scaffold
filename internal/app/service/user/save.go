@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/rest/pkg/responsex"
@@ -15,8 +16,9 @@ type SaveParam struct {
 }
 
 // Save 更新用户
-func (s *service) Save(param *SaveParam) error {
+func (s *service) Save(ctx context.Context, param *SaveParam) error {
 	user, err := s.Repository.FindOneByID(
+		context.TODO(),
 		param.ID,
 		[]string{"*"},
 	)
@@ -33,7 +35,7 @@ func (s *service) Save(param *SaveParam) error {
 		return errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err = s.Repository.Save(user); err != nil {
+	if _, err = s.Repository.Save(context.TODO(), user); err != nil {
 		s.Logger.Error(err.Error())
 		return ErrDataStoreFailed
 	}

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -34,11 +35,11 @@ func Test_service_Delete(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		gomock.InOrder(
 			mockRepository.EXPECT().
-				FindOneByID(deleteParam.ID, columns).
+				FindOneByID(context.TODO(), deleteParam.ID, columns).
 				Return(userModel, nil),
 
 			mockRepository.EXPECT().
-				Delete(userModel).
+				Delete(context.TODO(), userModel).
 				Return(nil),
 		)
 
@@ -46,7 +47,7 @@ func Test_service_Delete(t *testing.T) {
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Delete(deleteParam)
+		err := newService.Delete(context.TODO(), deleteParam)
 
 		assert.NoError(t, err)
 	})
@@ -59,14 +60,14 @@ func Test_service_Delete(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(deleteParam.ID, columns).
+			FindOneByID(context.TODO(), deleteParam.ID, columns).
 			Return(nil, gorm.ErrRecordNotFound)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Delete(deleteParam)
+		err := newService.Delete(context.TODO(), deleteParam)
 
 		assert.ErrorIs(t, err, ErrUserNotExist)
 	})
@@ -79,14 +80,14 @@ func Test_service_Delete(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(deleteParam.ID, columns).
+			FindOneByID(context.TODO(), deleteParam.ID, columns).
 			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Delete(deleteParam)
+		err := newService.Delete(context.TODO(), deleteParam)
 
 		assert.EqualError(t, err, ErrDataQueryFailed.Error())
 	})
@@ -107,11 +108,11 @@ func Test_service_Delete(t *testing.T) {
 		mockRepository := user.NewMockRepository(ctrl)
 		gomock.InOrder(
 			mockRepository.EXPECT().
-				FindOneByID(deleteParam.ID, columns).
+				FindOneByID(context.TODO(), deleteParam.ID, columns).
 				Return(userModel, nil),
 
 			mockRepository.EXPECT().
-				Delete(userModel).
+				Delete(context.TODO(), userModel).
 				Return(errors.New("test error")),
 		)
 
@@ -119,7 +120,7 @@ func Test_service_Delete(t *testing.T) {
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		err := newService.Delete(deleteParam)
+		err := newService.Delete(context.TODO(), deleteParam)
 
 		assert.ErrorIs(t, err, ErrDataDeleteFailed)
 	})

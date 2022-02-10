@@ -5,6 +5,7 @@
 package user
 
 import (
+	context "context"
 	model "go-scaffold/internal/app/model"
 	reflect "reflect"
 
@@ -35,75 +36,75 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockRepository) Create(user *model.User) (*model.User, error) {
+func (m *MockRepository) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", user)
+	ret := m.ctrl.Call(m, "Create", ctx, user)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockRepositoryMockRecorder) Create(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Create(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockRepository)(nil).Create), ctx, user)
 }
 
 // Delete mocks base method.
-func (m *MockRepository) Delete(user *model.User) error {
+func (m *MockRepository) Delete(ctx context.Context, user *model.User) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", user)
+	ret := m.ctrl.Call(m, "Delete", ctx, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockRepositoryMockRecorder) Delete(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Delete(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), ctx, user)
 }
 
 // FindByKeyword mocks base method.
-func (m *MockRepository) FindByKeyword(columns []string, keyword, order string) ([]*model.User, error) {
+func (m *MockRepository) FindByKeyword(ctx context.Context, columns []string, keyword, order string) ([]*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByKeyword", columns, keyword, order)
+	ret := m.ctrl.Call(m, "FindByKeyword", ctx, columns, keyword, order)
 	ret0, _ := ret[0].([]*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByKeyword indicates an expected call of FindByKeyword.
-func (mr *MockRepositoryMockRecorder) FindByKeyword(columns, keyword, order interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FindByKeyword(ctx, columns, keyword, order interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByKeyword", reflect.TypeOf((*MockRepository)(nil).FindByKeyword), columns, keyword, order)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByKeyword", reflect.TypeOf((*MockRepository)(nil).FindByKeyword), ctx, columns, keyword, order)
 }
 
 // FindOneByID mocks base method.
-func (m *MockRepository) FindOneByID(id uint, columns []string) (*model.User, error) {
+func (m *MockRepository) FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindOneByID", id, columns)
+	ret := m.ctrl.Call(m, "FindOneByID", ctx, id, columns)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindOneByID indicates an expected call of FindOneByID.
-func (mr *MockRepositoryMockRecorder) FindOneByID(id, columns interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FindOneByID(ctx, id, columns interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByID", reflect.TypeOf((*MockRepository)(nil).FindOneByID), id, columns)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOneByID", reflect.TypeOf((*MockRepository)(nil).FindOneByID), ctx, id, columns)
 }
 
 // Save mocks base method.
-func (m *MockRepository) Save(user *model.User) (*model.User, error) {
+func (m *MockRepository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", user)
+	ret := m.ctrl.Call(m, "Save", ctx, user)
 	ret0, _ := ret[0].(*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockRepositoryMockRecorder) Save(user interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Save(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), ctx, user)
 }

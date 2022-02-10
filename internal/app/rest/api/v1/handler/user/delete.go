@@ -47,7 +47,7 @@ func (h *handler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	err := h.Service.Delete(param)
+	err := h.Service.Delete(ctx.Request.Context(), param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

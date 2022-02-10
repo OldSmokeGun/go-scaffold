@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"github.com/golang/mock/gomock"
 	"github.com/jinzhu/copier"
@@ -36,7 +37,7 @@ func Test_service_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
+			FindOneByID(context.TODO(), detailParam.ID, columns).
 			Return(userModel, nil)
 
 		newService := New()
@@ -48,7 +49,7 @@ func Test_service_Detail(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		ret, err := newService.Detail(detailParam)
+		ret, err := newService.Detail(context.TODO(), detailParam)
 
 		assert.NoError(t, err)
 		assert.Equal(t, detailResult, ret)
@@ -62,14 +63,14 @@ func Test_service_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
+			FindOneByID(context.TODO(), detailParam.ID, columns).
 			Return(nil, gorm.ErrRecordNotFound)
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		ret, err := newService.Detail(detailParam)
+		ret, err := newService.Detail(context.TODO(), detailParam)
 
 		assert.ErrorIs(t, err, ErrUserNotExist)
 		assert.Nil(t, ret)
@@ -83,14 +84,14 @@ func Test_service_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
+			FindOneByID(context.TODO(), detailParam.ID, columns).
 			Return(nil, errors.New("test error"))
 
 		newService := New()
 		newService.Logger = test.Logger()
 		newService.Repository = mockRepository
 
-		ret, err := newService.Detail(detailParam)
+		ret, err := newService.Detail(context.TODO(), detailParam)
 
 		assert.ErrorIs(t, err, ErrDataQueryFailed)
 		assert.Nil(t, ret)
@@ -111,7 +112,7 @@ func Test_service_Detail(t *testing.T) {
 		defer ctrl.Finish()
 		mockRepository := user.NewMockRepository(ctrl)
 		mockRepository.EXPECT().
-			FindOneByID(detailParam.ID, columns).
+			FindOneByID(context.TODO(), detailParam.ID, columns).
 			Return(userModel, nil)
 
 		newService := New()
@@ -123,7 +124,7 @@ func Test_service_Detail(t *testing.T) {
 		})
 		defer monkey.Unpatch(copier.Copy)
 
-		ret, err := newService.Detail(detailParam)
+		ret, err := newService.Detail(context.TODO(), detailParam)
 
 		assert.EqualError(t, err, responsex.ServerErrorCode.String())
 		assert.Nil(t, ret)

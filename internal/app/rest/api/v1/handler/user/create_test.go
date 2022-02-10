@@ -3,6 +3,7 @@ package user
 import (
 	"bou.ke/monkey"
 	"bytes"
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -61,7 +62,7 @@ func Test_handler_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Create(createParam).
+			Create(context.TODO(), createParam).
 			Return(nil)
 
 		newHandler := New()
@@ -171,7 +172,7 @@ func Test_handler_Create(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Create(createParam).
+			Create(context.TODO(), createParam).
 			Return(user.ErrDataStoreFailed)
 
 		newHandler := New()

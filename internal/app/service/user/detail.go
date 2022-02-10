@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/rest/pkg/responsex"
@@ -21,8 +22,9 @@ type (
 )
 
 // Detail 用户详情
-func (s *service) Detail(param *DetailParam) (*DetailResult, error) {
+func (s *service) Detail(ctx context.Context, param *DetailParam) (*DetailResult, error) {
 	user, err := s.Repository.FindOneByID(
+		context.TODO(),
 		param.ID,
 		[]string{"*"},
 	)

@@ -1,14 +1,18 @@
 package trace
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/rest/pkg/responsex"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
+	"math/rand"
 	"net/http"
 )
 
@@ -29,6 +33,8 @@ import (
 func (h *handler) Example(ctx *gin.Context) {
 	reqCtx := ctx.Request.Context()
 
+	h.example(reqCtx)
+
 	// 获取当前请求 span
 	span := trace.SpanFromContext(otel.GetTextMapPropagator().Extract(reqCtx, propagation.HeaderCarrier(ctx.Request.Header)))
 	defer span.End()
@@ -43,7 +49,7 @@ func (h *handler) Example(ctx *gin.Context) {
 	}
 
 	// 携带 baggage 信息
-	mem, err := baggage.NewMember("demoKey", "demoValue")
+	mem, err := baggage.NewMember("exampleKey", "exampleValue")
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
@@ -73,4 +79,32 @@ func (h *handler) Example(ctx *gin.Context) {
 
 	responsex.Success(ctx)
 	return
+}
+
+// example 示例方法
+func (h *handler) example(ctx context.Context) {
+	_, span := h.Tracer.Start(
+		ctx,
+		"handler.example",
+		trace.WithAttributes(
+			attribute.String("exampleKey1", "exampleValue1"),
+			attribute.String("exampleKey2", "exampleValue2"),
+		),
+		trace.WithSpanKind(trace.SpanKindInternal),
+	)
+	span.AddEvent(
+		"exampleEvent",
+		trace.WithAttributes(
+			attribute.String("exampleKey1", "exampleValue1"),
+			attribute.String("exampleKey2", "exampleValue2"),
+		),
+		trace.WithStackTrace(true),
+	)
+
+	if rand.Intn(10) > 5 {
+		span.RecordError(errors.New("example rand error"))
+		span.SetStatus(codes.Error, "example rand error")
+	}
+
+	defer span.End()
 }

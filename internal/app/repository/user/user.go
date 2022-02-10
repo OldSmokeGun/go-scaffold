@@ -16,19 +16,19 @@ import (
 
 type Interface interface {
 	// FindByKeyword 根据关键字查询用户列表
-	FindByKeyword(columns []string, keyword string, order string) ([]*model.User, error)
+	FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error)
 
 	// FindOneByID 根据 ID 查询用户详情
-	FindOneByID(id uint, columns []string) (*model.User, error)
+	FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error)
 
 	// Create 创建用户
-	Create(user *model.User) (*model.User, error)
+	Create(ctx context.Context, user *model.User) (*model.User, error)
 
 	// Save 更新用户信息
-	Save(user *model.User) (*model.User, error)
+	Save(ctx context.Context, user *model.User) (*model.User, error)
 
 	// Delete 删除用户
-	Delete(user *model.User) error
+	Delete(ctx context.Context, user *model.User) error
 }
 
 type repository struct {
@@ -48,7 +48,7 @@ var (
 	cacheExpire    = 3600
 )
 
-func (r *repository) FindByKeyword(columns []string, keyword string, order string) ([]*model.User, error) {
+func (r *repository) FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error) {
 	var users []*model.User
 	query := r.db.Select(columns)
 
@@ -65,7 +65,7 @@ func (r *repository) FindByKeyword(columns []string, keyword string, order strin
 	return users, nil
 }
 
-func (r *repository) FindOneByID(id uint, columns []string) (*model.User, error) {
+func (r *repository) FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error) {
 	m := new(model.User)
 
 	cacheValue, err := r.rdb.Get(
@@ -109,7 +109,7 @@ func (r *repository) FindOneByID(id uint, columns []string) (*model.User, error)
 	return m, nil
 }
 
-func (r *repository) Create(user *model.User) (*model.User, error) {
+func (r *repository) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Create(user).Error; err != nil {
 		return nil, err
 	}
@@ -132,7 +132,7 @@ func (r *repository) Create(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-func (r *repository) Save(user *model.User) (*model.User, error) {
+func (r *repository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (r *repository) Save(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-func (r *repository) Delete(user *model.User) error {
+func (r *repository) Delete(ctx context.Context, user *model.User) error {
 	if err := r.db.Delete(user).Error; err != nil {
 		return err
 	}

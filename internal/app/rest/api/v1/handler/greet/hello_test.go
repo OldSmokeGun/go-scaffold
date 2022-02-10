@@ -2,6 +2,7 @@ package greet
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -59,7 +60,7 @@ func Test_handler_Hello(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := greet.NewMockService(ctrl)
 		mockService.EXPECT().
-			Hello(helloParam).
+			Hello(context.TODO(), helloParam).
 			Return(helloResult, nil)
 
 		newHandler := New()
@@ -132,7 +133,7 @@ func Test_handler_Hello(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := greet.NewMockService(ctrl)
 		mockService.EXPECT().
-			Hello(helloParam).
+			Hello(context.TODO(), helloParam).
 			Return("", errors.New("test error"))
 
 		newHandler := New()

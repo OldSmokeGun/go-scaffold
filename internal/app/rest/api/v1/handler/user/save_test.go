@@ -3,6 +3,7 @@ package user
 import (
 	"bou.ke/monkey"
 	"bytes"
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -61,7 +62,7 @@ func Test_handler_Save(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Save(saveParam).
+			Save(context.TODO(), saveParam).
 			Return(nil)
 
 		newHandler := New()
@@ -189,7 +190,7 @@ func Test_handler_Save(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			Save(saveParam).
+			Save(context.TODO(), saveParam).
 			Return(user.ErrDataStoreFailed)
 
 		newHandler := New()

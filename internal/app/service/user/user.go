@@ -3,6 +3,7 @@ package user
 //go:generate mockgen -source=user.go -destination=user_mock.go -package=user -mock_names=Interface=MockService
 
 import (
+	"context"
 	"errors"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/repository/user"
@@ -10,11 +11,11 @@ import (
 )
 
 type Interface interface {
-	Create(param *CreateParam) error
-	List(param *ListParam) (ListResult, error)
-	Detail(param *DetailParam) (*DetailResult, error)
-	Save(param *SaveParam) error
-	Delete(param *DeleteParam) error
+	Create(ctx context.Context, param *CreateParam) error
+	List(ctx context.Context, param *ListParam) (ListResult, error)
+	Detail(ctx context.Context, param *DetailParam) (*DetailResult, error)
+	Save(ctx context.Context, param *SaveParam) error
+	Delete(ctx context.Context, param *DeleteParam) error
 }
 
 var (

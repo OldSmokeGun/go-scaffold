@@ -56,7 +56,7 @@ func (h *handler) Detail(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := h.Service.Detail(param)
+	ret, err := h.Service.Detail(ctx.Request.Context(), param)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

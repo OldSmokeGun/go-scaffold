@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"errors"
 	"gorm.io/gorm"
 )
@@ -10,8 +11,9 @@ type DeleteParam struct {
 }
 
 // Delete 删除用户
-func (s *service) Delete(param *DeleteParam) error {
+func (s *service) Delete(ctx context.Context, param *DeleteParam) error {
 	user, err := s.Repository.FindOneByID(
+		context.TODO(),
 		param.ID,
 		[]string{"*"},
 	)
@@ -23,7 +25,7 @@ func (s *service) Delete(param *DeleteParam) error {
 		return ErrDataQueryFailed
 	}
 
-	if err = s.Repository.Delete(user); err != nil {
+	if err = s.Repository.Delete(context.TODO(), user); err != nil {
 		s.Logger.Error(err.Error())
 		return ErrDataDeleteFailed
 	}

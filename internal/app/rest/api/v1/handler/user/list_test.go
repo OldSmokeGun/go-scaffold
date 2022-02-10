@@ -2,6 +2,7 @@ package user
 
 import (
 	"bou.ke/monkey"
+	"context"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -62,7 +63,7 @@ func Test_handler_List(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			List(listParam).
+			List(context.TODO(), listParam).
 			Return(listResult, nil)
 
 		var listResp ListResp
@@ -120,7 +121,7 @@ func Test_handler_List(t *testing.T) {
 		defer ctrl.Finish()
 		mockService := user.NewMockService(ctrl)
 		mockService.EXPECT().
-			List(listParam).
+			List(context.TODO(), listParam).
 			Return(nil, user.ErrDataQueryFailed)
 
 		newHandler := New()
