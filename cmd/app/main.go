@@ -137,7 +137,6 @@ func main() {
 		remoteConfig.MustLoad(conf)
 		if remoteConf.Type == "apollo" {
 			remoteConfig.MustWatch(nil, func(v *viper.Viper, e interface{}) {
-				fmt.Println(122222)
 				event := e.(*storage.FullChangeEvent)
 				for k, c := range event.Changes {
 					v.Set(k, c)
@@ -146,8 +145,6 @@ func main() {
 					zLogger.Error(err.Error())
 					return
 				}
-
-				fmt.Println(v.AllSettings())
 			})
 		} else {
 			if err := remoteConfig.Watch(); err != nil {
