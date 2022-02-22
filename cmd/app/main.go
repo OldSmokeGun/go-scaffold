@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/apolloconfig/agollo/v4/storage"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-redis/redis/v8"
