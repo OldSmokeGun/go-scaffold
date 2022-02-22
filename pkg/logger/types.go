@@ -45,18 +45,8 @@ func (l Level) Convert() zapcore.Level {
 	}
 }
 
-type Mode string
-
-const (
-	Development Mode = "development"
-	Production  Mode = "production"
-)
-
 type Config struct {
-	Path   string
 	Level  Level
 	Format Format
-	Caller bool
-	Mode   Mode
 	Output io.Writer
 }

@@ -41,7 +41,7 @@ func (g Group) Registry(router *gin.Engine) {
 	)
 	{
 		// swagger 配置
-		if g.Config.Env != config.Prod {
+		if g.Config.Env != "prod" {
 			docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", docs.SwaggerInfo.Host, g.Config.REST.Port)
 			if g.Config.REST.ExternalUrl != "" {
 				docs.SwaggerInfo.Host = g.Config.REST.ExternalUrl

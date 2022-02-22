@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"github.com/apolloconfig/agollo/v4/storage"
 	"github.com/fsnotify/fsnotify"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -11,8 +13,10 @@ import (
 	"go-scaffold/internal/app"
 	appconfig "go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/pkg/config"
+	"go-scaffold/pkg/config/local"
+	"go-scaffold/pkg/config/remote"
 	"go-scaffold/pkg/helper"
+	"go-scaffold/pkg/helper/slicex"
 	"go-scaffold/pkg/logger"
 	"go-scaffold/pkg/orm"
 	"go-scaffold/pkg/redisclient"
@@ -23,58 +27,49 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os/signal"
+	"path"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 )
 
-// defaultConfigPath 默认配置文件路径
-var defaultConfigPath = filepath.Join(helper.RootPath(), "etc/app.yaml")
+var (
+	rootPath   = helper.RootPath()
+	logPath    string
+	logLevel   string
+	logFormat  string
+	configPath string
+	remotePath string
+)
+
+func init() {
+	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
+	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、panic、fatal）")
+	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志格式（text、json）")
+	pflag.StringVarP(&configPath, "config", "c", filepath.Join(rootPath, "etc/app/config.yaml"), "配置文件路径")
+	pflag.StringVarP(&remotePath, "config.remote", "", filepath.Join(rootPath, "etc/app/remote.yaml"), "远程配置中心配置文件路径")
+}
 
 func main() {
 	var (
-		configPath   string
-		conf         = &appconfig.Config{}    // app 配置实例
-		loggerOutput *rotatelogs.RotateLogs   // 日志输出对象
-		zLogger      *zap.Logger              // 日志实例
-		db           *gorm.DB                 // 数据库实例
-		rdb          *redis.Client            // redis 客户端实例
-		tp           *sdktrace.TracerProvider // otel TracerProvider
-		tracer       oteltrace.Tracer         // otel Tracer
-		err          error
+		supportedEnvs = []string{"local", "test", "prod"}
+		conf          = &appconfig.Config{}    // app 配置实例
+		remoteConf    = &appconfig.Remote{}    // app 远程配置中心配置实例
+		loggerOutput  *rotatelogs.RotateLogs   // 日志输出对象
+		zLogger       *zap.Logger              // 日志实例
+		db            *gorm.DB                 // 数据库实例
+		rdb           *redis.Client            // redis 客户端实例
+		tp            *sdktrace.TracerProvider // otel TracerProvider
+		tracer        oteltrace.Tracer         // otel Tracer
+		err           error
 	)
 
-	pflag.StringVarP(&configPath, "etc", "c", defaultConfigPath, "配置文件路径")
-
-	// 加载配置
-	if !filepath.IsAbs(configPath) {
-		configPath = filepath.Join(helper.RootPath(), configPath)
-	}
-	config.MustLoad(configPath, conf, func(v *viper.Viper, model interface{}, e fsnotify.Event) {
-		if err := v.MergeInConfig(); err != nil {
-			panic(err)
-		}
-		if err := v.Unmarshal(model); err != nil {
-			panic(err)
-		}
-	})
-
-	// 检查环境是否设置正确
-	switch conf.Env {
-	case appconfig.Local:
-	case appconfig.Test:
-	case appconfig.Prod:
-	default:
-		panic("unknown Env value: " + conf.Env)
-	}
-
-	if conf.Log.Path != "" {
-		logPath := conf.Log.Path
-		if !filepath.IsAbs(conf.Log.Path) {
-			logPath = filepath.Join(helper.RootPath(), conf.Log.Path)
+	if logPath != "" {
+		if !filepath.IsAbs(logPath) {
+			logPath = filepath.Join(helper.RootPath(), logPath)
 		}
 
-		// 日志切割
 		loggerOutput, err = rotatelogs.New(
 			logPath,
 			rotatelogs.WithClock(rotatelogs.Local),
@@ -82,16 +77,88 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+	}
 
-		// 日志初始化
-		zLogger = logger.MustNew(logger.Config{
-			Path:   conf.Log.Path,
-			Level:  conf.Log.Level,
-			Format: conf.Log.Format,
-			Caller: conf.Log.Caller,
-			Mode:   conf.Log.Mode,
-			Output: loggerOutput,
-		})
+	// 日志初始化
+	zLogger = logger.MustNew(logger.Config{
+		Level:  logger.Level(logLevel),
+		Format: logger.Format(logFormat),
+		Output: loggerOutput,
+	})
+
+	// 加载配置
+	if configPath == "" {
+		panic("local and remote config are missing")
+	}
+
+	if !filepath.IsAbs(configPath) {
+		configPath = filepath.Join(helper.RootPath(), configPath)
+	}
+
+	localConfig, err := local.New(configPath)
+	if err != nil {
+		panic(err)
+	}
+	localConfig.MustLoad(conf)
+	localConfig.Watch(func(v *viper.Viper, event fsnotify.Event) {
+		if err := v.MergeInConfig(); err != nil {
+			zLogger.Error(err.Error())
+			return
+		}
+		if err := v.Unmarshal(conf); err != nil {
+			zLogger.Error(err.Error())
+			return
+		}
+	})
+
+	if !conf.Priority && remotePath != "" {
+		if !filepath.IsAbs(remotePath) {
+			remotePath = filepath.Join(helper.RootPath(), remotePath)
+		}
+
+		localRemoteConfig, err := local.New(remotePath)
+		if err != nil {
+			panic(err)
+		}
+		localRemoteConfig.MustLoad(remoteConf)
+
+		// 远程配置加载
+		remoteConfig, err := remote.New(
+			remoteConf.Type,
+			remoteConf.Endpoint,
+			remoteConf.Path,
+			remoteConf.SecretKeyring,
+			strings.TrimPrefix(path.Ext(configPath), "."),
+			remote.WithOptions(remoteConf.Options),
+		)
+		if err != nil {
+			panic(err)
+		}
+		remoteConfig.MustLoad(conf)
+		if remoteConf.Type == "apollo" {
+			remoteConfig.MustWatch(nil, func(v *viper.Viper, e interface{}) {
+				fmt.Println(122222)
+				event := e.(*storage.FullChangeEvent)
+				for k, c := range event.Changes {
+					v.Set(k, c)
+				}
+				if err := v.Unmarshal(conf); err != nil {
+					zLogger.Error(err.Error())
+					return
+				}
+
+				fmt.Println(v.AllSettings())
+			})
+		} else {
+			if err := remoteConfig.Watch(); err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	// 检查环境是否设置正确
+	if !slicex.InStringSlice(conf.Env, supportedEnvs) {
+		panic("unsupported env value: " + conf.Env)
 	}
 
 	// orm 初始化
@@ -109,7 +176,7 @@ func main() {
 		tp = trace.MustNew(trace.Config{
 			Endpoint:    conf.Trace.Endpoint,
 			ServiceName: conf.Name,
-			Env:         conf.Env.String(),
+			Env:         conf.Env,
 		})
 		tracer = tp.Tracer(conf.Name)
 	}
@@ -175,7 +242,7 @@ func main() {
 
 			signalStop() // 取消信号的监听
 
-			log.Println("the app is shutting down ...")
+			zLogger.Info("the app is shutting down ...")
 
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.ShutdownWaitTime)*time.Second)
 			defer cancel()
@@ -185,7 +252,7 @@ func main() {
 				panic(err)
 			}
 
-			log.Println("the app has been stop")
+			zLogger.Info("the app has been stop")
 		},
 	}
 

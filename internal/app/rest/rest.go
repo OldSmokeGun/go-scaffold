@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/rest/router"
-	"log"
 	"net/http"
 )
 
@@ -24,7 +23,7 @@ func Start() (err error) {
 		Handler: router.New(),
 	}
 
-	log.Printf("http server started on %s\n", addr)
+	global.Logger().Sugar().Infof("http server started on %s", addr)
 
 	if err = httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return

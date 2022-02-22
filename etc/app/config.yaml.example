@@ -1,21 +1,14 @@
+Priority: true          # 是否本地配置优先
 Name: "go-scaffold"     # 应用名称
 Env: "local"            # 当前环境（local、test 或 prod）
 ShutdownWaitTime: 5     # 停止应用的等待时间
-
-# 全局日志
-Log:
-  Path: "logs/framework_%Y%m%d.log"     # 全局日志路径（相对于项目的根目录）
-  Level: "info"                         # 日志等级
-  Format: "text"                        # 日志格式化方式
-  Mode: ""                              # 日志的模式（development（默认） 或 production）
-  Caller: true                          # 日志是否打印调用者
 
 # 数据库配置
 # DB:
 #   Driver: "mysql"
 #   Host: "127.0.0.1"
 #   Port: "3306"
-#   Database: "go-scaffold"
+#   Database: "web-scaffold"
 #   Username: "root"
 #   Password: "root"
 #   Options:
@@ -30,7 +23,7 @@ Log:
 #  Driver: "postgres"
 #  Host: "127.0.0.1"
 #  Port: "5432"
-#  Database: "go-scaffold"
+#  Database: "postgres"
 #  Username: "postgres"
 #  Password: "root"
 #  Options:
@@ -51,6 +44,7 @@ Log:
 #   MinIdleConns: 10    # 连接池空闲连接数
 #   IdleTimeout: 600    # 连接池空闲连接数
 
+# 链路追踪配置
 Trace:
   Endpoint: "localhost:6831"                        # 链路数据上报到 jaeger 的 agent 组件
   # Endpoint: "http://localhost:14268/api/traces"   # 链路数据上报到 jaeger 的 collector 组件
