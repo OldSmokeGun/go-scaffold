@@ -38,5 +38,7 @@ func Stop(ctx context.Context) (err error) {
 		return
 	}
 
+	global.Logger().Info("the http server has been shutdown")
+
 	return nil
 }

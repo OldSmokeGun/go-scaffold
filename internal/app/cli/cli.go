@@ -18,13 +18,15 @@ func Setup() error {
 	// TODO 编写子命令
 
 	// 注册业务的子命令
-	greetHandler := greet.NewHandler()
 	cli.RegistryBusiness([]*commandx.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "greet",
 				Short: "示例子命令",
-				Run:   greetHandler.Default,
+				Run: func(cmd *cobra.Command, args []string) {
+					greetHandler := greet.NewHandler()
+					greetHandler.Default(cmd, args)
+				},
 			},
 			OptionFunc: func(command *cobra.Command) {
 				command.Flags().StringP("example", "e", "foo", "示例 flag")
@@ -34,7 +36,10 @@ func Setup() error {
 					Entity: &cobra.Command{
 						Use:   "to",
 						Short: "示例子命令",
-						Run:   greetHandler.To,
+						Run: func(cmd *cobra.Command, args []string) {
+							greetHandler := greet.NewHandler()
+							greetHandler.To(cmd, args)
+						},
 					},
 				},
 			},
@@ -42,13 +47,15 @@ func Setup() error {
 	})
 
 	// 注册临时脚本命令
-	s0000000000 := script.NewS0000000000()
 	cli.RegistryScript([]*commandx.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "S0000000000",
 				Short: "示例脚本 S0000000000",
-				Run:   s0000000000.Run,
+				Run: func(cmd *cobra.Command, args []string) {
+					s0000000000 := script.NewS0000000000()
+					s0000000000.Run(cmd, args)
+				},
 			},
 		},
 	})

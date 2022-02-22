@@ -28,6 +28,8 @@ func Start() (err error) {
 		if err = migratorx.New(global.DB()).Run(model.MigrationTasks()); err != nil {
 			return
 		}
+
+		global.Logger().Info("database migration completed")
 	}
 
 	// 启动 cron 服务

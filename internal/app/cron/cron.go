@@ -3,6 +3,7 @@ package cron
 import (
 	"context"
 	"github.com/robfig/cron/v3"
+	"go-scaffold/internal/app/global"
 	"log"
 )
 
@@ -33,12 +34,16 @@ func Start() (err error) {
 	// 启动 cron 服务
 	cronServer.Start()
 
+	global.Logger().Info("cron server started")
+
 	return nil
 }
 
 // Stop cron 服务关闭
 func Stop(ctx context.Context) (err error) {
 	cronServer.Stop()
+
+	global.Logger().Info("the cron server has been stop")
 
 	return nil
 }

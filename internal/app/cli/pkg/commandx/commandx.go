@@ -22,19 +22,14 @@ func (c CommandLine) Registry(commands []*Command) {
 	entities := make([]*cobra.Command, 0, len(commands))
 
 	for _, cs := range commands {
-		childrenEntities := make([]*cobra.Command, 0, len(cs.Children))
-
-		for _, csc := range cs.Children {
-			if csc.OptionFunc != nil {
-				csc.OptionFunc(csc.Entity)
-			}
-			childrenEntities = append(childrenEntities, csc.Entity)
-		}
-
 		if cs.OptionFunc != nil {
 			cs.OptionFunc(cs.Entity)
 		}
-		cs.Entity.AddCommand(childrenEntities...)
+
+		if len(cs.Children) > 0 {
+			cl := NewCommandLine(cs.Entity)
+			cl.Registry(cs.Children)
+		}
 
 		entities = append(entities, cs.Entity)
 	}

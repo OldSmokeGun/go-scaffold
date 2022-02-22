@@ -6,5 +6,5 @@
 /deploy
 /logs
 /tmp
-etc/*
-!etc/*.example
+etc/app/*
+!etc/app/*.example
