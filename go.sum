@@ -163,6 +163,8 @@ github.com/gin-contrib/gzip v0.0.3 h1:etUaeesHhEORpZMp18zoOhepboiWnFtXrBZxszWUn4
 github.com/gin-contrib/gzip v0.0.3/go.mod h1:YxxswVZIqOvcHEQpsSn+QF5guQtO1dCfy0shBPy4jFc=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
+github.com/gin-contrib/zap v0.0.2 h1:VnIucI+kUsxgzmcrX0gMk19a2I12KirTxi+ufuT2xZk=
+github.com/gin-contrib/zap v0.0.2/go.mod h1:2vZj8gTuOYOfottCirxZr9gNM/Q1yk2iSVn15SUVG5A=
 github.com/gin-gonic/gin v1.5.0/go.mod h1:Nd6IXA8m5kNZdNEHMBd93KT+mdY3+bewLgRvmCsR2Do=
 github.com/gin-gonic/gin v1.6.3/go.mod h1:75u5sXoLsGZoRN5Sgbi1eraJ4GU3++wFwWzhwvtwp4M=
 github.com/gin-gonic/gin v1.7.4/go.mod h1:jD2toBW3GZUr5UMcdrwQA10I7RuaFOl/SGeDjXkfUtY=

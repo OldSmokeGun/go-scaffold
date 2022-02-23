@@ -9,6 +9,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/zap v0.0.2 // indirect
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
