@@ -21,13 +21,6 @@ func New() *gin.Engine {
 	gin.DefaultErrorWriter = output
 	gin.DisableConsoleColor()
 
-	router := gin.New()
-	router.Use(ginzap.Ginzap(global.Logger(), time.RFC3339, false))
-	router.Use(recover.CustomRecoveryWithZap(global.Logger(), true, func(c *gin.Context, err interface{}) {
-		responsex.ServerError(c)
-		c.Abort()
-	}))
-
 	switch global.Config().Env {
 	case "local":
 		gin.SetMode(gin.DebugMode)
@@ -37,6 +30,13 @@ func New() *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	router := gin.New()
+	router.Use(ginzap.Ginzap(global.Logger(), time.RFC3339, false))
+	router.Use(recover.CustomRecoveryWithZap(global.Logger(), true, func(c *gin.Context, err interface{}) {
+		responsex.ServerError(c)
+		c.Abort()
+	}))
+	
 	if global.Config().Trace != nil {
 		router.Use(otelgin.Middleware(global.Config().Name))
 	}
