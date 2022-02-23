@@ -46,7 +46,7 @@ func init() {
 	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
 	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、panic、fatal）")
 	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志格式（text、json）")
-	pflag.StringVarP(&configPath, "config", "c", filepath.Join(rootPath, "etc/app/config.yaml"), "配置文件路径")
+	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/app/config.yaml"), "配置文件路径")
 	pflag.StringVarP(&remotePath, "config.remote", "", filepath.Join(rootPath, "etc/app/remote.yaml"), "远程配置中心配置文件路径")
 
 	cobra.OnInitialize(setup)

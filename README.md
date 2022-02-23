@@ -136,13 +136,13 @@ $ ./bin/app <子命令> -h
 
 ## 配置
 
-配置文件位于 `etc` 目录中，如果位于其它位置，需要在运行程序时通过 `-f` 参数指定其位置（默认配置文件路径：`etc/app.yaml`）
+配置文件位于 `etc` 目录中，如果位于其它位置，需要在运行程序时通过 `-f` 参数指定其位置（默认配置文件路径：`etc/app/config.yaml`）
 
-配置文件的内容在程序启动的最初就会被加载到 `app` 全局配置实例中，为了方便管理和维护各个子服务模块的配置，在 `app` 全局配置实例中，对各个子服务模块的配置进行了拆分，分散到其独立的配置实例中
+配置文件的内容在程序启动时会被加载到 `app` 全局配置实例中，为了方便管理和维护各个子服务模块的配置，在 `app` 全局配置实例中，对各个子服务模块的配置进行了拆分，分散到其独立的配置实例中
 
 配置规范：
 
-1. 如果子服务模块需要定义配置，那么在 `etc/app.yaml` 配置文件中，必须将子服务模块名称作为最顶层 `key` 展开配置
+1. 如果子服务模块需要定义配置，那么在 `etc/app/config.yaml` 配置文件中，必须将子服务模块名称作为最顶层 `key` 展开配置
 2. 在子服务模块目录中新建 `config/config.go` 文件，在此文件中定义子服务模块配置文件的映射模型
 
 例：
@@ -150,20 +150,19 @@ $ ./bin/app <子命令> -h
 `app` 全局配置定义
 
 ```go
-type (
-	Config struct {
-		App  `mapstructure:",squash"`
-		REST restconfig.Config `mapstructure:"REST"` // rest 服务配置
-	}
-
-	App struct {
-		Env              Env
+type Config struct {
+	Priority         bool
+	Name             string
+	Env              string
+	ShutdownWaitTime int
+	DB               *orm.Config
+	Redis            *redisclient.Config
+	Trace            *struct {
+		Endpoint         string
 		ShutdownWaitTime int
-		Log              *logger.Config
-		DB               *orm.Config
-		Redis            *redisclient.Config
 	}
-)
+	REST restconfig.Config `mapstructure:"REST"`
+}
 ```
 
 `rest` 服务模块配置定义
@@ -179,7 +178,6 @@ type (
 
 	Jwt struct {
 		Key    string
-		Expire time.Duration
 	}
 )
 ```
@@ -191,6 +189,14 @@ type (
 - 子服务模块配置实例的定义应位于 `internal/app/<子服务模块>/config/config.go` 中
 
 不提供直接使用 `viper` 包直接通过键名来获取配置值的方法，而统一使用 `global.Config()` 来获取，避免快捷方式的滥用造成后期的维护困难
+
+### 远程配置
+
+远程配置中心的连接配置文件位于 `etc` 目录中，如果位于其它位置，需要在运行程序时通过 `--config.remote` 参数指定其位置（默认配置文件路径：`etc/app/remote.yaml`）
+
+应用程序配置文件 `etc/app/remote.yaml` 中的 `Priority` 参数控制是否本地配置优先，如果此参数为 `false`，且指定了远程配置中心的连接配置，将会尝试从远程配置中心拉取配置并覆盖本地配置
+
+程序会监听远程配置的变更，并实时同步到配置模型中
 
 ## 全局对象
 
@@ -216,6 +222,12 @@ var (
 日志基于 `zap` 包，[文档地址](https://github.com/uber-go/zap)
 
 日志内容统一输出到 `logs` 目录中，并且将会按照每天的日期进行分割，如果需要将其它日志信息写入到此目录的日志文件中，需要获取此目录文件的操作实例，获取方式：`global.LoggerOutput()`
+
+日志的行为可以通过启动命令行时指定参数来控制
+
+- `log.path`：日志输出路径
+- `log.level`：日志等级（debug、info、warn、error、panic、panic、fatal）
+- `log.format`：日志格式（text、json）
 
 ## `ORM`
 
@@ -384,7 +396,7 @@ $ go generate ./...
 
 ### 如何访问 `swagger` 文档
 
-浏览器打开 `<host>/docs`
+浏览器打开 `<host>/api/docs`
 
 ## 命令行功能模块
 
@@ -438,3 +450,10 @@ $ go generate ./...
 - 每个业务模块都是一个单独的包
 - 面向接口编程，每个业务模块都要定义描述其功能的接口，然后业务模块的 `service` 实现此接口
 - 业务模块的每一个方法都抽离为一个单独的文件，方便进行维护和管理
+
+## 链路追踪
+
+脚手架集成了 `OpenTelemetry` 规范的链路追踪，[文档地址](https://github.com/open-telemetry/opentelemetry-go)
+
+- `rest` 模块已注册链路追踪的中间件，会在进行 `HTTP` 调用时进行追踪
+- 全局通过 `global.Tracer()` 来创建 `span`，示例代码：`internal/app/rest/api/v1/handler/trace/example.go`
