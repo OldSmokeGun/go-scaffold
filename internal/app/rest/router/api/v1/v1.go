@@ -2,9 +2,9 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-scaffold/internal/app/rest/api/v1/handler/greet"
-	"go-scaffold/internal/app/rest/api/v1/handler/trace"
-	"go-scaffold/internal/app/rest/api/v1/handler/user"
+	"go-scaffold/internal/app/rest/handler/v1/greet"
+	"go-scaffold/internal/app/rest/handler/v1/trace"
+	"go-scaffold/internal/app/rest/handler/v1/user"
 )
 
 // Group api v1 路由组

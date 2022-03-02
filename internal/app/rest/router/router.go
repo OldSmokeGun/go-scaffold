@@ -36,7 +36,7 @@ func New() *gin.Engine {
 		responsex.ServerError(c)
 		c.Abort()
 	}))
-	
+
 	if global.Config().Trace != nil {
 		router.Use(otelgin.Middleware(global.Config().Name))
 	}

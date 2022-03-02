@@ -7,7 +7,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/global"
-	"go-scaffold/internal/app/rest/api/docs"
+	"go-scaffold/internal/app/rest/handler/docs"
 	"go-scaffold/internal/app/rest/pkg/swagger"
 	v1 "go-scaffold/internal/app/rest/router/api/v1"
 )

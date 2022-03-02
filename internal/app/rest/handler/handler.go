@@ -1,4 +1,4 @@
-package api
+package handler
 
 //go:generate swag fmt -g api.go
 //go:generate swag init -g api.go -o docs --parseInternal

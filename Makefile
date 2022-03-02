@@ -2,9 +2,9 @@
 
 APP_BIN_PATH = bin/app
 APP_MAIN_DIR = cmd/app
-REST_DOC_SCAN_DIR = internal/app
-REST_DOC_SCAN_ENTRY = app.go
-REST_DOC_OUT_DIR = internal/app/rest/api/docs
+REST_DOC_SCAN_DIR = internal/app/rest/handler
+REST_DOC_SCAN_ENTRY = handler.go
+REST_DOC_OUT_DIR = internal/app/rest/handler/docs
 
 build:
 	go generate -x ./...
