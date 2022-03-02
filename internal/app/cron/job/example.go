@@ -1,24 +1,23 @@
 package job
 
 import (
-	"go-scaffold/internal/app/global"
-	"go.uber.org/zap"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
-// example 示例任务
+// Example 示例任务
 // 任务说明：TODO
-type example struct {
-	logger *zap.Logger
+type Example struct {
+	logger *log.Helper
 }
 
 // NewExample 构造函数
-func NewExample() *example {
-	return &example{
-		logger: global.Logger(),
+func NewExample(logger log.Logger) *Example {
+	return &Example{
+		logger: log.NewHelper(logger),
 	}
 }
 
 // Run 任务执行方法
-func (s example) Run() {
-	s.logger.Info("example 任务执行成功")
+func (s Example) Run() {
+	s.logger.Info("Example 任务执行成功")
 }

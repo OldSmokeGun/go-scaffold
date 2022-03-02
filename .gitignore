@@ -2,5 +2,5 @@
 .vscode
 
 tmp
-etc/app/*
-!etc/app/*.example
+etc/*
+!etc/*.example

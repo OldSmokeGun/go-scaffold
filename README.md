@@ -35,12 +35,13 @@
     - `model`：数据库模型
     - `pkg`：功能增强包目录
     - `rest`：`HTTP` 功能模块
-      - `handler`：`HTTP` 请求入口
+      - `api`：`api` 入口
         - `docs`：`swagger` 生成的定义文件
         - `example`：`swagger` 文档的示例模型定义
         - `v1`：`v1` 版本接口入口
-          - 模块目录
-          - ...
+          - `handler`：接口请求处理
+            - 模块目录
+            - ...
       - `config`：`rest` 配置模型
       - `middleware`：中间件目录
       - `pkg`：功能增强包目录
@@ -378,7 +379,7 @@ bindx.ValidateError(ctx, bindx.WithMsg(msg)) // 返回错误信息
 
 ```shell
 $ swag fmt -d internal/app -g app.go
-$ swag init -d internal/app -g app.go -o internal/app/rest/api/docs
+$ swag init -d internal/app -g app.go -o internal/app/http/api/docs
 ```
 
 2. `make` 方式

@@ -2,58 +2,80 @@ package app
 
 import (
 	"context"
-	"go-scaffold/internal/app/cli"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/wire"
+	"go-scaffold/internal/app/component"
+	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/cron"
-	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/pkg/migratorx"
-	"go-scaffold/internal/app/rest"
+	"go-scaffold/internal/app/transport"
+	"gorm.io/gorm"
 )
 
-// Setup 应用初始化钩子
-// 在这里可以执行一些初始化操作，例如：命令行 flag 的注册
-func Setup() (err error) {
-	// 初始化命令行
-	if err = cli.Setup(); err != nil {
-		return
-	}
+var ProviderSet = wire.NewSet(
+	component.ProviderSet,
+	cron.ProviderSet,
+	transport.ProviderSet,
+)
 
-	return nil
+type App struct {
+	logger    *log.Helper
+	config    *config.Config
+	db        *gorm.DB
+	cron      *cron.Cron
+	transport *transport.Transport
 }
 
-// Start 应用启动钩子
-func Start() (err error) {
+func New(
+	logger log.Logger,
+	config *config.Config,
+	db *gorm.DB,
+	cron *cron.Cron,
+	transport *transport.Transport,
+) *App {
+	return &App{
+		logger:    log.NewHelper(logger),
+		config:    config,
+		db:        db,
+		cron:      cron,
+		transport: transport,
+	}
+}
+
+// Start 启动应用
+func (a *App) Start() (err error) {
 	// 数据迁移
-	if global.DB() != nil {
-		if err = migratorx.New(global.DB()).Run(model.MigrationTasks()); err != nil {
+	if a.db != nil {
+		if err = migratorx.New(a.db).Run(model.MigrationTasks()); err != nil {
 			return
 		}
 
-		global.Logger().Info("database migration completed")
+		a.logger.Info("database migration completed")
 	}
 
 	// 启动 cron 服务
-	if err = cron.Start(); err != nil {
+	if err = a.cron.Start(); err != nil {
 		return
 	}
 
-	// 启动 HTTP 服务
-	if err = rest.Start(); err != nil {
+	// 启动 transport 服务
+	if err = a.transport.Start(); err != nil {
 		return
 	}
 
 	return nil
 }
 
-// Stop 应用关闭钩子
-func Stop(ctx context.Context) (err error) {
+// Stop 停止应用
+func (a *App) Stop(ctx context.Context) (err error) {
 	// 关闭 cron 服务
-	if err = cron.Stop(ctx); err != nil {
+	if err = a.cron.Stop(ctx); err != nil {
 		return
 	}
 
-	// 关闭 HTTP 服务
-	if err = rest.Stop(ctx); err != nil {
+	// 关闭 transport 服务
+	if err = a.transport.Stop(); err != nil {
 		return
 	}
 

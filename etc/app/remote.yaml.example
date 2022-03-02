@@ -1,7 +1,0 @@
-Type: "apollo"                              # 远程配置类型
-Endpoint: "http://localhost:18080"          # 远程配置地址
-Path: "app.yaml"                            # 远程配置 path
-SecretKeyring: ""                           # 密钥
-Options:                                    # 可选配置
-  AppID: ""                                 # apollo 配置类型的 appID
-  Cluster: "default"                        # apollo 配置类型的集群名称

@@ -80,7 +80,7 @@ func (mr *MockRepositoryMockRecorder) FindByKeyword(ctx, columns, keyword, order
 }
 
 // FindOneByID mocks base method.
-func (m *MockRepository) FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error) {
+func (m *MockRepository) FindOneByID(ctx context.Context, id uint64, columns []string) (*model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindOneByID", ctx, id, columns)
 	ret0, _ := ret[0].(*model.User)

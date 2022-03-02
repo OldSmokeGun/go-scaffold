@@ -20,7 +20,7 @@ var (
 func Init() {
 	var err error
 
-	// logger
+	// log
 	logger, err = zap.NewDevelopment(zap.WrapCore(func(core zapcore.Core) zapcore.Core {
 		return zapcore.NewCore(
 			zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig()),
@@ -34,7 +34,7 @@ func Init() {
 	}
 }
 
-// Logger 测试用 logger
+// Logger 测试用 log
 func Logger() *zap.Logger {
 	return logger
 }

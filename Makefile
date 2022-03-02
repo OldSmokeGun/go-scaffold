@@ -1,40 +1,46 @@
-.PHONY: build linux-build windows-build mac-build download clean test help
+.PHONY: build linux-build windows-build mac-build download clean test generate doc proto help
 
 APP_BIN_PATH = bin/app
 APP_MAIN_DIR = cmd/app
-REST_DOC_SCAN_DIR = internal/app/rest/handler
-REST_DOC_SCAN_ENTRY = handler.go
-REST_DOC_OUT_DIR = internal/app/rest/handler/docs
+API_SWAGGER_SCAN_DIR = internal/app/transport/http/handler
+API_SWAGGER_SCAN_ENTRY = handler.go
+API_SWAGGER_OUT_DIR = internal/app/transport/http/handler/docs
+API_PROTO_FILES=$(shell find internal/app/api -name *.proto)
 
 build:
-	go generate -x ./...
+	make generate
 ifeq (${OS}, Windows_NT)
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -tags=jsoniter -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go
+	go build -tags=jsoniter -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 else
-	CGO_ENABLED=0 go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go
+	CGO_ENABLED=0 go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 endif
 
 linux-build:
-	go generate -x ./...
-	CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter -o ${APP_BIN_PATH}_linux ${APP_MAIN_DIR}/main.go
+	make generate
+	CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter -o ${APP_BIN_PATH}_linux ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 windows-build:
-	go generate -x ./...
+	make generate
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -tags=jsoniter -o ${APP_BIN_PATH}_windows.exe ${APP_MAIN_DIR}/main.go
+	go build -tags=jsoniter -o ${APP_BIN_PATH}_windows.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 mac-build:
-	go generate -x ./...
-	CGO_ENABLED=0 GOOS=darwin go build -tags=jsoniter -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go
+	make generate
+	CGO_ENABLED=0 GOOS=darwin go build -tags=jsoniter -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
+	go get -u github.com/davecgh/go-spew/spew; \
+	go get github.com/google/wire/cmd/wire@v0.5.0; \
+	go install github.com/google/wire/cmd/wire@latest; \
 	go install github.com/cosmtrek/air@latest; \
 	go install github.com/swaggo/swag/cmd/swag@v1.7.8; \
-	go install github.com/golang/mock/mockgen@latest
+	go install github.com/golang/mock/mockgen@latest; \
+	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest; \
+	go install github.com/envoyproxy/protoc-gen-validate@latest;
 
 clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi
@@ -42,9 +48,16 @@ clean:
 test:
 	go test -gcflags=-l -v ./...
 
+generate:
+	go generate ./...
+
 doc:
-	swag fmt -d ${REST_DOC_SCAN_DIR} -g ${REST_DOC_SCAN_ENTRY}
-	swag init -d ${REST_DOC_SCAN_DIR} -g ${REST_DOC_SCAN_ENTRY} -o ${REST_DOC_OUT_DIR} --parseInternal
+	swag fmt -d ${API_SWAGGER_SCAN_DIR} -g ${API_SWAGGER_SCAN_ENTRY}
+	swag init -d ${API_SWAGGER_SCAN_DIR} -g ${API_SWAGGER_SCAN_ENTRY} -o ${API_SWAGGER_OUT_DIR} --parseInternal
+
+proto:
+	kratos proto client --proto_path=./proto internal/app/api/v1/greet/greet.proto
+	kratos proto client --proto_path=./proto internal/app/api/v1/user/user.proto
 
 help:
 	@printf "%-30s %-100s\n" "make" "默认自动根据平台编译二进制文件"

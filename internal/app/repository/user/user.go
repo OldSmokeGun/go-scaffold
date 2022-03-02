@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	jsoniter "github.com/json-iterator/go"
-	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
 	"gorm.io/gorm"
 	"time"
@@ -19,7 +18,7 @@ type Interface interface {
 	FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error)
 
 	// FindOneByID 根据 ID 查询用户详情
-	FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error)
+	FindOneByID(ctx context.Context, id uint64, columns []string) (*model.User, error)
 
 	// Create 创建用户
 	Create(ctx context.Context, user *model.User) (*model.User, error)
@@ -36,10 +35,10 @@ type repository struct {
 	rdb *redis.Client
 }
 
-func New() *repository {
+func New(db *gorm.DB, rdb *redis.Client) Interface {
 	return &repository{
-		db:  global.DB(),
-		rdb: global.RedisClient(),
+		db:  db,
+		rdb: rdb,
 	}
 }
 
@@ -65,7 +64,7 @@ func (r *repository) FindByKeyword(ctx context.Context, columns []string, keywor
 	return users, nil
 }
 
-func (r *repository) FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error) {
+func (r *repository) FindOneByID(ctx context.Context, id uint64, columns []string) (*model.User, error) {
 	m := new(model.User)
 
 	cacheValue, err := r.rdb.Get(
@@ -121,7 +120,7 @@ func (r *repository) Create(ctx context.Context, user *model.User) (*model.User,
 
 	err = r.rdb.Set(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
 	).Err()
@@ -144,7 +143,7 @@ func (r *repository) Save(ctx context.Context, user *model.User) (*model.User, e
 
 	err = r.rdb.Set(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
 	).Err()
@@ -162,7 +161,7 @@ func (r *repository) Delete(ctx context.Context, user *model.User) error {
 
 	err := r.rdb.Del(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 	).Err()
 	if err != nil {
 		return err

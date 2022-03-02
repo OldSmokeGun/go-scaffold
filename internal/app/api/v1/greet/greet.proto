@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package internal.app.api.v1.greet;
+
+import "google/api/annotations.proto";
+
+option go_package = "go-scaffold/internal/app/api/v1/greet;greet";
+
+// The greeting service definition.
+service Greet {
+  // Sends a greeting
+  rpc Hello (HelloRequest) returns (HelloReply)  {
+    option (google.api.http) = {
+      get: "/api/v1/greet"
+    };
+  }
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string msg = 1;
+}

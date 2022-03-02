@@ -113,6 +113,20 @@ services:
     ports:
       - "$PORT:8070"
 
+  etcd:
+    image: bitnami/etcd:3.5.2
+    networks:
+      go-scaffold:
+        aliases:
+          - etcd
+    restart: always
+    environment:
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    ports:
+      - "$PORT:2379"
+    volumes:
+      - "./etcd/conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml"
+
   rest:
     build: ../../
     networks:
@@ -128,8 +142,7 @@ services:
       - "./bin/app"
     volumes:
       - "./dockerize:/app/dockerize"
-      - "$CONFIG_PATH:/app/etc/app/config.yaml"
-      - "$CONFIG_PATH:/app/etc/app/remote.yaml"
+      - "$CONFIG_PATH:/app/etc/app.yaml"
     depends_on:
       - mysql
       - redis
