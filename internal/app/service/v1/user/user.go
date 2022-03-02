@@ -19,13 +19,13 @@ type Service struct {
 	pb.UnimplementedUserServer
 	logger *log.Helper
 	conf   *config.Config
-	repo   user.Interface
+	repo   user.Repository
 }
 
 func NewService(
 	logger log.Logger,
 	conf *config.Config,
-	repo user.Interface,
+	repo user.Repository,
 ) *Service {
 	return &Service{
 		logger: log.NewHelper(logger),

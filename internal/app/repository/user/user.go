@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type Interface interface {
+type Repository interface {
 	// FindByKeyword 根据关键字查询用户列表
 	FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error)
 
@@ -35,7 +35,7 @@ type repository struct {
 	rdb *redis.Client
 }
 
-func New(db *gorm.DB, rdb *redis.Client) Interface {
+func New(db *gorm.DB, rdb *redis.Client) Repository {
 	return &repository{
 		db:  db,
 		rdb: rdb,
