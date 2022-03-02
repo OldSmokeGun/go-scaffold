@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"go-scaffold/internal/app/api/v1/user"
+	"go-scaffold/internal/app/pkg/responsex"
 	"go-scaffold/internal/app/transport/http/pkg/bindx"
-	"go-scaffold/internal/app/transport/http/pkg/responsex"
 )
 
 type (

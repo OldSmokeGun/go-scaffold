@@ -1,5 +1,10 @@
 package responsex
 
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
 // Body 响应格式
 type Body struct {
 	Code StatusCode  `json:"code"`
@@ -110,4 +115,52 @@ func NewTooManyRequestBody(ops ...OptionFunc) *Body {
 		op(b)
 	}
 	return b
+}
+
+// Success 成功响应
+func Success(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewSuccessBody(ops...)
+	ctx.JSON(http.StatusOK, b)
+}
+
+// ServerError 服务器错误响应
+func ServerError(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewServerErrorBody(ops...)
+	ctx.JSON(http.StatusInternalServerError, b)
+}
+
+// ClientError 客户端错误响应
+func ClientError(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewClientErrorBody(ops...)
+	ctx.JSON(http.StatusBadRequest, b)
+}
+
+// ValidateError 参数校验错误响应
+func ValidateError(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewValidateErrorBody(ops...)
+	ctx.JSON(http.StatusBadRequest, b)
+}
+
+// Unauthorized 未经授权响应
+func Unauthorized(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewUnauthorizedBody(ops...)
+	ctx.JSON(http.StatusUnauthorized, b)
+}
+
+// PermissionDenied 暂无权限响应
+func PermissionDenied(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewPermissionDeniedBody(ops...)
+	ctx.JSON(http.StatusForbidden, b)
+}
+
+// ResourceNotFound 资源不存在响应
+func ResourceNotFound(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewResourceNotFoundBody(ops...)
+	ctx.JSON(http.StatusNotFound, b)
+}
+
+// TooManyRequest 请求过于频繁响应
+func TooManyRequest(ctx *gin.Context, ops ...OptionFunc) {
+	b := NewTooManyRequestBody(ops...)
+	ctx.JSON(http.StatusTooManyRequests, b)
 }

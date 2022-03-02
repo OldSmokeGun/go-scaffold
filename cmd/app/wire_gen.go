@@ -60,11 +60,11 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	traceHandler := trace2.New(logLogger, configConfig, tracer, service)
-	userInterface := user.New(db, client)
-	userService := user2.NewService(logLogger, configConfig, userInterface)
+	repository := user.New(db, client)
+	userService := user2.NewService(logLogger, configConfig, repository)
 	userHandler := user3.New(logLogger, userService)
 	engine := router.New(rotateLogs, zapLogger, configConfig, handler, traceHandler, userHandler)
-	server := http.NewServer(rotateLogs, logLogger, zapLogger, configConfig, engine, service, userService)
+	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc.NewServer(logLogger, configConfig, service, userService)
 	registry, err := discovery.New(config6)
 	if err != nil {
