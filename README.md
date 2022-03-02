@@ -35,13 +35,12 @@
     - `model`：数据库模型
     - `pkg`：功能增强包目录
     - `rest`：`HTTP` 功能模块
-      - `api`：`api` 入口
+      - `handler`：`HTTP` 请求入口
         - `docs`：`swagger` 生成的定义文件
         - `example`：`swagger` 文档的示例模型定义
         - `v1`：`v1` 版本接口入口
-          - `handler`：接口请求处理
-            - 模块目录
-            - ...
+          - 模块目录
+          - ...
       - `config`：`rest` 配置模型
       - `middleware`：中间件目录
       - `pkg`：功能增强包目录
