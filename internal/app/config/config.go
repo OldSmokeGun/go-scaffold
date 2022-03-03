@@ -78,7 +78,13 @@ type App struct {
 		Timeout int
 	}
 	Discovery *struct {
-		Endpoints []string
+		Etcd *struct {
+			Endpoints []string
+		}
+		Consul *struct {
+			Addr   string
+			Schema string
+		}
 	}
 	Jwt *struct {
 		Key string

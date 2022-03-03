@@ -4,13 +4,13 @@ go 1.16
 
 require (
 	bou.ke/monkey v1.0.2
-	entgo.io/ent v0.10.0 // indirect
+	entgo.io/ent v0.10.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.4
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/zap v0.0.2
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-kratos/consul v0.1.5
 	github.com/go-kratos/kratos/contrib/config/apollo/v2 v2.0.0-20220225091553-f3313476ac3a
 	github.com/go-kratos/kratos/contrib/log/zap/v2 v2.0.0-20220225041641-2ee4e5f37aaa
 	github.com/go-kratos/kratos/contrib/registry/etcd/v2 v2.0.0-20220227042951-48d407cc9bd9
@@ -23,6 +23,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/wire v0.5.0
+	github.com/hashicorp/consul/api v1.12.0
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/copier v0.3.4
 	github.com/json-iterator/go v1.1.12
@@ -59,5 +60,5 @@ require (
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/gorm v1.23.2
 	gorm.io/plugin/soft_delete v1.1.0
-	moul.io/zapgorm2 v1.1.3 // indirect
+	moul.io/zapgorm2 v1.1.3
 )

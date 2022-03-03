@@ -13,7 +13,8 @@ import (
 	greet3 "go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component/data"
-	"go-scaffold/internal/app/component/discovery"
+	"go-scaffold/internal/app/component/discovery/consul"
+	"go-scaffold/internal/app/component/discovery/etcd"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
 	"go-scaffold/internal/app/component/trace"
@@ -35,7 +36,7 @@ import (
 
 // Injectors from wire.go:
 
-func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, config7 *discovery.Config) (*app.App, func(), error) {
+func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, etcdConfig *etcd.Config, consulConfig *consul.Config) (*app.App, func(), error) {
 	db, cleanup2, err := orm.New(config3, logLogger, zapLogger)
 	if err != nil {
 		return nil, nil, err
@@ -67,7 +68,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	engine := router.New(rotateLogs, zapLogger, configConfig, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc.NewServer(logLogger, configConfig, service, userService)
-	registry, err := discovery.New(config7, zapLogger)
+	registry, err := consul.New(consulConfig)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -83,7 +84,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}, nil
 }
 
-func initCommand(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, config7 *discovery.Config) (*command.Command, func(), error) {
+func initCommand(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, etcdConfig *etcd.Config, consulConfig *consul.Config) (*command.Command, func(), error) {
 	handler := greet3.NewHandler(logLogger)
 	s0000000000 := script.NewS0000000000(logLogger)
 	commandCommand := command.New(handler, s0000000000)

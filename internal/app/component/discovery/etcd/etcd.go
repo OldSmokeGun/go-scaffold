@@ -1,4 +1,4 @@
-package discovery
+package etcd
 
 import (
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
