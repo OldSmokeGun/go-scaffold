@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/data/ent"
@@ -68,6 +69,11 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 			logger.Debug(i)
 		}),
 	)
+
+	if err := client.Schema.Create(context.Background()); err != nil {
+		logger.Errorf("failed to creat schema resources: %v", err)
+		return nil, nil, err
+	}
 
 	return client, cleanup, nil
 }
