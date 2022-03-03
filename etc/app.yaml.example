@@ -17,6 +17,7 @@ app:
   #     - "loc=Local"
   #   maxIdleConn: 20
   #   maxOpenConn: 40
+  #   connMaxIdleTime: 120
   #   connMaxLifeTime: 120
   #   logLevel: "error"
 
@@ -31,6 +32,7 @@ app:
   #    - "TimeZone=Asia/Shanghai"
   #  maxIdleConn: 20
   #  maxOpenConn: 40
+  #  connMaxIdleTime: 120
   #  connMaxLifeTime: 120
   #  logLevel: "warn"
 
