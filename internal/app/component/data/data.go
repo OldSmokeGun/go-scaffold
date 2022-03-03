@@ -39,10 +39,18 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 		return nil, nil, err
 	}
 
-	driver.DB().SetMaxIdleConns(config.MaxIdleConn)
-	driver.DB().SetMaxOpenConns(config.MaxOpenConn)
-	driver.DB().SetConnMaxIdleTime(time.Duration(config.ConnMaxIdleTime) * time.Second)
-	driver.DB().SetConnMaxLifetime(time.Duration(config.ConnMaxLifeTime) * time.Second)
+	if config.MaxIdleConn > 0 {
+		driver.DB().SetMaxIdleConns(config.MaxIdleConn)
+	}
+	if config.MaxOpenConn > 0 {
+		driver.DB().SetMaxOpenConns(config.MaxOpenConn)
+	}
+	if config.ConnMaxIdleTime > 0 {
+		driver.DB().SetConnMaxIdleTime(time.Duration(config.ConnMaxIdleTime) * time.Second)
+	}
+	if config.ConnMaxLifeTime > 0 {
+		driver.DB().SetConnMaxLifetime(time.Duration(config.ConnMaxLifeTime) * time.Second)
+	}
 
 	logger := log.NewHelper(hLogger)
 	cleanup := func() {
