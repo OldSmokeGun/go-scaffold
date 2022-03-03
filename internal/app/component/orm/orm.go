@@ -8,18 +8,12 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"io"
 	zapgorm "moul.io/zapgorm2"
-	"os"
 	"time"
 )
 
 var (
 	ErrUnsupportedType = errors.New("unsupported database type")
-)
-
-var (
-	DefaultWriter io.Writer = os.Stdout
 )
 
 type Config struct {
@@ -32,6 +26,7 @@ type Config struct {
 	Options         []string
 	MaxIdleConn     int
 	MaxOpenConn     int
+	ConnMaxIdleTime int64
 	ConnMaxLifeTime int64
 	LogLevel        LogLevel
 }
@@ -61,7 +56,7 @@ func (l LogLevel) Convert() logger.LogLevel {
 }
 
 // New 初始化 orm
-func New(kLogger klog.Logger, zLogger *zap.Logger, config *Config) (db *gorm.DB, cleanup func(), err error) {
+func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB, cleanup func(), err error) {
 	if config == nil {
 		return nil, func() {}, nil
 	}
@@ -81,6 +76,7 @@ func New(kLogger klog.Logger, zLogger *zap.Logger, config *Config) (db *gorm.DB,
 			Options:                   config.Options,
 			MaxIdleConn:               config.MaxIdleConn,
 			MaxOpenConn:               config.MaxOpenConn,
+			ConnMaxIdleTime:           time.Second * time.Duration(config.ConnMaxIdleTime),
 			ConnMaxLifeTime:           time.Second * time.Duration(config.ConnMaxLifeTime),
 			Logger:                    gLogger.LogMode(config.LogLevel.Convert()),
 			Conn:                      nil,
@@ -104,6 +100,7 @@ func New(kLogger klog.Logger, zLogger *zap.Logger, config *Config) (db *gorm.DB,
 			Options:              config.Options,
 			MaxIdleConn:          config.MaxIdleConn,
 			MaxOpenConn:          config.MaxOpenConn,
+			ConnMaxIdleTime:      time.Second * time.Duration(config.ConnMaxIdleTime),
 			ConnMaxLifeTime:      time.Second * time.Duration(config.ConnMaxLifeTime),
 			Logger:               gLogger.LogMode(config.LogLevel.Convert()),
 			Conn:                 nil,

@@ -40,6 +40,7 @@ type App struct {
 		Options         []string
 		MaxIdleConn     int
 		MaxOpenConn     int
+		ConnMaxIdleTime int64
 		ConnMaxLifeTime int64
 		LogLevel        orm.LogLevel
 	}

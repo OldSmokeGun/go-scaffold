@@ -18,6 +18,7 @@ type Config struct {
 	Options                   []string
 	MaxIdleConn               int
 	MaxOpenConn               int
+	ConnMaxIdleTime           time.Duration
 	ConnMaxLifeTime           time.Duration
 	Logger                    logger.Interface
 	Conn                      gorm.ConnPool
@@ -59,6 +60,10 @@ func New(c Config) (*gorm.DB, error) {
 
 	if c.MaxOpenConn > 0 {
 		sqlDB.SetMaxOpenConns(c.MaxOpenConn)
+	}
+
+	if c.ConnMaxIdleTime > 0 {
+		sqlDB.SetConnMaxLifetime(c.ConnMaxIdleTime)
 	}
 
 	if c.ConnMaxLifeTime > 0 {

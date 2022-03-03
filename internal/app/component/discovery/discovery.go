@@ -3,6 +3,7 @@ package discovery
 import (
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	etcdctl "go.etcd.io/etcd/client/v3"
+	"go.uber.org/zap"
 )
 
 type Config struct {
@@ -10,13 +11,14 @@ type Config struct {
 }
 
 // New 创建 etcd 服务发现
-func New(config *Config) (*etcd.Registry, error) {
+func New(config *Config, zLogger *zap.Logger) (*etcd.Registry, error) {
 	if config == nil {
 		return nil, nil
 	}
 
 	client, err := etcdctl.New(etcdctl.Config{
 		Endpoints: config.Endpoints,
+		Logger:    zLogger,
 	})
 	if err != nil {
 		return nil, err

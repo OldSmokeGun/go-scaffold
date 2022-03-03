@@ -8,6 +8,7 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/command"
+	"go-scaffold/internal/app/component/data"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
@@ -22,6 +23,7 @@ func initApp(
 	*zap.Logger,
 	*appconfig.Config,
 	*orm.Config,
+	*data.Config,
 	*redis.Config,
 	*trace.Config,
 	*discovery.Config,
@@ -38,6 +40,7 @@ func initCommand(
 	*zap.Logger,
 	*appconfig.Config,
 	*orm.Config,
+	*data.Config,
 	*redis.Config,
 	*trace.Config,
 	*discovery.Config,

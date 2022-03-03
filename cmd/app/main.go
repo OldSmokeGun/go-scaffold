@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go-scaffold/internal/app/command"
+	"go-scaffold/internal/app/component/data"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
@@ -72,10 +73,11 @@ var (
 	config       kconfig.Config
 
 	configModel     = new(appconfig.Config) // app 配置实例
-	ormConfig       *orm.Config             // 数据库实例
-	redisConfig     *redis.Config           // redis 客户端实例
-	traceConfig     *trace.Config           // tracer
-	discoveryConfig *discovery.Config       // 服务发现
+	ormConfig       *orm.Config             // gorm 配置
+	dataConfig      *data.Config            // ent orm 配置
+	redisConfig     *redis.Config           // redis 客户端配置
+	traceConfig     *trace.Config           // tracer 配置
+	discoveryConfig *discovery.Config       // 服务发现配置
 )
 
 func main() {
@@ -88,7 +90,7 @@ func main() {
 			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 			defer signalStop()
 
-			appServ, appCleanup, err := initApp(loggerWriter, logger, zLogger, configModel, ormConfig, redisConfig, traceConfig, discoveryConfig)
+			appServ, appCleanup, err := initApp(loggerWriter, logger, zLogger, configModel, ormConfig, dataConfig, redisConfig, traceConfig, discoveryConfig)
 			if err != nil {
 				panic(err)
 			}
@@ -117,7 +119,7 @@ func main() {
 	}
 
 	command.Setup(cmd, func() (*command.Command, func(), error) {
-		return initCommand(loggerWriter, logger, zLogger, configModel, ormConfig, redisConfig, traceConfig, discoveryConfig)
+		return initCommand(loggerWriter, logger, zLogger, configModel, ormConfig, dataConfig, redisConfig, traceConfig, discoveryConfig)
 	})
 
 	if err := cmd.Execute(); err != nil {
@@ -209,6 +211,11 @@ func setup() {
 	if configModel.App.DB != nil {
 		ormConfig = new(orm.Config)
 		if err = copier.Copy(ormConfig, configModel.App.DB); err != nil {
+			panic(err)
+		}
+
+		dataConfig = new(data.Config)
+		if err = copier.Copy(dataConfig, configModel.App.DB); err != nil {
 			panic(err)
 		}
 	}
