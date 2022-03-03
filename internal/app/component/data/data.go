@@ -5,6 +5,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/data/ent"
+	"go-scaffold/internal/app/component/data/ent/migrate"
 	"strings"
 	"time"
 )
@@ -55,7 +56,7 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 
 	logger := log.NewHelper(hLogger)
 	cleanup := func() {
-		logger.Info("closing the sql resources")
+		logger.Info("closing the ent resources")
 
 		err = driver.Close()
 		if err != nil {
@@ -70,7 +71,10 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 		}),
 	)
 
-	if err := client.Schema.Create(context.Background()); err != nil {
+	if err := client.Schema.Create(
+		context.Background(),
+		migrate.WithForeignKeys(false),
+	); err != nil {
 		logger.Errorf("failed to creat schema resources: %v", err)
 		return nil, nil, err
 	}
