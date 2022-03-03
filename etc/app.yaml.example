@@ -62,13 +62,13 @@ app:
     timeout: 5
 
   # 服务发现
-  discovery:
-    etcd:
-      endpoints:
-        - "localhost:12379"
-    consul:
-      addr: "localhost:8500"
-      schema: "http"
+  # discovery:
+  #   etcd:
+  #     endpoints:
+  #       - "localhost:12379"
+  #   consul:
+  #     addr: "localhost:8500"
+  #     schema: "http"
 
   # JWT 配置
   jwt:
