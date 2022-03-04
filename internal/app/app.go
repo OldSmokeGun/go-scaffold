@@ -13,6 +13,22 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate swag fmt -g app.go
+//go:generate swag init -g app.go -o transport/http/handler/docs --parseInternal
+
+// @title                       API 接口文档
+// @description                 API 接口文档
+// @version                     0.0.0
+// @host                        localhost
+// @BasePath                    /api
+// @schemes                     http https
+// @accept                      json
+// @accept                      x-www-form-urlencoded
+// @produce                     json
+// @securityDefinitions.apikey  LoginAuth
+// @in                          header
+// @name                        Token
+
 var ProviderSet = wire.NewSet(
 	component.ProviderSet,
 	cron.ProviderSet,
