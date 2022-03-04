@@ -6,8 +6,8 @@ import (
 )
 
 type Config struct {
-	Address string
-	Scheme  string
+	Addr   string
+	Schema string
 }
 
 // New 创建 consul 服务发现
@@ -17,11 +17,11 @@ func New(config *Config) (*consul.Registry, error) {
 	}
 
 	defaultConfig := api.DefaultConfig()
-	if config.Address != "" {
-		defaultConfig.Address = config.Address
+	if config.Addr != "" {
+		defaultConfig.Address = config.Addr
 	}
-	if config.Scheme != "" {
-		defaultConfig.Scheme = config.Scheme
+	if config.Schema != "" {
+		defaultConfig.Scheme = config.Schema
 	}
 
 	client, err := api.NewClient(defaultConfig)
