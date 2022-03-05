@@ -88,6 +88,8 @@ func main() {
 	cmd := &cobra.Command{
 		Use: "app",
 		Run: func(cmd *cobra.Command, args []string) {
+			hLogger.Info("starting app ...")
+
 			// 监听退出信号
 			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 			defer signalStop()
@@ -183,8 +185,8 @@ func setup() {
 	)
 	hLogger = klog.NewHelper(logger)
 
-	hLogger.Info("setup resource ...")
-	hLogger.Infof("log output directory: %s", filepath.Dir(logPath))
+	hLogger.Info("initializing resource ...")
+	hLogger.Infof("the log output directory: %s", filepath.Dir(logPath))
 
 	// 加载配置
 	if configPath == "" {
@@ -199,6 +201,8 @@ func setup() {
 
 	configResources := []kconfig.Source{file.NewSource(configPath)}
 	if apolloConfigEnable { // 启用 apollo
+		hLogger.Infof("enable remote config, config will be loaded from remote config center")
+
 		configResources = append(configResources, apollo.NewSource(
 			apollo.WithEndpoint(apolloConfigEndpoint),
 			apollo.WithAppID(apolloConfigAppID),
@@ -221,7 +225,7 @@ func setup() {
 		panic(err)
 	}
 
-	if err := appconfig.Watch(config, configModel); err != nil {
+	if err := appconfig.Watch(logger, config, configModel); err != nil {
 		panic(err)
 	}
 
@@ -274,7 +278,7 @@ func setup() {
 // cleanup 资源回收
 func cleanup() {
 	if hLogger != nil {
-		hLogger.Info("cleaning resource ...")
+		hLogger.Info("resource cleaning ...")
 	}
 
 	if config != nil {
@@ -286,6 +290,12 @@ func cleanup() {
 	if loggerWriter != nil {
 		if err := loggerWriter.Close(); err != nil {
 			panic(err)
+		}
+	}
+
+	if zLogger != nil {
+		if err := zLogger.Sync(); err != nil {
+			hLogger.Error(err.Error())
 		}
 	}
 }

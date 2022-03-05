@@ -54,7 +54,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	service := greet.NewService(logLogger, configConfig)
-	handler := greet2.New(logLogger, zapLogger, service)
+	handler := greet2.New(logLogger, zapLogger, configConfig, service)
 	tracer, cleanup4, err := trace.New(config6, logLogger)
 	if err != nil {
 		cleanup3()

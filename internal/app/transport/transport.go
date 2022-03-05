@@ -58,11 +58,11 @@ func New(
 }
 
 func (t *Transport) Start() error {
+	t.logger.Info("transport server starting ...")
+
 	if err := t.server.Run(); err != nil {
 		return err
 	}
-
-	t.logger.Info("transport server started")
 	return nil
 }
 
@@ -71,6 +71,6 @@ func (t *Transport) Stop() error {
 		return err
 	}
 
-	t.logger.Info("transport server has been stop")
+	t.logger.Info("transport server stopping ...")
 	return nil
 }
