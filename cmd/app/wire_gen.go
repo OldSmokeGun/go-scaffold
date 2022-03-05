@@ -61,7 +61,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		cleanup2()
 		return nil, nil, err
 	}
-	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, service)
+	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer)
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, configConfig, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
