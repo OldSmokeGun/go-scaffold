@@ -2,5 +2,6 @@
 .vscode
 
 tmp
+.air.conf
 etc/*
 !etc/*.example

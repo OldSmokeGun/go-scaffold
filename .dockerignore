@@ -6,5 +6,6 @@
 /deploy
 /logs
 /tmp
+.air.conf
 etc/*
 !etc/*.example

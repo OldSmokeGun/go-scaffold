@@ -42,6 +42,7 @@ download:
 	go install github.com/golang/mock/mockgen@latest; \
 	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest; \
 	go install github.com/envoyproxy/protoc-gen-validate@latest; \
+	go install github.com/favadi/protoc-go-inject-tag@latest; \
 	go install entgo.io/ent/cmd/ent@v0.10.0;
 
 clean:

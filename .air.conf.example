@@ -1,6 +1,6 @@
 root = "."
 
 [build]
-cmd = "go build -o bin/app cmd/app/main.go"
+cmd = "go build -o bin/app cmd/app/main.go cmd/app/wire_gen.go"
 bin = "bin/app"
 exclude_dir = ["bin", "deploy", "logs", "tmp"]
