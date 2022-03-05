@@ -6,9 +6,10 @@ API_SWAGGER_SCAN_DIR = internal/app
 API_SWAGGER_SCAN_ENTRY = app.go
 API_SWAGGER_OUT_DIR = internal/app/transport/http/handler/docs
 API_PROTO_FILES=$(shell find internal/app/api -name *.proto)
+API_PROTO_PB_FILES=$(shell find internal/app/api -name *.pb.go)
 
 build:
-	make generate
+	@make generate
 ifeq (${OS}, Windows_NT)
 	set CGO_ENABLED=0
 	set GOOS=windows
@@ -18,21 +19,21 @@ else
 endif
 
 linux-build:
-	make generate
+	@make generate
 	CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter -o ${APP_BIN_PATH}_linux ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 windows-build:
-	make generate
+	@make generate
 	set CGO_ENABLED=0
 	set GOOS=windows
 	go build -tags=jsoniter -o ${APP_BIN_PATH}_windows.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 mac-build:
-	make generate
+	@make generate
 	CGO_ENABLED=0 GOOS=darwin go build -tags=jsoniter -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 download:
-	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
+	@go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
 	go get -u github.com/davecgh/go-spew/spew; \
 	go get github.com/google/wire/cmd/wire@v0.5.0; \
 	go install github.com/google/wire/cmd/wire@latest; \
@@ -57,8 +58,8 @@ doc:
 	swag init -d ${API_SWAGGER_SCAN_DIR} -g ${API_SWAGGER_SCAN_ENTRY} -o ${API_SWAGGER_OUT_DIR} --parseInternal
 
 proto:
-	kratos proto client --proto_path=./proto internal/app/api/v1/greet/greet.proto
-	kratos proto client --proto_path=./proto internal/app/api/v1/user/user.proto
+	@$(foreach f, ${API_PROTO_FILES}, kratos proto client --proto_path=./proto $(f);)
+	@$(foreach f, ${API_PROTO_PB_FILES}, protoc-go-inject-tag -input=$(f);)
 
 help:
 	@printf "%-30s %-100s\n" "make" "默认自动根据平台编译二进制文件"
@@ -69,4 +70,6 @@ help:
 	@printf "%-30s %-100s\n" "make download" "下载编译所需的依赖包"
 	@printf "%-30s %-100s\n" "make clean" "清理编译生成的二进制文件"
 	@printf "%-30s %-100s\n" "make test" "单元测试"
+	@printf "%-30s %-100s\n" "make generate" "生成应用所需的文件"
 	@printf "%-30s %-100s\n" "make doc" "生成文档"
+	@printf "%-30s %-100s\n" "make proto" "生成 proto 文件"

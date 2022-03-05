@@ -68,7 +68,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	engine := router.New(rotateLogs, zapLogger, configConfig, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc.NewServer(logLogger, configConfig, service, userService)
-	registry, err := consul.New(consulConfig)
+	registry, err := etcd.New(etcdConfig, zapLogger)
 	if err != nil {
 		cleanup4()
 		cleanup3()
