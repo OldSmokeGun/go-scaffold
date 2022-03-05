@@ -66,7 +66,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/greet.HelloResp"
+                                            "$ref": "#/definitions/greet.HelloReply"
                                         }
                                     }
                                 }
@@ -192,7 +192,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.SaveReq"
+                            "$ref": "#/definitions/user.UpdateReq"
                         }
                     }
                 ],
@@ -347,7 +347,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.DetailResp"
+                                            "$ref": "#/definitions/user.DetailReply"
                                         }
                                     }
                                 }
@@ -495,10 +495,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/user.ListItem"
-                                            }
+                                            "$ref": "#/definitions/user.ListReply"
                                         }
                                     }
                                 }
@@ -639,10 +636,11 @@ var doc = `{
                 }
             }
         },
-        "greet.HelloResp": {
+        "greet.HelloReply": {
             "type": "object",
             "properties": {
                 "msg": {
+                    "description": "@gotags: json:\"msg\"",
                     "type": "string"
                 }
             }
@@ -669,47 +667,61 @@ var doc = `{
                 }
             }
         },
-        "user.DetailResp": {
+        "user.DetailReply": {
             "type": "object",
             "properties": {
                 "age": {
-                    "description": "年龄",
+                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "id": {
+                    "description": "@gotags: json:\"id\"",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "名称",
+                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "电话",
+                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
                 }
             }
         },
-        "user.ListItem": {
+        "user.ListReply": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "@gotags: json:\"items\"",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.ListReply_Item"
+                    }
+                }
+            }
+        },
+        "user.ListReply_Item": {
             "type": "object",
             "properties": {
                 "age": {
-                    "description": "年龄",
+                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "id": {
+                    "description": "@gotags: json:\"id\"",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "名称",
+                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "电话",
+                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
                 }
             }
         },
-        "user.SaveReq": {
+        "user.UpdateReq": {
             "type": "object",
             "required": [
                 "id",

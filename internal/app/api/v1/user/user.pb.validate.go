@@ -68,7 +68,16 @@ func (m *CreateRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Age
+	if m.GetAge() < 0 {
+		err := CreateRequestValidationError{
+			field:  "Age",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Phone
 
@@ -271,11 +280,38 @@ func (m *UpdateRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := UpdateRequestValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := UpdateRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Age
+	if m.GetAge() < 0 {
+		err := UpdateRequestValidationError{
+			field:  "Age",
+			reason: "value must be greater than or equal to 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Phone
 
@@ -478,7 +514,16 @@ func (m *DeleteRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := DeleteRequestValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return DeleteRequestMultiError(errors)
@@ -657,43 +702,53 @@ var _ interface {
 	ErrorName() string
 } = DeleteReplyValidationError{}
 
-// Validate checks the field values on GetRequest with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
+// Validate checks the field values on DetailRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *GetRequest) Validate() error {
+func (m *DetailRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetRequestMultiError, or
+// ValidateAll checks the field values on DetailRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DetailRequestMultiError, or
 // nil if none found.
-func (m *GetRequest) ValidateAll() error {
+func (m *DetailRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetRequest) validate(all bool) error {
+func (m *DetailRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Id
+	if m.GetId() <= 0 {
+		err := DetailRequestValidationError{
+			field:  "Id",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
-		return GetRequestMultiError(errors)
+		return DetailRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetRequestMultiError is an error wrapping multiple validation errors
-// returned by GetRequest.ValidateAll() if the designated constraints aren't met.
-type GetRequestMultiError []error
+// DetailRequestMultiError is an error wrapping multiple validation errors
+// returned by DetailRequest.ValidateAll() if the designated constraints
+// aren't met.
+type DetailRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetRequestMultiError) Error() string {
+func (m DetailRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -702,11 +757,11 @@ func (m GetRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetRequestMultiError) AllErrors() []error { return m }
+func (m DetailRequestMultiError) AllErrors() []error { return m }
 
-// GetRequestValidationError is the validation error returned by
-// GetRequest.Validate if the designated constraints aren't met.
-type GetRequestValidationError struct {
+// DetailRequestValidationError is the validation error returned by
+// DetailRequest.Validate if the designated constraints aren't met.
+type DetailRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -714,22 +769,22 @@ type GetRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetRequestValidationError) Field() string { return e.field }
+func (e DetailRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetRequestValidationError) Reason() string { return e.reason }
+func (e DetailRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetRequestValidationError) Cause() error { return e.cause }
+func (e DetailRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetRequestValidationError) Key() bool { return e.key }
+func (e DetailRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetRequestValidationError) ErrorName() string { return "GetRequestValidationError" }
+func (e DetailRequestValidationError) ErrorName() string { return "DetailRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetRequestValidationError) Error() string {
+func (e DetailRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -741,14 +796,14 @@ func (e GetRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetRequest.%s: %s%s",
+		"invalid %sDetailRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetRequestValidationError{}
+var _ error = DetailRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -756,24 +811,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetRequestValidationError{}
+} = DetailRequestValidationError{}
 
-// Validate checks the field values on GetReply with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
+// Validate checks the field values on DetailReply with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *GetReply) Validate() error {
+func (m *DetailReply) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetReply with the rules defined in
+// ValidateAll checks the field values on DetailReply with the rules defined in
 // the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetReplyMultiError, or nil
-// if none found.
-func (m *GetReply) ValidateAll() error {
+// result is a list of violation errors wrapped in DetailReplyMultiError, or
+// nil if none found.
+func (m *DetailReply) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetReply) validate(all bool) error {
+func (m *DetailReply) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -789,18 +844,18 @@ func (m *GetReply) validate(all bool) error {
 	// no validation rules for Phone
 
 	if len(errors) > 0 {
-		return GetReplyMultiError(errors)
+		return DetailReplyMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetReplyMultiError is an error wrapping multiple validation errors returned
-// by GetReply.ValidateAll() if the designated constraints aren't met.
-type GetReplyMultiError []error
+// DetailReplyMultiError is an error wrapping multiple validation errors
+// returned by DetailReply.ValidateAll() if the designated constraints aren't met.
+type DetailReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetReplyMultiError) Error() string {
+func (m DetailReplyMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -809,11 +864,11 @@ func (m GetReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetReplyMultiError) AllErrors() []error { return m }
+func (m DetailReplyMultiError) AllErrors() []error { return m }
 
-// GetReplyValidationError is the validation error returned by
-// GetReply.Validate if the designated constraints aren't met.
-type GetReplyValidationError struct {
+// DetailReplyValidationError is the validation error returned by
+// DetailReply.Validate if the designated constraints aren't met.
+type DetailReplyValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -821,22 +876,22 @@ type GetReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetReplyValidationError) Field() string { return e.field }
+func (e DetailReplyValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetReplyValidationError) Reason() string { return e.reason }
+func (e DetailReplyValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetReplyValidationError) Cause() error { return e.cause }
+func (e DetailReplyValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetReplyValidationError) Key() bool { return e.key }
+func (e DetailReplyValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetReplyValidationError) ErrorName() string { return "GetReplyValidationError" }
+func (e DetailReplyValidationError) ErrorName() string { return "DetailReplyValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetReplyValidationError) Error() string {
+func (e DetailReplyValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -848,14 +903,14 @@ func (e GetReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetReply.%s: %s%s",
+		"invalid %sDetailReply.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetReplyValidationError{}
+var _ error = DetailReplyValidationError{}
 
 var _ interface {
 	Field() string
@@ -863,7 +918,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetReplyValidationError{}
+} = DetailReplyValidationError{}
 
 // Validate checks the field values on ListRequest with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -988,7 +1043,7 @@ func (m *ListReply) validate(all bool) error {
 
 	var errors []error
 
-	for idx, item := range m.GetUsers() {
+	for idx, item := range m.GetItems() {
 		_, _ = idx, item
 
 		if all {
@@ -996,7 +1051,7 @@ func (m *ListReply) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListReplyValidationError{
-						field:  fmt.Sprintf("Users[%v]", idx),
+						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1004,7 +1059,7 @@ func (m *ListReply) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, ListReplyValidationError{
-						field:  fmt.Sprintf("Users[%v]", idx),
+						field:  fmt.Sprintf("Items[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1013,7 +1068,7 @@ func (m *ListReply) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListReplyValidationError{
-					field:  fmt.Sprintf("Users[%v]", idx),
+					field:  fmt.Sprintf("Items[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -1099,22 +1154,22 @@ var _ interface {
 	ErrorName() string
 } = ListReplyValidationError{}
 
-// Validate checks the field values on ListReply_User with the rules defined in
+// Validate checks the field values on ListReply_Item with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *ListReply_User) Validate() error {
+func (m *ListReply_Item) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListReply_User with the rules defined
+// ValidateAll checks the field values on ListReply_Item with the rules defined
 // in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in ListReply_UserMultiError,
+// result is a list of violation errors wrapped in ListReply_ItemMultiError,
 // or nil if none found.
-func (m *ListReply_User) ValidateAll() error {
+func (m *ListReply_Item) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListReply_User) validate(all bool) error {
+func (m *ListReply_Item) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1130,19 +1185,19 @@ func (m *ListReply_User) validate(all bool) error {
 	// no validation rules for Phone
 
 	if len(errors) > 0 {
-		return ListReply_UserMultiError(errors)
+		return ListReply_ItemMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListReply_UserMultiError is an error wrapping multiple validation errors
-// returned by ListReply_User.ValidateAll() if the designated constraints
+// ListReply_ItemMultiError is an error wrapping multiple validation errors
+// returned by ListReply_Item.ValidateAll() if the designated constraints
 // aren't met.
-type ListReply_UserMultiError []error
+type ListReply_ItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListReply_UserMultiError) Error() string {
+func (m ListReply_ItemMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1151,11 +1206,11 @@ func (m ListReply_UserMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListReply_UserMultiError) AllErrors() []error { return m }
+func (m ListReply_ItemMultiError) AllErrors() []error { return m }
 
-// ListReply_UserValidationError is the validation error returned by
-// ListReply_User.Validate if the designated constraints aren't met.
-type ListReply_UserValidationError struct {
+// ListReply_ItemValidationError is the validation error returned by
+// ListReply_Item.Validate if the designated constraints aren't met.
+type ListReply_ItemValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1163,22 +1218,22 @@ type ListReply_UserValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListReply_UserValidationError) Field() string { return e.field }
+func (e ListReply_ItemValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListReply_UserValidationError) Reason() string { return e.reason }
+func (e ListReply_ItemValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListReply_UserValidationError) Cause() error { return e.cause }
+func (e ListReply_ItemValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListReply_UserValidationError) Key() bool { return e.key }
+func (e ListReply_ItemValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListReply_UserValidationError) ErrorName() string { return "ListReply_UserValidationError" }
+func (e ListReply_ItemValidationError) ErrorName() string { return "ListReply_ItemValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ListReply_UserValidationError) Error() string {
+func (e ListReply_ItemValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1190,14 +1245,14 @@ func (e ListReply_UserValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListReply_User.%s: %s%s",
+		"invalid %sListReply_Item.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListReply_UserValidationError{}
+var _ error = ListReply_ItemValidationError{}
 
 var _ interface {
 	Field() string
@@ -1205,4 +1260,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListReply_UserValidationError{}
+} = ListReply_ItemValidationError{}

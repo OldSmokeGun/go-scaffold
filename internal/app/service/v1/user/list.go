@@ -21,7 +21,7 @@ func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListReply,
 	}
 
 	result := new(pb.ListReply)
-	if err = copier.Copy(&result.Users, users); err != nil {
+	if err = copier.Copy(&result.Items, users); err != nil {
 		s.logger.Error(err.Error())
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}

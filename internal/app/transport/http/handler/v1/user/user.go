@@ -8,10 +8,10 @@ import (
 
 type Handler interface {
 	Create(ctx *gin.Context)
+	Update(ctx *gin.Context)
 	Delete(ctx *gin.Context)
 	Detail(ctx *gin.Context)
 	List(ctx *gin.Context)
-	Save(ctx *gin.Context)
 }
 
 type handler struct {

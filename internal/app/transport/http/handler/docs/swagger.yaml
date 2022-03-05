@@ -68,9 +68,10 @@ definitions:
         example: 未经授权
         type: string
     type: object
-  greet.HelloResp:
+  greet.HelloReply:
     properties:
       msg:
+        description: '@gotags: json:"msg"'
         type: string
     type: object
   user.CreateReq:
@@ -89,35 +90,45 @@ definitions:
     - name
     - phone
     type: object
-  user.DetailResp:
+  user.DetailReply:
     properties:
       age:
-        description: 年龄
+        description: '@gotags: json:"age"'
         type: integer
       id:
+        description: '@gotags: json:"id"'
         type: integer
       name:
-        description: 名称
+        description: '@gotags: json:"name"'
         type: string
       phone:
-        description: 电话
+        description: '@gotags: json:"phone"'
         type: string
     type: object
-  user.ListItem:
+  user.ListReply:
+    properties:
+      items:
+        description: '@gotags: json:"items"'
+        items:
+          $ref: '#/definitions/user.ListReply_Item'
+        type: array
+    type: object
+  user.ListReply_Item:
     properties:
       age:
-        description: 年龄
+        description: '@gotags: json:"age"'
         type: integer
       id:
+        description: '@gotags: json:"id"'
         type: integer
       name:
-        description: 名称
+        description: '@gotags: json:"name"'
         type: string
       phone:
-        description: 电话
+        description: '@gotags: json:"phone"'
         type: string
     type: object
-  user.SaveReq:
+  user.UpdateReq:
     properties:
       age:
         description: 年龄
@@ -166,7 +177,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  $ref: '#/definitions/greet.HelloResp'
+                  $ref: '#/definitions/greet.HelloReply'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
@@ -292,7 +303,7 @@ paths:
         name: user_info
         required: true
         schema:
-          $ref: '#/definitions/user.SaveReq'
+          $ref: '#/definitions/user.UpdateReq'
       produces:
       - application/json
       responses:
@@ -396,7 +407,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  $ref: '#/definitions/user.DetailResp'
+                  $ref: '#/definitions/user.DetailReply'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
@@ -446,9 +457,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/user.ListItem'
-                  type: array
+                  $ref: '#/definitions/user.ListReply'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）

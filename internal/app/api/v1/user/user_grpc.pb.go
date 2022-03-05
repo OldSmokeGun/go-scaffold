@@ -25,7 +25,7 @@ type UserClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*CreateReply, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateReply, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteReply, error)
-	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error)
+	Detail(ctx context.Context, in *DetailRequest, opts ...grpc.CallOption) (*DetailReply, error)
 	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListReply, error)
 }
 
@@ -64,9 +64,9 @@ func (c *userClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc
 	return out, nil
 }
 
-func (c *userClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetReply, error) {
-	out := new(GetReply)
-	err := c.cc.Invoke(ctx, "/internal.app.api.v1.user.User/Get", in, out, opts...)
+func (c *userClient) Detail(ctx context.Context, in *DetailRequest, opts ...grpc.CallOption) (*DetailReply, error) {
+	out := new(DetailReply)
+	err := c.cc.Invoke(ctx, "/internal.app.api.v1.user.User/Detail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ type UserServer interface {
 	Create(context.Context, *CreateRequest) (*CreateReply, error)
 	Update(context.Context, *UpdateRequest) (*UpdateReply, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteReply, error)
-	Get(context.Context, *GetRequest) (*GetReply, error)
+	Detail(context.Context, *DetailRequest) (*DetailReply, error)
 	List(context.Context, *ListRequest) (*ListReply, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -107,8 +107,8 @@ func (UnimplementedUserServer) Update(context.Context, *UpdateRequest) (*UpdateR
 func (UnimplementedUserServer) Delete(context.Context, *DeleteRequest) (*DeleteReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedUserServer) Get(context.Context, *GetRequest) (*GetReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedUserServer) Detail(context.Context, *DetailRequest) (*DetailReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Detail not implemented")
 }
 func (UnimplementedUserServer) List(context.Context, *ListRequest) (*ListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
@@ -180,20 +180,20 @@ func _User_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRequest)
+func _User_Detail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DetailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).Get(ctx, in)
+		return srv.(UserServer).Detail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/internal.app.api.v1.user.User/Get",
+		FullMethod: "/internal.app.api.v1.user.User/Detail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Get(ctx, req.(*GetRequest))
+		return srv.(UserServer).Detail(ctx, req.(*DetailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -236,8 +236,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_Delete_Handler,
 		},
 		{
-			MethodName: "Get",
-			Handler:    _User_Get_Handler,
+			MethodName: "Detail",
+			Handler:    _User_Detail_Handler,
 		},
 		{
 			MethodName: "List",

@@ -8,63 +8,41 @@ import "validate/validate.proto";
 option go_package = "go-scaffold/internal/app/api/v1/user;user";
 
 service User {
-  rpc Create (CreateRequest) returns (CreateReply) {
-    option (google.api.http) = {
-      post: "/api/v1/user"
-      body: "*"
-    };
-  };
-  rpc Update (UpdateRequest) returns (UpdateReply) {
-    option (google.api.http) = {
-      put: "/api/v1/user"
-      body: "*"
-    };
-  };
-  rpc Delete (DeleteRequest) returns (DeleteReply) {
-    option (google.api.http) = {
-      delete: "/api/v1/user/{id}"
-    };
-  };
-  rpc Get (GetRequest) returns (GetReply) {
-    option (google.api.http) = {
-      get: "/api/v1/user/{id}"
-    };
-  };
-  rpc List (ListRequest) returns (ListReply) {
-    option (google.api.http) = {
-      get: "/api/v1/users"
-    };
-  };
+  rpc Create (CreateRequest) returns (CreateReply) {};
+  rpc Update (UpdateRequest) returns (UpdateReply) {};
+  rpc Delete (DeleteRequest) returns (DeleteReply) {};
+  rpc Detail (DetailRequest) returns (DetailReply) {};
+  rpc List (ListRequest) returns (ListReply) {};
 }
 
 message CreateRequest {
   string name = 1 [(validate.rules).string.min_len = 1];
-  int32 age = 2;
+  int32 age = 2 [(validate.rules).int32.gte = 0];
   string phone = 3;
 }
 message CreateReply {}
 
 message UpdateRequest {
-  uint64 id = 1;
-  string name = 2;
-  int32 age = 3;
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  string name = 2 [(validate.rules).string.min_len = 1];
+  int32 age = 3 [(validate.rules).int32.gte = 0];
   string phone = 4;
 }
 message UpdateReply {}
 
 message DeleteRequest {
-  uint64 id = 1;
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
 }
 message DeleteReply {}
 
-message GetRequest {
-  uint64 id = 1;
+message DetailRequest {
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];
 }
-message GetReply {
-  uint64 id = 1;
-  string name = 2;
-  int32 age = 3;
-  string phone = 4;
+message DetailReply {
+  uint64 id = 1; // @gotags: json:"id"
+  string name = 2; // @gotags: json:"name"
+  int32 age = 3; // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
 }
 
 message ListRequest {
@@ -72,11 +50,11 @@ message ListRequest {
 }
 
 message ListReply {
-  message User {
-    uint64 id = 1;
-    string name = 2;
-    int32 age = 3;
-    string phone = 4;
+  message Item {
+    uint64 id = 1; // @gotags: json:"id"
+    string name = 2; // @gotags: json:"name"
+    int32 age = 3; // @gotags: json:"age"
+    string phone = 4; // @gotags: json:"phone"
   }
-  repeated User users = 1;
+  repeated Item items = 1; // @gotags: json:"items"
 }

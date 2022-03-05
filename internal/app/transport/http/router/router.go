@@ -98,7 +98,7 @@ func New(
 			apiV1Group.GET("/users", userHandler.List)
 			apiV1Group.GET("/user/:id", userHandler.Detail)
 			apiV1Group.POST("/user", userHandler.Create)
-			apiV1Group.PUT("/user", userHandler.Save)
+			apiV1Group.PUT("/user", userHandler.Update)
 			apiV1Group.DELETE("/user/:id", userHandler.Delete)
 		}
 	}
