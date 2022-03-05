@@ -1,5 +1,7 @@
 package uid
 
+//go:generate mockgen -source=uid.go -destination=uid_mock.go -package=uid -mock_names=Generator=MockUid
+
 import (
 	"github.com/bwmarrin/snowflake"
 	"math/rand"
@@ -10,28 +12,34 @@ var defaultRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 const maxNode = 1<<10 - 1
 
-type uid struct {
+type Generator interface {
+	Generate(options ...Option) (int64, error)
+}
+
+type Uid struct {
 	node int64
 	rand *rand.Rand
 }
 
-type Option func(uid *uid)
+func New() *Uid {
+	return &Uid{rand: defaultRand}
+}
+
+type Option func(uid *Uid)
 
 func WithNode(node int64) Option {
-	return func(uid *uid) {
+	return func(uid *Uid) {
 		uid.node = node
 	}
 }
 
 func WithRand(rand *rand.Rand) Option {
-	return func(uid *uid) {
+	return func(uid *Uid) {
 		uid.rand = rand
 	}
 }
 
-func Generate(options ...Option) (int64, error) {
-	u := &uid{rand: defaultRand}
-
+func (u *Uid) Generate(options ...Option) (int64, error) {
 	for _, option := range options {
 		option(u)
 	}

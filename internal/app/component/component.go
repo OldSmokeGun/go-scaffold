@@ -8,6 +8,7 @@ import (
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
 	"go-scaffold/internal/app/component/trace"
+	"go-scaffold/internal/app/component/uid"
 )
 
 var ProviderSet = wire.NewSet(
@@ -17,4 +18,5 @@ var ProviderSet = wire.NewSet(
 	etcd.New,
 	consul.New,
 	data.New,
+	wire.NewSet(wire.Bind(new(uid.Generator), new(*uid.Uid)), uid.New),
 )
