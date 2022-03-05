@@ -33,7 +33,7 @@ func (HelloReq) ErrorMessage() map[string]string {
 // @Failure      403   {object}  example.PermissionDenied             "没有权限"
 // @Failure      404   {object}  example.ResourceNotFound             "资源不存在"
 // @Failure      429   {object}  example.TooManyRequest               "请求过于频繁"
-func (h *handler) Hello(ctx *gin.Context) {
+func (h *Handler) Hello(ctx *gin.Context) {
 	req := new(HelloReq)
 	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
 		h.logger.Error(err.Error())

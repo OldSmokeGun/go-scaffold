@@ -33,7 +33,7 @@ func (DeleteReq) ErrorMessage() map[string]string {
 // @Failure      403  {object}  example.PermissionDenied  "没有权限"
 // @Failure      404  {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429  {object}  example.TooManyRequest    "请求过于频繁"
-func (h *handler) Delete(ctx *gin.Context) {
+func (h *Handler) Delete(ctx *gin.Context) {
 	req := new(DeleteReq)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
 		h.logger.Error(err.Error())

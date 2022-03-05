@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteReply, error) {
-	u, err := s.repo.FindOneByID(
+	u, err := s.repo.FindOneById(
 		context.TODO(),
 		req.Id,
 		[]string{"*"},

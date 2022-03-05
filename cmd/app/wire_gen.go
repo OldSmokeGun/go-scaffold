@@ -54,17 +54,17 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	service := greet.NewService(logLogger, configConfig)
-	handler := greet2.New(logLogger, zapLogger, configConfig, service)
+	handler := greet2.NewHandler(logLogger, zapLogger, configConfig, service)
 	tracer, cleanup4, err := trace.New(config6, logLogger)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		return nil, nil, err
 	}
-	traceHandler := trace2.New(logLogger, configConfig, tracer, service)
-	repository := user.New(db, client)
+	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, service)
+	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, configConfig, repository)
-	userHandler := user3.New(logLogger, userService)
+	userHandler := user3.NewHandler(logLogger, userService)
 	engine := router.New(rotateLogs, zapLogger, configConfig, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc.NewServer(logLogger, configConfig, service, userService)

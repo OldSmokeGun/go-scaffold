@@ -11,8 +11,6 @@ import (
 	greetpb "go-scaffold/internal/app/api/v1/greet"
 	userpb "go-scaffold/internal/app/api/v1/user"
 	"go-scaffold/internal/app/config"
-	"go-scaffold/internal/app/service/v1/greet"
-	"go-scaffold/internal/app/service/v1/user"
 	"time"
 )
 
@@ -22,8 +20,8 @@ var ProviderSet = wire.NewSet(NewServer)
 func NewServer(
 	logger log.Logger,
 	cm *config.Config,
-	greetService *greet.Service,
-	userService *user.Service,
+	greetService greetpb.GreetServer,
+	userService userpb.UserServer,
 ) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(

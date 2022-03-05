@@ -7,7 +7,6 @@ require (
 	entgo.io/ent v0.10.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bwmarrin/snowflake v0.3.0
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.4
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/zap v0.0.2
@@ -28,6 +27,7 @@ require (
 	github.com/hashicorp/consul/api v1.12.0
 	github.com/jackc/pgx/v4 v4.15.0 // indirect
 	github.com/jinzhu/copier v0.3.4
+	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/json-iterator/go v1.1.12
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
@@ -58,9 +58,9 @@ require (
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/ini.v1 v1.66.4 // indirect
-	gorm.io/driver/mysql v1.3.2
-	gorm.io/driver/postgres v1.3.1
-	gorm.io/gorm v1.23.2
-	gorm.io/plugin/soft_delete v1.1.0
-	moul.io/zapgorm2 v1.1.3
+	gorm.io/driver/mysql v1.0.5
+	gorm.io/driver/postgres v1.0.8
+	gorm.io/gorm v1.21.7
+	gorm.io/plugin/soft_delete v1.0.3
+	moul.io/zapgorm2 v1.0.3
 )

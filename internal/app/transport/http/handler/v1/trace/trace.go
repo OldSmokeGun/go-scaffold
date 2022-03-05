@@ -8,19 +8,19 @@ import (
 	"go-scaffold/internal/app/service/v1/greet"
 )
 
-type Handler interface {
+type HandlerInterface interface {
 	Example(ctx *gin.Context)
 }
 
-type handler struct {
+type Handler struct {
 	logger  *log.Helper
 	cm      *config.Config
 	trace   *trace.Tracer
 	service *greet.Service
 }
 
-func New(logger log.Logger, cm *config.Config, trace *trace.Tracer, service *greet.Service) Handler {
-	return &handler{
+func NewHandler(logger log.Logger, cm *config.Config, trace *trace.Tracer, service *greet.Service) *Handler {
+	return &Handler{
 		logger:  log.NewHelper(logger),
 		cm:      cm,
 		trace:   trace,

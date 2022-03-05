@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateReply, error) {
-	u, err := s.repo.FindOneByID(
+	u, err := s.repo.FindOneById(
 		context.TODO(),
 		req.Id,
 		[]string{"*"},

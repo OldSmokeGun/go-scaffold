@@ -40,7 +40,7 @@ func (UpdateReq) ErrorMessage() map[string]string {
 // @Failure      403        {object}  example.PermissionDenied  "没有权限"
 // @Failure      404        {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429        {object}  example.TooManyRequest    "请求过于频繁"
-func (h *handler) Update(ctx *gin.Context) {
+func (h *Handler) Update(ctx *gin.Context) {
 	req := new(UpdateReq)
 	if err := bindx.ShouldBindJSON(ctx, req); err != nil {
 		h.logger.Error(err.Error())

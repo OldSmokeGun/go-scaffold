@@ -8,19 +8,19 @@ import (
 	"go.uber.org/zap"
 )
 
-type Handler interface {
+type HandlerInterface interface {
 	Hello(ctx *gin.Context)
 }
 
-type handler struct {
+type Handler struct {
 	logger  *log.Helper
 	zLogger *zap.Logger
 	cm      *config.Config
 	service *greet.Service
 }
 
-func New(logger log.Logger, zLogger *zap.Logger, cm *config.Config, service *greet.Service) Handler {
-	return &handler{
+func NewHandler(logger log.Logger, zLogger *zap.Logger, cm *config.Config, service *greet.Service) *Handler {
+	return &Handler{
 		logger:  log.NewHelper(logger),
 		zLogger: zLogger,
 		cm:      cm,

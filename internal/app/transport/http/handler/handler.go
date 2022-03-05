@@ -8,7 +8,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	greet.New,
-	trace.New,
-	user.New,
+	wire.NewSet(wire.Bind(new(greet.HandlerInterface), new(*greet.Handler)), greet.NewHandler),
+	wire.NewSet(wire.Bind(new(trace.HandlerInterface), new(*trace.Handler)), trace.NewHandler),
+	wire.NewSet(wire.Bind(new(user.HandlerInterface), new(*user.Handler)), user.NewHandler),
 )

@@ -30,7 +30,7 @@ import (
 // @Failure      403  {object}  example.PermissionDenied  "没有权限"
 // @Failure      404  {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429  {object}  example.TooManyRequest    "请求过于频繁"
-func (h *handler) Example(ctx *gin.Context) {
+func (h *Handler) Example(ctx *gin.Context) {
 	reqCtx := ctx.Request.Context()
 
 	h.example(reqCtx)
@@ -82,10 +82,10 @@ func (h *handler) Example(ctx *gin.Context) {
 }
 
 // example 示例方法
-func (h *handler) example(ctx context.Context) {
+func (h *Handler) example(ctx context.Context) {
 	_, span := h.trace.Tracer("").Start(
 		ctx,
-		"handler.example",
+		"Handler.example",
 		trace.WithAttributes(
 			attribute.String("exampleKey1", "exampleValue1"),
 			attribute.String("exampleKey2", "exampleValue2"),

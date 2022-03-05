@@ -32,9 +32,9 @@ func New(
 	loggerWriter *rotatelogs.RotateLogs,
 	zLogger *zap.Logger,
 	cm *config.Config,
-	greetHandler greet.Handler,
-	traceHandler trace.Handler,
-	userHandler user.Handler,
+	greetHandler greet.HandlerInterface,
+	traceHandler trace.HandlerInterface,
+	userHandler user.HandlerInterface,
 ) *gin.Engine {
 	output := io.MultiWriter(loggerWriter, os.Stdout)
 	gin.DefaultWriter = output
