@@ -49,12 +49,13 @@ app:
   # 链路追踪配置
   trace:
     endpoint: "localhost:6831"
-    # Endpoint: "http://localhost:14268/api/traces"
+    # endpoint: "http://localhost:14268/api/traces"
 
   http:
     network: "tcp"
-    addr: "0.0.0.0:9527"  # http 服务监听地址
+    addr: "0.0.0.0:9527"    # http 服务监听地址
     timeout: 5
+    externalAddr: ""        # 外部访问地址，如反向代理
 
   grpc:
     network: "tcp"
