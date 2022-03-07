@@ -26,7 +26,7 @@ func NewServer(
 	if router == nil {
 		return nil
 	}
-	
+
 	var opts = []khttp.ServerOption{
 		khttp.Logger(logger),
 	}
