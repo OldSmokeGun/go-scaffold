@@ -1,6 +1,7 @@
 package bindx
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -11,6 +12,7 @@ import (
 
 var (
 	ErrValidateErrorTranslateFailed = errors.New("参数校验错误信息翻译失败")
+	ErrRequestUnmarshalFailed       = errors.New("参数解析失败")
 )
 
 // BindModel 模型绑定需要实现的接口
@@ -45,9 +47,9 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) err
 	}
 
 	if err != nil {
-		errs, ok := err.(validator.ValidationErrors)
-		if ok {
-			errsMap := validatorx.Translate(errs, m.Message())
+		switch err := err.(type) {
+		case validator.ValidationErrors:
+			errsMap := validatorx.Translate(err, m.Message())
 
 			if len(errsMap) == 0 {
 				responsex.ServerError(ctx)
@@ -58,12 +60,14 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) err
 				responsex.ValidateError(ctx, responsex.WithMsg(e))
 				return errors.New(e)
 			}
-
 			return nil
+		case *json.UnmarshalTypeError:
+			responsex.ValidateError(ctx, responsex.WithMsg(ErrRequestUnmarshalFailed.Error()))
+			return err
+		default:
+			responsex.ServerError(ctx)
+			return err
 		}
-
-		responsex.ServerError(ctx)
-		return err
 	}
 
 	return nil

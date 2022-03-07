@@ -27,7 +27,7 @@ func (CreateRequest) Message() map[string]string {
 // @Tags         用户
 // @Accept       json
 // @Produce      json
-// @Param        user_info  body      pb.CreateRequest          true  "用户信息"  format(string)
+// @Param        user_info  body      CreateRequest             true  "用户信息"  format(string)
 // @Success      200        {object}  example.Success           "成功响应"
 // @Failure      500        {object}  example.ServerError       "服务器出错"
 // @Failure      400        {object}  example.ClientError       "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
