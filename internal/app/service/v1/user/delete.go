@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteReply, error) {
+func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	u, err := s.repo.FindOneById(
 		context.TODO(),
 		req.Id,

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateReply, error) {
+func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
 	u, err := s.repo.FindOneById(
 		context.TODO(),
 		req.Id,

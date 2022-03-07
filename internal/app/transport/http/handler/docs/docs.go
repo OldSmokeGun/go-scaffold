@@ -66,7 +66,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/greet.HelloReply"
+                                            "$ref": "#/definitions/greet.HelloResponse"
                                         }
                                     }
                                 }
@@ -192,7 +192,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateReq"
+                            "$ref": "#/definitions/user.UpdateRequest"
                         }
                     }
                 ],
@@ -261,7 +261,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.CreateReq"
+                            "$ref": "#/definitions/user.CreateRequest"
                         }
                     }
                 ],
@@ -347,7 +347,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.DetailReply"
+                                            "$ref": "#/definitions/user.DetailResponse"
                                         }
                                     }
                                 }
@@ -495,7 +495,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.ListReply"
+                                            "$ref": "#/definitions/user.ListResponse"
                                         }
                                     }
                                 }
@@ -636,7 +636,7 @@ var doc = `{
                 }
             }
         },
-        "greet.HelloReply": {
+        "greet.HelloResponse": {
             "type": "object",
             "properties": {
                 "msg": {
@@ -645,7 +645,7 @@ var doc = `{
                 }
             }
         },
-        "user.CreateReq": {
+        "user.CreateRequest": {
             "type": "object",
             "required": [
                 "name",
@@ -653,21 +653,21 @@ var doc = `{
             ],
             "properties": {
                 "age": {
-                    "description": "年龄",
+                    "description": "@gotags: json:\"age\" binding:\"min=1\"",
                     "type": "integer",
                     "minimum": 1
                 },
                 "name": {
-                    "description": "名称",
+                    "description": "@gotags: json:\"name\" binding:\"required\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "电话",
+                    "description": "@gotags: json:\"phone\" binding:\"required,phone\"",
                     "type": "string"
                 }
             }
         },
-        "user.DetailReply": {
+        "user.DetailResponse": {
             "type": "object",
             "properties": {
                 "age": {
@@ -688,40 +688,40 @@ var doc = `{
                 }
             }
         },
-        "user.ListReply": {
+        "user.ListItem": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "description": "@gotags: json:\"age\"",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "@gotags: json:\"id\"",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "@gotags: json:\"name\"",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "@gotags: json:\"phone\"",
+                    "type": "string"
+                }
+            }
+        },
+        "user.ListResponse": {
             "type": "object",
             "properties": {
                 "items": {
                     "description": "@gotags: json:\"items\"",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/user.ListReply_Item"
+                        "$ref": "#/definitions/user.ListItem"
                     }
                 }
             }
         },
-        "user.ListReply_Item": {
-            "type": "object",
-            "properties": {
-                "age": {
-                    "description": "@gotags: json:\"age\"",
-                    "type": "integer"
-                },
-                "id": {
-                    "description": "@gotags: json:\"id\"",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "@gotags: json:\"name\"",
-                    "type": "string"
-                },
-                "phone": {
-                    "description": "@gotags: json:\"phone\"",
-                    "type": "string"
-                }
-            }
-        },
-        "user.UpdateReq": {
+        "user.UpdateRequest": {
             "type": "object",
             "required": [
                 "id",
@@ -730,19 +730,20 @@ var doc = `{
             ],
             "properties": {
                 "age": {
-                    "description": "年龄",
+                    "description": "@gotags: json:\"age\" binding:\"min=1\"",
                     "type": "integer",
                     "minimum": 1
                 },
                 "id": {
+                    "description": "@gotags: json:\"id\" binding:\"required\"",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "名称",
+                    "description": "@gotags: json:\"name\" binding:\"required\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "电话",
+                    "description": "@gotags: json:\"phone\" binding:\"required,phone\"",
                     "type": "string"
                 }
             }

@@ -9,7 +9,7 @@ import (
 	"go-scaffold/internal/app/pkg/responsex"
 )
 
-func (s *Service) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateReply, error) {
+func (s *Service) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
 	m := new(model.User)
 	if err := copier.Copy(m, req); err != nil {
 		s.logger.Error(err.Error())

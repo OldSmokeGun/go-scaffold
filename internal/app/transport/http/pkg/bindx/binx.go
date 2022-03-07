@@ -15,7 +15,7 @@ var (
 
 // BindModel 模型绑定需要实现的接口
 type BindModel interface {
-	ErrorMessage() map[string]string
+	Message() map[string]string
 }
 
 func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) error {
@@ -47,7 +47,7 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) err
 	if err != nil {
 		errs, ok := err.(validator.ValidationErrors)
 		if ok {
-			errsMap := validatorx.Translate(errs, m.ErrorMessage())
+			errsMap := validatorx.Translate(errs, m.Message())
 
 			if len(errsMap) == 0 {
 				responsex.ServerError(ctx)

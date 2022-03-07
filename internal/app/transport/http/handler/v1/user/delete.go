@@ -2,19 +2,18 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	pb "go-scaffold/internal/app/api/v1/user"
 	"go-scaffold/internal/app/pkg/responsex"
 	"go-scaffold/internal/app/transport/http/pkg/bindx"
 )
 
-type DeleteReq struct {
-	Id uint `uri:"id" binding:"required"` // 用户 ID
+type DeleteRequest struct {
+	*pb.DeleteRequest
 }
 
-func (DeleteReq) ErrorMessage() map[string]string {
+func (DeleteRequest) Message() map[string]string {
 	return map[string]string{
-		"ID.required": "用户 ID 不能为空",
+		"DeleteRequest.ID.required": "用户 ID 不能为空",
 	}
 }
 
@@ -34,20 +33,13 @@ func (DeleteReq) ErrorMessage() map[string]string {
 // @Failure      404  {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429  {object}  example.TooManyRequest    "请求过于频繁"
 func (h *Handler) Delete(ctx *gin.Context) {
-	req := new(DeleteReq)
+	req := new(DeleteRequest)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
 		h.logger.Error(err.Error())
 		return
 	}
 
-	param := new(pb.DeleteRequest)
-	if err := copier.Copy(param, req); err != nil {
-		h.logger.Error(err.Error())
-		responsex.ServerError(ctx)
-		return
-	}
-
-	_, err := h.service.Delete(ctx.Request.Context(), param)
+	_, err := h.service.Delete(ctx.Request.Context(), req.DeleteRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

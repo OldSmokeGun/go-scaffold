@@ -8,7 +8,7 @@ import (
 	"go-scaffold/internal/app/pkg/responsex"
 )
 
-func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListReply, error) {
+func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
 	users, err := s.repo.FindByKeyword(
 		context.TODO(),
 		[]string{"*"},
@@ -20,7 +20,7 @@ func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListReply,
 		return nil, ErrDataQueryFailed
 	}
 
-	result := new(pb.ListReply)
+	result := &pb.ListResponse{Items: []*pb.ListItem{}}
 	if err = copier.Copy(&result.Items, users); err != nil {
 		s.logger.Error(err.Error())
 		return nil, errors.New(responsex.ServerErrorCode.String())

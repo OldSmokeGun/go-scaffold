@@ -68,29 +68,29 @@ definitions:
         example: 未经授权
         type: string
     type: object
-  greet.HelloReply:
+  greet.HelloResponse:
     properties:
       msg:
         description: '@gotags: json:"msg"'
         type: string
     type: object
-  user.CreateReq:
+  user.CreateRequest:
     properties:
       age:
-        description: 年龄
+        description: '@gotags: json:"age" binding:"min=1"'
         minimum: 1
         type: integer
       name:
-        description: 名称
+        description: '@gotags: json:"name" binding:"required"'
         type: string
       phone:
-        description: 电话
+        description: '@gotags: json:"phone" binding:"required,phone"'
         type: string
     required:
     - name
     - phone
     type: object
-  user.DetailReply:
+  user.DetailResponse:
     properties:
       age:
         description: '@gotags: json:"age"'
@@ -105,42 +105,43 @@ definitions:
         description: '@gotags: json:"phone"'
         type: string
     type: object
-  user.ListReply:
+  user.ListItem:
+    properties:
+      age:
+        description: '@gotags: json:"age"'
+        type: integer
+      id:
+        description: '@gotags: json:"id"'
+        type: integer
+      name:
+        description: '@gotags: json:"name"'
+        type: string
+      phone:
+        description: '@gotags: json:"phone"'
+        type: string
+    type: object
+  user.ListResponse:
     properties:
       items:
         description: '@gotags: json:"items"'
         items:
-          $ref: '#/definitions/user.ListReply_Item'
+          $ref: '#/definitions/user.ListItem'
         type: array
     type: object
-  user.ListReply_Item:
+  user.UpdateRequest:
     properties:
       age:
-        description: '@gotags: json:"age"'
-        type: integer
-      id:
-        description: '@gotags: json:"id"'
-        type: integer
-      name:
-        description: '@gotags: json:"name"'
-        type: string
-      phone:
-        description: '@gotags: json:"phone"'
-        type: string
-    type: object
-  user.UpdateReq:
-    properties:
-      age:
-        description: 年龄
+        description: '@gotags: json:"age" binding:"min=1"'
         minimum: 1
         type: integer
       id:
+        description: '@gotags: json:"id" binding:"required"'
         type: integer
       name:
-        description: 名称
+        description: '@gotags: json:"name" binding:"required"'
         type: string
       phone:
-        description: 电话
+        description: '@gotags: json:"phone" binding:"required,phone"'
         type: string
     required:
     - id
@@ -177,7 +178,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  $ref: '#/definitions/greet.HelloReply'
+                  $ref: '#/definitions/greet.HelloResponse'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
@@ -257,7 +258,7 @@ paths:
         name: user_info
         required: true
         schema:
-          $ref: '#/definitions/user.CreateReq'
+          $ref: '#/definitions/user.CreateRequest'
       produces:
       - application/json
       responses:
@@ -303,7 +304,7 @@ paths:
         name: user_info
         required: true
         schema:
-          $ref: '#/definitions/user.UpdateReq'
+          $ref: '#/definitions/user.UpdateRequest'
       produces:
       - application/json
       responses:
@@ -407,7 +408,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  $ref: '#/definitions/user.DetailReply'
+                  $ref: '#/definitions/user.DetailResponse'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
@@ -457,7 +458,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  $ref: '#/definitions/user.ListReply'
+                  $ref: '#/definitions/user.ListResponse'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）

@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (s *Service) Detail(ctx context.Context, req *pb.DetailRequest) (*pb.DetailReply, error) {
+func (s *Service) Detail(ctx context.Context, req *pb.DetailRequest) (*pb.DetailResponse, error) {
 	u, err := s.repo.FindOneById(
 		context.TODO(),
 		req.Id,
@@ -23,7 +23,7 @@ func (s *Service) Detail(ctx context.Context, req *pb.DetailRequest) (*pb.Detail
 		return nil, ErrDataQueryFailed
 	}
 
-	result := new(pb.DetailReply)
+	result := new(pb.DetailResponse)
 	if err = copier.Copy(result, u); err != nil {
 		s.logger.Error(err.Error())
 		return nil, errors.New(responsex.ServerErrorCode.String())

@@ -21,8 +21,8 @@ func NewService(logger log.Logger, conf *config.Config) *Service {
 	}
 }
 
-func (s *Service) Hello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloReply, error) {
-	return &pb.HelloReply{
+func (s *Service) Hello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {
+	return &pb.HelloResponse{
 		Msg: fmt.Sprintf("Hello, %s", req.Name),
 	}, nil
 }

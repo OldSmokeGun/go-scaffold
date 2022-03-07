@@ -2,59 +2,59 @@ syntax = "proto3";
 
 package internal.app.api.v1.user;
 
-import "google/api/annotations.proto";
 import "validate/validate.proto";
 
 option go_package = "go-scaffold/internal/app/api/v1/user;user";
 
 service User {
-  rpc Create (CreateRequest) returns (CreateReply) {};
-  rpc Update (UpdateRequest) returns (UpdateReply) {};
-  rpc Delete (DeleteRequest) returns (DeleteReply) {};
-  rpc Detail (DetailRequest) returns (DetailReply) {};
-  rpc List (ListRequest) returns (ListReply) {};
+  rpc Create (CreateRequest) returns (CreateResponse) {};
+  rpc Update (UpdateRequest) returns (UpdateResponse) {};
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {};
+  rpc Detail (DetailRequest) returns (DetailResponse) {};
+  rpc List (ListRequest) returns (ListResponse) {};
 }
 
 message CreateRequest {
-  string name = 1 [(validate.rules).string.min_len = 1];
-  int32 age = 2 [(validate.rules).int32.gte = 0];
-  string phone = 3;
+  string name = 1 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
+  int32 age = 2 [(validate.rules).int32.gte = 0];         // @gotags: json:"age" binding:"min=1"
+  string phone = 3;                                       // @gotags: json:"phone" binding:"required,phone"
 }
-message CreateReply {}
+message CreateResponse {}
 
 message UpdateRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];
-  string name = 2 [(validate.rules).string.min_len = 1];
-  int32 age = 3 [(validate.rules).int32.gte = 0];
-  string phone = 4;
+  uint64 id = 1 [(validate.rules).uint64.gt = 0];         // @gotags: json:"id" binding:"required"
+  string name = 2 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
+  int32 age = 3 [(validate.rules).int32.gte = 0];         // @gotags: json:"age" binding:"min=1"
+  string phone = 4;                                       // @gotags: json:"phone" binding:"required,phone"
 }
-message UpdateReply {}
+message UpdateResponse {}
 
 message DeleteRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 id = 1 [(validate.rules).uint64.gt = 0]; // @gotags: uri:"id" binding:"required"
 }
-message DeleteReply {}
+message DeleteResponse {}
 
 message DetailRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];
+  uint64 id = 1 [(validate.rules).uint64.gt = 0]; // @gotags: uri:"id" binding:"required"
 }
-message DetailReply {
-  uint64 id = 1; // @gotags: json:"id"
-  string name = 2; // @gotags: json:"name"
-  int32 age = 3; // @gotags: json:"age"
+message DetailResponse {
+  uint64 id = 1;    // @gotags: json:"id"
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
   string phone = 4; // @gotags: json:"phone"
 }
 
 message ListRequest {
-  string keyword = 1;
+  string keyword = 1; // @gotags: form:"keyword"
 }
 
-message ListReply {
-  message Item {
-    uint64 id = 1; // @gotags: json:"id"
-    string name = 2; // @gotags: json:"name"
-    int32 age = 3; // @gotags: json:"age"
-    string phone = 4; // @gotags: json:"phone"
-  }
-  repeated Item items = 1; // @gotags: json:"items"
+message ListItem {
+  uint64 id = 1;    // @gotags: json:"id"
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
+}
+
+message ListResponse {
+  repeated ListItem items = 1; // @gotags: json:"items"
 }
