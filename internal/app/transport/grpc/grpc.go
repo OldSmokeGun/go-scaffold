@@ -23,6 +23,10 @@ func NewServer(
 	greetService greetpb.GreetServer,
 	userService userpb.UserServer,
 ) *grpc.Server {
+	if cm.App.Grpc == nil {
+		return nil
+	}
+
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(recovery.WithLogger(logger)),

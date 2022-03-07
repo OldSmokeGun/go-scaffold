@@ -4,6 +4,7 @@ import (
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
@@ -37,12 +38,20 @@ func New(
 	gs *grpc.Server,
 	discovery *etcd.Registry,
 ) *Transport {
+	var servers []transport.Server
+	if hs != nil {
+		servers = append(servers, hs)
+	}
+	if gs != nil {
+		servers = append(servers, gs)
+	}
+
 	options := []kratos.Option{
 		kratos.ID(hostname),
 		kratos.Name(cm.App.Name),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
-		kratos.Server(hs, gs),
+		kratos.Server(servers...),
 	}
 
 	if discovery != nil {

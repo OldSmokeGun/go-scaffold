@@ -23,6 +23,10 @@ func NewServer(
 	cm *config.Config,
 	router *gin.Engine,
 ) *khttp.Server {
+	if router == nil {
+		return nil
+	}
+	
 	var opts = []khttp.ServerOption{
 		khttp.Logger(logger),
 	}

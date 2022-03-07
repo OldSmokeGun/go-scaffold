@@ -30,7 +30,7 @@ type Config struct {
 type App struct {
 	Name    string
 	Env     Env
-	Timeout int
+	Timeout int64
 	DB      *struct {
 		Driver          string
 		Host            string

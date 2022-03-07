@@ -258,6 +258,9 @@ func setup() {
 		if err = copier.Copy(traceConfig, configModel.App.Trace); err != nil {
 			panic(err)
 		}
+		traceConfig.ServiceName = configModel.App.Name
+		traceConfig.Env = configModel.App.Env.String()
+		traceConfig.Timeout = configModel.App.Timeout
 	}
 	if configModel.App.Discovery != nil {
 		if configModel.App.Discovery.Etcd != nil {

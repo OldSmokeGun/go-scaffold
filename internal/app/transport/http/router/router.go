@@ -36,6 +36,10 @@ func New(
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
 ) *gin.Engine {
+	if cm.App.Http == nil {
+		return nil
+	}
+
 	output := io.MultiWriter(loggerWriter, os.Stdout)
 	gin.DefaultWriter = output
 	gin.DefaultErrorWriter = output
