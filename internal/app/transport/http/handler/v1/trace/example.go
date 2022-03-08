@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	greetpb "go-scaffold/internal/app/api/v1/greet"
 	"go-scaffold/internal/app/pkg/responsex"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -34,6 +35,22 @@ func (h *Handler) Example(ctx *gin.Context) {
 	reqCtx := ctx.Request.Context()
 
 	h.example(reqCtx)
+
+	conn, err := h.grpcClient.DialInsecure(reqCtx, h.cm.Services.Self)
+	if err != nil {
+		h.logger.Error(err)
+		responsex.ServerError(ctx)
+		return
+	}
+
+	client := greetpb.NewGreetClient(conn)
+	resp, err := client.Hello(reqCtx, &greetpb.HelloRequest{Name: "example"})
+	if err != nil {
+		h.logger.Error(err)
+		responsex.ServerError(ctx)
+		return
+	}
+	h.logger.Infof("请求结果：%s", resp.Msg)
 
 	// 获取当前请求 span
 	span := trace.SpanFromContext(otel.GetTextMapPropagator().Extract(reqCtx, propagation.HeaderCarrier(ctx.Request.Header)))

@@ -14,8 +14,7 @@ import (
 	"github.com/spf13/pflag"
 	"go-scaffold/internal/app/command"
 	"go-scaffold/internal/app/component/data"
-	"go-scaffold/internal/app/component/discovery/consul"
-	"go-scaffold/internal/app/component/discovery/etcd"
+	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
 	"go-scaffold/internal/app/component/trace"
@@ -73,13 +72,12 @@ var (
 	zLogger      *zap.Logger            // zap 日志实例
 	config       kconfig.Config
 
-	configModel      = new(appconfig.Config) // app 配置实例
-	ormConfig        *orm.Config             // gorm 配置
-	dataConfig       *data.Config            // ent orm 配置
-	redisConfig      *redis.Config           // redis 客户端配置
-	traceConfig      *trace.Config           // tracer 配置
-	etcdDiscConfig   *etcd.Config            // etcd 服务发现配置
-	consulDiscConfig *consul.Config          // consul 服务发现配置
+	configModel     = new(appconfig.Config) // app 配置实例
+	ormConfig       *orm.Config             // gorm 配置
+	dataConfig      *data.Config            // ent orm 配置
+	redisConfig     *redis.Config           // redis 客户端配置
+	traceConfig     *trace.Config           // tracer 配置
+	discoveryConfig *discovery.Config       // 服务注册发现配置
 )
 
 func main() {
@@ -103,8 +101,7 @@ func main() {
 				dataConfig,
 				redisConfig,
 				traceConfig,
-				etcdDiscConfig,
-				consulDiscConfig,
+				discoveryConfig,
 			)
 			if err != nil {
 				panic(err)
@@ -143,8 +140,7 @@ func main() {
 			dataConfig,
 			redisConfig,
 			traceConfig,
-			etcdDiscConfig,
-			consulDiscConfig,
+			discoveryConfig,
 		)
 	})
 
@@ -263,17 +259,9 @@ func setup() {
 		traceConfig.Timeout = configModel.App.Timeout
 	}
 	if configModel.App.Discovery != nil {
-		if configModel.App.Discovery.Etcd != nil {
-			etcdDiscConfig = new(etcd.Config)
-			if err = copier.Copy(etcdDiscConfig, configModel.App.Discovery.Etcd); err != nil {
-				panic(err)
-			}
-		}
-		if configModel.App.Discovery.Consul != nil {
-			consulDiscConfig = new(consul.Config)
-			if err = copier.Copy(consulDiscConfig, configModel.App.Discovery.Consul); err != nil {
-				panic(err)
-			}
+		discoveryConfig = new(discovery.Config)
+		if err = copier.Copy(discoveryConfig, configModel.App.Discovery); err != nil {
+			panic(err)
 		}
 	}
 }

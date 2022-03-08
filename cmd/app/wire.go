@@ -9,8 +9,7 @@ import (
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/command"
 	"go-scaffold/internal/app/component/data"
-	"go-scaffold/internal/app/component/discovery/consul"
-	"go-scaffold/internal/app/component/discovery/etcd"
+	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
 	"go-scaffold/internal/app/component/trace"
@@ -27,8 +26,7 @@ func initApp(
 	*data.Config,
 	*redis.Config,
 	*trace.Config,
-	*etcd.Config,
-	*consul.Config,
+	*discovery.Config,
 ) (*app.App, func(), error) {
 	panic(wire.Build(
 		app.ProviderSet,
@@ -45,8 +43,7 @@ func initCommand(
 	*data.Config,
 	*redis.Config,
 	*trace.Config,
-	*etcd.Config,
-	*consul.Config,
+	*discovery.Config,
 ) (*command.Command, func(), error) {
 	panic(wire.Build(
 		command.ProviderSet,

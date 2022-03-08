@@ -1,13 +1,13 @@
 package transport
 
 import (
-	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
+	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/service"
@@ -36,7 +36,7 @@ func New(
 	cm *config.Config,
 	hs *http.Server,
 	gs *grpc.Server,
-	discovery *etcd.Registry,
+	discovery discovery.Discovery,
 ) *Transport {
 	var servers []transport.Server
 	if hs != nil {

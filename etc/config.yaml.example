@@ -75,3 +75,7 @@ app:
   jwt:
     key: ""     # JWT 密钥
 
+# 服务 grpc 地址
+services:
+  self: "0.0.0.0:9528"
+  # self: "discovery:///go-scaffold" # 服务发现地址
