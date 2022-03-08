@@ -3,9 +3,7 @@ package trace
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
-	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
@@ -62,12 +60,6 @@ func New(config *Config, logger log.Logger) (*Tracer, func(), error) {
 			semconv.DeploymentEnvironmentKey.String(config.Env),
 		)),
 	)
-
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
-		propagation.TraceContext{},
-		propagation.Baggage{},
-	))
 
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the trace")

@@ -41,26 +41,27 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	if err != nil {
 		return nil, nil, err
 	}
-	client, cleanup3, err := redis.New(config5, logLogger)
+	tracer, cleanup3, err := trace.New(config6, logLogger)
 	if err != nil {
+		cleanup2()
+		return nil, nil, err
+	}
+	client, cleanup4, err := redis.New(config5, logLogger)
+	if err != nil {
+		cleanup3()
 		cleanup2()
 		return nil, nil, err
 	}
 	example := job.NewExample(logLogger)
 	cronCron, err := cron.New(logLogger, db, client, example)
 	if err != nil {
+		cleanup4()
 		cleanup3()
 		cleanup2()
 		return nil, nil, err
 	}
 	service := greet.NewService(logLogger, configConfig)
 	handler := greet2.NewHandler(logLogger, zapLogger, configConfig, service)
-	tracer, cleanup4, err := trace.New(config6, logLogger)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		return nil, nil, err
-	}
 	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer)
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, configConfig, repository)
@@ -76,7 +77,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	transportTransport := transport.New(logLogger, configConfig, server, grpcServer, registry)
-	appApp := app.New(logLogger, configConfig, db, cronCron, transportTransport)
+	appApp := app.New(logLogger, configConfig, db, tracer, cronCron, transportTransport)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()
