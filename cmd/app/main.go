@@ -55,7 +55,7 @@ func init() {
 	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
 	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、panic、fatal）")
 	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志输出格式（text、json）")
-	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/app.yaml"), "配置文件路径")
+	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/config.yaml"), "配置文件路径")
 	pflag.BoolVarP(&apolloConfigEnable, "config.apollo.enable", "", false, "apollo 是否启用")
 	pflag.StringVarP(&apolloConfigEndpoint, "config.apollo.endpoint", "", "http://localhost:8080", "apollo 连接地址")
 	pflag.StringVarP(&apolloConfigAppID, "config.apollo.appid", "", "", "apollo appID")

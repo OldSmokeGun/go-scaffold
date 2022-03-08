@@ -142,7 +142,7 @@ services:
       - "./bin/app"
     volumes:
       - "./dockerize:/app/dockerize"
-      - "$CONFIG_PATH:/app/etc/app.yaml"
+      - "$CONFIG_PATH:/app/etc/config.yaml"
     depends_on:
       - mysql
       - redis
