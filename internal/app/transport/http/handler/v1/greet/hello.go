@@ -8,10 +8,10 @@ import (
 )
 
 type HelloRequest struct {
-	*pb.HelloRequest
+	pb.HelloRequest
 }
 
-func (HelloRequest) Message() map[string]string {
+func (*HelloRequest) Message() map[string]string {
 	return map[string]string{
 		"HelloRequest.Name.required": "名称不能为空",
 	}
@@ -39,7 +39,7 @@ func (h *Handler) Hello(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := h.service.Hello(ctx.Request.Context(), req.HelloRequest)
+	ret, err := h.service.Hello(ctx.Request.Context(), &req.HelloRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

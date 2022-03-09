@@ -8,10 +8,10 @@ import (
 )
 
 type DetailReq struct {
-	*pb.DetailRequest
+	pb.DetailRequest
 }
 
-func (DetailReq) Message() map[string]string {
+func (*DetailReq) Message() map[string]string {
 	return map[string]string{
 		"DetailRequest.ID.required": "用户 ID 不能为空",
 	}
@@ -39,7 +39,7 @@ func (h *Handler) Detail(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := h.service.Detail(ctx.Request.Context(), req.DetailRequest)
+	ret, err := h.service.Detail(ctx.Request.Context(), &req.DetailRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

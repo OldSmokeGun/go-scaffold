@@ -8,10 +8,10 @@ import (
 )
 
 type CreateRequest struct {
-	*pb.CreateRequest
+	pb.CreateRequest
 }
 
-func (CreateRequest) Message() map[string]string {
+func (*CreateRequest) Message() map[string]string {
 	return map[string]string{
 		"CreateRequest.Name.required":  "名称不能为空",
 		"CreateRequest.Age.min":        "年龄必须大于 0",
@@ -42,7 +42,7 @@ func (h *Handler) Create(ctx *gin.Context) {
 		return
 	}
 
-	_, err := h.service.Create(ctx.Request.Context(), req.CreateRequest)
+	_, err := h.service.Create(ctx.Request.Context(), &req.CreateRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

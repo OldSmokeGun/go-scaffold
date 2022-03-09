@@ -8,10 +8,10 @@ import (
 )
 
 type DeleteRequest struct {
-	*pb.DeleteRequest
+	pb.DeleteRequest
 }
 
-func (DeleteRequest) Message() map[string]string {
+func (*DeleteRequest) Message() map[string]string {
 	return map[string]string{
 		"DeleteRequest.ID.required": "用户 ID 不能为空",
 	}
@@ -39,7 +39,7 @@ func (h *Handler) Delete(ctx *gin.Context) {
 		return
 	}
 
-	_, err := h.service.Delete(ctx.Request.Context(), req.DeleteRequest)
+	_, err := h.service.Delete(ctx.Request.Context(), &req.DeleteRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

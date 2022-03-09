@@ -8,10 +8,10 @@ import (
 )
 
 type UpdateRequest struct {
-	*pb.UpdateRequest
+	pb.UpdateRequest
 }
 
-func (UpdateRequest) Message() map[string]string {
+func (*UpdateRequest) Message() map[string]string {
 	return map[string]string{
 		"UpdateRequest.ID.required":    "用户 ID 不能为空",
 		"UpdateRequest.Name.required":  "名称不能为空",
@@ -43,7 +43,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 		return
 	}
 
-	_, err := h.service.Update(ctx.Request.Context(), req.UpdateRequest)
+	_, err := h.service.Update(ctx.Request.Context(), &req.UpdateRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return

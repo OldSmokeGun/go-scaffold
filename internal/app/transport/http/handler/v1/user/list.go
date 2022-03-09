@@ -8,10 +8,10 @@ import (
 )
 
 type ListRequest struct {
-	*pb.ListRequest
+	pb.ListRequest
 }
 
-func (ListRequest) Message() map[string]string {
+func (*ListRequest) Message() map[string]string {
 	return nil
 }
 
@@ -37,7 +37,7 @@ func (h *Handler) List(ctx *gin.Context) {
 		return
 	}
 
-	ret, err := h.service.List(ctx.Request.Context(), req.ListRequest)
+	ret, err := h.service.List(ctx.Request.Context(), &req.ListRequest)
 	if err != nil {
 		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
 		return
