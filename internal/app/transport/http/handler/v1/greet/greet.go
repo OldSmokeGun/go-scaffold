@@ -3,7 +3,7 @@ package greet
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
-	pb "go-scaffold/internal/app/api/v1/greet"
+	pb "go-scaffold/internal/app/api/scaffold/v1/greet"
 	"go-scaffold/internal/app/config"
 	"go.uber.org/zap"
 )

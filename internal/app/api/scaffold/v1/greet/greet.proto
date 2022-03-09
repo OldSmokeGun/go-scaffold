@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package internal.app.api.v1.greet;
+package internal.app.api.scaffold.v1.greet;
 
-option go_package = "go-scaffold/internal/app/api/v1/greet;greet";
+option go_package = "go-scaffold/internal/app/api/scaffold/v1/greet;greet";
 
 service Greet {
   rpc Hello (HelloRequest) returns (HelloResponse)  {}

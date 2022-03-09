@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
-	pb "go-scaffold/internal/app/api/v1/user"
+	pb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/repository/user"
 )

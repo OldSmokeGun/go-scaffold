@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"errors"
-	pb "go-scaffold/internal/app/api/v1/user"
+	pb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"gorm.io/gorm"
 )
 

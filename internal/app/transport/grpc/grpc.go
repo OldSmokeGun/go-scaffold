@@ -8,8 +8,8 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
-	greetpb "go-scaffold/internal/app/api/v1/greet"
-	userpb "go-scaffold/internal/app/api/v1/user"
+	greetpb "go-scaffold/internal/app/api/scaffold/v1/greet"
+	userpb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"go-scaffold/internal/app/config"
 	"time"
 )

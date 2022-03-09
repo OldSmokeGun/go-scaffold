@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	greetpb "go-scaffold/internal/app/api/v1/greet"
+	greet2 "go-scaffold/internal/app/api/scaffold/v1/greet"
 	"go-scaffold/internal/app/pkg/responsex"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -43,8 +43,8 @@ func (h *Handler) Example(ctx *gin.Context) {
 		return
 	}
 
-	client := greetpb.NewGreetClient(conn)
-	resp, err := client.Hello(reqCtx, &greetpb.HelloRequest{Name: "example"})
+	client := greet2.NewGreetClient(conn)
+	resp, err := client.Hello(reqCtx, &greet2.HelloRequest{Name: "example"})
 	if err != nil {
 		h.logger.Error(err)
 		responsex.ServerError(ctx)
