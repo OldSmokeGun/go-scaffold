@@ -13,7 +13,7 @@ type UpdateRequest struct {
 
 func (*UpdateRequest) Message() map[string]string {
 	return map[string]string{
-		"UpdateRequest.ID.required":    "用户 ID 不能为空",
+		"UpdateRequest.Id.required":    "用户 id 不能为空",
 		"UpdateRequest.Name.required":  "名称不能为空",
 		"UpdateRequest.Age.min":        "年龄不能小于 1",
 		"UpdateRequest.Phone.required": "手机号码不能为空",

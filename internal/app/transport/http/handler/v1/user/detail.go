@@ -13,7 +13,7 @@ type DetailReq struct {
 
 func (*DetailReq) Message() map[string]string {
 	return map[string]string{
-		"DetailRequest.ID.required": "用户 ID 不能为空",
+		"DetailRequest.Id.required": "用户 id 不能为空",
 	}
 }
 
@@ -24,7 +24,7 @@ func (*DetailReq) Message() map[string]string {
 // @Tags         用户
 // @Accept       plain
 // @Produce      json
-// @Param        id   path      integer                                  true  "用户 ID"  format(uint)  minimum(1)
+// @Param        id   path      integer                                  true  "用户 id"  format(uint)  minimum(1)
 // @Success      200  {object}  example.Success{data=pb.DetailResponse}  "成功响应"
 // @Failure      500  {object}  example.ServerError                      "服务器出错"
 // @Failure      400  {object}  example.ClientError                      "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
