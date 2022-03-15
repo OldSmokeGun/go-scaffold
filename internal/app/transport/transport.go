@@ -9,8 +9,6 @@ import (
 	"github.com/google/wire"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/config"
-	"go-scaffold/internal/app/repository"
-	"go-scaffold/internal/app/service"
 	gtr "go-scaffold/internal/app/transport/grpc"
 	htr "go-scaffold/internal/app/transport/http"
 	"os"
@@ -19,8 +17,6 @@ import (
 var hostname, _ = os.Hostname()
 
 var ProviderSet = wire.NewSet(
-	repository.ProviderSet,
-	service.ProviderSet,
 	gtr.ProviderSet,
 	htr.ProviderSet,
 	New,

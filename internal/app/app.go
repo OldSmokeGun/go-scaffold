@@ -10,6 +10,8 @@ import (
 	"go-scaffold/internal/app/cron"
 	"go-scaffold/internal/app/model"
 	"go-scaffold/internal/app/pkg/migratorx"
+	"go-scaffold/internal/app/repository"
+	"go-scaffold/internal/app/service"
 	"go-scaffold/internal/app/transport"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -36,6 +38,8 @@ var ProviderSet = wire.NewSet(
 	component.ProviderSet,
 	cron.ProviderSet,
 	transport.ProviderSet,
+	repository.ProviderSet,
+	service.ProviderSet,
 )
 
 type App struct {
