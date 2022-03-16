@@ -37,8 +37,8 @@ type Logger interface {
 	Errorf(string, ...interface{})
 }
 
-// Config 中间件的配置项
-type Config struct {
+// JWT 中间件的配置项
+type JWT struct {
 
 	// Key JWT 密钥
 	Key string
@@ -71,46 +71,46 @@ type Config struct {
 }
 
 // Option JWT 配置选项
-type Option func(config *Config)
+type Option func(config *JWT)
 
 // WithHeaderName 设置 JWT HTTP Header 键
 func WithHeaderName(headerName string) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.HeaderName = headerName
 	}
 }
 
 // WithHeaderPrefix 设置 JWT HTTP Header 值前缀
 func WithHeaderPrefix(headerPrefix string) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.HeaderPrefix = headerPrefix
 	}
 }
 
 // WithErrorResponseBody 设置服务器发生错误时以 application/json 方式返回的 body
 func WithErrorResponseBody(body interface{}) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.ErrorResponseBody = body
 	}
 }
 
 // WithValidateErrorResponseBody 设置 JWT 校验错误时以 application/json 方式返回的 body
 func WithValidateErrorResponseBody(body interface{}) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.ValidateErrorResponseBody = body
 	}
 }
 
 // WithLogger 设置发生错误时记录错误的日志实例
 func WithLogger(logger Logger) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.Logger = logger
 	}
 }
 
 // WithContextKey 设置 JWT 校验成功后，写入到 Context 的 key
 func WithContextKey(key interface{}) Option {
-	return func(config *Config) {
+	return func(config *JWT) {
 		config.ContextKey = key
 	}
 }
@@ -118,49 +118,49 @@ func WithContextKey(key interface{}) Option {
 // Auth 验证 JWT
 func Auth(key string, options ...Option) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		config := defaultConfig(key)
+		c := defaultConfig(key)
 
 		for _, option := range options {
-			option(config)
+			option(c)
 		}
 
-		if config.Key == "" {
-			errorHandle(ctx, config, ErrNotProvideKey)
+		if c.Key == "" {
+			errorHandle(ctx, c, ErrNotProvideKey)
 			return
 		}
 
-		tokenString := ctx.GetHeader(config.HeaderName)
+		tokenString := ctx.GetHeader(c.HeaderName)
 
-		if config.HeaderPrefix != NoneHeaderPrefix {
-			tokenString = strings.TrimPrefix(tokenString, config.HeaderPrefix)
+		if c.HeaderPrefix != NoneHeaderPrefix {
+			tokenString = strings.TrimPrefix(tokenString, c.HeaderPrefix)
 		}
 
 		if tokenString == "" {
-			validateErrorHandle(ctx, config, ErrFailedToGetToken)
+			validateErrorHandle(ctx, c, ErrFailedToGetToken)
 			return
 		}
 
-		config.raw = tokenString
+		c.raw = tokenString
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.Key), nil
+			return []byte(c.Key), nil
 		})
 		if err != nil {
-			validateErrorHandle(ctx, config, err)
+			validateErrorHandle(ctx, c, err)
 			return
 		}
 
 		if !token.Valid {
-			validateErrorHandle(ctx, config, ErrInvalidToken)
+			validateErrorHandle(ctx, c, ErrInvalidToken)
 			return
 		}
 
-		context.WithValue(ctx.Request.Context(), config.ContextKey, token.Claims)
+		context.WithValue(ctx.Request.Context(), c.ContextKey, token.Claims)
 	}
 }
 
-func defaultConfig(key string) *Config {
-	return &Config{
+func defaultConfig(key string) *JWT {
+	return &JWT{
 		Key:                       key,
 		HeaderName:                DefaultHeaderName,
 		HeaderPrefix:              DefaultHeaderPrefix,
@@ -173,7 +173,7 @@ func defaultConfig(key string) *Config {
 }
 
 // errorHandle 服务器发生错误时的操作
-func errorHandle(ctx *gin.Context, c *Config, err error) {
+func errorHandle(ctx *gin.Context, c *JWT, err error) {
 	if c.Logger != nil {
 		c.Logger.Error(err)
 	}
@@ -188,7 +188,7 @@ func errorHandle(ctx *gin.Context, c *Config, err error) {
 }
 
 // validateErrorHandle 校验错误时的操作
-func validateErrorHandle(ctx *gin.Context, c *Config, err error) {
+func validateErrorHandle(ctx *gin.Context, c *JWT, err error) {
 	if c.Logger != nil {
 		c.Logger.Errorf("token: %s -> %s", c.raw, err.Error())
 	}
