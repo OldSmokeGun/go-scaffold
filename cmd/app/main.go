@@ -226,7 +226,7 @@ func setup() {
 	}
 
 	// 检查环境是否设置正确
-	if !slicex.InStringSlice(configModel.App.Env.String(), appconfig.SupportedEnvs) {
+	if !slicex.Exist[string](appconfig.SupportedEnvs, configModel.App.Env.String()) {
 		panic("unsupported env value: " + configModel.App.Env)
 	}
 

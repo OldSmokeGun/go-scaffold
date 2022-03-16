@@ -1,6 +1,6 @@
 module go-scaffold
 
-go 1.16
+go 1.18
 
 require (
 	bou.ke/monkey v1.0.2

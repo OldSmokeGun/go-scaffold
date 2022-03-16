@@ -1,9 +1,9 @@
 package slicex
 
-// InStringSlice 判断字符串是否在切片中
-func InStringSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
+// Exist 判断切片中是否存在元素
+func Exist[T any](s []T, e T) bool {
+	for _, i := range s {
+		if i == e {
 			return true
 		}
 	}

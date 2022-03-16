@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine3.13 as builder
+FROM golang:1.18-alpine3.14 as builder
 
 RUN apk add make
 
@@ -8,7 +8,7 @@ COPY . .
 
 RUN make download && make build
 
-FROM alpine:3.15
+FROM alpine:3.14
 
 ENV TZ=Asia/Shanghai
 ENV ZONEINFO=/usr/local/go/lib/time/zoneinfo.zip
