@@ -15,19 +15,19 @@ var (
 	ErrInvalidToken     = errors.New("无效的 token")
 )
 
-// DefaultContextKey 默认的 Context 键
-var DefaultContextKey = ContextKey{}
-
 const (
-	// DefaultHeaderName 默认的 HTTP Header 键
-	DefaultHeaderName = "Authorization"
+	// defaultHeaderName 默认的 HTTP Header 键
+	defaultHeaderName = "Authorization"
 
-	// DefaultHeaderPrefix 默认的 HTTP Header 值前缀
-	DefaultHeaderPrefix = "Bearer "
+	// defaultHeaderPrefix 默认的 HTTP Header 值前缀
+	defaultHeaderPrefix = "Bearer "
 
 	// NoneHeaderPrefix 表示不指定 HTTP Header 值前缀
 	NoneHeaderPrefix = "-"
 )
+
+// DefaultContextKey 默认的 Context 键
+var DefaultContextKey = ContextKey{}
 
 type ContextKey struct{}
 
@@ -63,8 +63,9 @@ type JWT struct {
 	// 如果为 nil, 则不记录错误
 	Logger Logger
 
-	// ContextKey JWT 校验成功后，写入到 Context 的 key
-	ContextKey interface{}
+	// PostFunc JWT 校验成功后调用的钩子函数
+	// 可以覆盖将 Claims 写入 Context 的默认行为
+	PostFunc func(ctx *gin.Context, claims jwt.Claims)
 
 	// raw 原始 token
 	raw string
@@ -108,10 +109,10 @@ func WithLogger(logger Logger) Option {
 	}
 }
 
-// WithContextKey 设置 JWT 校验成功后，写入到 Context 的 key
-func WithContextKey(key interface{}) Option {
+// WithPostFunc 设置 JWT 校验成功后调用的钩子函数
+func WithPostFunc(f func(ctx *gin.Context, claims jwt.Claims)) Option {
 	return func(config *JWT) {
-		config.ContextKey = key
+		config.PostFunc = f
 	}
 }
 
@@ -155,20 +156,24 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 			return
 		}
 
-		context.WithValue(ctx.Request.Context(), c.ContextKey, token.Claims)
+		if c.PostFunc != nil {
+			c.PostFunc(ctx, token.Claims)
+		}
 	}
 }
 
 func defaultConfig(key string) *JWT {
 	return &JWT{
 		Key:                       key,
-		HeaderName:                DefaultHeaderName,
-		HeaderPrefix:              DefaultHeaderPrefix,
+		HeaderName:                defaultHeaderName,
+		HeaderPrefix:              defaultHeaderPrefix,
 		ErrorResponseBody:         nil,
 		ValidateErrorResponseBody: nil,
 		Logger:                    nil,
-		ContextKey:                DefaultContextKey,
-		raw:                       "",
+		PostFunc: func(ctx *gin.Context, claims jwt.Claims) {
+			context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
+		},
+		raw: "",
 	}
 }
 
