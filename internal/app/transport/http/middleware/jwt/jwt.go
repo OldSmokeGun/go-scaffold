@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -14,6 +15,9 @@ var (
 	ErrInvalidToken     = errors.New("无效的 token")
 )
 
+// DefaultContextKey 默认的 Context 键
+var DefaultContextKey = ContextKey{}
+
 const (
 	// DefaultHeaderName 默认的 HTTP Header 键
 	DefaultHeaderName = "Authorization"
@@ -24,6 +28,8 @@ const (
 	// NoneHeaderPrefix 表示不指定 HTTP Header 值前缀
 	NoneHeaderPrefix = "-"
 )
+
+type ContextKey struct{}
 
 // Logger 错误日志实例需要实现的接口
 type Logger interface {
@@ -57,63 +63,117 @@ type Config struct {
 	// 如果为 nil, 则不记录错误
 	Logger Logger
 
-	// ContextFiled 指定 JWT 校验成功后，写入到 gin 上下文的 key
-	ContextKey string
+	// ContextKey JWT 校验成功后，写入到 Context 的 key
+	ContextKey interface{}
 
 	// raw 原始 token
 	raw string
 }
 
+// Option JWT 配置选项
+type Option func(config *Config)
+
+// WithHeaderName 设置 JWT HTTP Header 键
+func WithHeaderName(headerName string) Option {
+	return func(config *Config) {
+		config.HeaderName = headerName
+	}
+}
+
+// WithHeaderPrefix 设置 JWT HTTP Header 值前缀
+func WithHeaderPrefix(headerPrefix string) Option {
+	return func(config *Config) {
+		config.HeaderPrefix = headerPrefix
+	}
+}
+
+// WithErrorResponseBody 设置服务器发生错误时以 application/json 方式返回的 body
+func WithErrorResponseBody(body interface{}) Option {
+	return func(config *Config) {
+		config.ErrorResponseBody = body
+	}
+}
+
+// WithValidateErrorResponseBody 设置 JWT 校验错误时以 application/json 方式返回的 body
+func WithValidateErrorResponseBody(body interface{}) Option {
+	return func(config *Config) {
+		config.ValidateErrorResponseBody = body
+	}
+}
+
+// WithLogger 设置发生错误时记录错误的日志实例
+func WithLogger(logger Logger) Option {
+	return func(config *Config) {
+		config.Logger = logger
+	}
+}
+
+// WithContextKey 设置 JWT 校验成功后，写入到 Context 的 key
+func WithContextKey(key interface{}) Option {
+	return func(config *Config) {
+		config.ContextKey = key
+	}
+}
+
 // Auth 验证 JWT
-func Auth(c Config) gin.HandlerFunc {
+func Auth(key string, options ...Option) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		if c.Key == "" {
-			errorHandle(ctx, c, ErrNotProvideKey)
+		config := defaultConfig(key)
+
+		for _, option := range options {
+			option(config)
+		}
+
+		if config.Key == "" {
+			errorHandle(ctx, config, ErrNotProvideKey)
 			return
 		}
 
-		if c.HeaderName == "" {
-			c.HeaderName = DefaultHeaderName
-		}
+		tokenString := ctx.GetHeader(config.HeaderName)
 
-		tokenString := ctx.GetHeader(c.HeaderName)
-
-		if c.HeaderPrefix != NoneHeaderPrefix {
-			if c.HeaderPrefix == "" {
-				tokenString = strings.TrimPrefix(tokenString, DefaultHeaderPrefix)
-			} else {
-				tokenString = strings.TrimPrefix(tokenString, c.HeaderPrefix)
-			}
+		if config.HeaderPrefix != NoneHeaderPrefix {
+			tokenString = strings.TrimPrefix(tokenString, config.HeaderPrefix)
 		}
 
 		if tokenString == "" {
-			validateErrorHandle(ctx, c, ErrFailedToGetToken)
+			validateErrorHandle(ctx, config, ErrFailedToGetToken)
 			return
 		}
 
-		c.raw = tokenString
+		config.raw = tokenString
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(c.Key), nil
+			return []byte(config.Key), nil
 		})
 		if err != nil {
-			validateErrorHandle(ctx, c, err)
+			validateErrorHandle(ctx, config, err)
 			return
 		}
 
 		if !token.Valid {
-			validateErrorHandle(ctx, c, ErrInvalidToken)
+			validateErrorHandle(ctx, config, ErrInvalidToken)
 			return
 		}
 
-		if c.ContextKey != "" {
-			ctx.Set(c.ContextKey, token.Claims)
-		}
+		context.WithValue(ctx.Request.Context(), config.ContextKey, token.Claims)
+	}
+}
+
+func defaultConfig(key string) *Config {
+	return &Config{
+		Key:                       key,
+		HeaderName:                DefaultHeaderName,
+		HeaderPrefix:              DefaultHeaderPrefix,
+		ErrorResponseBody:         nil,
+		ValidateErrorResponseBody: nil,
+		Logger:                    nil,
+		ContextKey:                DefaultContextKey,
+		raw:                       "",
 	}
 }
 
 // errorHandle 服务器发生错误时的操作
-func errorHandle(ctx *gin.Context, c Config, err error) {
+func errorHandle(ctx *gin.Context, c *Config, err error) {
 	if c.Logger != nil {
 		c.Logger.Error(err)
 	}
@@ -128,7 +188,7 @@ func errorHandle(ctx *gin.Context, c Config, err error) {
 }
 
 // validateErrorHandle 校验错误时的操作
-func validateErrorHandle(ctx *gin.Context, c Config, err error) {
+func validateErrorHandle(ctx *gin.Context, c *Config, err error) {
 	if c.Logger != nil {
 		c.Logger.Errorf("token: %s -> %s", c.raw, err.Error())
 	}

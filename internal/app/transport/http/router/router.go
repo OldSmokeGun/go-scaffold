@@ -67,13 +67,12 @@ func New(
 	{
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
-			// jwt.Auth(jwt.Config{
-			// 	Key:                       cm.App.Jwt.Key,
-			// 	ErrorResponseBody:         responsex.NewServerErrorBody(),
-			// 	ValidateErrorResponseBody: responsex.NewUnauthorizedBody(),
-			// 	Logger:                    log.NewHelper(logger),
-			// 	ContextKey:                "AuthInfo",
-			// }), // jwt 认证
+			// jwt.Auth(
+			// 	cm.App.Jwt.Key,
+			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
+			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
+			// 	jwt.WithLogger(zLogger.Sugar()),
+			// ), // jwt 认证
 		)
 
 		// swagger 配置
