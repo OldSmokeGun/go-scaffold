@@ -68,10 +68,10 @@ func (m *CreateRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetAge() < 0 {
+	if m.GetAge() < 1 {
 		err := CreateRequestValidationError{
 			field:  "Age",
-			reason: "value must be greater than or equal to 0",
+			reason: "value must be greater than or equal to 1",
 		}
 		if !all {
 			return err
@@ -303,10 +303,10 @@ func (m *UpdateRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetAge() < 0 {
+	if m.GetAge() < 1 {
 		err := UpdateRequestValidationError{
 			field:  "Age",
-			reason: "value must be greater than or equal to 0",
+			reason: "value must be greater than or equal to 1",
 		}
 		if !all {
 			return err

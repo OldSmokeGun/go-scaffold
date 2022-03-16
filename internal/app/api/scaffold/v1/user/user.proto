@@ -16,7 +16,7 @@ service User {
 
 message CreateRequest {
   string name = 1 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
-  int32 age = 2 [(validate.rules).int32.gte = 0];         // @gotags: json:"age" binding:"min=1"
+  int32 age = 2 [(validate.rules).int32.gte = 1];         // @gotags: json:"age" binding:"min=1"
   string phone = 3;                                       // @gotags: json:"phone" binding:"required,phone"
 }
 message CreateResponse {}
@@ -24,7 +24,7 @@ message CreateResponse {}
 message UpdateRequest {
   uint64 id = 1 [(validate.rules).uint64.gt = 0];         // @gotags: json:"id" binding:"required"
   string name = 2 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
-  int32 age = 3 [(validate.rules).int32.gte = 0];         // @gotags: json:"age" binding:"min=1"
+  int32 age = 3 [(validate.rules).int32.gte = 1];         // @gotags: json:"age" binding:"min=1"
   string phone = 4;                                       // @gotags: json:"phone" binding:"required,phone"
 }
 message UpdateResponse {}

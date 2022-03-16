@@ -14,7 +14,7 @@ type CreateRequest struct {
 func (*CreateRequest) Message() map[string]string {
 	return map[string]string{
 		"CreateRequest.Name.required":  "名称不能为空",
-		"CreateRequest.Age.min":        "年龄必须大于 0",
+		"CreateRequest.Age.min":        "年龄必须大于 {min}",
 		"CreateRequest.Phone.required": "手机号码不能为空",
 		"CreateRequest.Phone.phone":    "手机号码格式错误",
 	}

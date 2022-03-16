@@ -172,75 +172,6 @@ var doc = `{
             }
         },
         "/v1/user": {
-            "put": {
-                "description": "更新用户",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "用户"
-                ],
-                "summary": "更新用户",
-                "parameters": [
-                    {
-                        "format": "string",
-                        "description": "用户信息",
-                        "name": "user_info",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/user.UpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "创建用户",
                 "consumes": [
@@ -329,7 +260,7 @@ var doc = `{
                         "minimum": 1,
                         "type": "integer",
                         "format": "uint",
-                        "description": "用户 ID",
+                        "description": "用户 id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -392,6 +323,84 @@ var doc = `{
                     }
                 }
             },
+            "put": {
+                "description": "更新用户",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "更新用户",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "uint",
+                        "description": "用户 id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "format": "string",
+                        "description": "用户信息",
+                        "name": "user_info",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.CreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "description": "删除用户",
                 "consumes": [
@@ -409,7 +418,7 @@ var doc = `{
                         "minimum": 1,
                         "type": "integer",
                         "format": "uint",
-                        "description": "用户 ID",
+                        "description": "用户 id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -718,33 +727,6 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/user.ListItem"
                     }
-                }
-            }
-        },
-        "user.UpdateRequest": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "phone"
-            ],
-            "properties": {
-                "age": {
-                    "description": "@gotags: json:\"age\" binding:\"min=1\"",
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "id": {
-                    "description": "@gotags: json:\"id\" binding:\"required\"",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "@gotags: json:\"name\" binding:\"required\"",
-                    "type": "string"
-                },
-                "phone": {
-                    "description": "@gotags: json:\"phone\" binding:\"required,phone\"",
-                    "type": "string"
                 }
             }
         }
