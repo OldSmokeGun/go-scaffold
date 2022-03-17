@@ -159,6 +159,8 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 		if c.postFunc != nil {
 			c.postFunc(ctx, token.Claims)
 		}
+
+		ctx.Next()
 	}
 }
 
