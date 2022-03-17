@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -30,6 +31,7 @@ var ProviderSet = wire.NewSet(
 // New 返回 gin 路由对象
 func New(
 	loggerWriter *rotatelogs.RotateLogs,
+	logger log.Logger,
 	zLogger *zap.Logger,
 	cm *config.Config,
 	greetHandler greet.HandlerInterface,
@@ -71,7 +73,7 @@ func New(
 			// 	cm.App.Jwt.Key,
 			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
 			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
-			// 	jwt.WithLogger(zLogger.Sugar()),
+			// 	jwt.WithLogger(log.NewHelper(logger)),
 			// ), // jwt 认证
 		)
 
