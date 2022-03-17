@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	"go-scaffold/internal/app/component/discovery"
@@ -48,6 +49,7 @@ func (c *Client) defaultClientConfig(endpoint string) ([]kgrpc.ClientOption, err
 		kgrpc.WithMiddleware(
 			logging.Client(c.logger),
 			tracing.Client(),
+			metadata.Client(),
 		),
 	}
 
