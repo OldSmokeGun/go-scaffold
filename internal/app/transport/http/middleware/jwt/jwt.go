@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	ErrNotProvideKey    = errors.New("未提供 key")
-	ErrFailedToGetToken = errors.New("未能获取到 token")
-	ErrInvalidToken     = errors.New("无效的 token")
+	ErrNotProvideKey    = errors.New("key is not provided")
+	ErrFailedToGetToken = errors.New("failed to get token")
+	ErrInvalidToken     = errors.New("invalid token")
 )
 
 const (
