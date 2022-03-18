@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	greet2 "go-scaffold/internal/app/api/scaffold/v1/greet"
-	"go-scaffold/internal/app/pkg/responsex"
+	"go-scaffold/internal/app/transport/http/pkg/responsex"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"

@@ -22,8 +22,8 @@ func (c CommandSet) Registry(commands []*Command) {
 	entities := make([]*cobra.Command, 0, len(commands))
 
 	for _, cs := range commands {
-		if cs.OptionFunc != nil {
-			cs.OptionFunc(cs.Entity)
+		if cs.Option != nil {
+			cs.Option(cs.Entity)
 		}
 
 		if len(cs.Children) > 0 {
@@ -81,8 +81,8 @@ type Command struct {
 	// Entity cobra.Command 命令行实体
 	Entity *cobra.Command
 
-	// OptionFunc cobra.Command 的选项设置函数
-	OptionFunc func(*cobra.Command)
+	// Option cobra.Command 的选项设置函数
+	Option func(*cobra.Command)
 
 	// Children 子命令
 	Children []*Command

@@ -8,12 +8,12 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-scaffold/internal/app/config"
-	"go-scaffold/internal/app/pkg/responsex"
 	"go-scaffold/internal/app/transport/http/handler/docs"
 	"go-scaffold/internal/app/transport/http/handler/v1/greet"
 	"go-scaffold/internal/app/transport/http/handler/v1/trace"
 	"go-scaffold/internal/app/transport/http/handler/v1/user"
 	"go-scaffold/internal/app/transport/http/middleware/recover"
+	"go-scaffold/internal/app/transport/http/pkg/responsex"
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
@@ -87,7 +87,7 @@ func New(
 
 			swagger.Setup(router, swagger.Config{
 				Path: apiGroup.BasePath() + "/docs",
-				OptionFunc: func(c *ginSwagger.Config) {
+				Option: func(c *ginSwagger.Config) {
 					c.DefaultModelsExpandDepth = -1
 				},
 			})

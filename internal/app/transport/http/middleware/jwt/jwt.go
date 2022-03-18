@@ -37,6 +37,10 @@ type Logger interface {
 	Errorf(string, ...interface{})
 }
 
+type ResponseBody interface {
+	WithMsg(msg string)
+}
+
 // jwt 中间件的配置项
 type jwt struct {
 
@@ -53,11 +57,11 @@ type jwt struct {
 
 	// errorResponseBody 服务器发生错误时以 application/json 方式返回的 body
 	// 如果为 nil，则不返回 body
-	errorResponseBody interface{}
+	errorResponseBody ResponseBody
 
 	// validateErrorResponseBody jwt 校验错误时以 application/json 方式返回的 body
 	// 如果为 nil，则不返回 body
-	validateErrorResponseBody interface{}
+	validateErrorResponseBody ResponseBody
 
 	// logger 发生错误时记录错误的日志实例
 	// 如果为 nil, 则不记录错误
@@ -89,14 +93,14 @@ func WithHeaderPrefix(headerPrefix string) Option {
 }
 
 // WithErrorResponseBody 设置服务器发生错误时以 application/json 方式返回的 body
-func WithErrorResponseBody(body interface{}) Option {
+func WithErrorResponseBody(body ResponseBody) Option {
 	return func(config *jwt) {
 		config.errorResponseBody = body
 	}
 }
 
 // WithValidateErrorResponseBody 设置 jwt 校验错误时以 application/json 方式返回的 body
-func WithValidateErrorResponseBody(body interface{}) Option {
+func WithValidateErrorResponseBody(body ResponseBody) Option {
 	return func(config *jwt) {
 		config.validateErrorResponseBody = body
 	}
@@ -126,7 +130,7 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 		}
 
 		if c.key == "" {
-			errorHandle(ctx, c, ErrNotProvideKey)
+			errorResponse(ctx, c, ErrNotProvideKey)
 			return
 		}
 
@@ -137,7 +141,7 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 		}
 
 		if tokenString == "" {
-			validateErrorHandle(ctx, c, ErrFailedToGetToken)
+			validateErrorResponse(ctx, c, ErrFailedToGetToken)
 			return
 		}
 
@@ -147,12 +151,15 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 			return []byte(c.key), nil
 		})
 		if err != nil {
-			validateErrorHandle(ctx, c, err)
+			if c.logger != nil {
+				c.logger.Error(err)
+			}
+			validateErrorResponse(ctx, c, nil)
 			return
 		}
 
 		if !token.Valid {
-			validateErrorHandle(ctx, c, ErrInvalidToken)
+			validateErrorResponse(ctx, c, ErrInvalidToken)
 			return
 		}
 
@@ -179,32 +186,34 @@ func defaultConfig(key string) *jwt {
 	}
 }
 
-// errorHandle 服务器发生错误时的操作
-func errorHandle(ctx *gin.Context, c *jwt, err error) {
-	if c.logger != nil {
-		c.logger.Error(err)
-	}
-
+// errorResponse 服务器发生错误时的操作
+func errorResponse(ctx *gin.Context, c *jwt, err error) {
 	if c.errorResponseBody == nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	ctx.AbortWithStatusJSON(http.StatusInternalServerError, c.errorResponseBody)
+	body := c.errorResponseBody
+	if err != nil {
+		body.WithMsg(err.Error())
+	}
+
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, body)
 	return
 }
 
-// validateErrorHandle 校验错误时的操作
-func validateErrorHandle(ctx *gin.Context, c *jwt, err error) {
-	if c.logger != nil {
-		c.logger.Errorf("token: %s -> %s", c.raw, err.Error())
-	}
-
+// validateErrorResponse 校验错误时的操作
+func validateErrorResponse(ctx *gin.Context, c *jwt, err error) {
 	if c.validateErrorResponseBody == nil {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	ctx.AbortWithStatusJSON(http.StatusUnauthorized, c.validateErrorResponseBody)
+	body := c.errorResponseBody
+	if err != nil {
+		body.WithMsg(err.Error())
+	}
+
+	ctx.AbortWithStatusJSON(http.StatusUnauthorized, body)
 	return
 }

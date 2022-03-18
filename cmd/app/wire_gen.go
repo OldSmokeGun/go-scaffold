@@ -75,7 +75,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, configConfig, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, zapLogger, configConfig, handler, traceHandler, userHandler)
+	engine := router.New(rotateLogs, logLogger, zapLogger, configConfig, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc2.NewServer(logLogger, configConfig, service, userService)
 	transportTransport := transport.New(logLogger, configConfig, server, grpcServer, discoveryDiscovery)

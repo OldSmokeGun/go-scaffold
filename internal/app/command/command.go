@@ -36,7 +36,7 @@ func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), erro
 					command.greetHandler.Default(cmd, args)
 				},
 			},
-			OptionFunc: func(command *cobra.Command) {
+			Option: func(command *cobra.Command) {
 				command.Flags().StringP("example", "e", "foo", "示例 flag")
 			},
 			Children: []*commandx.Command{

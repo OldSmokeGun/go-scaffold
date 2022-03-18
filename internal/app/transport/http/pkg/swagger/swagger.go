@@ -11,8 +11,8 @@ import (
 
 // Config swagger 文档配置
 type Config struct {
-	Path       string
-	OptionFunc func(c *ginSwagger.Config)
+	Path   string
+	Option func(c *ginSwagger.Config)
 }
 
 // Setup 初始化 swagger 文档
@@ -34,7 +34,7 @@ func Setup(router *gin.Engine, conf Config) {
 		"/*any",
 		ginSwagger.WrapHandler(
 			swaggerFiles.Handler,
-			conf.OptionFunc,
+			conf.Option,
 		),
 	)
 }

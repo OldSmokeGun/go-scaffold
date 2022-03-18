@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/jinzhu/copier"
 	pb "go-scaffold/internal/app/api/scaffold/v1/user"
-	"go-scaffold/internal/app/pkg/responsex"
+	"go-scaffold/internal/app/transport/http/pkg/responsex"
 	"gorm.io/gorm"
 )
 
