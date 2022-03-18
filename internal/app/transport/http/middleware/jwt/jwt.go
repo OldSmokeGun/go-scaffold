@@ -186,7 +186,7 @@ func defaultConfig(key string) *jwt {
 	}
 }
 
-// errorResponse 服务器发生错误时的操作
+// errorResponse 服务器发生错误时的响应
 func errorResponse(ctx *gin.Context, c *jwt, err error) {
 	if c.errorResponseBody == nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
@@ -202,14 +202,18 @@ func errorResponse(ctx *gin.Context, c *jwt, err error) {
 	return
 }
 
-// validateErrorResponse 校验错误时的操作
+// validateErrorResponse 校验错误时的响应
 func validateErrorResponse(ctx *gin.Context, c *jwt, err error) {
+	if c.logger != nil {
+		c.logger.Errorf("token: %s -> %s", c.raw)
+	}
+
 	if c.validateErrorResponseBody == nil {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	body := c.errorResponseBody
+	body := c.validateErrorResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
