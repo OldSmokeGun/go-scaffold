@@ -167,10 +167,16 @@ func setup() {
 	}
 
 	// 日志初始化
+	var writer io.Writer
+	if loggerWriter == nil {
+		writer = os.Stdout
+	} else {
+		writer = io.MultiWriter(os.Stdout, loggerWriter)
+	}
 	zLogger = log.New(
 		log.WithLevel(log.Level(logLevel)),
 		log.WithFormat(log.Format(logFormat)),
-		log.WithWriter(io.MultiWriter(os.Stdout, loggerWriter)),
+		log.WithWriter(writer),
 	)
 	logger = klog.With(
 		kzap.NewLogger(zLogger.WithOptions(zap.AddCallerSkip(4))),

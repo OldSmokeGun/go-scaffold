@@ -37,6 +37,7 @@ type Logger interface {
 	Errorf(string, ...interface{})
 }
 
+// ResponseBody 响应的 body
 type ResponseBody interface {
 	WithMsg(msg string)
 }
@@ -120,8 +121,8 @@ func WithPostFunc(f func(ctx *gin.Context, claims pjwt.Claims)) Option {
 	}
 }
 
-// Auth 验证 jwt
-func Auth(key string, options ...Option) gin.HandlerFunc {
+// Validate 验证 jwt
+func Validate(key string, options ...Option) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		c := defaultConfig(key)
 
@@ -130,7 +131,7 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 		}
 
 		if c.key == "" {
-			errorResponse(ctx, c, ErrNotProvideKey)
+			validateErrorResponse(ctx, c, ErrNotProvideKey)
 			return
 		}
 
@@ -154,7 +155,7 @@ func Auth(key string, options ...Option) gin.HandlerFunc {
 			if c.logger != nil {
 				c.logger.Error(err)
 			}
-			validateErrorResponse(ctx, c, nil)
+			errorResponse(ctx, c, nil)
 			return
 		}
 
@@ -205,7 +206,7 @@ func errorResponse(ctx *gin.Context, c *jwt, err error) {
 // validateErrorResponse 校验错误时的响应
 func validateErrorResponse(ctx *gin.Context, c *jwt, err error) {
 	if c.logger != nil {
-		c.logger.Errorf("token: %s -> %s", c.raw)
+		c.logger.Errorf("token %s validate error: %s", c.raw, err.Error())
 	}
 
 	if c.validateErrorResponseBody == nil {

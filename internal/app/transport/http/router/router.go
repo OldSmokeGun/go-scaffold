@@ -42,7 +42,12 @@ func New(
 		return nil
 	}
 
-	output := io.MultiWriter(loggerWriter, os.Stdout)
+	var output io.Writer
+	if loggerWriter == nil {
+		output = os.Stdout
+	} else {
+		output = io.MultiWriter(os.Stdout, loggerWriter)
+	}
 	gin.DefaultWriter = output
 	gin.DefaultErrorWriter = output
 	gin.DisableConsoleColor()
@@ -69,7 +74,7 @@ func New(
 	{
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
-			// jwt.Auth(
+			// jwt.Validate(
 			// 	cm.App.Jwt.Key,
 			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
 			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
