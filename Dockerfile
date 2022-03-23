@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine3.14 as builder
+FROM golang:1.17-alpine3.13 as builder
 
 RUN apk add make
 
