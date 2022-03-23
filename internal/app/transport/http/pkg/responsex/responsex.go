@@ -14,8 +14,8 @@ type Body interface {
 
 // body 响应格式
 type body struct {
-	Code StatusCode `json:"code"`
-	Msg  string     `json:"msg"`
+	Code StatusCode  `json:"code"`
+	Msg  string      `json:"msg"`
 	Data interface{} `json:"data,omitempty"`
 }
 
