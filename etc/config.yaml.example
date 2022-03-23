@@ -39,7 +39,7 @@ app:
   # redis 配置
   # redis:
   #   host: "localhost"
-  #   port: 6379
+  #   port: "6379"
   #   password: ""
   #   db: 0               # 连接到服务器后要选择的数据库
   #   poolSize: 20        # 连接池最大连接数

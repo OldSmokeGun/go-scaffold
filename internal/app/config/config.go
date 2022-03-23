@@ -68,7 +68,7 @@ type App struct {
 	}
 	Redis *struct {
 		Host               string
-		Port               int
+		Port               string
 		Username           string
 		Password           string
 		DB                 int

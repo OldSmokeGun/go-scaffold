@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	Host               string
-	Port               int
+	Port               string
 	Username           string
 	Password           string
 	DB                 int
@@ -35,7 +35,7 @@ func New(config *Config, logger log.Logger) (*redis.Client, func(), error) {
 	}
 
 	option := &redis.Options{
-		Addr: fmt.Sprintf("%s:%d", config.Host, config.Port),
+		Addr: fmt.Sprintf("%s:%s", config.Host, config.Port),
 	}
 	if config.Username != "" {
 		option.Username = config.Username
