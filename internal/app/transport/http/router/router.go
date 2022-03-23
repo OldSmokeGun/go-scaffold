@@ -90,7 +90,7 @@ func New(
 		)
 
 		// swagger 配置
-		if cm.App.Env != config.Prod {
+		if cm.App.Env == config.Local {
 			docs.SwaggerInfo.Host = cm.App.Http.Addr
 			if cm.App.Http.ExternalAddr != "" {
 				docs.SwaggerInfo.Host = cm.App.Http.ExternalAddr
