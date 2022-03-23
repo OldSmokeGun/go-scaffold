@@ -1,2 +1,6 @@
-*.pb.go
-*.pb.*.go
+.idea
+.vscode
+
+*.go
+!generate.go
+openapi.yaml
