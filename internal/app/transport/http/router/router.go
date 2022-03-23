@@ -17,6 +17,7 @@ import (
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -69,8 +70,14 @@ func New(
 	}))
 	router.Use(otelgin.Middleware(cm.App.Name))
 
+	rg := router.Group("/")
+	subs := strings.SplitN(cm.App.Http.ExternalAddr, "/", 2)
+	if len(subs) == 2 {
+		rg = router.Group("/" + subs[1])
+	}
+
 	// 注册 api 路由组
-	apiGroup := router.Group("/api")
+	apiGroup := rg.Group("/api")
 	{
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
