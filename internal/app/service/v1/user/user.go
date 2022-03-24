@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	pb "go-scaffold/internal/app/api/scaffold/v1/user"
-	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/repository/user"
 )
 
@@ -18,18 +17,15 @@ var (
 type Service struct {
 	pb.UnimplementedUserServer
 	logger *log.Helper
-	conf   *config.Config
 	repo   user.RepositoryInterface
 }
 
 func NewService(
 	logger log.Logger,
-	conf *config.Config,
 	repo user.RepositoryInterface,
 ) *Service {
 	return &Service{
 		logger: log.NewHelper(logger),
-		conf:   conf,
 		repo:   repo,
 	}
 }

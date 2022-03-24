@@ -5,19 +5,16 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	pb "go-scaffold/internal/app/api/scaffold/v1/greet"
-	"go-scaffold/internal/app/config"
 )
 
 type Service struct {
 	pb.UnimplementedGreetServer
 	logger *log.Helper
-	conf   *config.Config
 }
 
-func NewService(logger log.Logger, conf *config.Config) *Service {
+func NewService(logger log.Logger) *Service {
 	return &Service{
 		logger: log.NewHelper(logger),
-		conf:   conf,
 	}
 }
 

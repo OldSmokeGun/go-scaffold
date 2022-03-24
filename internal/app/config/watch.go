@@ -7,7 +7,7 @@ import (
 
 var watchKeys = []string{}
 
-func Watch(hLogger log.Logger, cfg config.Config, cm *Config) error {
+func Watch(hLogger log.Logger, cfg config.Config, conf *Config) error {
 	var logger = log.NewHelper(hLogger)
 
 	for _, key := range watchKeys {
@@ -16,7 +16,7 @@ func Watch(hLogger log.Logger, cfg config.Config, cm *Config) error {
 		if err := cfg.Watch(key, func(s string, value config.Value) {
 			logger.Infof("config has changed, key: %s", s)
 
-			if err := cfg.Scan(cm); err != nil {
+			if err := cfg.Scan(conf); err != nil {
 				logger.Errorf("scan config to model failed, err: %v", err)
 			}
 		}); err != nil {

@@ -19,7 +19,10 @@ type Handler struct {
 	service pb.UserServer
 }
 
-func NewHandler(logger log.Logger, service pb.UserServer) *Handler {
+func NewHandler(
+	logger log.Logger,
+	service pb.UserServer,
+) *Handler {
 	return &Handler{
 		logger:  log.NewHelper(logger),
 		service: service,
