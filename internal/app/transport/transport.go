@@ -29,7 +29,7 @@ type Transport struct {
 
 func New(
 	logger log.Logger,
-	cm *config.Config,
+	conf *config.Config,
 	hs *http.Server,
 	gs *grpc.Server,
 	discovery discovery.Discovery,
@@ -44,7 +44,7 @@ func New(
 
 	options := []kratos.Option{
 		kratos.ID(hostname),
-		kratos.Name(cm.App.Name),
+		kratos.Name(conf.App.Name),
 		kratos.Metadata(map[string]string{}),
 		kratos.Logger(logger),
 		kratos.Server(servers...),

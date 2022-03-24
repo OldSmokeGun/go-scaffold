@@ -11,14 +11,14 @@ type Config struct {
 }
 
 // New 创建 etcd 服务发现
-func New(config *Config, zLogger *zap.Logger) (*etcd.Registry, error) {
+func New(config *Config, logger *zap.Logger) (*etcd.Registry, error) {
 	if config == nil {
 		return nil, nil
 	}
 
 	client, err := etcdctl.New(etcdctl.Config{
 		Endpoints: config.Endpoints,
-		Logger:    zLogger,
+		Logger:    logger,
 	})
 	if err != nil {
 		return nil, err

@@ -35,6 +35,7 @@ import (
 // @name                        Token
 
 var ProviderSet = wire.NewSet(
+	config.ProviderSet,
 	component.ProviderSet,
 	cron.ProviderSet,
 	transport.ProviderSet,
@@ -44,7 +45,7 @@ var ProviderSet = wire.NewSet(
 
 type App struct {
 	logger    *log.Helper
-	config    *config.Config
+	conf      *config.Config
 	db        *gorm.DB
 	trace     *trace.Tracer
 	cron      *cron.Cron
@@ -53,7 +54,7 @@ type App struct {
 
 func New(
 	logger log.Logger,
-	config *config.Config,
+	conf *config.Config,
 	db *gorm.DB,
 	trace *trace.Tracer,
 	cron *cron.Cron,
@@ -61,7 +62,7 @@ func New(
 ) *App {
 	return &App{
 		logger:    log.NewHelper(logger),
-		config:    config,
+		conf:      conf,
 		db:        db,
 		trace:     trace,
 		cron:      cron,

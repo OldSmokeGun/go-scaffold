@@ -3,6 +3,7 @@ package trace
 import (
 	"context"
 	"github.com/go-kratos/kratos/v2/log"
+	"go-scaffold/internal/app/config"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -19,12 +20,24 @@ type Config struct {
 	Timeout     int64
 }
 
+func NewConfig(appConfig *config.App) *Config {
+	if appConfig == nil {
+		return nil
+	}
+
+	return &Config{
+		Endpoint:    appConfig.Trace.Endpoint,
+		ServiceName: appConfig.Name,
+		Env:         appConfig.Env.String(),
+		Timeout:     appConfig.Timeout,
+	}
+}
+
 type Tracer struct {
 	config         Config
 	tracerProvider *sdktrace.TracerProvider
 }
 
-// New 创建 Tracer
 func New(config *Config, logger log.Logger) (*Tracer, func(), error) {
 	if config == nil {
 		return nil, func() {}, nil

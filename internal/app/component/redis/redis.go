@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
+	"go-scaffold/internal/app/config"
 	"time"
 )
 
@@ -26,6 +27,32 @@ type Config struct {
 	PoolTimeout        time.Duration
 	IdleTimeout        time.Duration
 	IdleCheckFrequency time.Duration
+}
+
+func NewConfig(rdbConfig *config.Redis) *Config {
+	if rdbConfig == nil {
+		return nil
+	}
+
+	return &Config{
+		Host:               rdbConfig.Host,
+		Port:               rdbConfig.Port,
+		Username:           rdbConfig.Username,
+		Password:           rdbConfig.Password,
+		DB:                 rdbConfig.DB,
+		MaxRetries:         rdbConfig.MaxRetries,
+		MinRetryBackoff:    rdbConfig.MinRetryBackoff,
+		MaxRetryBackoff:    rdbConfig.MaxRetryBackoff,
+		DialTimeout:        rdbConfig.DialTimeout,
+		ReadTimeout:        rdbConfig.ReadTimeout,
+		WriteTimeout:       rdbConfig.WriteTimeout,
+		PoolSize:           rdbConfig.PoolSize,
+		MinIdleConns:       rdbConfig.MinIdleConns,
+		MaxConnAge:         rdbConfig.MaxConnAge,
+		PoolTimeout:        rdbConfig.PoolTimeout,
+		IdleTimeout:        rdbConfig.IdleTimeout,
+		IdleCheckFrequency: rdbConfig.IdleCheckFrequency,
+	}
 }
 
 // New 创建 redis 客户端
@@ -50,19 +77,19 @@ func New(config *Config, logger log.Logger) (*redis.Client, func(), error) {
 		option.MaxRetries = config.MaxRetries
 	}
 	if config.MinRetryBackoff != 0 {
-		option.MinRetryBackoff = config.MinRetryBackoff
+		option.MinRetryBackoff = config.MinRetryBackoff * time.Second
 	}
 	if config.MaxRetryBackoff != 0 {
-		option.MaxRetryBackoff = config.MaxRetryBackoff
+		option.MaxRetryBackoff = config.MaxRetryBackoff * time.Second
 	}
 	if config.DialTimeout != 0 {
-		option.DialTimeout = config.DialTimeout
+		option.DialTimeout = config.DialTimeout * time.Second
 	}
 	if config.ReadTimeout != 0 {
-		option.ReadTimeout = config.ReadTimeout
+		option.ReadTimeout = config.ReadTimeout * time.Second
 	}
 	if config.WriteTimeout != 0 {
-		option.WriteTimeout = config.WriteTimeout
+		option.WriteTimeout = config.WriteTimeout * time.Second
 	}
 	if config.PoolSize != 0 {
 		option.PoolSize = config.PoolSize
@@ -71,16 +98,16 @@ func New(config *Config, logger log.Logger) (*redis.Client, func(), error) {
 		option.MinIdleConns = config.MinIdleConns
 	}
 	if config.MaxConnAge != 0 {
-		option.MaxConnAge = config.MaxConnAge
+		option.MaxConnAge = config.MaxConnAge * time.Second
 	}
 	if config.PoolTimeout != 0 {
-		option.PoolTimeout = config.PoolTimeout
+		option.PoolTimeout = config.PoolTimeout * time.Second
 	}
 	if config.IdleTimeout != 0 {
-		option.IdleTimeout = config.IdleTimeout
+		option.IdleTimeout = config.IdleTimeout * time.Second
 	}
 	if config.IdleCheckFrequency != 0 {
-		option.IdleCheckFrequency = config.IdleCheckFrequency
+		option.IdleCheckFrequency = config.IdleCheckFrequency * time.Second
 	}
 
 	client := redis.NewClient(option)

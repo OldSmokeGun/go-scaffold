@@ -14,20 +14,20 @@ type HandlerInterface interface {
 
 type Handler struct {
 	logger     *log.Helper
-	cm         *config.Config
+	conf       *config.Config
 	trace      *trace.Tracer
 	grpcClient *grpc.Client
 }
 
 func NewHandler(
 	logger log.Logger,
-	cm *config.Config,
+	conf *config.Config,
 	trace *trace.Tracer,
 	grpcClient *grpc.Client,
 ) *Handler {
 	return &Handler{
 		logger:     log.NewHelper(logger),
-		cm:         cm,
+		conf:       conf,
 		trace:      trace,
 		grpcClient: grpcClient,
 	}

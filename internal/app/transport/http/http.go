@@ -20,7 +20,7 @@ var ProviderSet = wire.NewSet(
 // NewServer 创建 HTTP 服务器
 func NewServer(
 	logger log.Logger,
-	cm *config.Config,
+	conf *config.Config,
 	router *gin.Engine,
 ) *khttp.Server {
 	if router == nil {
@@ -31,16 +31,16 @@ func NewServer(
 		khttp.Logger(logger),
 	}
 
-	if cm.App.Http.Network != "" {
-		opts = append(opts, khttp.Network(cm.App.Http.Network))
+	if conf.App.Http.Network != "" {
+		opts = append(opts, khttp.Network(conf.App.Http.Network))
 	}
 
-	if cm.App.Http.Addr != "" {
-		opts = append(opts, khttp.Address(cm.App.Http.Addr))
+	if conf.App.Http.Addr != "" {
+		opts = append(opts, khttp.Address(conf.App.Http.Addr))
 	}
 
-	if cm.App.Http.Timeout != 0 {
-		opts = append(opts, khttp.Timeout(time.Duration(cm.App.Http.Timeout)*time.Second))
+	if conf.App.Http.Timeout != 0 {
+		opts = append(opts, khttp.Timeout(time.Duration(conf.App.Http.Timeout)*time.Second))
 	}
 
 	srv := khttp.NewServer(opts...)

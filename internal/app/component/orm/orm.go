@@ -5,6 +5,7 @@ import (
 	klog "github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/orm/mysql"
 	"go-scaffold/internal/app/component/orm/postgres"
+	"go-scaffold/internal/app/config"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -16,20 +17,16 @@ var (
 	ErrUnsupportedType = errors.New("unsupported database type")
 )
 
-type Config struct {
-	Driver          string
-	Host            string
-	Port            string
-	Database        string
-	Username        string
-	Password        string
-	Options         []string
-	MaxIdleConn     int
-	MaxOpenConn     int
-	ConnMaxIdleTime int64
-	ConnMaxLifeTime int64
-	LogLevel        LogLevel
+type Driver string
+
+func (d Driver) String() string {
+	return string(d)
 }
+
+const (
+	MySQL       Driver = "mysql"
+	PostgresSQL Driver = "postgres"
+)
 
 type LogLevel string
 
@@ -55,6 +52,42 @@ func (l LogLevel) Convert() logger.LogLevel {
 	}
 }
 
+type Config struct {
+	Driver          Driver
+	Host            string
+	Port            string
+	Database        string
+	Username        string
+	Password        string
+	Options         []string
+	MaxIdleConn     int
+	MaxOpenConn     int
+	ConnMaxIdleTime int64
+	ConnMaxLifeTime int64
+	LogLevel        LogLevel
+}
+
+func NewConfig(dbConfig *config.DB) *Config {
+	if dbConfig == nil {
+		return nil
+	}
+
+	return &Config{
+		Driver:          Driver(dbConfig.Driver),
+		Host:            dbConfig.Host,
+		Port:            dbConfig.Port,
+		Database:        dbConfig.Database,
+		Username:        dbConfig.Username,
+		Password:        dbConfig.Password,
+		Options:         dbConfig.Options,
+		MaxIdleConn:     dbConfig.MaxIdleConn,
+		MaxOpenConn:     dbConfig.MaxOpenConn,
+		ConnMaxIdleTime: dbConfig.ConnMaxIdleTime,
+		ConnMaxLifeTime: dbConfig.ConnMaxLifeTime,
+		LogLevel:        LogLevel(dbConfig.LogLevel),
+	}
+}
+
 // New 初始化 orm
 func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB, cleanup func(), err error) {
 	if config == nil {
@@ -65,9 +98,9 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 	gLogger.SetAsDefault()
 
 	switch config.Driver {
-	case "mysql":
+	case MySQL:
 		db, err = mysql.New(mysql.Config{
-			Driver:                    config.Driver,
+			Driver:                    config.Driver.String(),
 			Host:                      config.Host,
 			Port:                      config.Port,
 			Database:                  config.Database,
@@ -89,9 +122,9 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 		if err != nil {
 			return
 		}
-	case "postgres":
+	case PostgresSQL:
 		db, err = postgres.New(postgres.Config{
-			Driver:               config.Driver,
+			Driver:               config.Driver.String(),
 			Host:                 config.Host,
 			Port:                 config.Port,
 			Database:             config.Database,

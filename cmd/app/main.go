@@ -8,16 +8,10 @@ import (
 	"github.com/go-kratos/kratos/v2/config/file"
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/jinzhu/copier"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go-scaffold/internal/app/command"
-	"go-scaffold/internal/app/component/data"
-	"go-scaffold/internal/app/component/discovery"
-	"go-scaffold/internal/app/component/orm"
-	"go-scaffold/internal/app/component/redis"
-	"go-scaffold/internal/app/component/trace"
 	appconfig "go-scaffold/internal/app/config"
 	"go-scaffold/pkg/helper"
 	"go-scaffold/pkg/helper/slicex"
@@ -71,13 +65,7 @@ var (
 	hLogger      *klog.Helper           // 日志实例
 	zLogger      *zap.Logger            // zap 日志实例
 	config       kconfig.Config
-
-	configModel     = new(appconfig.Config) // app 配置实例
-	ormConfig       *orm.Config             // gorm 配置
-	dataConfig      *data.Config            // ent orm 配置
-	redisConfig     *redis.Config           // redis 客户端配置
-	traceConfig     *trace.Config           // tracer 配置
-	discoveryConfig *discovery.Config       // 服务注册发现配置
+	configModel  = new(appconfig.Config) // app 配置实例
 )
 
 func main() {
@@ -97,11 +85,6 @@ func main() {
 				logger,
 				zLogger,
 				configModel,
-				ormConfig,
-				dataConfig,
-				redisConfig,
-				traceConfig,
-				discoveryConfig,
 			)
 			if err != nil {
 				panic(err)
@@ -136,11 +119,6 @@ func main() {
 			logger,
 			zLogger,
 			configModel,
-			ormConfig,
-			dataConfig,
-			redisConfig,
-			traceConfig,
-			discoveryConfig,
 		)
 	})
 
@@ -237,39 +215,6 @@ func setup() {
 	}
 
 	hLogger.Infof("current env: %s", configModel.App.Env)
-
-	if configModel.App.DB != nil {
-		ormConfig = new(orm.Config)
-		if err = copier.Copy(ormConfig, configModel.App.DB); err != nil {
-			panic(err)
-		}
-
-		dataConfig = new(data.Config)
-		if err = copier.Copy(dataConfig, configModel.App.DB); err != nil {
-			panic(err)
-		}
-	}
-	if configModel.App.Redis != nil {
-		redisConfig = new(redis.Config)
-		if err = copier.Copy(redisConfig, configModel.App.Redis); err != nil {
-			panic(err)
-		}
-	}
-	if configModel.App.Trace != nil {
-		traceConfig = new(trace.Config)
-		if err = copier.Copy(traceConfig, configModel.App.Trace); err != nil {
-			panic(err)
-		}
-		traceConfig.ServiceName = configModel.App.Name
-		traceConfig.Env = configModel.App.Env.String()
-		traceConfig.Timeout = configModel.App.Timeout
-	}
-	if configModel.App.Discovery != nil {
-		discoveryConfig = new(discovery.Config)
-		if err = copier.Copy(discoveryConfig, configModel.App.Discovery); err != nil {
-			panic(err)
-		}
-	}
 }
 
 // cleanup 资源回收

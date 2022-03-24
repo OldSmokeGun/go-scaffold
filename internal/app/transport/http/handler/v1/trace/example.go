@@ -36,7 +36,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 
 	h.example(reqCtx)
 
-	conn, err := h.grpcClient.DialInsecure(reqCtx, h.cm.Services.Self)
+	conn, err := h.grpcClient.DialInsecure(reqCtx, h.conf.Services.Self)
 	if err != nil {
 		h.logger.Error(err)
 		responsex.ServerError(ctx)
@@ -56,7 +56,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 	span := trace.SpanFromContext(otel.GetTextMapPropagator().Extract(reqCtx, propagation.HeaderCarrier(ctx.Request.Header)))
 	defer span.End()
 
-	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.cm.App.Http.Addr)
+	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.conf.App.Http.Addr)
 	request, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		span.RecordError(err)

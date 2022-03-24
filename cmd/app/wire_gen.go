@@ -14,7 +14,6 @@ import (
 	greet3 "go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component/client/grpc"
-	"go-scaffold/internal/app/component/data"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
@@ -37,24 +36,30 @@ import (
 
 // Injectors from wire.go:
 
-func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, config7 *discovery.Config) (*app.App, func(), error) {
-	db, cleanup2, err := orm.New(config3, logLogger, zapLogger)
+func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*app.App, func(), error) {
+	configApp := configConfig.App
+	db := configApp.DB
+	ormConfig := orm.NewConfig(db)
+	gormDB, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
 	if err != nil {
 		return nil, nil, err
 	}
-	tracer, cleanup3, err := trace.New(config6, logLogger)
+	traceConfig := trace.NewConfig(configApp)
+	tracer, cleanup3, err := trace.New(traceConfig, logLogger)
 	if err != nil {
 		cleanup2()
 		return nil, nil, err
 	}
-	client, cleanup4, err := redis.New(config5, logLogger)
+	configRedis := configApp.Redis
+	redisConfig := redis.NewConfig(configRedis)
+	client, cleanup4, err := redis.New(redisConfig, logLogger)
 	if err != nil {
 		cleanup3()
 		cleanup2()
 		return nil, nil, err
 	}
 	example := job.NewExample(logLogger)
-	cronCron, err := cron.New(logLogger, db, client, example)
+	cronCron, err := cron.New(logLogger, gormDB, client, example)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -63,7 +68,9 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}
 	service := greet.NewService(logLogger, configConfig)
 	handler := greet2.NewHandler(logLogger, zapLogger, configConfig, service)
-	discoveryDiscovery, err := discovery.New(config7, zapLogger)
+	configDiscovery := configApp.Discovery
+	discoveryConfig := discovery.NewConfig(configDiscovery)
+	discoveryDiscovery, err := discovery.New(discoveryConfig, zapLogger)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -72,14 +79,14 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}
 	grpcClient := grpc.New(logLogger, discoveryDiscovery)
 	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, grpcClient)
-	repository := user.NewRepository(db, client)
+	repository := user.NewRepository(gormDB, client)
 	userService := user2.NewService(logLogger, configConfig, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
 	engine := router.New(rotateLogs, logLogger, zapLogger, configConfig, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configConfig, engine)
 	grpcServer := grpc2.NewServer(logLogger, configConfig, service, userService)
 	transportTransport := transport.New(logLogger, configConfig, server, grpcServer, discoveryDiscovery)
-	appApp := app.New(logLogger, configConfig, db, tracer, cronCron, transportTransport)
+	appApp := app.New(logLogger, configConfig, gormDB, tracer, cronCron, transportTransport)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()
@@ -87,7 +94,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}, nil
 }
 
-func initCommand(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config, config3 *orm.Config, config4 *data.Config, config5 *redis.Config, config6 *trace.Config, config7 *discovery.Config) (*command.Command, func(), error) {
+func initCommand(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*command.Command, func(), error) {
 	handler := greet3.NewHandler(logLogger)
 	s0000000000 := script.NewS0000000000(logLogger)
 	commandCommand := command.New(handler, s0000000000)

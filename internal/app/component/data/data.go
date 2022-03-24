@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/data/ent"
 	"go-scaffold/internal/app/component/data/ent/migrate"
+	"go-scaffold/internal/app/config"
 	"strings"
 	"time"
 )
@@ -35,7 +36,27 @@ type Config struct {
 	ConnMaxLifeTime int64
 }
 
-func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
+func NewConfig(dbConfig *config.DB) *Config {
+	if dbConfig == nil {
+		return nil
+	}
+
+	return &Config{
+		Driver:          Driver(dbConfig.Driver),
+		Host:            dbConfig.Host,
+		Port:            dbConfig.Port,
+		Database:        dbConfig.Database,
+		Username:        dbConfig.Username,
+		Password:        dbConfig.Password,
+		Options:         dbConfig.Options,
+		MaxIdleConn:     dbConfig.MaxIdleConn,
+		MaxOpenConn:     dbConfig.MaxOpenConn,
+		ConnMaxIdleTime: dbConfig.ConnMaxIdleTime,
+		ConnMaxLifeTime: dbConfig.ConnMaxLifeTime,
+	}
+}
+
+func New(config *Config, logger log.Logger) (*ent.Client, func(), error) {
 	driver, err := sql.Open(config.Driver.String(), buildSource(config))
 	if err != nil {
 		return nil, nil, err
@@ -54,20 +75,20 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 		driver.DB().SetConnMaxLifetime(time.Duration(config.ConnMaxLifeTime) * time.Second)
 	}
 
-	logger := log.NewHelper(hLogger)
+	hLogger := log.NewHelper(logger)
 	cleanup := func() {
-		logger.Info("closing the ent resources")
+		hLogger.Info("closing the ent resources")
 
 		err = driver.Close()
 		if err != nil {
-			logger.Error(err)
+			hLogger.Error(err)
 		}
 	}
 
 	client := ent.NewClient(
 		ent.Driver(driver),
 		ent.Log(func(i ...interface{}) {
-			logger.Debug(i)
+			hLogger.Debug(i)
 		}),
 	)
 
@@ -75,7 +96,7 @@ func New(config *Config, hLogger log.Logger) (*ent.Client, func(), error) {
 		context.Background(),
 		migrate.WithForeignKeys(false),
 	); err != nil {
-		logger.Errorf("failed to creat schema resources: %v", err)
+		hLogger.Errorf("failed to creat schema resources: %v", err)
 		return nil, nil, err
 	}
 

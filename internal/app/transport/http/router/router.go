@@ -34,12 +34,12 @@ func New(
 	loggerWriter *rotatelogs.RotateLogs,
 	logger log.Logger,
 	zLogger *zap.Logger,
-	cm *config.Config,
+	conf *config.Config,
 	greetHandler greet.HandlerInterface,
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
 ) *gin.Engine {
-	if cm.App.Http == nil {
+	if conf.App.Http == nil {
 		return nil
 	}
 
@@ -53,7 +53,7 @@ func New(
 	gin.DefaultErrorWriter = output
 	gin.DisableConsoleColor()
 
-	switch cm.App.Env {
+	switch conf.App.Env {
 	case config.Local:
 		gin.SetMode(gin.DebugMode)
 	case config.Test:
@@ -68,10 +68,10 @@ func New(
 		responsex.ServerError(c)
 		c.Abort()
 	}))
-	router.Use(otelgin.Middleware(cm.App.Name))
+	router.Use(otelgin.Middleware(conf.App.Name))
 
 	rg := router.Group("/")
-	subs := strings.SplitN(cm.App.Http.ExternalAddr, "/", 2)
+	subs := strings.SplitN(conf.App.Http.ExternalAddr, "/", 2)
 	if len(subs) == 2 {
 		rg = router.Group("/" + subs[1])
 	}
@@ -82,7 +82,7 @@ func New(
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
 			// jwt.Validate(
-			// 	cm.App.Jwt.Key,
+			// 	conf.App.Jwt.Key,
 			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
 			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
 			// 	jwt.WithLogger(log.NewHelper(logger)),
@@ -90,10 +90,10 @@ func New(
 		)
 
 		// swagger 配置
-		if cm.App.Env == config.Local {
-			docs.SwaggerInfo.Host = cm.App.Http.Addr
-			if cm.App.Http.ExternalAddr != "" {
-				docs.SwaggerInfo.Host = cm.App.Http.ExternalAddr
+		if conf.App.Env == config.Local {
+			docs.SwaggerInfo.Host = conf.App.Http.Addr
+			if conf.App.Http.ExternalAddr != "" {
+				docs.SwaggerInfo.Host = conf.App.Http.ExternalAddr
 			}
 			docs.SwaggerInfo.BasePath = apiGroup.BasePath()
 
