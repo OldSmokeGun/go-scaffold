@@ -35,7 +35,7 @@ func (*DetailReq) Message() map[string]string {
 func (h *Handler) Detail(ctx *gin.Context) {
 	req := new(DetailReq)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 

@@ -35,7 +35,7 @@ func (*DeleteRequest) Message() map[string]string {
 func (h *Handler) Delete(ctx *gin.Context) {
 	req := new(DeleteRequest)
 	if err := bindx.ShouldBindUri(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 

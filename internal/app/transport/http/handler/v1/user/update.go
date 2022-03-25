@@ -45,7 +45,7 @@ func (h *Handler) Update(ctx *gin.Context) {
 	req.Id, err = strconv.ParseUint(ctx.Params.ByName("id"), 10, 64)
 	if err != nil {
 		responsex.ValidateError(ctx, responsex.WithMsg("参数解析失败"))
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 

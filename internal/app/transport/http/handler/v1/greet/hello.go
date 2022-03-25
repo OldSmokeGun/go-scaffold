@@ -35,7 +35,7 @@ func (*HelloRequest) Message() map[string]string {
 func (h *Handler) Hello(ctx *gin.Context) {
 	req := new(HelloRequest)
 	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 

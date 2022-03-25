@@ -33,7 +33,7 @@ func (*ListRequest) Message() map[string]string {
 func (h *Handler) List(ctx *gin.Context) {
 	req := new(ListRequest)
 	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 

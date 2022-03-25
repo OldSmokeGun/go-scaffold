@@ -38,7 +38,7 @@ func (*CreateRequest) Message() map[string]string {
 func (h *Handler) Create(ctx *gin.Context) {
 	req := new(CreateRequest)
 	if err := bindx.ShouldBindJSON(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+		h.logger.Error(err)
 		return
 	}
 
