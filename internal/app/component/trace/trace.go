@@ -20,13 +20,13 @@ type Config struct {
 	Timeout     int64
 }
 
-func NewConfig(appConfig *config.App) *Config {
-	if appConfig == nil {
+func NewConfig(traceConfig *config.Trace, appConfig *config.App) *Config {
+	if traceConfig == nil {
 		return nil
 	}
 
 	return &Config{
-		Endpoint:    appConfig.Trace.Endpoint,
+		Endpoint:    traceConfig.Endpoint,
 		ServiceName: appConfig.Name,
 		Env:         appConfig.Env.String(),
 		Timeout:     appConfig.Timeout,
