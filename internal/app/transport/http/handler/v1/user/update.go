@@ -49,8 +49,8 @@ func (h *Handler) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := bindx.ShouldBindJSON(ctx, req); err != nil {
-		h.logger.Error(err.Error())
+	if err = bindx.ShouldBindJSON(ctx, req); err != nil {
+		h.logger.Error(err)
 		return
 	}
 
