@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -32,14 +31,13 @@ var ProviderSet = wire.NewSet(
 // New 返回 gin 路由对象
 func New(
 	loggerWriter *rotatelogs.RotateLogs,
-	logger log.Logger,
 	zLogger *zap.Logger,
-	conf *config.Config,
+	appConf *config.App,
 	greetHandler greet.HandlerInterface,
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
 ) *gin.Engine {
-	if conf.App.Http == nil {
+	if appConf.Http == nil {
 		return nil
 	}
 
@@ -53,7 +51,7 @@ func New(
 	gin.DefaultErrorWriter = output
 	gin.DisableConsoleColor()
 
-	switch conf.App.Env {
+	switch appConf.Env {
 	case config.Local:
 		gin.SetMode(gin.DebugMode)
 	case config.Test:
@@ -68,10 +66,10 @@ func New(
 		responsex.ServerError(c)
 		c.Abort()
 	}))
-	router.Use(otelgin.Middleware(conf.App.Name))
+	router.Use(otelgin.Middleware(appConf.Name))
 
 	rg := router.Group("/")
-	subs := strings.SplitN(conf.App.Http.ExternalAddr, "/", 2)
+	subs := strings.SplitN(appConf.Http.ExternalAddr, "/", 2)
 	if len(subs) == 2 {
 		rg = router.Group("/" + subs[1])
 	}
@@ -82,7 +80,7 @@ func New(
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
 			// jwt.Validate(
-			// 	conf.App.Jwt.Key,
+			// 	appConf.App.Jwt.Key,
 			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
 			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
 			// 	jwt.WithLogger(log.NewHelper(logger)),
@@ -90,10 +88,10 @@ func New(
 		)
 
 		// swagger 配置
-		if conf.App.Env == config.Local {
-			docs.SwaggerInfo.Host = conf.App.Http.Addr
-			if conf.App.Http.ExternalAddr != "" {
-				docs.SwaggerInfo.Host = conf.App.Http.ExternalAddr
+		if appConf.Env == config.Local {
+			docs.SwaggerInfo.Host = appConf.Http.Addr
+			if appConf.Http.ExternalAddr != "" {
+				docs.SwaggerInfo.Host = appConf.Http.ExternalAddr
 			}
 			docs.SwaggerInfo.BasePath = apiGroup.BasePath()
 

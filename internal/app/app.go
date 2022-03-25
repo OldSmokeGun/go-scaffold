@@ -45,7 +45,6 @@ var ProviderSet = wire.NewSet(
 
 type App struct {
 	logger    *log.Helper
-	conf      *config.Config
 	db        *gorm.DB
 	trace     *trace.Tracer
 	cron      *cron.Cron
@@ -54,7 +53,6 @@ type App struct {
 
 func New(
 	logger log.Logger,
-	conf *config.Config,
 	db *gorm.DB,
 	trace *trace.Tracer,
 	cron *cron.Cron,
@@ -62,7 +60,6 @@ func New(
 ) *App {
 	return &App{
 		logger:    log.NewHelper(logger),
-		conf:      conf,
 		db:        db,
 		trace:     trace,
 		cron:      cron,

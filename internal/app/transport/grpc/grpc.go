@@ -20,11 +20,11 @@ var ProviderSet = wire.NewSet(NewServer)
 // NewServer 创建 gRPC 服务器
 func NewServer(
 	logger log.Logger,
-	conf *config.Config,
+	grpcConf *config.Grpc,
 	greetService greetpb.GreetServer,
 	userService userpb.UserServer,
 ) *grpc.Server {
-	if conf.App.Grpc == nil {
+	if grpcConf == nil {
 		return nil
 	}
 
@@ -39,16 +39,16 @@ func NewServer(
 		grpc.Logger(logger),
 	}
 
-	if conf.App.Grpc.Network != "" {
-		opts = append(opts, grpc.Network(conf.App.Grpc.Network))
+	if grpcConf.Network != "" {
+		opts = append(opts, grpc.Network(grpcConf.Network))
 	}
 
-	if conf.App.Grpc.Addr != "" {
-		opts = append(opts, grpc.Address(conf.App.Grpc.Addr))
+	if grpcConf.Addr != "" {
+		opts = append(opts, grpc.Address(grpcConf.Addr))
 	}
 
-	if conf.App.Grpc.Timeout != 0 {
-		opts = append(opts, grpc.Timeout(time.Duration(conf.App.Grpc.Timeout)*time.Second))
+	if grpcConf.Timeout != 0 {
+		opts = append(opts, grpc.Timeout(time.Duration(grpcConf.Timeout)*time.Second))
 	}
 
 	srv := grpc.NewServer(opts...)

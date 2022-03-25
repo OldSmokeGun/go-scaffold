@@ -80,12 +80,7 @@ func main() {
 			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 			defer signalStop()
 
-			appServ, appCleanup, err := initApp(
-				loggerWriter,
-				logger,
-				zLogger,
-				configModel,
-			)
+			appServ, appCleanup, err := initApp(loggerWriter, logger, zLogger, configModel)
 			if err != nil {
 				panic(err)
 			}
@@ -114,12 +109,7 @@ func main() {
 	}
 
 	command.Setup(cmd, func() (*command.Command, func(), error) {
-		return initCommand(
-			loggerWriter,
-			logger,
-			zLogger,
-			configModel,
-		)
+		return initCommand(loggerWriter, logger, zLogger, configModel)
 	})
 
 	if err := cmd.Execute(); err != nil {

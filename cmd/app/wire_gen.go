@@ -66,6 +66,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		cleanup2()
 		return nil, nil, err
 	}
+	configHttp := configApp.Http
 	service := greet.NewService(logLogger)
 	handler := greet2.NewHandler(logLogger, service)
 	configDiscovery := configApp.Discovery
@@ -82,11 +83,12 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	repository := user.NewRepository(gormDB, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, logLogger, zapLogger, configConfig, handler, traceHandler, userHandler)
-	server := http.NewServer(logLogger, configConfig, engine)
-	grpcServer := grpc2.NewServer(logLogger, configConfig, service, userService)
-	transportTransport := transport.New(logLogger, configConfig, server, grpcServer, discoveryDiscovery)
-	appApp := app.New(logLogger, configConfig, gormDB, tracer, cronCron, transportTransport)
+	engine := router.New(rotateLogs, zapLogger, configApp, handler, traceHandler, userHandler)
+	server := http.NewServer(logLogger, configHttp, engine)
+	configGrpc := configApp.Grpc
+	grpcServer := grpc2.NewServer(logLogger, configGrpc, service, userService)
+	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
+	appApp := app.New(logLogger, gormDB, tracer, cronCron, transportTransport)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()
