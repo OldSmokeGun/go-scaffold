@@ -1,0 +1,6 @@
+apiVersion: v2
+name: go-scaffold
+description: Go microservice application scaffold
+type: application
+version: 0.1.0
+appVersion: "2.0.0"

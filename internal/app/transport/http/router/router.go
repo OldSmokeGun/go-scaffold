@@ -16,6 +16,7 @@ import (
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
+	"net/http"
 	"strings"
 	"time"
 
@@ -74,6 +75,10 @@ func New(
 		rg = router.Group("/" + subs[1])
 	}
 
+	rg.GET("/ping", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "pong")
+		return
+	})
 	// 注册 api 路由组
 	apiGroup := rg.Group("/api")
 	{

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "go-scaffold.fullname" . }}
+  labels:
+    {{- include "go-scaffold.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.deployment.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "go-scaffold.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.deployment.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "go-scaffold.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.deployment.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "go-scaffold.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.deployment.podSecurityContext | nindent 8 }}
+      containers:
+      {{- range .Values.deployment.containers }}
+        - image: "{{ .image }}:{{ .tag | default "latest" }}"
+          {{- if .name }}
+          name: {{ .name }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .securityContext | nindent 12 }}
+          imagePullPolicy: {{ .pullPolicy }}
+          ports:
+          {{- range .ports }}
+            - name: {{ .name }}
+              containerPort: {{ .port }}
+              protocol: {{ .protocol }}
+          {{- end }}
+          livenessProbe:
+            {{- toYaml .livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /app/etc/config.yaml
+              name: app-config
+              subPath: config.yaml
+            {{- toYaml .volumeMounts | nindent 12 }}
+      {{- end }}
+      volumes:
+        - name: app-config
+          configMap:
+            name: {{ include "go-scaffold.fullname" . }}
+        {{- toYaml .Values.deployment.volumes | nindent 8 }}
+      {{- with .Values.deployment.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

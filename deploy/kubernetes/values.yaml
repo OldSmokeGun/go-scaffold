@@ -1,0 +1,177 @@
+nameOverride: ""
+fullnameOverride: ""
+
+deployment:
+  replicaCount: 1
+  imagePullSecrets: [ ]
+  # - name: ""
+  podAnnotations: { }
+  podSecurityContext: { }
+  nodeSelector: { }
+  tolerations: [ ]
+  affinity: { }
+  containers:
+    - image: registry.cn-chengdu.aliyuncs.com/oldsmokegun/go-scaffold
+      name: app
+      tag: latest
+      pullPolicy: IfNotPresent
+      ports:
+        - name: http
+          port: 9527
+          protocol: TCP
+        - name: rpc
+          port: 9528
+          protocol: TCP
+      resources:
+        # limits:
+        #   cpu: 250m
+        #   memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      volumeMounts:
+        - name: app-logs
+          mountPath: /app/logs
+      livenessProbe:
+      #        httpGet:
+      #          path: /ping
+      #          port: http
+      readinessProbe:
+      #        httpGet:
+      #          path: /ping
+      #          port: http
+      securityContext: { }
+        # capabilities:
+      #   drop:
+      #     - ALL
+      # readOnlyRootFilesystem: true
+      # runAsNonRoot: true
+      # runAsUser: 1000
+  volumes:
+    - name: app-logs
+      emptyDir: { }
+
+configMap:
+  config.yaml: |-
+    app:
+      name: "go-scaffold"     # 应用名称
+      env: "test"             # 当前环境（local、test 或 prod）
+      timeout: 5              # 停止应用的等待时间
+
+      # 数据库配置
+      # db:
+      #   driver: "mysql"
+      #   host: "127.0.0.1"
+      #   port: "3306"
+      #   database: "go-scaffold"
+      #   username: "root"
+      #   password: "root"
+      #   options:
+      #     - "charset=utf8mb4"
+      #     - "parseTime=True"
+      #     - "loc=Local"
+      #   maxIdleConn: 20
+      #   maxOpenConn: 40
+      #   connMaxIdleTime: 120
+      #   connMaxLifeTime: 120
+      #   logLevel: "error"
+
+      # redis 配置
+      # redis:
+      #   host: "localhost"
+      #   port: "6379"
+      #   password: ""
+      #   db: 0               # 连接到服务器后要选择的数据库
+      #   poolSize: 20        # 连接池最大连接数
+      #   minIdleConns: 10    # 连接池空闲连接数
+      #   idleTimeout: 600    # 连接池空闲连接数
+
+      # 链路追踪配置
+      trace:
+        endpoint: "localhost:6831"
+        # endpoint: "http://localhost:14268/api/traces"
+
+      http:
+        network: "tcp"
+        addr: "0.0.0.0:9527"    # http 服务监听地址
+        timeout: 5
+        externalAddr: ""        # 外部访问地址，如反向代理
+
+      grpc:
+        network: "tcp"
+        addr: "0.0.0.0:9528"  # grpc 服务监听地址
+        timeout: 5
+
+      # 服务发现
+      # discovery:
+      #   etcd:
+      #     endpoints:
+      #       - "localhost:12379"
+      #   consul:
+      #     addr: "localhost:8500"
+      #     schema: "http"
+
+      # JWT 配置
+      jwt:
+        key: ""     # JWT 密钥
+
+    # 服务 grpc 地址
+    services:
+      self: "0.0.0.0:9528"
+      # self: "discovery:///go-scaffold" # 服务发现地址
+
+secret:
+  tls:
+    name: "www-go-scaffold-example-tls"
+    www.go-scaffold.example.crt: <base64 编码后的证书文件内容>
+    www.go-scaffold.example.key: <base64 编码后的密钥文件内容>
+
+service:
+  type: NodePort
+  ports:
+    - name: http
+      port: 9527
+      targetPort: 9527
+      protocol: TCP
+      nodePort: 30000
+    - name: rpc
+      port: 9528
+      targetPort: 9528
+      protocol: TCP
+      nodePort: 30001
+
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    nginx.ingress.go-scaffold.io/proxy-body-size: 50m
+    nginx.ingress.go-scaffold.io/rewrite-target: /
+    go-scaffold.io/ingress.class: nginx
+    # go-scaffold.io/tls-acme: "true"
+  tls:
+    enable: false
+    hosts:
+      - hosts:
+          - www.go-scaffold.example
+        secretName: www-go-scaffold-example-tls
+  hosts:
+    - host: www.go-scaffold.example
+      paths:
+        - path: /
+          pathType: Prefix
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: { }
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+
+
+
