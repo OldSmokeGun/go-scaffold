@@ -11,7 +11,7 @@ deployment:
   tolerations: [ ]
   affinity: { }
   containers:
-    - image: registry.cn-chengdu.aliyuncs.com/oldsmokegun/go-scaffold
+    - image: oldsmokegun/go-scaffold
       name: app
       tag: latest
       pullPolicy: IfNotPresent
