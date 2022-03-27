@@ -1,0 +1,21 @@
+{{- $httpPort := 0 -}}
+{{- range .Values.service.ports -}}
+  {{- if eq .name "http" -}}
+    {{- $httpPort = .port -}}
+  {{- end -}}
+{{- end -}}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "go-scaffold.fullname" . }}-test-connection"
+  labels:
+    {{- include "go-scaffold.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "go-scaffold.fullname" . }}:{{ $httpPort }}/ping']
+  restartPolicy: Never

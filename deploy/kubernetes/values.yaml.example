@@ -37,9 +37,9 @@ deployment:
           path: /ping
           port: http
       readinessProbe:
-        httpGet:
-          path: /ping
-          port: http
+        # httpGet:
+        #   path: /ping
+        #   port: http
       securityContext: { }
         # capabilities:
         #   drop:
@@ -127,18 +127,18 @@ secret:
     www.go-scaffold.example.key: <base64 编码后的密钥文件内容>
 
 service:
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: http
       port: 9527
       targetPort: 9527
       protocol: TCP
-      nodePort: 30000
+      nodePort:
     - name: rpc
       port: 9528
       targetPort: 9528
       protocol: TCP
-      nodePort: 30001
+      nodePort:
 
 ingress:
   enabled: false

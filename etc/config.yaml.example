@@ -1,6 +1,6 @@
 app:
   name: "go-scaffold"     # 应用名称
-  env: "test"             # 当前环境（local、test 或 prod）
+  env: "local"            # 当前环境（local、test 或 prod）
   timeout: 5              # 停止应用的等待时间
 
   # 数据库配置

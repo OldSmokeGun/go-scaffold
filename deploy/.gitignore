@@ -1,1 +1,2 @@
 docker-compose/docker-compose.yaml
+kubernetes/values.yaml
