@@ -4,7 +4,7 @@ fullnameOverride: ""
 deployment:
   replicaCount: 1
   imagePullSecrets: [ ]
-  # - name: ""
+    # - name: ""
   podAnnotations: { }
   podSecurityContext: { }
   nodeSelector: { }
@@ -33,20 +33,20 @@ deployment:
         - name: app-logs
           mountPath: /app/logs
       livenessProbe:
-      #        httpGet:
-      #          path: /ping
-      #          port: http
+        httpGet:
+          path: /ping
+          port: http
       readinessProbe:
-      #        httpGet:
-      #          path: /ping
-      #          port: http
+        httpGet:
+          path: /ping
+          port: http
       securityContext: { }
         # capabilities:
-      #   drop:
-      #     - ALL
-      # readOnlyRootFilesystem: true
-      # runAsNonRoot: true
-      # runAsUser: 1000
+        #   drop:
+        #     - ALL
+        # readOnlyRootFilesystem: true
+        # runAsNonRoot: true
+        # runAsUser: 1000
   volumes:
     - name: app-logs
       emptyDir: { }
