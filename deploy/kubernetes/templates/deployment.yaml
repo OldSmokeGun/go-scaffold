@@ -43,10 +43,14 @@ spec:
               containerPort: {{ .port }}
               protocol: {{ .protocol }}
           {{- end }}
+          {{- if .livenessProbe }}
           livenessProbe:
             {{- toYaml .livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .readinessProbe }}
           readinessProbe:
             {{- toYaml .readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .resources | nindent 12 }}
           volumeMounts:

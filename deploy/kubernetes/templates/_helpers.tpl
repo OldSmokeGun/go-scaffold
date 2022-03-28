@@ -37,17 +37,17 @@ Common labels
 helm.sh/chart: {{ include "go-scaffold.chart" . }}
 {{ include "go-scaffold.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
-app.go-scaffold.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.go-scaffold.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
 Selector labels
 */}}
 {{- define "go-scaffold.selectorLabels" -}}
-app.go-scaffold.io/name: {{ include "go-scaffold.name" . }}
-app.go-scaffold.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "go-scaffold.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
