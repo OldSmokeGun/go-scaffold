@@ -3,13 +3,13 @@ fullnameOverride: ""
 
 deployment:
   replicaCount: 1
-  imagePullSecrets: [ ]
-    # - name: ""
-  podAnnotations: { }
-  podSecurityContext: { }
-  nodeSelector: { }
-  tolerations: [ ]
-  affinity: { }
+  imagePullSecrets: []
+    - name: "go-scaffold-image-pull-secret"
+  podAnnotations: {}
+  podSecurityContext: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
   containers:
     - image: oldsmokegun/go-scaffold
       name: app
@@ -30,6 +30,9 @@ deployment:
           cpu: 100m
           memory: 128Mi
       volumeMounts:
+        - mountPath: /app/etc/config.yaml
+          name: app-config
+          subPath: config.yaml
         - name: app-logs
           mountPath: /app/logs
       livenessProbe:
@@ -40,7 +43,7 @@ deployment:
         # httpGet:
         #   path: /ping
         #   port: http
-      securityContext: { }
+      securityContext: {}
         # capabilities:
         #   drop:
         #     - ALL
@@ -49,7 +52,7 @@ deployment:
         # runAsUser: 1000
   volumes:
     - name: app-logs
-      emptyDir: { }
+      emptyDir: {}
 
 configMap:
   config.yaml: |-
@@ -121,10 +124,15 @@ configMap:
       # self: "discovery:///go-scaffold" # 服务发现地址
 
 secret:
+  imagePull:
+    name: "go-scaffold-image-pull-secret"
+    data:
+      .dockerconfigjson: <docker login config>
   tls:
     name: "www-go-scaffold-example-tls"
-    www.go-scaffold.example.crt: <base64 编码后的证书文件内容>
-    www.go-scaffold.example.key: <base64 编码后的密钥文件内容>
+    data:
+      www.go-scaffold.example.crt: <base64 编码后的证书文件内容>
+      www.go-scaffold.example.key: <base64 编码后的密钥文件内容>
 
 service:
   type: ClusterIP
@@ -163,7 +171,7 @@ ingress:
 serviceAccount:
   create: true
   name: ""
-  annotations: { }
+  annotations: {}
 
 autoscaling:
   enabled: false
@@ -171,7 +179,3 @@ autoscaling:
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
-
-
-

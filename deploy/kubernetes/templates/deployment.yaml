@@ -13,10 +13,11 @@ spec:
       {{- include "go-scaffold.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.deployment.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- include "go-scaffold.annotations" . | nindent 8 }}
+        {{- with .Values.deployment.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "go-scaffold.selectorLabels" . | nindent 8 }}
     spec:
@@ -49,9 +50,6 @@ spec:
           resources:
             {{- toYaml .resources | nindent 12 }}
           volumeMounts:
-            - mountPath: /app/etc/config.yaml
-              name: app-config
-              subPath: config.yaml
             {{- toYaml .volumeMounts | nindent 12 }}
       {{- end }}
       volumes:
