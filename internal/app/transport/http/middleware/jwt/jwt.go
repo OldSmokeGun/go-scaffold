@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	ErrNotProvideKey    = errors.New("key is not provided")
-	ErrFailedToGetToken = errors.New("failed to get token")
-	ErrInvalidToken     = errors.New("invalid token")
+	ErrMissingKey       = errors.New("key is missing")
+	ErrMissingToken     = errors.New("token is missing")
+	ErrInvalidToken     = errors.New("token is invalid")
+	ErrParseTokenFailed = errors.New("parse token failed")
 )
 
 const (
@@ -33,6 +34,8 @@ type ContextKey struct{}
 
 // Logger 错误日志实例需要实现的接口
 type Logger interface {
+	Debug(...interface{})
+	Debugf(string, ...interface{})
 	Error(...interface{})
 	Errorf(string, ...interface{})
 }
@@ -131,7 +134,7 @@ func Validate(key string, options ...Option) gin.HandlerFunc {
 		}
 
 		if c.key == "" {
-			validateErrorResponse(ctx, c, ErrNotProvideKey)
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrMissingKey)
 			return
 		}
 
@@ -142,25 +145,29 @@ func Validate(key string, options ...Option) gin.HandlerFunc {
 		}
 
 		if tokenString == "" {
-			validateErrorResponse(ctx, c, ErrFailedToGetToken)
+			validateErrorResponse(ctx, http.StatusUnauthorized, c, ErrMissingToken)
 			return
 		}
 
 		c.raw = tokenString
+
+		if c.logger != nil {
+			c.logger.Debugf("token: %s", tokenString)
+		}
 
 		token, err := pjwt.Parse(tokenString, func(token *pjwt.Token) (interface{}, error) {
 			return []byte(c.key), nil
 		})
 		if err != nil {
 			if c.logger != nil {
-				c.logger.Error(err)
+				c.logger.Errorf("%s: %s", ErrParseTokenFailed, err)
 			}
-			errorResponse(ctx, c, nil)
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrParseTokenFailed)
 			return
 		}
 
 		if !token.Valid {
-			validateErrorResponse(ctx, c, ErrInvalidToken)
+			validateErrorResponse(ctx, http.StatusUnauthorized, c, ErrInvalidToken)
 			return
 		}
 
@@ -188,9 +195,9 @@ func defaultConfig(key string) *jwt {
 }
 
 // errorResponse 服务器发生错误时的响应
-func errorResponse(ctx *gin.Context, c *jwt, err error) {
+func errorResponse(ctx *gin.Context, code int, c *jwt, err error) {
 	if c.errorResponseBody == nil {
-		ctx.AbortWithStatus(http.StatusInternalServerError)
+		ctx.AbortWithStatus(code)
 		return
 	}
 
@@ -199,18 +206,14 @@ func errorResponse(ctx *gin.Context, c *jwt, err error) {
 		body.WithMsg(err.Error())
 	}
 
-	ctx.AbortWithStatusJSON(http.StatusInternalServerError, body)
+	ctx.AbortWithStatusJSON(code, body)
 	return
 }
 
 // validateErrorResponse 校验错误时的响应
-func validateErrorResponse(ctx *gin.Context, c *jwt, err error) {
-	if c.logger != nil {
-		c.logger.Errorf("token %s validate error: %s", c.raw, err.Error())
-	}
-
+func validateErrorResponse(ctx *gin.Context, code int, c *jwt, err error) {
 	if c.validateErrorResponseBody == nil {
-		ctx.AbortWithStatus(http.StatusUnauthorized)
+		ctx.AbortWithStatus(code)
 		return
 	}
 
@@ -219,6 +222,6 @@ func validateErrorResponse(ctx *gin.Context, c *jwt, err error) {
 		body.WithMsg(err.Error())
 	}
 
-	ctx.AbortWithStatusJSON(http.StatusUnauthorized, body)
+	ctx.AbortWithStatusJSON(code, body)
 	return
 }
