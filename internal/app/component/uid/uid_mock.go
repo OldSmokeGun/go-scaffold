@@ -34,14 +34,14 @@ func (m *MockUid) EXPECT() *MockUidMockRecorder {
 }
 
 // Generate mocks base method.
-func (m *MockUid) Generate(options ...Option) (int64, error) {
+func (m *MockUid) Generate(options ...Option) (string, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Generate", varargs...)
-	ret0, _ := ret[0].(int64)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -13,7 +13,7 @@ var defaultRand = rand.New(rand.NewSource(time.Now().UnixNano()))
 const maxNode = 1<<10 - 1
 
 type Generator interface {
-	Generate(options ...Option) (int64, error)
+	Generate(options ...Option) (string, error)
 }
 
 type Uid struct {
@@ -39,7 +39,7 @@ func WithRand(rand *rand.Rand) Option {
 	}
 }
 
-func (u *Uid) Generate(options ...Option) (int64, error) {
+func (u *Uid) Generate(options ...Option) (string, error) {
 	for _, option := range options {
 		option(u)
 	}
@@ -54,8 +54,8 @@ func (u *Uid) Generate(options ...Option) (int64, error) {
 
 	sn, err := snowflake.NewNode(node)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
-	return sn.Generate().Int64(), nil
+	return sn.Generate().String(), nil
 }
