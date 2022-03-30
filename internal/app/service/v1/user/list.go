@@ -16,13 +16,13 @@ func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListRespon
 		"updated_at DESC",
 	)
 	if err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, ErrDataQueryFailed
 	}
 
 	result := &pb.ListResponse{Items: []*pb.ListItem{}}
 	if err = copier.Copy(&result.Items, users); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 

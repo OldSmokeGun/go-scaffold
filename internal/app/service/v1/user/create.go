@@ -12,12 +12,12 @@ import (
 func (s *Service) Create(ctx context.Context, req *pb.CreateRequest) (*pb.CreateResponse, error) {
 	m := new(model.User)
 	if err := copier.Copy(m, req); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 
 	if _, err := s.repo.Create(context.TODO(), m); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, ErrDataStoreFailed
 	}
 

@@ -19,13 +19,13 @@ func (s *Service) Detail(ctx context.Context, req *pb.DetailRequest) (*pb.Detail
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotExist
 		}
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, ErrDataQueryFailed
 	}
 
 	result := new(pb.DetailResponse)
 	if err = copier.Copy(result, u); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 

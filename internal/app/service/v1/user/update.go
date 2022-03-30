@@ -19,17 +19,17 @@ func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Update
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotExist
 		}
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, ErrDataQueryFailed
 	}
 
 	if err = copier.Copy(u, req); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 
 	if _, err = s.repo.Save(context.TODO(), u); err != nil {
-		s.logger.Error(err.Error())
+		s.logger.Error(err)
 		return nil, ErrDataStoreFailed
 	}
 
