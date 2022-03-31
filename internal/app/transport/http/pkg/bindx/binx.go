@@ -52,7 +52,7 @@ func shouldBind(ctx *gin.Context, m BindModel, b interface{}, bindBody bool) err
 			errsMap := validatorx.Translate(err, m.Message())
 
 			if len(errsMap) == 0 {
-				responsex.ServerError(ctx)
+				responsex.ServerError(ctx, responsex.WithMsg(ErrValidateErrorTranslateFailed.Error()))
 				return ErrValidateErrorTranslateFailed
 			}
 
