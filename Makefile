@@ -13,24 +13,24 @@ build:
 ifeq (${OS}, Windows_NT)
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -tags=jsoniter -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
+	go build ${BUILD_FLAGS} -o ${APP_BIN_PATH}.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 else
-	CGO_ENABLED=0 go build -tags=jsoniter -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
+	CGO_ENABLED=0 go build ${BUILD_FLAGS} -o ${APP_BIN_PATH} ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 endif
 
 linux-build:
 	@make generate
-	CGO_ENABLED=0 GOOS=linux go build -tags=jsoniter -o ${APP_BIN_PATH}_linux ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
+	CGO_ENABLED=0 GOOS=linux go build ${BUILD_FLAGS} -o ${APP_BIN_PATH}_linux ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 windows-build:
 	@make generate
 	set CGO_ENABLED=0
 	set GOOS=windows
-	go build -tags=jsoniter -o ${APP_BIN_PATH}_windows.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
+	go build ${BUILD_FLAGS} -o ${APP_BIN_PATH}_windows.exe ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 mac-build:
 	@make generate
-	CGO_ENABLED=0 GOOS=darwin go build -tags=jsoniter -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
+	CGO_ENABLED=0 GOOS=darwin go build ${BUILD_FLAGS} -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 download:
 	@go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
