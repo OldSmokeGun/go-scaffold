@@ -11,7 +11,7 @@ import (
 
 func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
 	u, err := s.repo.FindOneById(
-		context.TODO(),
+		ctx,
 		req.Id,
 		[]string{"*"},
 	)
@@ -28,7 +28,7 @@ func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Update
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err = s.repo.Save(context.TODO(), u); err != nil {
+	if _, err = s.repo.Save(ctx, u); err != nil {
 		s.logger.Error(err)
 		return nil, ErrDataStoreFailed
 	}

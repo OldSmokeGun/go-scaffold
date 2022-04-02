@@ -11,7 +11,7 @@ import (
 
 func (s *Service) Detail(ctx context.Context, req *pb.DetailRequest) (*pb.DetailResponse, error) {
 	u, err := s.repo.FindOneById(
-		context.TODO(),
+		ctx,
 		req.Id,
 		[]string{"*"},
 	)

@@ -9,7 +9,7 @@ import (
 
 func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	u, err := s.repo.FindOneById(
-		context.TODO(),
+		ctx,
 		req.Id,
 		[]string{"*"},
 	)
@@ -21,7 +21,7 @@ func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.Delete
 		return nil, ErrDataQueryFailed
 	}
 
-	if err = s.repo.Delete(context.TODO(), u); err != nil {
+	if err = s.repo.Delete(ctx, u); err != nil {
 		s.logger.Error(err)
 		return nil, ErrDataDeleteFailed
 	}

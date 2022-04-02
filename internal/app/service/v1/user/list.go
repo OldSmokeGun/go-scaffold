@@ -10,7 +10,7 @@ import (
 
 func (s *Service) List(ctx context.Context, req *pb.ListRequest) (*pb.ListResponse, error) {
 	users, err := s.repo.FindByKeyword(
-		context.TODO(),
+		ctx,
 		[]string{"*"},
 		req.Keyword,
 		"updated_at DESC",

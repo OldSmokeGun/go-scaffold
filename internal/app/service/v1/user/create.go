@@ -16,7 +16,7 @@ func (s *Service) Create(ctx context.Context, req *pb.CreateRequest) (*pb.Create
 		return nil, errors.New(responsex.ServerErrorCode.String())
 	}
 
-	if _, err := s.repo.Create(context.TODO(), m); err != nil {
+	if _, err := s.repo.Create(ctx, m); err != nil {
 		s.logger.Error(err)
 		return nil, ErrDataStoreFailed
 	}
