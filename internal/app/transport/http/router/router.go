@@ -70,9 +70,9 @@ func New(
 	router.Use(otelgin.Middleware(appConf.Name))
 
 	rg := router.Group("/")
-	subs := strings.SplitN(appConf.Http.ExternalAddr, "/", 2)
-	if len(subs) == 2 {
-		rg = router.Group("/" + subs[1])
+	extAddrSubs := strings.SplitN(appConf.Http.ExternalAddr, "/", 2)
+	if len(extAddrSubs) == 2 {
+		rg = router.Group("/" + extAddrSubs[1])
 	}
 
 	rg.GET("/ping", func(ctx *gin.Context) {
@@ -95,8 +95,8 @@ func New(
 		// swagger 配置
 		if appConf.Env == config.Local {
 			docs.SwaggerInfo.Host = appConf.Http.Addr
-			if appConf.Http.ExternalAddr != "" {
-				docs.SwaggerInfo.Host = appConf.Http.ExternalAddr
+			if len(extAddrSubs) > 0 {
+				docs.SwaggerInfo.Host = extAddrSubs[0]
 			}
 			docs.SwaggerInfo.BasePath = apiGroup.BasePath()
 
