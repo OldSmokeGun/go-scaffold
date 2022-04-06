@@ -33,7 +33,8 @@ mac-build:
 	CGO_ENABLED=0 GOOS=darwin go build ${BUILD_FLAGS} -o ${APP_BIN_PATH}_mac ${APP_MAIN_DIR}/main.go ${APP_MAIN_DIR}/wire_gen.go
 
 download:
-	@go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
+	@go env -w GOPROXY=https://goproxy.cn,direct; \
+	go mod download; \
 	go get -u github.com/davecgh/go-spew/spew; \
 	go get github.com/google/wire/cmd/wire@v0.5.0; \
 	go install github.com/google/wire/cmd/wire@latest; \
