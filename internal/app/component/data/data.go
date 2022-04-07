@@ -6,7 +6,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/data/ent"
 	"go-scaffold/internal/app/component/data/ent/migrate"
-	"go-scaffold/internal/app/config"
 	"strings"
 	"time"
 )
@@ -34,26 +33,6 @@ type Config struct {
 	MaxOpenConn     int
 	ConnMaxIdleTime int64
 	ConnMaxLifeTime int64
-}
-
-func NewConfig(dbConfig *config.DB) *Config {
-	if dbConfig == nil {
-		return nil
-	}
-
-	return &Config{
-		Driver:          Driver(dbConfig.Driver),
-		Host:            dbConfig.Host,
-		Port:            dbConfig.Port,
-		Database:        dbConfig.Database,
-		Username:        dbConfig.Username,
-		Password:        dbConfig.Password,
-		Options:         dbConfig.Options,
-		MaxIdleConn:     dbConfig.MaxIdleConn,
-		MaxOpenConn:     dbConfig.MaxOpenConn,
-		ConnMaxIdleTime: dbConfig.ConnMaxIdleTime,
-		ConnMaxLifeTime: dbConfig.ConnMaxLifeTime,
-	}
 }
 
 func New(config *Config, logger log.Logger) (*ent.Client, func(), error) {

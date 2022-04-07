@@ -12,11 +12,11 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	wire.NewSet(orm.NewConfig, orm.New),
-	wire.NewSet(data.NewConfig, data.New),
-	wire.NewSet(redis.NewConfig, redis.New),
-	wire.NewSet(trace.NewConfig, trace.New),
-	wire.NewSet(discovery.NewConfig, discovery.New),
+	wire.NewSet(orm.New),
+	wire.NewSet(data.New),
+	wire.NewSet(redis.New),
+	wire.NewSet(trace.New),
+	wire.NewSet(discovery.New),
 	wire.NewSet(wire.Bind(new(uid.Generator), new(*uid.Uid)), uid.New),
 	grpc.New,
 )

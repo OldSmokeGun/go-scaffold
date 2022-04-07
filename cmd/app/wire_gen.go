@@ -38,20 +38,18 @@ import (
 
 func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*app.App, func(), error) {
 	configApp := configConfig.App
-	db := configApp.DB
-	ormConfig := orm.NewConfig(db)
-	gormDB, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
+	ormConfig := configApp.DB
+	db, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
 	if err != nil {
 		return nil, nil, err
 	}
-	traceConfig := trace.NewConfig(configApp)
+	traceConfig := configApp.Trace
 	tracer, cleanup3, err := trace.New(traceConfig, logLogger)
 	if err != nil {
 		cleanup2()
 		return nil, nil, err
 	}
-	configRedis := configApp.Redis
-	redisConfig := redis.NewConfig(configRedis)
+	redisConfig := configApp.Redis
 	client, cleanup4, err := redis.New(redisConfig, logLogger)
 	if err != nil {
 		cleanup3()
@@ -59,7 +57,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	example := job.NewExample(logLogger)
-	cronCron, err := cron.New(logLogger, gormDB, client, example)
+	cronCron, err := cron.New(logLogger, db, client, example)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -69,8 +67,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	configHttp := configApp.Http
 	service := greet.NewService(logLogger)
 	handler := greet2.NewHandler(logLogger, service)
-	configDiscovery := configApp.Discovery
-	discoveryConfig := discovery.NewConfig(configDiscovery)
+	discoveryConfig := configApp.Discovery
 	discoveryDiscovery, err := discovery.New(discoveryConfig, zapLogger)
 	if err != nil {
 		cleanup4()
@@ -80,7 +77,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}
 	grpcClient := grpc.New(logLogger, discoveryDiscovery)
 	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, grpcClient)
-	repository := user.NewRepository(gormDB, client)
+	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
 	engine := router.New(rotateLogs, zapLogger, configApp, handler, traceHandler, userHandler)
@@ -88,7 +85,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	configGrpc := configApp.Grpc
 	grpcServer := grpc2.NewServer(logLogger, configGrpc, service, userService)
 	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
-	appApp := app.New(logLogger, gormDB, tracer, cronCron, transportTransport)
+	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()

@@ -71,9 +71,9 @@ app:
   #     addr: "localhost:8500"
   #     schema: "http"
 
-  # JWT 配置
-  jwt:
-    key: ""     # JWT 密钥
+# JWT 配置
+jwt:
+  key: ""     # JWT 密钥
 
 # 服务 grpc 地址
 services:

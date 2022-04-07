@@ -17,8 +17,8 @@ func NewCommandSet(cmd *cobra.Command) *CommandSet {
 	}
 }
 
-// Registry 注册命令行
-func (c CommandSet) Registry(commands []*Command) {
+// Register 注册命令行
+func (c CommandSet) Register(commands []*Command) {
 	entities := make([]*cobra.Command, 0, len(commands))
 
 	for _, cs := range commands {
@@ -28,7 +28,7 @@ func (c CommandSet) Registry(commands []*Command) {
 
 		if len(cs.Children) > 0 {
 			cl := NewCommandSet(cs.Entity)
-			cl.Registry(cs.Children)
+			cl.Register(cs.Children)
 		}
 
 		entities = append(entities, cs.Entity)
@@ -37,8 +37,8 @@ func (c CommandSet) Registry(commands []*Command) {
 	c.cmd.AddCommand(entities...)
 }
 
-// RegistryBusiness 注册业务的命令行实体
-func (c CommandSet) RegistryBusiness(commands []*Command) {
+// RegisterBusiness 注册业务的命令行实体
+func (c CommandSet) RegisterBusiness(commands []*Command) {
 	cmd := []*Command{
 		{
 			Entity: &cobra.Command{
@@ -53,11 +53,11 @@ func (c CommandSet) RegistryBusiness(commands []*Command) {
 		},
 	}
 
-	c.Registry(cmd)
+	c.Register(cmd)
 }
 
-// RegistryScript 注册临时脚本的命令行实体
-func (c CommandSet) RegistryScript(commands []*Command) {
+// RegisterScript 注册临时脚本的命令行实体
+func (c CommandSet) RegisterScript(commands []*Command) {
 	cmd := []*Command{
 		{
 			Entity: &cobra.Command{
@@ -72,7 +72,7 @@ func (c CommandSet) RegistryScript(commands []*Command) {
 		},
 	}
 
-	c.Registry(cmd)
+	c.Register(cmd)
 }
 
 // Command 命令实体

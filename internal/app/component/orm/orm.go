@@ -5,7 +5,6 @@ import (
 	klog "github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/orm/mysql"
 	"go-scaffold/internal/app/component/orm/postgres"
-	"go-scaffold/internal/app/config"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -65,27 +64,6 @@ type Config struct {
 	ConnMaxIdleTime int64
 	ConnMaxLifeTime int64
 	LogLevel        LogLevel
-}
-
-func NewConfig(dbConfig *config.DB) *Config {
-	if dbConfig == nil {
-		return nil
-	}
-
-	return &Config{
-		Driver:          Driver(dbConfig.Driver),
-		Host:            dbConfig.Host,
-		Port:            dbConfig.Port,
-		Database:        dbConfig.Database,
-		Username:        dbConfig.Username,
-		Password:        dbConfig.Password,
-		Options:         dbConfig.Options,
-		MaxIdleConn:     dbConfig.MaxIdleConn,
-		MaxOpenConn:     dbConfig.MaxOpenConn,
-		ConnMaxIdleTime: dbConfig.ConnMaxIdleTime,
-		ConnMaxLifeTime: dbConfig.ConnMaxLifeTime,
-		LogLevel:        LogLevel(dbConfig.LogLevel),
-	}
 }
 
 // New 初始化 orm

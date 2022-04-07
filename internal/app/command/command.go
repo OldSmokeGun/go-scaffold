@@ -22,7 +22,7 @@ func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), erro
 	// TODO 编写子命令
 
 	// 注册业务的子命令
-	set.RegistryBusiness([]*commandx.Command{
+	set.RegisterBusiness([]*commandx.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "greet",
@@ -59,7 +59,7 @@ func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), erro
 	})
 
 	// 注册临时脚本命令
-	set.RegistryScript([]*commandx.Command{
+	set.RegisterScript([]*commandx.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "S0000000000",
