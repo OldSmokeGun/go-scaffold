@@ -152,10 +152,10 @@ ingress:
   enabled: false
   className: ""
   annotations:
-    nginx.ingress.go-scaffold.io/proxy-body-size: 50m
-    nginx.ingress.go-scaffold.io/rewrite-target: /
-    go-scaffold.io/ingress.class: nginx
-    # go-scaffold.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
   tls:
     enable: false
     hosts:
