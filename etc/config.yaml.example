@@ -44,7 +44,7 @@ app:
   #   db: 0               # 连接到服务器后要选择的数据库
   #   poolSize: 20        # 连接池最大连接数
   #   minIdleConns: 10    # 连接池空闲连接数
-  #   idleTimeout: 600    # 连接池空闲连接数
+  #   idleTimeout: 600    # 连接池空闲连接超时时间
 
   # 链路追踪配置
   trace:
