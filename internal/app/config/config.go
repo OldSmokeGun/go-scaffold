@@ -41,9 +41,11 @@ func Watch(hLogger log.Logger, cfg config.Config, conf *Config) error {
 
 // AfterLoad 配置加载后调用的钩子函数
 func AfterLoad(hLogger log.Logger, cfg config.Config, conf *Config) error {
-	conf.App.Trace.ServiceName = conf.App.Name
-	conf.App.Trace.Env = conf.App.Env.String()
-	conf.App.Trace.Timeout = conf.App.Timeout
+	if conf.App.Trace != nil {
+		conf.App.Trace.ServiceName = conf.App.Name
+		conf.App.Trace.Env = conf.App.Env.String()
+		conf.App.Trace.Timeout = conf.App.Timeout
+	}
 
 	if err := Watch(hLogger, cfg, conf); err != nil {
 		return err
