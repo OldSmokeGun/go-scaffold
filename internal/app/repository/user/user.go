@@ -68,7 +68,7 @@ func (r *Repository) FindOneById(ctx context.Context, id uint64, columns []strin
 	m := new(model.User)
 
 	cacheValue, err := r.rdb.Get(
-		context.Background(),
+		ctx,
 		fmt.Sprintf(cacheKeyFormat, id),
 	).Bytes()
 	if err != nil {
@@ -96,7 +96,7 @@ func (r *Repository) FindOneById(ctx context.Context, id uint64, columns []strin
 	}
 
 	err = r.rdb.Set(
-		context.Background(),
+		ctx,
 		fmt.Sprintf(cacheKeyFormat, id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
@@ -119,7 +119,7 @@ func (r *Repository) Create(ctx context.Context, user *model.User) (*model.User,
 	}
 
 	err = r.rdb.Set(
-		context.Background(),
+		ctx,
 		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
@@ -142,7 +142,7 @@ func (r *Repository) Save(ctx context.Context, user *model.User) (*model.User, e
 	}
 
 	err = r.rdb.Set(
-		context.Background(),
+		ctx,
 		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
@@ -160,7 +160,7 @@ func (r *Repository) Delete(ctx context.Context, user *model.User) error {
 	}
 
 	err := r.rdb.Del(
-		context.Background(),
+		ctx,
 		fmt.Sprintf(cacheKeyFormat, user.Id),
 	).Err()
 	if err != nil {
