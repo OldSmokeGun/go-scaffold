@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 deployment:
   replicaCount: 1
-  imagePullSecrets: []
+  imagePullSecrets:
     - name: "go-scaffold-image-pull-secret"
   podAnnotations: {}
   podSecurityContext: {}
@@ -16,6 +16,8 @@ deployment:
       tag: latest
       pullPolicy: IfNotPresent
       env: []
+      command: []
+      args: []
       ports:
         - name: http
           port: 9527
