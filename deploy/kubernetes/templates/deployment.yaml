@@ -34,6 +34,8 @@ spec:
           {{- if .name }}
           name: {{ .name }}
           {{- end }}
+          env:
+            {{- toYaml .env | nindent 12 }}
           securityContext:
             {{- toYaml .securityContext | nindent 12 }}
           imagePullPolicy: {{ .pullPolicy }}

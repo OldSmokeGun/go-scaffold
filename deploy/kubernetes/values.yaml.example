@@ -15,6 +15,7 @@ deployment:
       name: app
       tag: latest
       pullPolicy: IfNotPresent
+      env: []
       ports:
         - name: http
           port: 9527
