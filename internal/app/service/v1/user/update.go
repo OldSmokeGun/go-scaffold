@@ -33,5 +33,5 @@ func (s *Service) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.Update
 		return nil, ErrDataStoreFailed
 	}
 
-	return nil, nil
+	return &pb.UpdateResponse{}, nil
 }

@@ -26,5 +26,5 @@ func (s *Service) Delete(ctx context.Context, req *pb.DeleteRequest) (*pb.Delete
 		return nil, ErrDataDeleteFailed
 	}
 
-	return nil, nil
+	return &pb.DeleteResponse{}, nil
 }

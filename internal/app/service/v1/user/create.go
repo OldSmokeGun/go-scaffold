@@ -21,5 +21,5 @@ func (s *Service) Create(ctx context.Context, req *pb.CreateRequest) (*pb.Create
 		return nil, ErrDataStoreFailed
 	}
 
-	return nil, nil
+	return &pb.CreateResponse{}, nil
 }
