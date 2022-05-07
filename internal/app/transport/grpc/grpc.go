@@ -6,7 +6,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 	greetpb "go-scaffold/internal/app/api/scaffold/v1/greet"
@@ -37,7 +36,6 @@ func NewServer(
 			recovery.Recovery(recovery.WithLogger(logger)),
 			logging.Server(logger),
 			tracing.Server(),
-			validate.Validator(),
 			metadata.Server(),
 		),
 		grpc.Logger(logger),
