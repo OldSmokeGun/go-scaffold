@@ -5,8 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	greet2 "go-scaffold/internal/app/api/scaffold/v1/greet"
-	"go-scaffold/internal/app/transport/http/pkg/responsex"
+	"go-scaffold/internal/app/api/scaffold/v1/greet"
+	errorsx "go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/app/transport/http/pkg/response"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
@@ -39,15 +40,15 @@ func (h *Handler) Example(ctx *gin.Context) {
 	conn, err := h.grpcClient.DialInsecure(reqCtx, h.conf.Services.Self)
 	if err != nil {
 		h.logger.Error(err)
-		responsex.ServerError(ctx)
+		response.Error(ctx, errorsx.ServerError())
 		return
 	}
 
-	client := greet2.NewGreetClient(conn)
-	resp, err := client.Hello(reqCtx, &greet2.HelloRequest{Name: "example"})
+	client := greet.NewGreetClient(conn)
+	resp, err := client.Hello(reqCtx, &greet.HelloRequest{Name: ""})
 	if err != nil {
-		h.logger.Error(err)
-		responsex.ServerError(ctx)
+		e := errorsx.FromGRPCError(err)
+		response.Error(ctx, errorsx.ServerError(errorsx.WithMessage(fmt.Sprintf("GRPC 调用错误：%s", e.Message))))
 		return
 	}
 	h.logger.Infof("请求结果：%s", resp.Msg)
@@ -61,7 +62,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		responsex.ServerError(ctx)
+		response.Error(ctx, errorsx.ServerError())
 		return
 	}
 
@@ -70,7 +71,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		responsex.ServerError(ctx)
+		response.Error(ctx, errorsx.ServerError())
 		return
 	}
 
@@ -78,7 +79,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		responsex.ServerError(ctx)
+		response.Error(ctx, errorsx.ServerError())
 		return
 	}
 	reqCtx = baggage.ContextWithBaggage(reqCtx, bag)
@@ -90,11 +91,11 @@ func (h *Handler) Example(ctx *gin.Context) {
 		err = fmt.Errorf("请求 %s 失败: %w", requestUrl, err)
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		responsex.ServerError(ctx, responsex.WithMsg(fmt.Sprintf("请求 %s 失败", requestUrl)))
+		response.Error(ctx, errorsx.ServerError(errorsx.WithMessage(fmt.Sprintf("请求 %s 失败", requestUrl))))
 		return
 	}
 
-	responsex.Success(ctx)
+	response.Success(ctx)
 	return
 }
 

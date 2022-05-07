@@ -7,12 +7,13 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-scaffold/internal/app/config"
+	"go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/transport/http/handler/docs"
 	"go-scaffold/internal/app/transport/http/handler/v1/greet"
 	"go-scaffold/internal/app/transport/http/handler/v1/trace"
 	"go-scaffold/internal/app/transport/http/handler/v1/user"
 	"go-scaffold/internal/app/transport/http/middleware/recover"
-	"go-scaffold/internal/app/transport/http/pkg/responsex"
+	"go-scaffold/internal/app/transport/http/pkg/response"
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
@@ -64,7 +65,7 @@ func New(
 	router := gin.New()
 	router.Use(ginzap.Ginzap(zLogger.WithOptions(zap.AddCallerSkip(4)), time.RFC3339, false))
 	router.Use(recover.CustomRecoveryWithZap(zLogger.WithOptions(zap.AddCallerSkip(4)), true, func(c *gin.Context, err interface{}) {
-		responsex.ServerError(c)
+		response.Error(c, errors.ServerError())
 		c.Abort()
 	}))
 	router.Use(otelgin.Middleware(appConf.Name))

@@ -50,7 +50,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
-		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "", "updated_at DESC")
+		users, err := repo.FindList(context.TODO(), FindListParam{}, []string{"*"}, "updated_at DESC")
 
 		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
@@ -92,7 +92,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE \\(name LIKE (.+) OR phone LIKE (.+)\\) AND (.+)\\.`deleted_at` = \\?  ORDER BY updated_at DESC").
 			WillReturnRows(rows)
 
-		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "test", "updated_at DESC")
+		users, err := repo.FindList(context.TODO(), FindListParam{Keyword: "test"}, []string{"*"}, "updated_at DESC")
 
 		assert.Equal(t, expectedUsers, users)
 		assert.NoError(t, err)
@@ -114,7 +114,7 @@ func Test_repository_FindByKeyword(t *testing.T) {
 		dmock.ExpectQuery("SELECT \\* FROM (.+) WHERE (.+)\\.`deleted_at` = \\? ORDER BY updated_at DESC").
 			WillReturnError(errors.New("test error"))
 
-		users, err := repo.FindByKeyword(context.TODO(), []string{"*"}, "", "updated_at DESC")
+		users, err := repo.FindList(context.TODO(), FindListParam{}, []string{"*"}, "updated_at DESC")
 
 		assert.Nil(t, users)
 		assert.EqualError(t, err, "test error")

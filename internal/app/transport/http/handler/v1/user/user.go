@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
-	pb "go-scaffold/internal/app/api/scaffold/v1/user"
+	"go-scaffold/internal/app/service/user"
 )
 
 type HandlerInterface interface {
@@ -14,14 +14,16 @@ type HandlerInterface interface {
 	List(ctx *gin.Context)
 }
 
+var _ HandlerInterface = (*Handler)(nil)
+
 type Handler struct {
 	logger  *log.Helper
-	service pb.UserServer
+	service user.ServiceInterface
 }
 
 func NewHandler(
 	logger log.Logger,
-	service pb.UserServer,
+	service user.ServiceInterface,
 ) *Handler {
 	return &Handler{
 		logger:  log.NewHelper(logger),

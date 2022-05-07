@@ -188,7 +188,7 @@ var doc = `{
                     {
                         "format": "string",
                         "description": "用户信息",
-                        "name": "user_info",
+                        "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -348,7 +348,7 @@ var doc = `{
                     {
                         "format": "string",
                         "description": "用户信息",
-                        "name": "user_info",
+                        "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -504,7 +504,10 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/user.ListResponse"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/user.ListItem"
+                                            }
                                         }
                                     }
                                 }
@@ -649,29 +652,20 @@ var doc = `{
             "type": "object",
             "properties": {
                 "msg": {
-                    "description": "@gotags: json:\"msg\"",
                     "type": "string"
                 }
             }
         },
         "user.CreateRequest": {
             "type": "object",
-            "required": [
-                "name",
-                "phone"
-            ],
             "properties": {
                 "age": {
-                    "description": "@gotags: json:\"age\" binding:\"min=1\"",
-                    "type": "integer",
-                    "minimum": 1
+                    "type": "integer"
                 },
                 "name": {
-                    "description": "@gotags: json:\"name\" binding:\"required\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "@gotags: json:\"phone\" binding:\"required,phone\"",
                     "type": "string"
                 }
             }
@@ -680,19 +674,15 @@ var doc = `{
             "type": "object",
             "properties": {
                 "age": {
-                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "id": {
-                    "description": "@gotags: json:\"id\"",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
                 }
             }
@@ -701,32 +691,16 @@ var doc = `{
             "type": "object",
             "properties": {
                 "age": {
-                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "id": {
-                    "description": "@gotags: json:\"id\"",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
-                }
-            }
-        },
-        "user.ListResponse": {
-            "type": "object",
-            "properties": {
-                "items": {
-                    "description": "@gotags: json:\"items\"",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/user.ListItem"
-                    }
                 }
             }
         }

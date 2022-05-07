@@ -14,19 +14,19 @@ import (
 )
 
 type RepositoryInterface interface {
-	// FindByKeyword 根据关键字查询用户列表
-	FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error)
+	// FindList 列表查询
+	FindList(ctx context.Context, param FindListParam, columns []string, order string) ([]*model.User, error)
 
-	// FindOneById 根据 id 查询用户详情
+	// FindOneById 根据 id 查询详情
 	FindOneById(ctx context.Context, id uint64, columns []string) (*model.User, error)
 
-	// Create 创建用户
+	// Create 创建数据
 	Create(ctx context.Context, user *model.User) (*model.User, error)
 
-	// Save 更新用户信息
+	// Save 保存数据
 	Save(ctx context.Context, user *model.User) (*model.User, error)
 
-	// Delete 删除用户
+	// Delete 删除数据
 	Delete(ctx context.Context, user *model.User) error
 }
 
@@ -47,13 +47,21 @@ var (
 	cacheExpire    = 3600
 )
 
-func (r *Repository) FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error) {
+// FindListParam 列表查询参数
+type FindListParam struct {
+	Keyword string
+}
+
+// FindList 列表查询
+func (r *Repository) FindList(ctx context.Context, param FindListParam, columns []string, order string) ([]*model.User, error) {
 	var users []*model.User
 	query := r.db.Select(columns)
 
-	if keyword != "" {
-		query.Where("name LIKE ?", "%"+keyword+"%").
-			Or("phone LIKE ?", "%"+keyword+"%")
+	if param.Keyword != "" {
+		query.Where(
+			r.db.Where("name LIKE ?", "%"+param.Keyword+"%").
+				Or("phone LIKE ?", "%"+param.Keyword+"%"),
+		)
 	}
 
 	err := query.Order(order).Find(&users).Error
@@ -64,6 +72,7 @@ func (r *Repository) FindByKeyword(ctx context.Context, columns []string, keywor
 	return users, nil
 }
 
+// FindOneById 根据 id 查询详情
 func (r *Repository) FindOneById(ctx context.Context, id uint64, columns []string) (*model.User, error) {
 	m := new(model.User)
 
@@ -108,6 +117,7 @@ func (r *Repository) FindOneById(ctx context.Context, id uint64, columns []strin
 	return m, nil
 }
 
+// Create 创建数据
 func (r *Repository) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Create(user).Error; err != nil {
 		return nil, err
@@ -131,6 +141,7 @@ func (r *Repository) Create(ctx context.Context, user *model.User) (*model.User,
 	return user, nil
 }
 
+// Save 保存数据
 func (r *Repository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
@@ -154,6 +165,7 @@ func (r *Repository) Save(ctx context.Context, user *model.User) (*model.User, e
 	return user, nil
 }
 
+// Delete 删除数据
 func (r *Repository) Delete(ctx context.Context, user *model.User) error {
 	if err := r.db.Delete(user).Error; err != nil {
 		return err

@@ -9,7 +9,6 @@ import (
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/cron"
 	"go-scaffold/internal/app/model"
-	"go-scaffold/internal/app/pkg/migratorx"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/service"
 	"go-scaffold/internal/app/transport"
@@ -80,7 +79,7 @@ func (a *App) Start() (err error) {
 
 	// 数据迁移
 	if a.db != nil {
-		if err = migratorx.New(a.db).Run(model.MigrationTasks()); err != nil {
+		if err = model.Migrate(a.db); err != nil {
 			return
 		}
 

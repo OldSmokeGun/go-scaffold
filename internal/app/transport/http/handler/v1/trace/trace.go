@@ -12,6 +12,8 @@ type HandlerInterface interface {
 	Example(ctx *gin.Context)
 }
 
+var _ HandlerInterface = (*Handler)(nil)
+
 type Handler struct {
 	logger     *log.Helper
 	conf       *config.Config

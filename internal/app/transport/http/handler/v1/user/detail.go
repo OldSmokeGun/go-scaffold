@@ -2,19 +2,13 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	pb "go-scaffold/internal/app/api/scaffold/v1/user"
-	"go-scaffold/internal/app/transport/http/pkg/bindx"
-	"go-scaffold/internal/app/transport/http/pkg/responsex"
+	"go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/app/service/user"
+	"go-scaffold/internal/app/transport/http/pkg/response"
 )
 
 type DetailReq struct {
-	pb.DetailRequest
-}
-
-func (*DetailReq) Message() map[string]string {
-	return map[string]string{
-		"DetailRequest.Id.required": "用户 id 不能为空",
-	}
+	user.DetailRequest
 }
 
 // Detail 用户详情
@@ -24,27 +18,31 @@ func (*DetailReq) Message() map[string]string {
 // @Tags         用户
 // @Accept       plain
 // @Produce      json
-// @Param        id   path      integer                                  true  "用户 id"  format(uint)  minimum(1)
-// @Success      200  {object}  example.Success{data=pb.DetailResponse}  "成功响应"
-// @Failure      500  {object}  example.ServerError                      "服务器出错"
-// @Failure      400  {object}  example.ClientError                      "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
-// @Failure      401  {object}  example.Unauthorized                     "登陆失效"
-// @Failure      403  {object}  example.PermissionDenied                 "没有权限"
-// @Failure      404  {object}  example.ResourceNotFound                 "资源不存在"
-// @Failure      429  {object}  example.TooManyRequest                   "请求过于频繁"
+// @Param        id   path      integer                                    true  "用户 id"  format(uint)  minimum(1)
+// @Success      200  {object}  example.Success{data=user.DetailResponse}  "成功响应"
+// @Failure      500  {object}  example.ServerError                        "服务器出错"
+// @Failure      400  {object}  example.ClientError                        "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
+// @Failure      401  {object}  example.Unauthorized                       "登陆失效"
+// @Failure      403  {object}  example.PermissionDenied                   "没有权限"
+// @Failure      404  {object}  example.ResourceNotFound                   "资源不存在"
+// @Failure      429  {object}  example.TooManyRequest                     "请求过于频繁"
 func (h *Handler) Detail(ctx *gin.Context) {
 	req := new(DetailReq)
-	if err := bindx.ShouldBindUri(ctx, req); err != nil {
+	if err := ctx.ShouldBindUri(req); err != nil {
 		h.logger.Error(err)
 		return
 	}
 
-	ret, err := h.service.Detail(ctx.Request.Context(), &req.DetailRequest)
+	ret, err := h.service.Detail(ctx.Request.Context(), req.DetailRequest)
 	if err != nil {
-		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
+		if err, ok := err.(*errors.Error); ok {
+			response.Error(ctx, err)
+		} else {
+			response.Error(ctx, errors.ServerError())
+		}
 		return
 	}
 
-	responsex.Success(ctx, responsex.WithData(ret))
+	response.Success(ctx, response.WithData(ret))
 	return
 }

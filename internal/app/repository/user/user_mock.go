@@ -64,19 +64,19 @@ func (mr *MockRepositoryInterfaceMockRecorder) Delete(ctx, user interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepositoryInterface)(nil).Delete), ctx, user)
 }
 
-// FindByKeyword mocks base method.
-func (m *MockRepositoryInterface) FindByKeyword(ctx context.Context, columns []string, keyword, order string) ([]*model.User, error) {
+// FindList mocks base method.
+func (m *MockRepositoryInterface) FindList(ctx context.Context, param FindListParam, columns []string, order string) ([]*model.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByKeyword", ctx, columns, keyword, order)
+	ret := m.ctrl.Call(m, "FindList", ctx, param, columns, order)
 	ret0, _ := ret[0].([]*model.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindByKeyword indicates an expected call of FindByKeyword.
-func (mr *MockRepositoryInterfaceMockRecorder) FindByKeyword(ctx, columns, keyword, order interface{}) *gomock.Call {
+// FindList indicates an expected call of FindList.
+func (mr *MockRepositoryInterfaceMockRecorder) FindList(ctx, param, columns, order interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByKeyword", reflect.TypeOf((*MockRepositoryInterface)(nil).FindByKeyword), ctx, columns, keyword, order)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindList", reflect.TypeOf((*MockRepositoryInterface)(nil).FindList), ctx, param, columns, order)
 }
 
 // FindOneById mocks base method.

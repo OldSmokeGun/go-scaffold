@@ -1,5 +1,9 @@
 package model
 
+import (
+	"gorm.io/gorm"
+)
+
 // User 用户表
 type User struct {
 	BaseModel
@@ -8,6 +12,17 @@ type User struct {
 	Phone string `gorm:"column:phone;type:varchar(11);not null;default:'';comment:手机号码"`
 }
 
-func (receiver User) TableName() string {
+func (u User) TableName() string {
 	return "user"
+}
+
+func (u User) Migrate(db *gorm.DB) error {
+	if err := db.Set(
+		"gorm:table_options",
+		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表'",
+	).AutoMigrate(u); err != nil {
+		return err
+	}
+
+	return nil
 }

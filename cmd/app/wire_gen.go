@@ -11,7 +11,7 @@ import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/command"
-	greet3 "go-scaffold/internal/app/command/handler/greet"
+	greet4 "go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component/client/grpc"
 	"go-scaffold/internal/app/component/discovery"
@@ -22,10 +22,12 @@ import (
 	"go-scaffold/internal/app/cron"
 	"go-scaffold/internal/app/cron/job"
 	"go-scaffold/internal/app/repository/user"
-	"go-scaffold/internal/app/service/v1/greet"
-	user2 "go-scaffold/internal/app/service/v1/user"
+	"go-scaffold/internal/app/service/greet"
+	user2 "go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport"
 	grpc2 "go-scaffold/internal/app/transport/grpc"
+	greet3 "go-scaffold/internal/app/transport/grpc/handler/v1/greet"
+	user4 "go-scaffold/internal/app/transport/grpc/handler/v1/user"
 	"go-scaffold/internal/app/transport/http"
 	greet2 "go-scaffold/internal/app/transport/http/handler/v1/greet"
 	trace2 "go-scaffold/internal/app/transport/http/handler/v1/trace"
@@ -83,7 +85,9 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	engine := router.New(rotateLogs, zapLogger, configApp, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configHttp, engine)
 	configGrpc := configApp.Grpc
-	grpcServer := grpc2.NewServer(logLogger, configGrpc, service, userService)
+	greetHandler := greet3.NewHandler(logLogger, service)
+	handler2 := user4.NewHandler(logLogger, userService, repository)
+	grpcServer := grpc2.NewServer(logLogger, configGrpc, greetHandler, handler2)
 	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
 	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport)
 	return appApp, func() {
@@ -94,7 +98,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 }
 
 func initCommand(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*command.Command, func(), error) {
-	handler := greet3.NewHandler(logLogger)
+	handler := greet4.NewHandler(logLogger)
 	s0000000000 := script.NewS0000000000(logLogger)
 	commandCommand := command.New(handler, s0000000000)
 	return commandCommand, func() {

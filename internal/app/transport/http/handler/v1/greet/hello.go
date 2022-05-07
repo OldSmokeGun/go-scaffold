@@ -2,19 +2,13 @@ package greet
 
 import (
 	"github.com/gin-gonic/gin"
-	pb "go-scaffold/internal/app/api/scaffold/v1/greet"
-	"go-scaffold/internal/app/transport/http/pkg/bindx"
-	"go-scaffold/internal/app/transport/http/pkg/responsex"
+	"go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/app/service/greet"
+	"go-scaffold/internal/app/transport/http/pkg/response"
 )
 
 type HelloRequest struct {
-	pb.HelloRequest
-}
-
-func (*HelloRequest) Message() map[string]string {
-	return map[string]string{
-		"HelloRequest.Name.required": "名称不能为空",
-	}
+	greet.HelloRequest
 }
 
 // Hello 示例方法
@@ -24,27 +18,31 @@ func (*HelloRequest) Message() map[string]string {
 // @Tags         示例
 // @Accept       x-www-form-urlencoded
 // @Produce      json
-// @Param        name  query     string                                  true  "名称"  format(string)  default(Tom)
-// @Success      200   {object}  example.Success{data=pb.HelloResponse}  "成功响应"
-// @Failure      500   {object}  example.ServerError                     "服务器出错"
-// @Failure      400   {object}  example.ClientError                     "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
-// @Failure      401   {object}  example.Unauthorized                    "登陆失效"
-// @Failure      403   {object}  example.PermissionDenied                "没有权限"
-// @Failure      404   {object}  example.ResourceNotFound                "资源不存在"
-// @Failure      429   {object}  example.TooManyRequest                  "请求过于频繁"
+// @Param        name  query     string                                     true  "名称"  format(string)  default(Tom)
+// @Success      200   {object}  example.Success{data=greet.HelloResponse}  "成功响应"
+// @Failure      500   {object}  example.ServerError                        "服务器出错"
+// @Failure      400   {object}  example.ClientError                        "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
+// @Failure      401   {object}  example.Unauthorized                       "登陆失效"
+// @Failure      403   {object}  example.PermissionDenied                   "没有权限"
+// @Failure      404   {object}  example.ResourceNotFound                   "资源不存在"
+// @Failure      429   {object}  example.TooManyRequest                     "请求过于频繁"
 func (h *Handler) Hello(ctx *gin.Context) {
 	req := new(HelloRequest)
-	if err := bindx.ShouldBindQuery(ctx, req); err != nil {
+	if err := ctx.ShouldBindQuery(req); err != nil {
 		h.logger.Error(err)
 		return
 	}
 
-	ret, err := h.service.Hello(ctx.Request.Context(), &req.HelloRequest)
+	ret, err := h.service.Hello(ctx.Request.Context(), req.HelloRequest)
 	if err != nil {
-		responsex.ServerError(ctx, responsex.WithMsg(err.Error()))
+		if err, ok := err.(*errors.Error); ok {
+			response.Error(ctx, err)
+		} else {
+			response.Error(ctx, errors.ServerError())
+		}
 		return
 	}
 
-	responsex.Success(ctx, responsex.WithData(ret))
+	response.Success(ctx, response.WithData(ret))
 	return
 }

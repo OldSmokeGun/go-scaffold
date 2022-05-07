@@ -12,17 +12,21 @@ import (
 	greetpb "go-scaffold/internal/app/api/scaffold/v1/greet"
 	userpb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"go-scaffold/internal/app/config"
+	"go-scaffold/internal/app/transport/grpc/handler"
 	"time"
 )
 
-var ProviderSet = wire.NewSet(NewServer)
+var ProviderSet = wire.NewSet(
+	handler.ProviderSet,
+	NewServer,
+)
 
 // NewServer 创建 gRPC 服务器
 func NewServer(
 	logger log.Logger,
 	grpcConf *config.Grpc,
-	greetService greetpb.GreetServer,
-	userService userpb.UserServer,
+	greetServer greetpb.GreetServer,
+	userServer userpb.UserServer,
 ) *grpc.Server {
 	if grpcConf == nil {
 		return nil
@@ -53,8 +57,8 @@ func NewServer(
 
 	srv := grpc.NewServer(opts...)
 
-	greetpb.RegisterGreetServer(srv, greetService)
-	userpb.RegisterUserServer(srv, userService)
+	greetpb.RegisterGreetServer(srv, greetServer)
+	userpb.RegisterUserServer(srv, userServer)
 
 	return srv
 }

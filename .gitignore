@@ -5,3 +5,4 @@ tmp
 .air.conf
 etc/*
 !etc/*.example
+requests.http

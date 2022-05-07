@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package internal.app.api.scaffold.v1.user;
 
-import "validate/validate.proto";
-
 option go_package = "go-scaffold/internal/app/api/scaffold/v1/user;user";
 
 service User {
@@ -15,27 +13,27 @@ service User {
 }
 
 message CreateRequest {
-  string name = 1 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
-  int32 age = 2 [(validate.rules).int32.gte = 1];         // @gotags: json:"age" binding:"min=1"
-  string phone = 3;                                       // @gotags: json:"phone" binding:"required,phone"
+  string name = 1;  // @gotags: json:"name"
+  int32 age = 2;    // @gotags: json:"age"
+  string phone = 3; // @gotags: json:"phone"
 }
 message CreateResponse {}
 
 message UpdateRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0];         // @gotags: json:"id" binding:"required"
-  string name = 2 [(validate.rules).string.min_len = 1];  // @gotags: json:"name" binding:"required"
-  int32 age = 3 [(validate.rules).int32.gte = 1];         // @gotags: json:"age" binding:"min=1"
-  string phone = 4;                                       // @gotags: json:"phone" binding:"required,phone"
+  uint64 id = 1;    // @gotags: json:"id"   
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
 }
 message UpdateResponse {}
 
 message DeleteRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0]; // @gotags: uri:"id" binding:"required"
+  uint64 id = 1; // @gotags: json:"id"
 }
 message DeleteResponse {}
 
 message DetailRequest {
-  uint64 id = 1 [(validate.rules).uint64.gt = 0]; // @gotags: uri:"id" binding:"required"
+  uint64 id = 1; // @gotags: json:"id"
 }
 message DetailResponse {
   uint64 id = 1;    // @gotags: json:"id"
@@ -45,7 +43,7 @@ message DetailResponse {
 }
 
 message ListRequest {
-  string keyword = 1; // @gotags: form:"keyword"
+  string keyword = 1; // @gotags: json:"keyword"
 }
 
 message ListItem {

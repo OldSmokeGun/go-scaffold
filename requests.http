@@ -1,0 +1,5 @@
+GRPC localhost:9628/internal.app.api.scaffold.v1.greet.Greet/Hello
+
+{
+  "name": ""
+}
