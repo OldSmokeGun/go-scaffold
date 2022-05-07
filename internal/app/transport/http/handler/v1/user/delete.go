@@ -7,10 +7,6 @@ import (
 	"go-scaffold/internal/app/transport/http/pkg/response"
 )
 
-type DeleteRequest struct {
-	user.DeleteRequest
-}
-
 // Delete 删除用户
 // @Router       /v1/user/{id} [delete]
 // @Summary      删除用户
@@ -27,14 +23,14 @@ type DeleteRequest struct {
 // @Failure      404  {object}  example.ResourceNotFound  "资源不存在"
 // @Failure      429  {object}  example.TooManyRequest    "请求过于频繁"
 func (h *Handler) Delete(ctx *gin.Context) {
-	req := new(DeleteRequest)
+	req := new(user.DeleteRequest)
 	if err := ctx.ShouldBindUri(req); err != nil {
 		h.logger.Error(err)
 		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
-	err := h.service.Delete(ctx.Request.Context(), req.DeleteRequest)
+	err := h.service.Delete(ctx.Request.Context(), *req)
 	if err != nil {
 		response.Error(ctx, err)
 		return

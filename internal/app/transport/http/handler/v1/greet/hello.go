@@ -7,10 +7,6 @@ import (
 	"go-scaffold/internal/app/transport/http/pkg/response"
 )
 
-type HelloRequest struct {
-	greet.HelloRequest
-}
-
 // Hello 示例方法
 // @Router       /v1/greet [get]
 // @Summary      示例接口
@@ -27,14 +23,14 @@ type HelloRequest struct {
 // @Failure      404   {object}  example.ResourceNotFound                   "资源不存在"
 // @Failure      429   {object}  example.TooManyRequest                     "请求过于频繁"
 func (h *Handler) Hello(ctx *gin.Context) {
-	req := new(HelloRequest)
+	req := new(greet.HelloRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		h.logger.Error(err)
 		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
-	ret, err := h.service.Hello(ctx.Request.Context(), req.HelloRequest)
+	ret, err := h.service.Hello(ctx.Request.Context(), *req)
 	if err != nil {
 		response.Error(ctx, err)
 		return

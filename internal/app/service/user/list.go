@@ -13,7 +13,12 @@ type ListRequest struct {
 }
 
 // ListItem 用户列表项
-type ListItem = DetailResponse
+type ListItem struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
+}
 
 // ListResponse 用户列表响应数据
 type ListResponse []*ListItem
