@@ -504,10 +504,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/user.ListItem"
-                                            }
+                                            "$ref": "#/definitions/user.ListResponse"
                                         }
                                     }
                                 }
@@ -660,12 +657,15 @@ var doc = `{
             "type": "object",
             "properties": {
                 "age": {
+                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "name": {
+                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
+                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
                 }
             }
@@ -691,16 +691,32 @@ var doc = `{
             "type": "object",
             "properties": {
                 "age": {
+                    "description": "@gotags: json:\"age\"",
                     "type": "integer"
                 },
                 "id": {
+                    "description": "@gotags: json:\"id\"",
                     "type": "integer"
                 },
                 "name": {
+                    "description": "@gotags: json:\"name\"",
                     "type": "string"
                 },
                 "phone": {
+                    "description": "@gotags: json:\"phone\"",
                     "type": "string"
+                }
+            }
+        },
+        "user.ListResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "description": "@gotags: json:\"items\"",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user.ListItem"
+                    }
                 }
             }
         }

@@ -2,7 +2,7 @@ package greet
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-scaffold/internal/app/pkg/errors"
+	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/greet"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 )
@@ -30,16 +30,13 @@ func (h *Handler) Hello(ctx *gin.Context) {
 	req := new(HelloRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		h.logger.Error(err)
+		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
 	ret, err := h.service.Hello(ctx.Request.Context(), req.HelloRequest)
 	if err != nil {
-		if err, ok := err.(*errors.Error); ok {
-			response.Error(ctx, err)
-		} else {
-			response.Error(ctx, errors.ServerError())
-		}
+		response.Error(ctx, err)
 		return
 	}
 

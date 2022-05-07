@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-scaffold/internal/app/pkg/errors"
+	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 )
@@ -32,16 +32,13 @@ func (h *Handler) List(ctx *gin.Context) {
 	req := new(ListRequest)
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		h.logger.Error(err)
+		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
 	ret, err := h.service.List(ctx.Request.Context(), req.ListRequest)
 	if err != nil {
-		if err, ok := err.(*errors.Error); ok {
-			response.Error(ctx, err)
-		} else {
-			response.Error(ctx, errors.ServerError())
-		}
+		response.Error(ctx, err)
 		return
 	}
 

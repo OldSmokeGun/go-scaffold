@@ -76,10 +76,13 @@ definitions:
   user.CreateRequest:
     properties:
       age:
+        description: '@gotags: json:"age"'
         type: integer
       name:
+        description: '@gotags: json:"name"'
         type: string
       phone:
+        description: '@gotags: json:"phone"'
         type: string
     type: object
   user.DetailResponse:
@@ -96,13 +99,25 @@ definitions:
   user.ListItem:
     properties:
       age:
+        description: '@gotags: json:"age"'
         type: integer
       id:
+        description: '@gotags: json:"id"'
         type: integer
       name:
+        description: '@gotags: json:"name"'
         type: string
       phone:
+        description: '@gotags: json:"phone"'
         type: string
+    type: object
+  user.ListResponse:
+    properties:
+      items:
+        description: '@gotags: json:"items"'
+        items:
+          $ref: '#/definitions/user.ListItem'
+        type: array
     type: object
 host: localhost
 info:
@@ -421,9 +436,7 @@ paths:
             - $ref: '#/definitions/example.Success'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/user.ListItem'
-                  type: array
+                  $ref: '#/definitions/user.ListResponse'
               type: object
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）

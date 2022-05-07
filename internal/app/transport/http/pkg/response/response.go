@@ -83,6 +83,10 @@ func Success(ctx *gin.Context, ops ...Option) {
 }
 
 // Error HTTP 错误响应
-func Error(ctx *gin.Context, err *errors.Error, ops ...Option) {
-	Response(ctx, err.Code.HTTPStatusCode(), int(err.Code), err.Message, ops...)
+func Error(ctx *gin.Context, err error, ops ...Option) {
+	ae, ok := err.(*errors.Error)
+	if !ok {
+		ae = errors.ServerError(errors.WithMessage(err.Error()))
+	}
+	Response(ctx, ae.Code.HTTPStatusCode(), int(ae.Code), ae.Message, ops...)
 }

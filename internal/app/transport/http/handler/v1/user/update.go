@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-scaffold/internal/app/pkg/errors"
+	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 	"strconv"
@@ -34,22 +34,19 @@ func (h *Handler) Update(ctx *gin.Context) {
 	req.Id, err = strconv.ParseUint(ctx.Params.ByName("id"), 10, 64)
 	if err != nil {
 		h.logger.Error(err)
-		response.Error(ctx, errors.ValidateError())
+		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
 	if err = ctx.ShouldBindJSON(req); err != nil {
 		h.logger.Error(err)
+		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
 	_, err = h.service.Update(ctx.Request.Context(), req.UpdateRequest)
 	if err != nil {
-		if err, ok := err.(*errors.Error); ok {
-			response.Error(ctx, err)
-		} else {
-			response.Error(ctx, errors.ServerError())
-		}
+		response.Error(ctx, err)
 		return
 	}
 

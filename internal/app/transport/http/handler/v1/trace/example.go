@@ -45,10 +45,10 @@ func (h *Handler) Example(ctx *gin.Context) {
 	}
 
 	client := greet.NewGreetClient(conn)
-	resp, err := client.Hello(reqCtx, &greet.HelloRequest{Name: ""})
+	resp, err := client.Hello(reqCtx, &greet.HelloRequest{Name: "Example"})
 	if err != nil {
 		e := errorsx.FromGRPCError(err)
-		response.Error(ctx, errorsx.ServerError(errorsx.WithMessage(fmt.Sprintf("GRPC 调用错误：%s", e.Message))))
+		response.Error(ctx, fmt.Errorf("GRPC 调用错误：%s", e.Message))
 		return
 	}
 	h.logger.Infof("请求结果：%s", resp.Msg)
@@ -91,7 +91,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 		err = fmt.Errorf("请求 %s 失败: %w", requestUrl, err)
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		response.Error(ctx, errorsx.ServerError(errorsx.WithMessage(fmt.Sprintf("请求 %s 失败", requestUrl))))
+		response.Error(ctx, fmt.Errorf("请求 %s 失败", requestUrl))
 		return
 	}
 

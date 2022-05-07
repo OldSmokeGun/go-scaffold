@@ -1,36 +1,31 @@
 package errors
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"net/http"
 	"testing"
 )
 
-func TestError_Error(t *testing.T) {
-	type fields struct {
-		Code    ErrorCode
-		Message string
-	}
-
+func TestError(t *testing.T) {
 	tests := []struct {
-		name   string
-		fields fields
-		want   string
+		name  string
+		error *Error
+		want  string
 	}{
-		{name: "success", fields: fields{SuccessCode, SuccessCode.String()}, want: "code: 10000, message: OK"},
-		{name: "server_error", fields: fields{ServerErrorCode, ServerErrorCode.String()}, want: "code: 10001, message: 服务器出错"},
-		{name: "client_error", fields: fields{ClientErrorCode, ClientErrorCode.String()}, want: "code: 10002, message: 客户端请求错误"},
-		{name: "validate_error", fields: fields{ValidateErrorCode, ValidateErrorCode.String()}, want: "code: 10003, message: 参数校验错误"},
-		{name: "unauthorized", fields: fields{UnauthorizedCode, UnauthorizedCode.String()}, want: "code: 10004, message: 未经授权"},
-		{name: "permission_denied", fields: fields{PermissionDeniedCode, PermissionDeniedCode.String()}, want: "code: 10005, message: 暂无权限"},
-		{name: "resource_not_found", fields: fields{ResourceNotFoundCode, ResourceNotFoundCode.String()}, want: "code: 10006, message: 资源不存在"},
-		{name: "too_many_request", fields: fields{TooManyRequestCode, TooManyRequestCode.String()}, want: "code: 10007, message: 请求过于频繁"},
+		{name: "success", error: New(SuccessCode, SuccessCode.String()), want: "code: 10000, message: OK"},
+		{name: "server_error", error: ServerError(), want: "code: 10001, message: 服务器出错"},
+		{name: "client_error", error: ClientError(), want: "code: 10002, message: 客户端请求错误"},
+		{name: "validate_error", error: ValidateError(), want: "code: 10003, message: 参数校验错误"},
+		{name: "unauthorized", error: Unauthorized(), want: "code: 10004, message: 未经授权"},
+		{name: "permission_denied", error: PermissionDenied(), want: "code: 10005, message: 暂无权限"},
+		{name: "resource_not_found", error: ResourceNotFound(), want: "code: 10006, message: 资源不存在"},
+		{name: "too_many_request", error: TooManyRequest(), want: "code: 10007, message: 请求过于频繁"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := New(tt.fields.Code, tt.fields.Message)
+			e := New(tt.error.Code, tt.error.Message)
 			assert.Equal(t, tt.want, e.Error())
 		})
 	}
@@ -48,31 +43,9 @@ func TestError_Error(t *testing.T) {
 	})
 }
 
-func TestStatusCode_HTTPStatusCode(t *testing.T) {
-	tests := []struct {
-		name       string
-		statusCode int
-		want       int
-	}{
-		{name: "http_status_ok", statusCode: SuccessCode.HTTPStatusCode(), want: http.StatusOK},
-		{name: "http_status_internal_server_error", statusCode: ServerErrorCode.HTTPStatusCode(), want: http.StatusInternalServerError},
-		{name: "http_status_bad_request", statusCode: ClientErrorCode.HTTPStatusCode(), want: http.StatusBadRequest},
-		{name: "http_status_bad_request", statusCode: ValidateErrorCode.HTTPStatusCode(), want: http.StatusBadRequest},
-		{name: "http_status_unauthorized", statusCode: UnauthorizedCode.HTTPStatusCode(), want: http.StatusUnauthorized},
-		{name: "http_status_forbidden", statusCode: PermissionDeniedCode.HTTPStatusCode(), want: http.StatusForbidden},
-		{name: "http_status_not_found", statusCode: ResourceNotFoundCode.HTTPStatusCode(), want: http.StatusNotFound},
-		{name: "http_status_too_many_requests", statusCode: TooManyRequestCode.HTTPStatusCode(), want: http.StatusTooManyRequests},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, tt.statusCode)
-		})
-	}
-}
-
-func TestError_GRPCStatus(t *testing.T) {
+func TestGRPCStatus(t *testing.T) {
 	t.Run("grpc_status", func(t *testing.T) {
-		wantMetaData := map[string]string{
+		metaData := map[string]string{
 			"foo": "bar",
 		}
 
@@ -80,7 +53,7 @@ func TestError_GRPCStatus(t *testing.T) {
 			ServerErrorCode,
 			ServerErrorCode.String(),
 			WithMessage("test error"),
-			WithMetadata(wantMetaData),
+			WithMetadata(metaData),
 		)
 		gs := e.GRPCStatus()
 
@@ -95,10 +68,39 @@ func TestError_GRPCStatus(t *testing.T) {
 			}
 		}
 
-		assert.Equal(t, wantMetaData, actualMetadata)
+		assert.Equal(t, metaData, actualMetadata)
 	})
 }
 
 func TestFromGRPCError(t *testing.T) {
+	t.Run("error_is_nil", func(t *testing.T) {
+		var err error
+		e := FromGRPCError(err)
+		assert.Nil(t, e)
+	})
 
+	t.Run("error", func(t *testing.T) {
+		metadata := map[string]string{"foo": "bar"}
+		err := New(ServerErrorCode, ServerErrorCode.String(), WithMetadata(metadata))
+		e := FromGRPCError(err)
+		assert.Equal(t, ServerErrorCode, e.Code)
+		assert.Equal(t, ServerErrorCode.String(), e.Message)
+		assert.Equal(t, metadata, e.Metadata)
+	})
+
+	t.Run("grpc_error", func(t *testing.T) {
+		metadata := map[string]string{"foo": "bar"}
+		err := New(ServerErrorCode, ServerErrorCode.String(), WithMetadata(metadata))
+		e := FromGRPCError(err.GRPCStatus().Err())
+		assert.Equal(t, ServerErrorCode, e.Code)
+		assert.Equal(t, ServerErrorCode.String(), e.Message)
+		assert.Equal(t, metadata, e.Metadata)
+	})
+
+	t.Run("other_error", func(t *testing.T) {
+		var err = errors.New("test error")
+		e := FromGRPCError(err)
+		assert.Equal(t, ServerErrorCode, e.Code)
+		assert.Equal(t, "test error", e.Message)
+	})
 }

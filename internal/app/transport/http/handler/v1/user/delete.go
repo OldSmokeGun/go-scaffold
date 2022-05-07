@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-scaffold/internal/app/pkg/errors"
+	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 )
@@ -30,16 +30,13 @@ func (h *Handler) Delete(ctx *gin.Context) {
 	req := new(DeleteRequest)
 	if err := ctx.ShouldBindUri(req); err != nil {
 		h.logger.Error(err)
+		response.Error(ctx, errorsx.ValidateError())
 		return
 	}
 
 	err := h.service.Delete(ctx.Request.Context(), req.DeleteRequest)
 	if err != nil {
-		if err, ok := err.(*errors.Error); ok {
-			response.Error(ctx, err)
-		} else {
-			response.Error(ctx, errors.ServerError())
-		}
+		response.Error(ctx, err)
 		return
 	}
 
