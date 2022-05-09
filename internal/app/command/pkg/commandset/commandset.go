@@ -1,4 +1,4 @@
-package commandx
+package commandset
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package example
+package apiexample
 
 // Success 成功
 type Success struct {

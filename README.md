@@ -1,90 +1,78 @@
-# `Go` 开发基础脚手架
+# 架构图
 
-## 架构图
+![image](./docs/images/architecture.png)
 
-![image](./docs/images/脚手架架构图.png)
+# 生命周期
 
-## 目录结构
+![image](./docs/images/lifecycle.png)
 
-- `bin`：二进制文件输入目录
-- `cmd`：编译入口
-  - `app`：主程序编译入口
-  - 辅助程序编译入口目录（如 `ctl` 等命令行生成工具）
-  - ...
-- `deploy`：环境和部署相关目录
-  - `docker-compose`：`docker-compose` 容器编排目录
-  - `kubernetes`: `k8s` 编排配置目录
-  - ...
-- `docs`：文档目录
-- `etc`：配置文件目录
-  - `app`: 主程序配置文件目录
-- `internal`：
-  - `app`：主程序逻辑代码
-    - `cli`：命令行功能模块
-      - `command`：命令行功能入口
-        - 模块目录
-        - ...
-      - `pkg`：功能增强包目录
-      - `script`：临时脚本
-        - ...
-    - `config`：主程序配置模型
-    - `cron`：`cron` 定时任务功能模块
-      - `job`: `cron` 任务
-        - ...
-    - `global`：全局对象
-    - `model`：数据库模型
-    - `pkg`：功能增强包目录
-    - `rest`：`HTTP` 功能模块
-      - `api`：`api` 入口
-        - `docs`：`swagger` 生成的定义文件
-        - `example`：`swagger` 文档的示例模型定义
-        - `v1`：`v1` 版本接口入口
-          - `handler`：接口请求处理
-            - 模块目录
-            - ...
-      - `config`：`rest` 配置模型
-      - `middleware`：中间件目录
-      - `pkg`：功能增强包目录
-      - `repository`：数据库交互
-      - `router`：路由定义目录
-        - `api`：`api` 路由组注册
-          - `v1`：`api v1` 版本路由组注册
-    - `rpc`：`RPC` 功能模块
-    - `service`：逻辑代码
-      - 模块目录
-      - ...
-    - `test`：测试相关功能包
-    - 其它功能模块
-- `logs`：日志文件生成目录
-- `pkg`：功能类库
- 
-# `app` 主程序
+# 目录结构
 
-## 生命周期
+```shell
+|-- bin # 二进制文件目录
+|-- cmd # 编译入口
+|   `-- app
+|-- deploy # 环境和部署相关目录
+|   |-- docker-compose # docker-compose 容器编排目录
+|   `-- kubernetes # k8s 编排配置目录
+|-- docs # 文档目录
+|-- etc # 配置文件目录
+|-- internal
+|   `-- app
+|       |-- command # 命令行功能模块
+|       |   |-- handler
+|       |   `-- script # 临时脚本
+|       |-- component # 功能组件，如：db, redis 等
+|       |-- config # 配置模型
+|       |-- cron # 定时任务功能模块
+|       |   `-- job
+|       |-- model # 数据库模型
+|       |-- pkg # 功能类库
+|       |-- repository # 数据处理层
+|       |-- service # 业务逻辑层
+|       |-- test
+|       `-- transport
+|           |-- grpc
+|           |   |-- api # proto 文件目录
+|           |   |-- handler # 控制层
+|           |   `-- middleware # 中间件
+|           `-- http
+|               |-- api # swagger 文档
+|               |-- handler # 控制层
+|               |-- middleware # 中间件
+|               `-- router # 路由
+|-- logs # 日志目录
+|-- pkg # 功能类库
+`-- proto # 第三方 proto 文件目录
+```
 
-![image](./docs/images/app主程序生命周期.png)
+# 准备
 
-## 如何运行
+脚手架核心基于 [kratos](https://github.com/go-kratos/kratos) 框架和 [wire](https://github.com/google/wire) 依赖注入框架，请先自行根据官方文档学习
 
-### `go build` 或 `go run`
+# 如何运行
+
+## `go build` 或 `go run`
 
 1. `go build` 方式
 
 ```shell
-$ go build -o bin/app cmd/app/main.go 
+$ go generate ./...
+$ go build -o bin/app cmd/app/main.go cmd/app/wire_gen.go
 $ ./bin/app
 ```
 
 2. `go run` 方式
 
 ```shell
-$ go run cmd/app/main.go 
+$ go generate ./...
+$ go run cmd/app/main.go cmd/app/wire_gen.go
 ```
 
-### `make`
+## `make`
 
 ```shell
- # 下载依赖
+# 下载依赖
 $ make download
 $ make build
 
@@ -97,14 +85,15 @@ $ make mac-build
 $ ./bin/app
 ```
 
-### `docker-compose`
+## `docker-compose`
 
 `docker-compose` 的启动方式有两种，一种是基于 `air` 镜像，一种是基于 `Dockerfile` 来构建镜像
 
-- 基于 `air` 镜像的方式只适用于开发阶段，请勿用于生产环境
-- 基于 `Dockerfile` 的方式如果用于开发阶段，修改的代码将不会更新，除非在 `docker-compose` 启动时指定 `--build` 参数，但是这将会导致每次启动时都重新构建镜像，可能需要等待很长时间
-
-> 注意：基于 `air` 镜像启动时，在 `Windows` 系统环境下，热更新可能不会生效，这是因为 `fsnotify` 无法收到 `wsl` 文件系统的变更通知
+> 注意：
+>
+> - 基于 `air` 镜像的方式只适用于开发阶段，请勿用于生产环境
+    >   - 在 `Windows` 系统环境下，热更新可能不会生效，这是因为 `fsnotify` 无法收到 `wsl` 文件系统的变更通知
+> - 基于 `Dockerfile` 的方式如果用于开发阶段，修改的代码将不会更新，除非在 `docker-compose` 启动时指定 `--build` 参数，但是这将会导致每次启动时都重新构建镜像，可能需要等待很长时间
 
 ```shell
 # 基于 air 
@@ -114,264 +103,396 @@ $ docker-compose -f deploy/docker-compose/docker-compose-dev.yaml up
 $ docker-compose -f deploy/docker-compose/docker-compose.yaml up
 ```
 
-### 热重启
+## 热重启
 
-热重启功能基于 `air` 包，[文档地址](https://github.com/cosmtrek/air)
+热重启功能基于 [air](https://github.com/cosmtrek/air)
 
 ```shell
 $ air
 ```
 
-### 运行子命令或脚本
+## 运行子命令或脚本
 
-命令行程序功能基于 `cobra` 包，[文档地址](https://github.com/cosmtrek/air)
+命令行程序功能基于 [cobra](https://github.com/cosmtrek/air)
 
 ```shell
 $ ./bin/app [标志] <子命令> [标志] [参数]
 
 # 帮助信息
+
 $ ./bin/app -h
 $ ./bin/app <子命令> -h
 ```
 
-## 配置
+# 依赖注入
 
-配置文件位于 `etc` 目录中，如果位于其它位置，需要在运行程序时通过 `-f` 参数指定其位置（默认配置文件路径：`etc/app/config.yaml`）
+==依赖通过自动生成代码的方式在编译期完成注入==
 
-配置文件的内容在程序启动时会被加载到 `app` 全局配置实例中，为了方便管理和维护各个子服务模块的配置，在 `app` 全局配置实例中，对各个子服务模块的配置进行了拆分，分散到其独立的配置实例中
+依赖结构：
 
-配置规范：
+![image](./docs/images/dependency.png)
 
-1. 如果子服务模块需要定义配置，那么在 `etc/app/config.yaml` 配置文件中，必须将子服务模块名称作为最顶层 `key` 展开配置
-2. 在子服务模块目录中新建 `config/config.go` 文件，在此文件中定义子服务模块配置文件的映射模型
+# 配置
+
+默认配置文件路径为：`etc/app/config.yaml`
+
+可以在运行程序时通过 `--config` 或 `-f` 选项指定其它配置文件
+
+## 配置模型
+
+配置文件的内容在程序启动时会被加载到配置模型中，相关目录：`internal/app/config`
+
+- `internal/app/config/declare.go`：配置的结构体定义
+- `internal/app/config/config.go`：声明 `Provider` 和监听的配置 `Key`
+
+如何获取配置模型：
+
+- 注入配置模型类型：`*config.Config`
+- 注入 `App` 配置模型类型：`*config.App`
+- ...
 
 例：
 
-`app` 全局配置定义
-
 ```go
-type Config struct {
-	Priority         bool
-	Name             string
-	Env              string
-	ShutdownWaitTime int
-	DB               *orm.Config
-	Redis            *redisclient.Config
-	Trace            *struct {
-		Endpoint         string
-		ShutdownWaitTime int
+package trace
+
+import "go-scaffold/internal/app/config"
+
+type Handler struct {
+	conf    *config.Config
+	appConf *config.App
+}
+
+func NewHandler(
+	conf *config.Config,
+	appConf *config.App,
+) *Handler {
+	return &Handler{
+		conf:    conf,
+		appConf: appConf,
 	}
-	REST restconfig.Config `mapstructure:"REST"`
 }
 ```
 
-`rest` 服务模块配置定义
+## 远程配置
+
+在启动程序时，可通过以下选项配置远程配置中心
+
+- `config.apollo.enable`: `apollo` 是否启用
+- `config.apollo.endpoint`: 连接地址
+- `config.apollo.appid`: `appID`
+- `config.apollo.cluster`: `cluster`
+- `config.apollo.namespace`: 命名空间
+- `config.apollo.secret`: `secret`
+
+## 监听配置变更
+
+在 `internal/app/config/config.go` 文件的 `watchKeys` 变量中注册需要监听的配置键
+
+注册完成后，如果配置文件内容发生变更，无需重启服务，更改内容会自动同步到配置实例中
+
+例：
 
 ```go
-type (
-	Config struct {
-		Host        string
-		Port        int
-		ExternalUrl string
-		Jwt         Jwt
-	}
-
-	Jwt struct {
-		Key    string
-	}
-)
+var watchKeys = []string{
+   "services.self",
+   "jwt.key",
+}
 ```
 
-在配置文件更改后，无需重启服务，更改内容会自动同步到配置实例中
+# 日志
 
-- `app` 全局配置实例的定义位于 `internal/app/config/config.go` 中
-- `rest` 服务配置实例的定义位于 `internal/app/rest/config/config.go` 中
-- 子服务模块配置实例的定义应位于 `internal/app/<子服务模块>/config/config.go` 中
+日志基于 [zap](https://github.com/uber-go/zap)，日志的轮转基于 [file-rotatelogs](github.com/lestrrat-go/file-rotatelogs)
 
-不提供直接使用 `viper` 包直接通过键名来获取配置值的方法，而统一使用 `global.Config()` 来获取，避免快捷方式的滥用造成后期的维护困难
+日志内容默认输出到 `logs` 目录中，并且根据每天的日期进行分割
 
-### 远程配置
+可在程序启动时，通过以下选项改变日志行为：
 
-远程配置中心的连接配置文件位于 `etc` 目录中，如果位于其它位置，需要在运行程序时通过 `--config.remote` 参数指定其位置（默认配置文件路径：`etc/app/remote.yaml`）
+- `log.path`: 日志输出路径
+- `log.level`: 日志等级（`debug`、`info`、`warn`、`error`、`panic`、`fatal`）
+- `log.format`: 日志输出格式（`text`、`json`）
+- `log.caller-skip`: 日志 `caller` 跳过层数
 
-应用程序配置文件 `etc/app/remote.yaml` 中的 `Priority` 参数控制是否本地配置优先，如果此参数为 `false`，且指定了远程配置中心的连接配置，将会尝试从远程配置中心拉取配置并覆盖本地配置
+如何获取日志实例：
 
-程序会监听远程配置的变更，并实时同步到配置模型中
+- 注入类型：`log.Logger`
 
-## 全局对象
-
-在程序启动时，会根据配置文件，将数据库、`Redis`、日志等实例初始化到全局对象上
-
-全局对象实例的定义位于 `internal/app/global/global.go` 中
+例：
 
 ```go
-var (
-    command      *cobra.Command         // 根命令实例
-	loggerOutput *rotatelogs.RotateLogs // 日志输出实例
-	conf         *config.Config         // 配置实例
-	logger       *zap.Logger            // 日志实例
-	db           *gorm.DB               // 数据库实例
-	redisClient  *redis.Client          // redis 实例
-)
+package greet
+
+import "github.com/go-kratos/kratos/v2/log"
+
+type Service struct {
+    logger *log.Helper
+}
+
+func NewService(logger log.Logger) *Service {
+    return &Service{
+        logger: log.NewHelper(logger),
+    }
+}
 ```
 
-## 日志
+# 组件
 
-日志实例获取：`global.Logger()`
+## `DB`
 
-日志基于 `zap` 包，[文档地址](https://github.com/uber-go/zap)
+`DB` 基于 [gorm](https://github.com/go-gorm/gorm)
 
-日志内容统一输出到 `logs` 目录中，并且将会按照每天的日期进行分割，如果需要将其它日志信息写入到此目录的日志文件中，需要获取此目录文件的操作实例，获取方式：`global.LoggerOutput()`
+如何获取 `DB` 实例：
 
-日志的行为可以通过启动命令行时指定参数来控制
+- 注入类型：`*gorm.DB`
 
-- `log.path`：日志输出路径
-- `log.level`：日志等级（debug、info、warn、error、panic、panic、fatal）
-- `log.format`：日志格式（text、json）
+例：
 
-## `ORM`
+```go
+package user
 
-`ORM` 实例获取：`global.DB()`
+import "gorm.io/gorm"
 
-`ORM` 基于 `gorm` 包，[文档地址](https://github.com/go-gorm/gorm)
+type Repository struct {
+    db *gorm.DB
+}
+
+func NewRepository(db *gorm.DB) *Repository {
+    return &Repository{
+        db: db,
+    }
+}
+```
 
 ## `Redis` 客户端
 
-`Redis` 客户端实例获取：`global.RedisClient()`
+`Redis` 客户端基于 [go-redis](https://github.com/go-redis/redis)
 
-`Redis` 客户端基于 `redis` 包，[文档地址](https://github.com/go-redis/redis)
+如何获取 `Redis` 客户端：
 
-## `rest` 功能模块
-
-`rest` 功能模块基于 `gin` 提供的 `HTTP` 相关功能，[文档地址](https://github.com/gin-gonic/gin)
-
-### 数据校验和绑定
-
-在 `internal/app/rest/pkg/bindx` 包中，对 `gin` 的 `ShouldBind` 系列方法、参数校验以及 `validator` 包错误信息的翻译进行了封装
-
-在参数校验失败后，会对错误信息进行翻译，然后以预定的 `HTTP` 响应码和业务响应码进行 `JSON` 响应
-
-`ShouldBind` 系列函数绑定的结构体必须实现 `bindx` 包中的 `BindModel` 接口，`ErrorMessage` 方法返回一个 `map`，此 `map` 是“字段.校验规则”与错误信息的键值对
-
-`BindModel` 接口定义：
-
-```go
-type BindModel interface {
-    ErrorMessage() map[string]string
-}
-```
+- 注入类型：`*redis.Client`
 
 例：
 
 ```go
-type HelloReq struct {
-    Name string `form:"name" binding:"required"`
+package user
+
+import "github.com/go-redis/redis/v8"
+
+type Repository struct {
+    rdb *redis.Client
 }
 
-func (HelloReq) ErrorMessage() map[string]string {
-	return map[string]string{
-		"Name.required": "名称不能为空",
+func NewRepository(rdb *redis.Client) *Repository {
+    return &Repository{
+        rdb: rdb,
+    }
+}
+```
+
+## `GRPC` 客户端
+
+`GRPC` 客户端基于 `kratos` 的 `GRPC` 客户端再封装，自动判断与服务端通信时是直连还是服务发现
+
+如何获取 `GRPC` 客户端：
+
+- 注入类型：`*grpc.Client`
+
+例：
+
+```go
+package trace
+
+import "go-scaffold/internal/app/component/client/grpc"
+
+type Handler struct {
+	grpcClient *grpc.Client
+}
+
+func NewHandler(
+	grpcClient *grpc.Client,
+) *Handler {
+	return &Handler{
+		grpcClient: grpcClient,
 	}
 }
 ```
 
-绑定函数会返回一个 `error`，如果 `error` 不为 `nil`，则应记录错误信息，并立即 `return` 中止函数的执行
+## 链路追踪
 
-绑定函数定义（和 `gin` 的 `ShouldBind` 系列方法对应）：
+脚手架基于 [opentelemetry-go](https://github.com/open-telemetry/opentelemetry-go) 实现了 `OpenTelemetry` 规范的链路追踪
 
-```go
-func ShouldBindDefault(ctx *gin.Context, m BindModel) error
-func ShouldBindJSON(ctx *gin.Context, m BindModel) error
-func ShouldBindXML(ctx *gin.Context, m BindModel) error
-func ShouldBindQuery(ctx *gin.Context, m BindModel) error
-func ShouldBindYAML(ctx *gin.Context, m BindModel) error
-func ShouldBindHeader(ctx *gin.Context, m BindModel) error
-func ShouldBindUri(ctx *gin.Context, m BindModel) error
-func ShouldBindWith(ctx *gin.Context, b binding.Binding, m BindModel) error
-func ShouldBindBodyWith(ctx *gin.Context, b binding.Binding, m BindModel) error
-```
+`transport` 中 `HTTP` 和 `GRPC` 均已注册链路追踪的中间件
+
+如何获取 `tracerProvider` 和 `tracer`：
+
+- 注入类型：`*redis.Client`
 
 例：
 
 ```go
-// 自动根据请求头的 Content-Type 来进行对应的绑定
-if err := bindx.ShouldBindDefault(ctx, req); err != nil {
-    h.logger.Error(err.Error())
-    return
+package trace
+
+import "go-scaffold/internal/app/component/trace"
+
+type Handler struct {
+    trace *trace.Tracer
 }
 
-// 绑定 JSON 类型的请求数据
-if err := !bindx.ShouldBindJSON(ctx, req); err != nil {
-    h.logger.Error(err.Error())
-    return
-}
-
-// 绑定 form-data 和 x-www-form-urlencoded 类型的请求数据
-if err := !bindx.ShouldBindQuery(ctx, req); err != nil {
-    h.logger.Error(err.Error())
-    return
+func NewHandler(
+    trace *trace.Tracer,
+) *Handler {
+    return &Handler{
+        trace: trace,
+    }
 }
 ```
 
-### 响应
+# 错误处理
 
-在 `internal/app/rest/pkg/responsex` 包中，对 `JSON` 数据的响应进行了封装，统一了 `HTTP` 响应码，业务响应码的返回
-
-函数定义：
+脚手架定义了统一的错误格式
 
 ```go
-// 成功响应
-func Success(ctx *gin.Context, ops ...OptionFunc)
-// 服务器错误响应
-func ServerError(ctx *gin.Context, ops ...OptionFunc)
-// 客户端错误响应
-func ClientError(ctx *gin.Context, ops ...OptionFunc)
-// 参数校验错误响应
-func ValidateError(ctx *gin.Context, ops ...OptionFunc)
-// 登陆失效响应
-func Unauthorized(ctx *gin.Context, ops ...OptionFunc)
-// 暂无权限响应
-func PermissionDenied(ctx *gin.Context, ops ...OptionFunc)
-// 资源不存在响应
-func ResourceNotFound(ctx *gin.Context, ops ...OptionFunc)
-// 请求过于频繁响应
-func TooManyRequest(ctx *gin.Context, ops ...OptionFunc)
+type Error struct {
+	// Code 状态码
+	Code ErrorCode
+
+	// Message 错误信息
+	Message string
+
+	// Metadata 元数据
+	Metadata map[string]string
+}
 ```
+
+快捷函数：
+
+```go
+// ServerError 服务器错误
+func ServerError(options ...Option) *Error {
+	return New(ServerErrorCode, ServerErrorCode.String(), options...)
+}
+
+// ClientError 客户端错误
+func ClientError(options ...Option) *Error {
+	return New(ClientErrorCode, ClientErrorCode.String(), options...)
+}
+
+// ValidateError 参数校验错误
+func ValidateError(options ...Option) *Error {
+	return New(ValidateErrorCode, ValidateErrorCode.String(), options...)
+}
+
+// Unauthorized 未认证
+func Unauthorized(options ...Option) *Error {
+	return New(UnauthorizedCode, UnauthorizedCode.String(), options...)
+}
+
+// PermissionDenied 权限拒绝错误
+func PermissionDenied(options ...Option) *Error {
+	return New(PermissionDeniedCode, PermissionDeniedCode.String(), options...)
+}
+
+// ResourceNotFound 资源不存在
+func ResourceNotFound(options ...Option) *Error {
+	return New(ResourceNotFoundCode, ResourceNotFoundCode.String(), options...)
+}
+
+// TooManyRequest 请求太过频繁
+func TooManyRequest(options ...Option) *Error {
+	return New(TooManyRequestCode, TooManyRequestCode.String(), options...)
+}
+```
+
+## 转换为 `HTTP` 状态码
+
+`Code` 属性实现了 `HTTP` 状态码的转换
 
 例：
 
-> 注意：调用方法后，需立即 `return` 中止方法继续执行（这将不会中止后续中间件的执行）
+```go
+func (s *Service) Hello(ctx context.Context, req HelloRequest) (*HelloResponse, error) {
+    // ...
+    
+    // 返回 Error
+	return nil, errors.ServerError()
+	
+	// ...
+}
+```
 
 ```go
-bindx.Success(ctx) // 成功响应
-bindx.Success(ctx, bindx.WithData(data)) // 返回数据
+// ...
 
-bindx.ServerError(ctx) // 服务器错误响应
-bindx.ServerError(ctx, bindx.WithMsg(msg)) // 返回错误信息
-
-bindx.ClientError(ctx) // 客户端错误响应
-bindx.ClientError(ctx, bindx.WithMsg(msg)) // 返回错误信息
-
-bindx.ValidateError(ctx) // 参数校验错误响应
-bindx.ValidateError(ctx, bindx.WithMsg(msg)) // 返回错误信息
+// 调用 service 方法
+ret, err := h.service.Hello(ctx.Request.Context(), *req)
+if err != nil {
+    // response.Error 方法会自动将 Error 转换为对应的 HTTP 状态
+	response.Error(ctx, err)
+	return
+}
 
 // ...
 ```
 
-### `handler`
+## 将 `GRPC` 错误转换为 `Error`
 
-目录规范：
+`Error` 实现了 `GRPCStatus()` 接口，通过 `FromGRPCError` 函数可将 `GRPC` 错误转换为 `Error`
 
-- `handler` 目录中的业务模块应按照不同的职责进行纵向拆分，例如：`post`、`user`、`comment` 三个业务模块，每一个模块都独立对外提供相应的功能
-- 每个业务模块都是一个单独的包
-- 面向接口编程，每个业务模块都要定义描述其功能的接口，然后业务模块的 `handler` 实现此接口
-- 业务模块的每一个方法都抽离为一个单独的文件，方便进行维护和管理
+例：
+
+```go
+// ...
+
+client := greet.NewGreetClient(conn)
+resp, err := client.Hello(reqCtx, &greet.HelloRequest{Name: "Example"})
+if err != nil {
+    // 将 GRPC 错误转换为 Error
+    e := errors.FromGRPCError(err)
+    response.Error(ctx, fmt.Errorf("GRPC 调用错误：%s", e.Message))
+    return
+}
+
+// ...
+```
+
+# `transport` 层
+
+## `HTTP`
+
+### 响应
+
+在 `internal/app/transport/http/pkg/response` 包中，对 `JSON` 响应进行了封装
+
+成功响应示例：
+
+```go
+func (h *Handler) Hello(ctx *gin.Context) {
+    // ...
+
+    response.Success(ctx, response.WithData(ret))
+    return
+}
+```
+
+错误响应示例：
+
+```go
+func (h *Handler) Hello(ctx *gin.Context) {
+// ...
+
+ret, err := h.service.Hello(ctx.Request.Context(), *req)
+if err != nil {
+response.Error(ctx, err)
+return
+}
+
+// ...
+}
+```
 
 ### `swagger` 文档生成
 
-`swagger` 文档的生成基于 `swag` 包，[文档地址](https://github.com/swaggo/swag)
-
-`swagger` 文档统一生成到 `internal/app/rest/api/docs` 目录下，否则无法访问
+`swagger` 文档的生成基于 [swag](https://github.com/swaggo/swag)，统一生成到 `internal/app/transport/http/api` 目录下，否则无法访问
 
 生成 `swagger` 文档的方式有三种
 
@@ -379,7 +500,7 @@ bindx.ValidateError(ctx, bindx.WithMsg(msg)) // 返回错误信息
 
 ```shell
 $ swag fmt -d internal/app -g app.go
-$ swag init -d internal/app -g app.go -o internal/app/http/api/docs
+$ swag init -d internal/app -g app.go -o internal/app/transport/http/api
 ```
 
 2. `make` 方式
@@ -398,9 +519,9 @@ $ go generate ./...
 
 浏览器打开 `<host>/api/docs`
 
-## 命令行功能模块
+# 命令行功能模块
 
-命令行功能模块基于 `cobra` 包提供的相关功能，[文档地址](https://github.com/spf13/cobra)
+命令行功能模块基于 [cobra](https://github.com/spf13/cobra)
 
 命令行功能被抽象为两部分，一部分称为“业务命令”（`command`），一部分称为“脚本”（`script`）
 
@@ -409,15 +530,15 @@ $ go generate ./...
 - “业务命令”被注册为应用程序的 `business` 子命令，“脚本”被注册为应用程序的 `script` 子命令
 
 命令行目录规范：
- 
-- “业务命令”和“脚本”的注册位于 `internal/app/cli/cli.go` 文件中
+
+- “业务命令”和“脚本”的注册位于 `internal/app/command/command.go` 文件中
 - “业务命令”部分：
-  - “业务命令”在 `internal/app/cli/command` 目录中进行定义
+  - “业务命令”在 `internal/app/command/handler` 目录中进行定义
   - 应按照不同的职责对包进行纵向拆分，例如：`post`、`user`、`comment` 三个业务模块，每一个模块都独立对外提供相应的功能
   - 每个业务模块都是一个单独的包，对应 `business` 命令的子命令，例如：`./bin/app business post`
   - 业务模块中的每个方法都抽离为一个单独的文件，对应业务模块命令的子命令，例如：`./bin/app business post add`
 - “脚本”部分：
-  - “脚本”在 `internal/app/cli/script` 目录中进行定义
+  - “脚本”在 `internal/app/command/script` 目录中进行定义
   - 脚本文件的名称为 `S`+`10` 位时间戳，说明脚本的创建时间
   - 文件中的结构体名称为脚本文件名，并且实现 `Script` 接口
   - 结构体的注释应该说明此脚本的用途
@@ -428,9 +549,9 @@ $ go generate ./...
 >
 > 如果需要频繁调用某个业务逻辑，可以考虑是否应该使用 `cron` 功能模块
 
-## `cron` 定时任务功能模块
+# `cron` 定时任务功能模块
 
-定时任务功能模块基于 `cron` 包提供的相关功能，[文档地址](https://github.com/robfig/cron)
+定时任务功能模块基于 [cron](https://github.com/robfig/cron)
 
 - 其可以提供最小时间单位为秒的定时任务
 - 可明确知道项目中有那些定时任务
@@ -441,19 +562,3 @@ $ go generate ./...
 - 在 `internal/app/cron/job` 目录中进行定义
 - 任务结构体的名称为任务文件名，并且实现 `cron.Job` 接口
 - 结构体的注释应该说明此任务的用途
-
-## `service` 业务逻辑处理
-
-目录规范：
-
-- `service` 目录中的业务模块应按照不同的职责进行纵向拆分，例如：`post`、`user`、`comment` 三个业务模块，每一个模块都独立对外提供相应的功能
-- 每个业务模块都是一个单独的包
-- 面向接口编程，每个业务模块都要定义描述其功能的接口，然后业务模块的 `service` 实现此接口
-- 业务模块的每一个方法都抽离为一个单独的文件，方便进行维护和管理
-
-## 链路追踪
-
-脚手架集成了 `OpenTelemetry` 规范的链路追踪，[文档地址](https://github.com/open-telemetry/opentelemetry-go)
-
-- `rest` 模块已注册链路追踪的中间件，会在进行 `HTTP` 调用时进行追踪
-- 全局通过 `global.Tracer()` 来创建 `span`，示例代码：`internal/app/rest/api/v1/handler/trace/example.go`

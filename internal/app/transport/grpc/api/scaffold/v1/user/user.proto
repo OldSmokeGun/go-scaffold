@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package internal.app.api.scaffold.v1.user;
+package internal.app.transport.grpc.api.scaffold.v1.user;
 
-option go_package = "go-scaffold/internal/app/api/scaffold/v1/user;user";
+option go_package = "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user;user";
 
 service User {
   rpc Create (CreateRequest) returns (CreateResponse) {};

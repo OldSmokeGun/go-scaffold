@@ -18,7 +18,7 @@ import (
 )
 
 //go:generate swag fmt -g app.go
-//go:generate swag init -g app.go -o transport/http/handler/docs --parseInternal
+//go:generate swag init -g app.go -o transport/http/api --parseInternal
 
 // @title                       API 接口文档
 // @description                 API 接口文档

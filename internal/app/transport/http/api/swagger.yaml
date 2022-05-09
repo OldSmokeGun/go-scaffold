@@ -3,7 +3,7 @@ consumes:
 - application/json
 - application/x-www-form-urlencoded
 definitions:
-  example.ClientError:
+  apiexample.ClientError:
     properties:
       code:
         description: code 类型应为 int，string 仅为了表达多个错误码
@@ -13,7 +13,7 @@ definitions:
         example: 客户端请求错误|参数校验错误
         type: string
     type: object
-  example.PermissionDenied:
+  apiexample.PermissionDenied:
     properties:
       code:
         example: 10005
@@ -22,7 +22,7 @@ definitions:
         example: 暂无权限
         type: string
     type: object
-  example.ResourceNotFound:
+  apiexample.ResourceNotFound:
     properties:
       code:
         example: 10006
@@ -31,7 +31,7 @@ definitions:
         example: 资源不存在
         type: string
     type: object
-  example.ServerError:
+  apiexample.ServerError:
     properties:
       code:
         example: 10001
@@ -40,7 +40,7 @@ definitions:
         example: 服务器出错
         type: string
     type: object
-  example.Success:
+  apiexample.Success:
     properties:
       code:
         example: 10000
@@ -50,7 +50,7 @@ definitions:
         example: OK
         type: string
     type: object
-  example.TooManyRequest:
+  apiexample.TooManyRequest:
     properties:
       code:
         example: 10007
@@ -59,7 +59,7 @@ definitions:
         example: 请求过于频繁
         type: string
     type: object
-  example.Unauthorized:
+  apiexample.Unauthorized:
     properties:
       code:
         example: 10004
@@ -131,7 +131,7 @@ paths:
           description: 成功响应
           schema:
             allOf:
-            - $ref: '#/definitions/example.Success'
+            - $ref: '#/definitions/apiexample.Success'
             - properties:
                 data:
                   $ref: '#/definitions/greet.HelloResponse'
@@ -139,27 +139,27 @@ paths:
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 示例接口
       tags:
       - 示例
@@ -174,31 +174,31 @@ paths:
         "200":
           description: 成功响应
           schema:
-            $ref: '#/definitions/example.Success'
+            $ref: '#/definitions/apiexample.Success'
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 示例接口
       tags:
       - 示例
@@ -221,31 +221,31 @@ paths:
         "200":
           description: 成功响应
           schema:
-            $ref: '#/definitions/example.Success'
+            $ref: '#/definitions/apiexample.Success'
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 创建用户
       tags:
       - 用户
@@ -268,31 +268,31 @@ paths:
         "200":
           description: 成功响应
           schema:
-            $ref: '#/definitions/example.Success'
+            $ref: '#/definitions/apiexample.Success'
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 删除用户
       tags:
       - 用户
@@ -315,7 +315,7 @@ paths:
           description: 成功响应
           schema:
             allOf:
-            - $ref: '#/definitions/example.Success'
+            - $ref: '#/definitions/apiexample.Success'
             - properties:
                 data:
                   $ref: '#/definitions/user.DetailResponse'
@@ -323,27 +323,27 @@ paths:
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 用户详情
       tags:
       - 用户
@@ -372,31 +372,31 @@ paths:
         "200":
           description: 成功响应
           schema:
-            $ref: '#/definitions/example.Success'
+            $ref: '#/definitions/apiexample.Success'
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 更新用户
       tags:
       - 用户
@@ -418,7 +418,7 @@ paths:
           description: 成功响应
           schema:
             allOf:
-            - $ref: '#/definitions/example.Success'
+            - $ref: '#/definitions/apiexample.Success'
             - properties:
                 data:
                   items:
@@ -428,27 +428,27 @@ paths:
         "400":
           description: 客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）
           schema:
-            $ref: '#/definitions/example.ClientError'
+            $ref: '#/definitions/apiexample.ClientError'
         "401":
           description: 登陆失效
           schema:
-            $ref: '#/definitions/example.Unauthorized'
+            $ref: '#/definitions/apiexample.Unauthorized'
         "403":
           description: 没有权限
           schema:
-            $ref: '#/definitions/example.PermissionDenied'
+            $ref: '#/definitions/apiexample.PermissionDenied'
         "404":
           description: 资源不存在
           schema:
-            $ref: '#/definitions/example.ResourceNotFound'
+            $ref: '#/definitions/apiexample.ResourceNotFound'
         "429":
           description: 请求过于频繁
           schema:
-            $ref: '#/definitions/example.TooManyRequest'
+            $ref: '#/definitions/apiexample.TooManyRequest'
         "500":
           description: 服务器出错
           schema:
-            $ref: '#/definitions/example.ServerError'
+            $ref: '#/definitions/apiexample.ServerError'
       summary: 用户列表
       tags:
       - 用户

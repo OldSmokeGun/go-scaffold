@@ -16,7 +16,10 @@ var ProviderSet = wire.NewSet(
 	wire.FieldsOf(new(*App), "Discovery"),
 )
 
-var watchKeys = []string{}
+var watchKeys = []string{
+	"services.self",
+	"jwt.key",
+}
 
 // Watch 监听配置键的变化
 func Watch(hLogger log.Logger, cfg config.Config, conf *Config) error {

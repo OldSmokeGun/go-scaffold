@@ -8,9 +8,9 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
-	greetpb "go-scaffold/internal/app/api/scaffold/v1/greet"
-	userpb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"go-scaffold/internal/app/config"
+	greetpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
+	userpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
 	"go-scaffold/internal/app/transport/grpc/handler"
 	"time"
 )

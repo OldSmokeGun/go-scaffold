@@ -19,8 +19,6 @@ type Error struct {
 
 	// Metadata 元数据
 	Metadata map[string]string
-
-	cause error
 }
 
 func (e Error) Error() string {

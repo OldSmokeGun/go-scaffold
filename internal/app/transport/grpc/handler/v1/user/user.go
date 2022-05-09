@@ -2,9 +2,9 @@ package user
 
 import (
 	"github.com/go-kratos/kratos/v2/log"
-	pb "go-scaffold/internal/app/api/scaffold/v1/user"
 	userrepo "go-scaffold/internal/app/repository/user"
 	usersvc "go-scaffold/internal/app/service/user"
+	pb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
 )
 
 var _ pb.UserServer = (*Handler)(nil)

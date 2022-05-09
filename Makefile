@@ -4,7 +4,7 @@ APP_BIN_PATH = bin/app
 APP_MAIN_DIR = cmd/app
 API_SWAGGER_SCAN_DIR = internal/app
 API_SWAGGER_SCAN_ENTRY = app.go
-API_SWAGGER_OUT_DIR = internal/app/transport/http/handler/docs
+API_SWAGGER_OUT_DIR = internal/app/transport/http/api
 API_PROTO_FILES=$(shell find internal/app/api -name *.proto)
 API_PROTO_PB_FILES=$(shell find internal/app/api -name *.pb.go)
 

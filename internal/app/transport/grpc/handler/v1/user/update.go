@@ -2,8 +2,8 @@ package user
 
 import (
 	"context"
-	pb "go-scaffold/internal/app/api/scaffold/v1/user"
 	"go-scaffold/internal/app/service/user"
+	pb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
 )
 
 func (h *Handler) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {

@@ -47,7 +47,7 @@ var (
 
 func init() {
 	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
-	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、panic、fatal）")
+	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、fatal）")
 	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志输出格式（text、json）")
 	pflag.IntVarP(&logCallerSkip, "log.caller-skip", "", 4, "日志 caller 跳过层数")
 	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/config.yaml"), "配置文件路径")

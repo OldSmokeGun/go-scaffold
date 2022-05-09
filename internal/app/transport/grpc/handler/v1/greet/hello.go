@@ -2,8 +2,8 @@ package greet
 
 import (
 	"context"
-	pb "go-scaffold/internal/app/api/scaffold/v1/greet"
 	"go-scaffold/internal/app/service/greet"
+	pb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
 )
 
 func (h *Handler) Hello(ctx context.Context, req *pb.HelloRequest) (*pb.HelloResponse, error) {

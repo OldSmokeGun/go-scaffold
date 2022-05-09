@@ -5,24 +5,26 @@ import (
 	"github.com/spf13/cobra"
 	"go-scaffold/internal/app/command/handler"
 	"go-scaffold/internal/app/command/handler/greet"
-	"go-scaffold/internal/app/command/pkg/commandx"
+	"go-scaffold/internal/app/command/pkg/commandset"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component"
+	"go-scaffold/internal/app/config"
 )
 
 var ProviderSet = wire.NewSet(
+	config.ProviderSet,
 	component.ProviderSet,
 	script.ProviderSet,
 	handler.ProviderSet,
 )
 
 func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), error)) {
-	set := commandx.NewCommandSet(rootCommand)
+	set := commandset.NewCommandSet(rootCommand)
 
 	// TODO 编写子命令
 
 	// 注册业务的子命令
-	set.RegisterBusiness([]*commandx.Command{
+	set.RegisterBusiness([]*commandset.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "greet",
@@ -39,7 +41,7 @@ func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), erro
 			Option: func(command *cobra.Command) {
 				command.Flags().StringP("example", "e", "foo", "示例 flag")
 			},
-			Children: []*commandx.Command{
+			Children: []*commandset.Command{
 				{
 					Entity: &cobra.Command{
 						Use:   "to",
@@ -59,7 +61,7 @@ func Setup(rootCommand *cobra.Command, newCommand func() (*Command, func(), erro
 	})
 
 	// 注册临时脚本命令
-	set.RegisterScript([]*commandx.Command{
+	set.RegisterScript([]*commandset.Command{
 		{
 			Entity: &cobra.Command{
 				Use:   "S0000000000",
