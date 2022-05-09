@@ -20,7 +20,7 @@ var ProviderSet = wire.NewSet(
 // NewServer 创建 HTTP 服务器
 func NewServer(
 	logger log.Logger,
-	httpConf *config.Http,
+	httpConf *config.HTTP,
 	router *gin.Engine,
 ) *khttp.Server {
 	if router == nil {

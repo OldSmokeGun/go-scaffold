@@ -24,42 +24,40 @@ const (
 )
 
 type Config struct {
-	App      *App
-	Services *Services
-	Jwt      *Jwt
+	App       *App              `json:"app"`
+	HTTP      *HTTP             `json:"http"`
+	GRPC      *GRPC             `json:"grpc"`
+	DB        *orm.Config       `json:"db"`
+	Redis     *redis.Config     `json:"redis"`
+	Trace     *trace.Config     `json:"trace"`
+	Discovery *discovery.Config `json:"discovery"`
+	Services  *Services         `json:"services"`
+	Jwt       *Jwt              `json:"jwt"`
 }
 
-type (
-	App struct {
-		Name      string
-		Env       Env
-		Timeout   int64
-		Http      *Http
-		Grpc      *Grpc
-		DB        *orm.Config
-		Redis     *redis.Config
-		Trace     *trace.Config
-		Discovery *discovery.Config
-	}
+type App struct {
+	Name    string `json:"name"`
+	Env     Env    `json:"env"`
+	Timeout int64  `json:"timeout"`
+}
 
-	Http struct {
-		Network      string
-		Addr         string
-		Timeout      int64
-		ExternalAddr string
-	}
+type HTTP struct {
+	Network      string `json:"network"`
+	Addr         string `json:"addr"`
+	Timeout      int64  `json:"timeout"`
+	ExternalAddr string `json:"externalAddr"`
+}
 
-	Grpc struct {
-		Network string
-		Addr    string
-		Timeout int64
-	}
-)
+type GRPC struct {
+	Network string `json:"network"`
+	Addr    string `json:"addr"`
+	Timeout int64  `json:"timeout"`
+}
 
 type Services struct {
-	Self string
+	Self string `json:"self"`
 }
 
 type Jwt struct {
-	Key string
+	Key string `json:"key"`
 }

@@ -23,7 +23,7 @@ var ProviderSet = wire.NewSet(
 // NewServer 创建 gRPC 服务器
 func NewServer(
 	logger log.Logger,
-	grpcConf *config.Grpc,
+	grpcConf *config.GRPC,
 	greetServer greetpb.GreetServer,
 	userServer userpb.UserServer,
 ) *grpc.Server {

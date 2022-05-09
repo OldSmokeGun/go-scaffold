@@ -39,19 +39,18 @@ import (
 // Injectors from wire.go:
 
 func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*app.App, func(), error) {
-	configApp := configConfig.App
-	ormConfig := configApp.DB
+	ormConfig := configConfig.DB
 	db, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
 	if err != nil {
 		return nil, nil, err
 	}
-	traceConfig := configApp.Trace
+	traceConfig := configConfig.Trace
 	tracer, cleanup3, err := trace.New(traceConfig, logLogger)
 	if err != nil {
 		cleanup2()
 		return nil, nil, err
 	}
-	redisConfig := configApp.Redis
+	redisConfig := configConfig.Redis
 	client, cleanup4, err := redis.New(redisConfig, logLogger)
 	if err != nil {
 		cleanup3()
@@ -66,10 +65,11 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		cleanup2()
 		return nil, nil, err
 	}
-	configHttp := configApp.Http
+	configApp := configConfig.App
+	configHTTP := configConfig.HTTP
 	service := greet.NewService(logLogger)
 	handler := greet2.NewHandler(logLogger, service)
-	discoveryConfig := configApp.Discovery
+	discoveryConfig := configConfig.Discovery
 	discoveryDiscovery, err := discovery.New(discoveryConfig, zapLogger)
 	if err != nil {
 		cleanup4()
@@ -82,12 +82,12 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, zapLogger, configApp, handler, traceHandler, userHandler)
-	server := http.NewServer(logLogger, configHttp, engine)
-	configGrpc := configApp.Grpc
+	engine := router.New(rotateLogs, zapLogger, configApp, configHTTP, handler, traceHandler, userHandler)
+	server := http.NewServer(logLogger, configHTTP, engine)
+	configGRPC := configConfig.GRPC
 	greetHandler := greet3.NewHandler(logLogger, service)
 	handler2 := user4.NewHandler(logLogger, userService, repository)
-	grpcServer := grpc2.NewServer(logLogger, configGrpc, greetHandler, handler2)
+	grpcServer := grpc2.NewServer(logLogger, configGRPC, greetHandler, handler2)
 	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
 	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport)
 	return appApp, func() {

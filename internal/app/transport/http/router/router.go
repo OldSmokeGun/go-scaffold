@@ -35,11 +35,12 @@ func New(
 	loggerWriter *rotatelogs.RotateLogs,
 	zLogger *zap.Logger,
 	appConf *config.App,
+	httpConf *config.HTTP,
 	greetHandler greet.HandlerInterface,
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
 ) *gin.Engine {
-	if appConf.Http == nil {
+	if httpConf == nil {
 		return nil
 	}
 
@@ -71,7 +72,7 @@ func New(
 	router.Use(otelgin.Middleware(appConf.Name))
 
 	rg := router.Group("/")
-	extAddrSubs := strings.SplitN(appConf.Http.ExternalAddr, "/", 2)
+	extAddrSubs := strings.SplitN(httpConf.ExternalAddr, "/", 2)
 	if len(extAddrSubs) == 2 {
 		rg = router.Group("/" + extAddrSubs[1])
 	}
@@ -95,7 +96,7 @@ func New(
 
 		// swagger 配置
 		if appConf.Env == config.Local {
-			api.SwaggerInfo.Host = appConf.Http.Addr
+			api.SwaggerInfo.Host = httpConf.Addr
 			if len(extAddrSubs) > 0 {
 				api.SwaggerInfo.Host = extAddrSubs[0]
 			}

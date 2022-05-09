@@ -57,7 +57,7 @@ func (h *Handler) Example(ctx *gin.Context) {
 	span := trace.SpanFromContext(otel.GetTextMapPropagator().Extract(reqCtx, propagation.HeaderCarrier(ctx.Request.Header)))
 	defer span.End()
 
-	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.conf.App.Http.Addr)
+	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.conf.HTTP.Addr)
 	request, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		span.RecordError(err)
