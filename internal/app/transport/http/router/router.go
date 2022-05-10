@@ -8,7 +8,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/pkg/errors"
-	"go-scaffold/internal/app/transport/http/api"
+	"go-scaffold/internal/app/transport/http/api/docs"
 	"go-scaffold/internal/app/transport/http/handler/v1/greet"
 	"go-scaffold/internal/app/transport/http/handler/v1/trace"
 	"go-scaffold/internal/app/transport/http/handler/v1/user"
@@ -96,11 +96,11 @@ func New(
 
 		// swagger 配置
 		if appConf.Env == config.Local {
-			api.SwaggerInfo.Host = httpConf.Addr
+			docs.SwaggerInfo.Host = httpConf.Addr
 			if len(extAddrSubs) > 0 {
-				api.SwaggerInfo.Host = extAddrSubs[0]
+				docs.SwaggerInfo.Host = extAddrSubs[0]
 			}
-			api.SwaggerInfo.BasePath = apiGroup.BasePath()
+			docs.SwaggerInfo.BasePath = apiGroup.BasePath()
 
 			swagger.Setup(router, swagger.Config{
 				Path: apiGroup.BasePath() + "/docs",

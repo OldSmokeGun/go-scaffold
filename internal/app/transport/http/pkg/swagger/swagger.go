@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	_ "go-scaffold/internal/app/transport/http/api"
+	_ "go-scaffold/internal/app/transport/http/api/docs"
 	"net/http"
 	"strings"
 )

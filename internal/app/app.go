@@ -18,7 +18,7 @@ import (
 )
 
 //go:generate swag fmt -g app.go
-//go:generate swag init -g app.go -o transport/http/api --parseInternal
+//go:generate swag init -g app.go -o transport/http/api/docs --parseInternal
 
 // @title                       API 接口文档
 // @description                 API 接口文档
@@ -29,7 +29,7 @@ import (
 // @accept                      json
 // @accept                      x-www-form-urlencoded
 // @produce                     json
-// @securityDefinitions.apikey  LoginAuth
+// @securityDefinitions.apikey  Authorization
 // @in                          header
 // @name                        Token
 

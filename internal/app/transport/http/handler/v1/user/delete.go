@@ -14,14 +14,15 @@ import (
 // @Tags         用户
 // @Accept       plain
 // @Produce      json
-// @Param        id   path      integer                      true  "用户 id"  format(uint)  minimum(1)
-// @Success      200  {object}  apiexample.Success           "成功响应"
-// @Failure      500  {object}  apiexample.ServerError       "服务器出错"
-// @Failure      400  {object}  apiexample.ClientError       "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
-// @Failure      401  {object}  apiexample.Unauthorized      "登陆失效"
-// @Failure      403  {object}  apiexample.PermissionDenied  "没有权限"
-// @Failure      404  {object}  apiexample.ResourceNotFound  "资源不存在"
-// @Failure      429  {object}  apiexample.TooManyRequest    "请求过于频繁"
+// @Param        id   path      integer                   true  "用户 id"  format(uint)  minimum(1)
+// @Success      200  {object}  example.Success           "成功响应"
+// @Failure      500  {object}  example.ServerError       "服务器出错"
+// @Failure      400  {object}  example.ClientError       "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
+// @Failure      401  {object}  example.Unauthorized      "登陆失效"
+// @Failure      403  {object}  example.PermissionDenied  "没有权限"
+// @Failure      404  {object}  example.ResourceNotFound  "资源不存在"
+// @Failure      429  {object}  example.TooManyRequest    "请求过于频繁"
+// @Security     Authorization
 func (h *Handler) Delete(ctx *gin.Context) {
 	req := new(user.DeleteRequest)
 	if err := ctx.ShouldBindUri(req); err != nil {
