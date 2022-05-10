@@ -88,15 +88,13 @@ func main() {
 			}
 			defer appCleanup()
 			// 调用 app 启动钩子
-			go func() {
-				if err := appServ.Start(); err != nil {
-					panic(err)
-				}
-			}()
+			if err := appServ.Start(signalStop); err != nil {
+				panic(err)
+			}
 
 			// 等待退出信号
 			<-signalCtx.Done()
-			signalStop() // 取消信号的监听
+			signalStop()
 
 			hLogger.Info("the app is shutting down ...")
 

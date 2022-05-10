@@ -67,7 +67,7 @@ func New(
 }
 
 // Start 启动应用
-func (a *App) Start() (err error) {
+func (a *App) Start(cancel context.CancelFunc) (err error) {
 	// 设置 tracer
 	if a.trace != nil {
 		otel.SetTracerProvider(a.trace.TracerProvider())
@@ -92,9 +92,13 @@ func (a *App) Start() (err error) {
 	}
 
 	// 启动 transport 服务
-	if err = a.transport.Start(); err != nil {
-		return
-	}
+	go func() {
+		if err = a.transport.Start(); err != nil {
+			a.logger.Error(err)
+			cancel()
+			return
+		}
+	}()
 
 	return nil
 }
