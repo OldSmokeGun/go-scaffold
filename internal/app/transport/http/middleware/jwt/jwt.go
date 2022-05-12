@@ -4,204 +4,191 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	pjwt "github.com/golang-jwt/jwt"
+	pjwt "github.com/golang-jwt/jwt/v4"
+	"go-scaffold/internal/app/transport/http/middleware"
 	"net/http"
 	"strings"
 )
 
 var (
 	ErrMissingKey       = errors.New("key is missing")
-	ErrMissingToken     = errors.New("token is missing")
 	ErrInvalidToken     = errors.New("token is invalid")
 	ErrParseTokenFailed = errors.New("parse token failed")
 )
 
 const (
-	// defaultHeaderName 默认的 HTTP Header 键
+	// defaultHeaderName default HTTP header key
 	defaultHeaderName = "Authorization"
 
-	// defaultHeaderPrefix 默认的 HTTP Header 值前缀
+	// defaultHeaderPrefix default HTTP header value prefix
 	defaultHeaderPrefix = "Bearer "
 
-	// NoneHeaderPrefix 表示不指定 HTTP Header 值前缀
+	// NoneHeaderPrefix indicates that no HTTP header value prefix
 	NoneHeaderPrefix = "-"
 )
 
-// DefaultContextKey 默认的 Context 键
+// DefaultContextKey default Context key
 var DefaultContextKey = ContextKey{}
 
 type ContextKey struct{}
 
-// Logger 错误日志实例需要实现的接口
-type Logger interface {
-	Debug(...interface{})
-	Debugf(string, ...interface{})
-	Error(...interface{})
-	Errorf(string, ...interface{})
-}
+// option middleware configuration
+type option struct {
 
-// ResponseBody 响应的 body
-type ResponseBody interface {
-	WithMsg(msg string)
-}
-
-// jwt 中间件的配置项
-type jwt struct {
-
-	// key jwt 密钥
+	// key used for signing
 	key string
 
-	// headerName jwt HTTP Header 键
-	// 如果不指定，默认为 "Authorization"
+	// headerName HTTP header key of token
+	// if not specified，default: "Authorization"
 	headerName string
 
-	// headerPrefix jwt HTTP Header 值前缀
-	// 如果不指定，默认为 "Bearer "
+	// headerPrefix HTTP header value prefix of token
+	// if not specified，default: "Bearer "
 	headerPrefix string
 
-	// errorResponseBody 服务器发生错误时以 application/json 方式返回的 body
-	// 如果为 nil，则不返回 body
-	errorResponseBody ResponseBody
+	// errorResponseBody returned in application/json format in case of server error
+	// if nil, body is not returned
+	errorResponseBody middleware.ResponseBody
 
-	// validateErrorResponseBody jwt 校验错误时以 application/json 方式返回的 body
-	// 如果为 nil，则不返回 body
-	validateErrorResponseBody ResponseBody
+	// validateFailedResponseBody returned in application/json format when validate failed
+	// if nil, body is not returned
+	validateFailedResponseBody middleware.ResponseBody
 
-	// logger 发生错误时记录错误的日志实例
-	// 如果为 nil, 则不记录错误
-	logger Logger
+	// logger log when an error occurs
+	// if nil, no error is logged
+	logger middleware.Logger
 
-	// postFunc jwt 校验成功后调用的钩子函数
-	// 可以覆盖将 Claims 写入 Context 的默认行为
+	// postFunc the hook function that will be called after token verification is successful
+	// this will override the default behavior of writing Claims to the Context
 	postFunc func(ctx *gin.Context, claims pjwt.Claims)
 
-	// raw 原始 token
+	// raw original token
 	raw string
 }
 
-// Option jwt 配置选项
-type Option func(config *jwt)
+// Option middleware option function
+type Option func(config *option)
 
-// WithHeaderName 设置 jwt HTTP Header 键
+// WithHeaderName set the HTTP header key of token
 func WithHeaderName(headerName string) Option {
-	return func(config *jwt) {
+	return func(config *option) {
 		config.headerName = headerName
 	}
 }
 
-// WithHeaderPrefix 设置 jwt HTTP Header 值前缀
+// WithHeaderPrefix set the HTTP header value prefix of token
 func WithHeaderPrefix(headerPrefix string) Option {
-	return func(config *jwt) {
+	return func(config *option) {
 		config.headerPrefix = headerPrefix
 	}
 }
 
-// WithErrorResponseBody 设置服务器发生错误时以 application/json 方式返回的 body
-func WithErrorResponseBody(body ResponseBody) Option {
-	return func(config *jwt) {
+// WithErrorResponseBody body returned in case of server error
+func WithErrorResponseBody(body middleware.ResponseBody) Option {
+	return func(config *option) {
 		config.errorResponseBody = body
 	}
 }
 
-// WithValidateErrorResponseBody 设置 jwt 校验错误时以 application/json 方式返回的 body
-func WithValidateErrorResponseBody(body ResponseBody) Option {
-	return func(config *jwt) {
-		config.validateErrorResponseBody = body
+// WithValidateFailedResponseBody body returned when validate failed
+func WithValidateFailedResponseBody(body middleware.ResponseBody) Option {
+	return func(config *option) {
+		config.validateFailedResponseBody = body
 	}
 }
 
-// WithLogger 设置发生错误时记录错误的日志实例
-func WithLogger(logger Logger) Option {
-	return func(config *jwt) {
+// WithLogger error logger
+func WithLogger(logger middleware.Logger) Option {
+	return func(config *option) {
 		config.logger = logger
 	}
 }
 
-// WithPostFunc 设置 jwt 校验成功后调用的钩子函数
+// WithPostFunc set the hook function that will be called after token verification is successful
 func WithPostFunc(f func(ctx *gin.Context, claims pjwt.Claims)) Option {
-	return func(config *jwt) {
+	return func(config *option) {
 		config.postFunc = f
 	}
 }
 
-// Validate 验证 jwt
+// Validate check if the token is valid
 func Validate(key string, options ...Option) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		c := defaultConfig(key)
+		o := defaultOption(key)
 
-		for _, option := range options {
-			option(c)
+		for _, op := range options {
+			op(o)
 		}
 
-		if c.key == "" {
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrMissingKey)
+		if o.key == "" {
+			errorResponse(ctx, http.StatusInternalServerError, o, ErrMissingKey)
 			return
 		}
 
-		tokenString := ctx.GetHeader(c.headerName)
+		tokenString := ctx.GetHeader(o.headerName)
 
-		if c.headerPrefix != NoneHeaderPrefix {
-			tokenString = strings.TrimPrefix(tokenString, c.headerPrefix)
+		if o.headerPrefix != NoneHeaderPrefix {
+			tokenString = strings.TrimPrefix(tokenString, o.headerPrefix)
 		}
 
 		if tokenString == "" {
-			validateErrorResponse(ctx, http.StatusUnauthorized, c, ErrMissingToken)
+			validateFailedResponse(ctx, http.StatusUnauthorized, o, nil)
 			return
 		}
 
-		c.raw = tokenString
+		o.raw = tokenString
 
-		if c.logger != nil {
-			c.logger.Debugf("token: %s", tokenString)
+		if o.logger != nil {
+			o.logger.Debugf("token: %s", tokenString)
 		}
 
 		token, err := pjwt.Parse(tokenString, func(token *pjwt.Token) (interface{}, error) {
-			return []byte(c.key), nil
+			return []byte(o.key), nil
 		})
 		if err != nil {
-			if c.logger != nil {
-				c.logger.Errorf("%s: %s", ErrParseTokenFailed, err)
+			if o.logger != nil {
+				o.logger.Errorf("%s: %s", ErrParseTokenFailed, err)
 			}
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrParseTokenFailed)
+			errorResponse(ctx, http.StatusInternalServerError, o, ErrParseTokenFailed)
 			return
 		}
 
 		if !token.Valid {
-			validateErrorResponse(ctx, http.StatusUnauthorized, c, ErrInvalidToken)
+			validateFailedResponse(ctx, http.StatusUnauthorized, o, ErrInvalidToken)
 			return
 		}
 
-		if c.postFunc != nil {
-			c.postFunc(ctx, token.Claims)
+		if o.postFunc != nil {
+			o.postFunc(ctx, token.Claims)
 		}
 
 		ctx.Next()
 	}
 }
 
-func defaultConfig(key string) *jwt {
-	return &jwt{
-		key:                       key,
-		headerName:                defaultHeaderName,
-		headerPrefix:              defaultHeaderPrefix,
-		errorResponseBody:         nil,
-		validateErrorResponseBody: nil,
-		logger:                    nil,
+func defaultOption(key string) *option {
+	return &option{
+		key:                        key,
+		headerName:                 defaultHeaderName,
+		headerPrefix:               defaultHeaderPrefix,
+		errorResponseBody:          nil,
+		validateFailedResponseBody: nil,
+		logger:                     nil,
 		postFunc: func(ctx *gin.Context, claims pjwt.Claims) {
-			context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
+			claimsContext := context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
+			ctx.Request = ctx.Request.WithContext(claimsContext)
 		},
 		raw: "",
 	}
 }
 
-// errorResponse 服务器发生错误时的响应
-func errorResponse(ctx *gin.Context, code int, c *jwt, err error) {
-	if c.errorResponseBody == nil {
+func errorResponse(ctx *gin.Context, code int, o *option, err error) {
+	if o.errorResponseBody == nil {
 		ctx.AbortWithStatus(code)
 		return
 	}
 
-	body := c.errorResponseBody
+	body := o.errorResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
@@ -210,14 +197,13 @@ func errorResponse(ctx *gin.Context, code int, c *jwt, err error) {
 	return
 }
 
-// validateErrorResponse 校验错误时的响应
-func validateErrorResponse(ctx *gin.Context, code int, c *jwt, err error) {
-	if c.validateErrorResponseBody == nil {
+func validateFailedResponse(ctx *gin.Context, code int, o *option, err error) {
+	if o.validateFailedResponseBody == nil {
 		ctx.AbortWithStatus(code)
 		return
 	}
 
-	body := c.validateErrorResponseBody
+	body := o.validateFailedResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}

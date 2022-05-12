@@ -1,6 +1,7 @@
 package router
 
 import (
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/go-kratos/kratos/v2/log"
@@ -39,6 +40,7 @@ func New(
 	appConf *config.App,
 	httpConf *config.HTTP,
 	jwtConf *config.JWT,
+	enforcer *casbin.Enforcer,
 	greetHandler greet.HandlerInterface,
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
@@ -92,9 +94,12 @@ func New(
 			// jwt.Validate(
 			// 	jwtConf.Key,
 			// 	jwt.WithErrorResponseBody(response.NewBody(int(errors.ServerError().Code), errors.ServerError().Message, nil)),
-			// 	jwt.WithValidateErrorResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
+			// 	jwt.WithValidateFailedResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
 			// 	jwt.WithLogger(log.NewHelper(logger)),
 			// ), // jwt 认证
+			// casbinmiddleware.Validate(enforcer, func(ctx *gin.Context) ([]interface{}, error) {
+			// 	// TODO
+			// }),
 		)
 
 		// swagger 配置

@@ -70,28 +70,6 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	configApp := configConfig.App
 	configHTTP := configConfig.HTTP
 	jwt := configConfig.JWT
-	service := greet.NewService(logLogger)
-	handler := greet2.NewHandler(logLogger, service)
-	discoveryConfig := configConfig.Discovery
-	discoveryDiscovery, err := discovery.New(discoveryConfig, zapLogger)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		return nil, nil, err
-	}
-	grpcClient := grpc.New(logLogger, discoveryDiscovery)
-	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, grpcClient)
-	repository := user.NewRepository(db, client)
-	userService := user2.NewService(logLogger, repository)
-	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, zapLogger, logLogger, configApp, configHTTP, jwt, handler, traceHandler, userHandler)
-	server := http.NewServer(logLogger, configHTTP, engine)
-	configGRPC := configConfig.GRPC
-	greetHandler := greet3.NewHandler(logLogger, service)
-	handler2 := user4.NewHandler(logLogger, userService, repository)
-	grpcServer := grpc2.NewServer(logLogger, configGRPC, greetHandler, handler2)
-	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
 	casbinConfig := configConfig.Casbin
 	model := casbinConfig.Model
 	adapterConfig := casbinConfig.Adapter
@@ -109,6 +87,28 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		cleanup2()
 		return nil, nil, err
 	}
+	service := greet.NewService(logLogger)
+	handler := greet2.NewHandler(logLogger, service)
+	discoveryConfig := configConfig.Discovery
+	discoveryDiscovery, err := discovery.New(discoveryConfig, zapLogger)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		return nil, nil, err
+	}
+	grpcClient := grpc.New(logLogger, discoveryDiscovery)
+	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, grpcClient)
+	repository := user.NewRepository(db, client)
+	userService := user2.NewService(logLogger, repository)
+	userHandler := user3.NewHandler(logLogger, userService)
+	engine := router.New(rotateLogs, zapLogger, logLogger, configApp, configHTTP, jwt, enforcer, handler, traceHandler, userHandler)
+	server := http.NewServer(logLogger, configHTTP, engine)
+	configGRPC := configConfig.GRPC
+	greetHandler := greet3.NewHandler(logLogger, service)
+	handler2 := user4.NewHandler(logLogger, userService, repository)
+	grpcServer := grpc2.NewServer(logLogger, configGRPC, greetHandler, handler2)
+	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
 	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport, enforcer)
 	return appApp, func() {
 		cleanup4()

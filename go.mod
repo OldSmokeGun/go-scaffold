@@ -20,7 +20,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/go-redis/redis/v8 v8.10.0
 	github.com/go-redis/redismock/v8 v8.0.6
-	github.com/golang-jwt/jwt v3.2.2+incompatible
+	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/golang/mock v1.6.0
 	github.com/google/wire v0.5.0
 	github.com/hashicorp/consul/api v1.12.0
