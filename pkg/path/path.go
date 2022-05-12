@@ -1,4 +1,4 @@
-package helper
+package path
 
 import (
 	"os"

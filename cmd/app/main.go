@@ -11,11 +11,11 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"github.com/thoas/go-funk"
 	"go-scaffold/internal/app/command"
 	appconfig "go-scaffold/internal/app/config"
-	"go-scaffold/pkg/helper"
-	"go-scaffold/pkg/helper/slicex"
 	"go-scaffold/pkg/log"
+	"go-scaffold/pkg/path"
 	"go.uber.org/zap"
 	"io"
 	"os"
@@ -31,7 +31,7 @@ var (
 )
 
 var (
-	rootPath              = helper.RootPath()
+	rootPath              = path.RootPath()
 	logPath               string // 日志输出路径
 	logLevel              string // 日志等级
 	logFormat             string // 日志输出格式
@@ -122,7 +122,7 @@ func setup() {
 
 	if logPath != "" {
 		if !filepath.IsAbs(logPath) {
-			logPath = filepath.Join(helper.RootPath(), logPath)
+			logPath = filepath.Join(path.RootPath(), logPath)
 		}
 
 		loggerWriter, err = rotatelogs.New(
@@ -165,7 +165,7 @@ func setup() {
 	}
 
 	if !filepath.IsAbs(configPath) {
-		configPath = filepath.Join(helper.RootPath(), configPath)
+		configPath = filepath.Join(path.RootPath(), configPath)
 	}
 
 	hLogger.Infof("load config from: %s", configPath)
@@ -201,7 +201,7 @@ func setup() {
 	}
 
 	// 检查环境是否设置正确
-	if !slicex.StringExist(appconfig.SupportedEnvs, configModel.App.Env.String()) {
+	if !funk.ContainsString(appconfig.SupportedEnvs, configModel.App.Env.String()) {
 		panic("unsupported env value: " + configModel.App.Env)
 	}
 
