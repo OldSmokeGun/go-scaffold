@@ -69,6 +69,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}
 	configApp := configConfig.App
 	configHTTP := configConfig.HTTP
+	jwt := configConfig.JWT
 	service := greet.NewService(logLogger)
 	handler := greet2.NewHandler(logLogger, service)
 	discoveryConfig := configConfig.Discovery
@@ -84,7 +85,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, zapLogger, configApp, configHTTP, handler, traceHandler, userHandler)
+	engine := router.New(rotateLogs, zapLogger, logLogger, configApp, configHTTP, jwt, handler, traceHandler, userHandler)
 	server := http.NewServer(logLogger, configHTTP, engine)
 	configGRPC := configConfig.GRPC
 	greetHandler := greet3.NewHandler(logLogger, service)

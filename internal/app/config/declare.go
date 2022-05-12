@@ -33,7 +33,7 @@ type Config struct {
 	Trace     *trace.Config     `json:"trace"`
 	Discovery *discovery.Config `json:"discovery"`
 	Services  *Services         `json:"services"`
-	Jwt       *Jwt              `json:"jwt"`
+	JWT       *JWT              `json:"jwt"`
 	Casbin    *casbin.Config    `json:"casbin"`
 }
 
@@ -60,6 +60,6 @@ type Services struct {
 	Self string `json:"self"`
 }
 
-type Jwt struct {
+type JWT struct {
 	Key string `json:"key"`
 }

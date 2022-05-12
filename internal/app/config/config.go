@@ -18,7 +18,7 @@ var ProviderSet = wire.NewSet(
 		"Trace",
 		"Discovery",
 		"Services",
-		"Jwt",
+		"JWT",
 		"Casbin",
 	),
 	wire.FieldsOf(new(*casbin.Config), "Model", "Adapter"),

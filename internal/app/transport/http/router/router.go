@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -34,8 +35,10 @@ var ProviderSet = wire.NewSet(
 func New(
 	loggerWriter *rotatelogs.RotateLogs,
 	zLogger *zap.Logger,
+	logger log.Logger,
 	appConf *config.App,
 	httpConf *config.HTTP,
+	jwtConf *config.JWT,
 	greetHandler greet.HandlerInterface,
 	traceHandler trace.HandlerInterface,
 	userHandler user.HandlerInterface,
@@ -87,9 +90,9 @@ func New(
 		apiGroup.Use(
 			cors.Default(), // 允许跨越
 			// jwt.Validate(
-			// 	appConf.App.Jwt.Key,
-			// 	jwt.WithErrorResponseBody(responsex.NewServerErrorBody()),
-			// 	jwt.WithValidateErrorResponseBody(responsex.NewUnauthorizedBody()),
+			// 	jwtConf.Key,
+			// 	jwt.WithErrorResponseBody(response.NewBody(int(errors.ServerError().Code), errors.ServerError().Message, nil)),
+			// 	jwt.WithValidateErrorResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
 			// 	jwt.WithLogger(log.NewHelper(logger)),
 			// ), // jwt 认证
 		)
