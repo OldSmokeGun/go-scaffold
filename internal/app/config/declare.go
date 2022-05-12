@@ -1,6 +1,7 @@
 package config
 
 import (
+	"go-scaffold/internal/app/component/casbin"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
@@ -33,6 +34,7 @@ type Config struct {
 	Discovery *discovery.Config `json:"discovery"`
 	Services  *Services         `json:"services"`
 	Jwt       *Jwt              `json:"jwt"`
+	Casbin    *casbin.Config    `json:"casbin"`
 }
 
 type App struct {

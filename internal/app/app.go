@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/casbin/casbin/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"go-scaffold/internal/app/component"
@@ -48,6 +49,7 @@ type App struct {
 	trace     *trace.Tracer
 	cron      *cron.Cron
 	transport *transport.Transport
+	enforcer  *casbin.Enforcer
 }
 
 func New(
@@ -56,6 +58,7 @@ func New(
 	trace *trace.Tracer,
 	cron *cron.Cron,
 	transport *transport.Transport,
+	enforcer *casbin.Enforcer,
 ) *App {
 	return &App{
 		logger:    log.NewHelper(logger),
@@ -63,6 +66,7 @@ func New(
 		trace:     trace,
 		cron:      cron,
 		transport: transport,
+		enforcer:  enforcer,
 	}
 }
 
@@ -84,6 +88,14 @@ func (a *App) Start(cancel context.CancelFunc) (err error) {
 		}
 
 		a.logger.Info("database migration completed")
+	}
+
+	if a.enforcer != nil {
+		if err = a.enforcer.LoadPolicy(); err != nil {
+			return
+		}
+
+		a.logger.Info("casbin policy loaded")
 	}
 
 	// 启动 cron 服务

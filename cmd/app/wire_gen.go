@@ -13,6 +13,8 @@ import (
 	"go-scaffold/internal/app/command"
 	greet4 "go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/script"
+	"go-scaffold/internal/app/component/casbin"
+	"go-scaffold/internal/app/component/casbin/adapter"
 	"go-scaffold/internal/app/component/client/grpc"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
@@ -89,7 +91,24 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	handler2 := user4.NewHandler(logLogger, userService, repository)
 	grpcServer := grpc2.NewServer(logLogger, configGRPC, greetHandler, handler2)
 	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
-	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport)
+	casbinConfig := configConfig.Casbin
+	model := casbinConfig.Model
+	adapterConfig := casbinConfig.Adapter
+	adapterAdapter, err := adapter.New(adapterConfig, db)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		return nil, nil, err
+	}
+	enforcer, err := casbin.New(model, adapterAdapter)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		return nil, nil, err
+	}
+	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport, enforcer)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()

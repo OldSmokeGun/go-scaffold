@@ -79,3 +79,26 @@ jwt:
 services:
   self: "0.0.0.0:9528"
   # self: "discovery:///go-scaffold" # 服务发现地址
+
+# casbin 配置
+casbin:
+  model: |-
+    [request_definition]
+    r = sub, obj, act
+
+    [policy_definition]
+    p = sub, obj, act
+
+    [role_definition]
+    g = _, _
+
+    [policy_effect]
+    e = some(where (p.eft == allow))
+
+    [matchers]
+    m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
+  adapter:
+    file:
+      path: ""
+    gorm:
+      tableName: ""
