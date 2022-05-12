@@ -83,7 +83,7 @@ services:
 # casbin 配置
 # casbin:
 #   model:
-#     path: ""
+#     path: "assets/casbin/rbac_model.conf"
 #   adapter:
 #     file:
 #       path: ""

@@ -127,7 +127,7 @@ services:
     volumes:
       - "./etcd/conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml"
 
-  rest:
+  app:
     image: cosmtrek/air
     networks:
       go-scaffold:
