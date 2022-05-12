@@ -54,7 +54,7 @@ func (l LogLevel) Convert() logger.LogLevel {
 type Config struct {
 	Driver          Driver
 	Host            string
-	Port            string
+	Port            int
 	Database        string
 	Username        string
 	Password        string

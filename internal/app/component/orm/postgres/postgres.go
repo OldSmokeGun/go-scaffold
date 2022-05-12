@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -12,7 +13,7 @@ import (
 type Config struct {
 	Driver               string
 	Host                 string
-	Port                 string
+	Port                 int
 	Database             string
 	Username             string
 	Password             string
@@ -69,6 +70,6 @@ func New(c Config) (*gorm.DB, error) {
 // buildDNS 构建连接数据库的 dns
 func buildDNS(c Config) string {
 	options := strings.Join(c.Options, " ")
-	dsn := "host=" + c.Host + " port=" + c.Port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
+	dsn := "host=" + c.Host + " port=" + strconv.Itoa(c.Port) + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
 	return dsn
 }

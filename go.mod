@@ -7,6 +7,8 @@ require (
 	entgo.io/ent v0.10.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bwmarrin/snowflake v0.3.0
+	github.com/casbin/casbin/v2 v2.46.0
+	github.com/casbin/gorm-adapter/v3 v3.6.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/zap v0.0.2
 	github.com/gin-gonic/gin v1.7.7
@@ -61,8 +63,6 @@ require (
 	github.com/apolloconfig/agollo/v4 v4.1.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
-	github.com/casbin/casbin/v2 v2.46.0 // indirect
-	github.com/casbin/gorm-adapter/v3 v3.6.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect

@@ -11,14 +11,16 @@ type Config struct {
 	Adapter *adapter.Config
 }
 
-type Model string
+type Model struct {
+	Path string
+}
 
 func New(m *Model, adp adapter.Adapter) (*casbin.Enforcer, error) {
 	if m == nil && adp == nil {
 		return nil, nil
 	}
 
-	cm, err := model.NewModelFromString(string(*m))
+	cm, err := model.NewModelFromFile(m.Path)
 	if err != nil {
 		return nil, err
 	}
