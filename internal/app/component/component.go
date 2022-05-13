@@ -3,7 +3,6 @@ package component
 import (
 	"github.com/google/wire"
 	"go-scaffold/internal/app/component/casbin"
-	"go-scaffold/internal/app/component/casbin/adapter"
 	"go-scaffold/internal/app/component/client/grpc"
 	"go-scaffold/internal/app/component/data"
 	"go-scaffold/internal/app/component/discovery"
@@ -19,7 +18,7 @@ var ProviderSet = wire.NewSet(
 	wire.NewSet(redis.New),
 	wire.NewSet(trace.New),
 	wire.NewSet(discovery.New),
-	wire.NewSet(adapter.New, casbin.New),
+	wire.NewSet(casbin.New),
 	wire.NewSet(wire.Bind(new(uid.Generator), new(*uid.Uid)), uid.New),
 	grpc.New,
 )

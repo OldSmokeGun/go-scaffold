@@ -26,7 +26,6 @@ var ProviderSet = wire.NewSet(
 
 var watchKeys = []string{
 	"services.self",
-	"jwt.key",
 }
 
 // AfterLoad 配置加载后调用的钩子函数

@@ -14,6 +14,8 @@ import (
 	"go-scaffold/internal/app/transport/http/handler/v1/greet"
 	"go-scaffold/internal/app/transport/http/handler/v1/trace"
 	"go-scaffold/internal/app/transport/http/handler/v1/user"
+	casbinmiddleware "go-scaffold/internal/app/transport/http/middleware/casbin"
+	"go-scaffold/internal/app/transport/http/middleware/jwt"
 	"go-scaffold/internal/app/transport/http/middleware/recover"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
@@ -82,25 +84,27 @@ func New(
 		rg = router.Group("/" + extAddrSubs[1])
 	}
 
-	rg.GET("/ping", func(ctx *gin.Context) {
-		ctx.String(http.StatusOK, "pong")
-		return
-	})
+	rg.GET("/ping", func(ctx *gin.Context) { ctx.String(http.StatusOK, "pong"); return })
 	// 注册 api 路由组
 	apiGroup := rg.Group("/api")
 	{
-		apiGroup.Use(
-			cors.Default(), // 允许跨越
-			// jwt.Validate(
-			// 	jwtConf.Key,
-			// 	jwt.WithErrorResponseBody(response.NewBody(int(errors.ServerError().Code), errors.ServerError().Message, nil)),
-			// 	jwt.WithValidateFailedResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
-			// 	jwt.WithLogger(log.NewHelper(logger)),
-			// ), // jwt 认证
-			// casbinmiddleware.Validate(enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-			// 	// TODO
-			// }),
-		)
+		apiGroup.Use(cors.Default()) // 允许跨越
+		if jwtConf != nil {
+			if jwtConf.Key != "" {
+				apiGroup.Use(jwt.Validate(
+					jwtConf.Key,
+					jwt.WithErrorResponseBody(response.NewBody(int(errors.ServerError().Code), errors.ServerError().Message, nil)),
+					jwt.WithValidateFailedResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
+					jwt.WithLogger(log.NewHelper(logger)),
+				))
+			}
+		}
+		if enforcer != nil {
+			apiGroup.Use(casbinmiddleware.Validate(enforcer, func(ctx *gin.Context) ([]interface{}, error) {
+				// TODO
+				return nil, nil
+			}))
+		}
 
 		// swagger 配置
 		if appConf.Env == config.Local {

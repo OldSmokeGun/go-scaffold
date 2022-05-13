@@ -14,7 +14,6 @@ import (
 	greet4 "go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component/casbin"
-	"go-scaffold/internal/app/component/casbin/adapter"
 	"go-scaffold/internal/app/component/client/grpc"
 	"go-scaffold/internal/app/component/discovery"
 	"go-scaffold/internal/app/component/orm"
@@ -71,16 +70,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	configHTTP := configConfig.HTTP
 	jwt := configConfig.JWT
 	casbinConfig := configConfig.Casbin
-	model := casbinConfig.Model
-	adapterConfig := casbinConfig.Adapter
-	adapterAdapter, err := adapter.New(adapterConfig, db)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		return nil, nil, err
-	}
-	enforcer, err := casbin.New(model, adapterAdapter)
+	enforcer, err := casbin.New(casbinConfig, db)
 	if err != nil {
 		cleanup4()
 		cleanup3()

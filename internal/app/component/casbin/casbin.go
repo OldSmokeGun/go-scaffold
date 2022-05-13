@@ -2,30 +2,32 @@ package casbin
 
 import (
 	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
 	"go-scaffold/internal/app/component/casbin/adapter"
+	"go-scaffold/internal/app/component/casbin/model"
+	"gorm.io/gorm"
 )
 
 type Config struct {
-	Model   *Model
+	Model   *model.Config
 	Adapter *adapter.Config
 }
 
-type Model struct {
-	Path string
-}
-
-func New(m *Model, adp adapter.Adapter) (*casbin.Enforcer, error) {
-	if m == nil && adp == nil {
+func New(config *Config, db *gorm.DB) (*casbin.Enforcer, error) {
+	if config == nil {
 		return nil, nil
 	}
 
-	cm, err := model.NewModelFromFile(m.Path)
+	mod, err := model.New(config.Model)
 	if err != nil {
 		return nil, err
 	}
 
-	ef, err := casbin.NewEnforcer(cm, adp)
+	adp, err := adapter.New(config.Adapter, db)
+	if err != nil {
+		return nil, err
+	}
+
+	ef, err := casbin.NewEnforcer(mod, adp)
 	if err != nil {
 		return nil, err
 	}

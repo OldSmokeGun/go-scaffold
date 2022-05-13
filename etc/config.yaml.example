@@ -3,6 +3,22 @@ app:
   env: "local"            # 当前环境（local、test 或 prod）
   timeout: 5              # 停止应用的等待时间
 
+http:
+  network: "tcp"
+  addr: "0.0.0.0:9527"    # http 服务监听地址
+  timeout: 5
+  externalAddr: ""        # 外部访问地址，如反向代理
+
+grpc:
+  network: "tcp"
+  addr: "0.0.0.0:9528"  # grpc 服务监听地址
+  timeout: 5
+
+# 服务 grpc 地址
+services:
+  self: "0.0.0.0:9528"
+  # self: "discovery:///go-scaffold" # 服务发现地址
+
 # 数据库配置
 # db:
 #   driver: "mysql"
@@ -51,17 +67,6 @@ app:
 #   endpoint: "localhost:6831"
 #   # endpoint: "http://localhost:14268/api/traces"
 
-http:
-  network: "tcp"
-  addr: "0.0.0.0:9527"    # http 服务监听地址
-  timeout: 5
-  externalAddr: ""        # 外部访问地址，如反向代理
-
-grpc:
-  network: "tcp"
-  addr: "0.0.0.0:9528"  # grpc 服务监听地址
-  timeout: 5
-
 # 服务发现
 # discovery:
 #   etcd:
@@ -72,20 +77,15 @@ grpc:
 #     schema: "http"
 
 # JWT 配置
-jwt:
-  key: ""     # JWT 密钥
-
-# 服务 grpc 地址
-services:
-  self: "0.0.0.0:9528"
-  # self: "discovery:///go-scaffold" # 服务发现地址
+# jwt:
+#   key: ""     # JWT 密钥
 
 # casbin 配置
-casbin:
-  model:
-    path: "assets/casbin/rbac_model.conf"
-  adapter:
-    file:
-      path: "assets/casbin/policy.csv"
-    gorm:
-      tableName: ""
+# casbin:
+#   model:
+#     path: "assets/casbin/rbac_model.conf"
+#   adapter:
+#     file:
+#       path: "assets/casbin/policy.csv"
+#     gorm:
+#       tableName: ""
