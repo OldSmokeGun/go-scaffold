@@ -14,8 +14,8 @@ import (
 	"go-scaffold/internal/app/transport/http/handler/v1/greet"
 	"go-scaffold/internal/app/transport/http/handler/v1/trace"
 	"go-scaffold/internal/app/transport/http/handler/v1/user"
-	casbinmiddleware "go-scaffold/internal/app/transport/http/middleware/casbin"
-	"go-scaffold/internal/app/transport/http/middleware/jwt"
+	casbinmd "go-scaffold/internal/app/transport/http/middleware/casbin"
+	jwtmd "go-scaffold/internal/app/transport/http/middleware/jwt"
 	"go-scaffold/internal/app/transport/http/middleware/recover"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
@@ -91,19 +91,25 @@ func New(
 		apiGroup.Use(cors.Default()) // 允许跨越
 		if jwtConf != nil {
 			if jwtConf.Key != "" {
-				apiGroup.Use(jwt.Validate(
+				apiGroup.Use(jwtmd.Validate(
 					jwtConf.Key,
-					jwt.WithErrorResponseBody(response.NewBody(int(errors.ServerError().Code), errors.ServerError().Message, nil)),
-					jwt.WithValidateFailedResponseBody(response.NewBody(int(errors.Unauthorized().Code), errors.Unauthorized().Message, nil)),
-					jwt.WithLogger(log.NewHelper(logger)),
+					jwtmd.WithLogger(log.NewHelper(logger)),
+					jwtmd.WithErrorResponseBody(response.NewBody(int(errors.ServerErrorCode), errors.ServerErrorCode.String(), nil)),
+					jwtmd.WithValidateFailedResponseBody(response.NewBody(int(errors.UnauthorizedCode), errors.UnauthorizedCode.String(), nil)),
 				))
 			}
 		}
 		if enforcer != nil {
-			apiGroup.Use(casbinmiddleware.Validate(enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				// TODO
-				return nil, nil
-			}))
+			apiGroup.Use(casbinmd.Validate(
+				enforcer,
+				func(ctx *gin.Context) ([]interface{}, error) {
+					// TODO
+					return nil, nil
+				},
+				casbinmd.WithLogger(log.NewHelper(logger)),
+				casbinmd.WithErrorResponseBody(response.NewBody(int(errors.ServerErrorCode), errors.ServerErrorCode.String(), nil)),
+				casbinmd.WithValidateFailedResponseBody(response.NewBody(int(errors.UnauthorizedCode), errors.UnauthorizedCode.String(), nil)),
+			))
 		}
 
 		// swagger 配置

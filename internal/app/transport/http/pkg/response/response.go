@@ -6,68 +6,6 @@ import (
 	"net/http"
 )
 
-// Body 响应需实现的接口
-type Body interface {
-	WithCode(code int)
-	WithMsg(msg string)
-	WithData(data interface{})
-}
-
-// body 响应格式
-type body struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
-}
-
-// NewBody 返回 Body
-func NewBody(code int, msg string, data interface{}) *body {
-	return &body{
-		Code: code,
-		Msg:  msg,
-		Data: data,
-	}
-}
-
-// WithCode 设置 body 的 Code
-func (b *body) WithCode(code int) {
-	b.Code = code
-}
-
-// WithMsg 设置 body 的 Msg
-func (b *body) WithMsg(msg string) {
-	b.Msg = msg
-}
-
-// WithData 设置 body 的 Data
-func (b *body) WithData(data interface{}) {
-	b.Data = data
-}
-
-// Option body 属性设置函数
-type Option func(*body)
-
-// WithCode 设置 body 的 Code
-func WithCode(code int) Option {
-	return func(p *body) {
-		p.Code = code
-	}
-}
-
-// WithMsg 设置 body 的 Msg
-func WithMsg(msg string) Option {
-	return func(p *body) {
-		p.Msg = msg
-	}
-}
-
-// WithData 设置 body 的 Data
-func WithData(data interface{}) Option {
-	return func(p *body) {
-		p.Data = data
-	}
-}
-
 // Response HTTP 请求响应
 func Response(ctx *gin.Context, httpStatusCode int, errorCode int, msg string, ops ...Option) {
 	b := NewBody(errorCode, msg, nil)
