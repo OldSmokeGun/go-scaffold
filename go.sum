@@ -117,6 +117,8 @@ github.com/casbin/casbin/v2 v2.46.0 h1:s/EQsWx9fXqmEeB3KEImehjETV59yKd+8tCDyT+Qa
 github.com/casbin/casbin/v2 v2.46.0/go.mod h1:vByNa/Fchek0KZUgG5wEsl7iFsiviAYKRtgrQfcJqHg=
 github.com/casbin/gorm-adapter/v3 v3.6.0 h1:LifWo93H+qa9G90ry++mQ/QIdlAM/4TTMqOEuDMAjOg=
 github.com/casbin/gorm-adapter/v3 v3.6.0/go.mod h1:7mwHmC2phiw6N4gDWlzi+c4DUX7zaVmQC/hINsRgBDg=
+github.com/casbin/gorm-adapter/v3 v3.7.0 h1:hdYvNLMoxpShgHW1KSgTbgZTWgZfsiUsesvVbguu/og=
+github.com/casbin/gorm-adapter/v3 v3.7.0/go.mod h1:7mwHmC2phiw6N4gDWlzi+c4DUX7zaVmQC/hINsRgBDg=
 github.com/casbin/json-adapter/v2 v2.0.0 h1:nOCN3TK1CJKSNQQ/MnakbU9/cUcNR3N0AxBDnEBLSDI=
 github.com/casbin/json-adapter/v2 v2.0.0/go.mod h1:LvsfPXXr8CD0ZFucAxawcY9Xb0FtLk3mozJ1qcSTUD4=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
