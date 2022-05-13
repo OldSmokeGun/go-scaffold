@@ -196,7 +196,7 @@ func setup() {
 		panic(err)
 	}
 
-	if err := appconfig.AfterLoad(logger, config, configModel); err != nil {
+	if err := appconfig.Loaded(logger, config, configModel); err != nil {
 		panic(err)
 	}
 

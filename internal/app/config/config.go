@@ -28,8 +28,8 @@ var watchKeys = []string{
 	"services.self",
 }
 
-// AfterLoad 配置加载后调用的钩子函数
-func AfterLoad(hLogger log.Logger, cfg config.Config, conf *Config) error {
+// Loaded 配置加载后调用的钩子函数
+func Loaded(hLogger log.Logger, cfg config.Config, conf *Config) error {
 	if conf.Trace != nil {
 		conf.Trace.ServiceName = conf.App.Name
 		conf.Trace.Env = conf.App.Env.String()

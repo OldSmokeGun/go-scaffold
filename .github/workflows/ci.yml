@@ -1,0 +1,45 @@
+name: app
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file : 'go.mod'
+
+      - name: Setup Protoc
+        uses: arduino/setup-protoc@v1
+
+      - name: Run Unit Test
+        run: |
+          make download
+          make proto
+          make generate
+          make test
+
+  semantic-release:
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run semantic-release
+        if: github.repository == 'OldSmokeGun/go-scaffold' && github.event_name == 'push'
+        run: |
+          npm install --save-dev semantic-release@17.2.4
+          npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

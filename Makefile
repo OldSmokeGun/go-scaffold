@@ -5,8 +5,8 @@ APP_MAIN_DIR = cmd/app
 API_SWAGGER_SCAN_DIR = internal/app
 API_SWAGGER_SCAN_ENTRY = app.go
 API_SWAGGER_OUT_DIR = internal/app/transport/http/api/docs
-API_PROTO_FILES=$(shell find internal/app/api -name *.proto)
-API_PROTO_PB_FILES=$(shell find internal/app/api -name *.pb.go)
+API_PROTO_FILES=$(shell find internal/app/transport/grpc/api -name *.proto)
+API_PROTO_PB_FILES=$(shell find internal/app/transport/grpc/api -name *.pb.go)
 
 build:
 	@make generate
@@ -50,7 +50,7 @@ clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi
 
 test:
-	go test -gcflags=-l -v ./...
+	go test -gcflags=-l -v ${TEST_FLAGS} ./...
 
 generate:
 	go generate ./...

@@ -57,7 +57,8 @@ func NewDB(zLogger *zap.Logger, kLogger klog.Logger) (*DB, func(), error) {
 			SkipInitializeWithVersion: true,
 		}),
 		&gorm.Config{
-			Logger: gLogger.LogMode(logMode),
+			SkipDefaultTransaction: true,
+			Logger:                 gLogger.LogMode(logMode),
 		},
 	)
 	if err != nil {
