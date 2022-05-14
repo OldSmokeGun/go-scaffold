@@ -39,7 +39,9 @@ jobs:
       - name: Run semantic-release
         if: github.repository == 'OldSmokeGun/go-scaffold' && github.event_name == 'push'
         run: |
-          npm install --save-dev semantic-release@17.2.4
+          npm install --save-dev semantic-release
+          npm install --save-dev @semantic-release/changelog          
+          npm install --save-dev @semantic-release/git
           npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
