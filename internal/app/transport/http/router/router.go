@@ -91,16 +91,16 @@ func New(
 		apiGroup.Use(cors.Default()) // 允许跨越
 		if jwtConf != nil {
 			if jwtConf.Key != "" {
-				apiGroup.Use(jwtmd.Validate(
+				apiGroup.Use(jwtmd.New(
 					jwtConf.Key,
 					jwtmd.WithLogger(log.NewHelper(logger)),
 					jwtmd.WithErrorResponseBody(response.NewBody(int(errors.ServerErrorCode), errors.ServerErrorCode.String(), nil)),
 					jwtmd.WithValidateFailedResponseBody(response.NewBody(int(errors.UnauthorizedCode), errors.UnauthorizedCode.String(), nil)),
-				))
+				).Validate())
 			}
 		}
 		if enforcer != nil {
-			apiGroup.Use(casbinmd.Validate(
+			apiGroup.Use(casbinmd.New(
 				enforcer,
 				func(ctx *gin.Context) ([]interface{}, error) {
 					// TODO
@@ -109,7 +109,7 @@ func New(
 				casbinmd.WithLogger(log.NewHelper(logger)),
 				casbinmd.WithErrorResponseBody(response.NewBody(int(errors.ServerErrorCode), errors.ServerErrorCode.String(), nil)),
 				casbinmd.WithValidateFailedResponseBody(response.NewBody(int(errors.UnauthorizedCode), errors.UnauthorizedCode.String(), nil)),
-			))
+			).Validate())
 		}
 
 		// swagger 配置

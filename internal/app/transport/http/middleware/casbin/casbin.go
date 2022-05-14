@@ -18,97 +18,104 @@ var (
 // requestFunc how to get request parameters in PERM model
 type requestFunc func(ctx *gin.Context) ([]interface{}, error)
 
-// option middleware configuration
-type option struct {
+// Casbin middleware configuration
+type Casbin struct {
 
-	// enforcer casbin Enforcer
-	enforcer *pcasbin.Enforcer
+	// Enforcer casbin Enforcer
+	Enforcer *pcasbin.Enforcer
 
-	requestFunc requestFunc
+	RequestFunc requestFunc
 
-	// errorResponseBody returned in application/json format in case of server error
+	// ErrorResponseBody returned in application/json format in case of server error
 	// if nil, body is not returned
-	errorResponseBody middleware.ResponseBody
+	ErrorResponseBody middleware.ResponseBody
 
-	// validateFailedResponseBody returned in application/json format when validate failed
+	// ValidateFailedResponseBody returned in application/json format when validate failed
 	// if nil, body is not returned
-	validateFailedResponseBody middleware.ResponseBody
+	ValidateFailedResponseBody middleware.ResponseBody
 
-	// logger log when an error occurs
+	// Logger log when an error occurs
 	// if nil, no error is logged
-	logger middleware.Logger
+	Logger middleware.Logger
 }
 
-// Option middleware option function
-type Option func(config *option)
+// Option middleware Casbin function
+type Option func(c *Casbin)
 
 // WithErrorResponseBody body returned in case of server error
 func WithErrorResponseBody(body middleware.ResponseBody) Option {
-	return func(o *option) {
-		o.errorResponseBody = body
+	return func(c *Casbin) {
+		c.ErrorResponseBody = body
 	}
 }
 
 // WithValidateFailedResponseBody body returned when validate failed
 func WithValidateFailedResponseBody(body middleware.ResponseBody) Option {
-	return func(o *option) {
-		o.validateFailedResponseBody = body
+	return func(c *Casbin) {
+		c.ValidateFailedResponseBody = body
 	}
 }
 
-// WithLogger error logger
+// WithLogger error Logger
 func WithLogger(logger middleware.Logger) Option {
-	return func(o *option) {
-		o.logger = logger
+	return func(c *Casbin) {
+		c.Logger = logger
 	}
+}
+
+func New(enforcer *pcasbin.Enforcer, rf requestFunc, options ...Option) *Casbin {
+	c := &Casbin{
+		Enforcer:                   enforcer,
+		RequestFunc:                rf,
+		ErrorResponseBody:          nil,
+		ValidateFailedResponseBody: nil,
+		Logger:                     nil,
+	}
+
+	for _, opt := range options {
+		opt(c)
+	}
+
+	return c
 }
 
 // Validate check if the request has permission
-func Validate(enforcer *pcasbin.Enforcer, rf requestFunc, options ...Option) gin.HandlerFunc {
+func (c *Casbin) Validate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		o := &option{}
-
-		for _, op := range options {
-			op(o)
-		}
-
-		if enforcer == nil {
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrNilEnforcer)
+		if c.Enforcer == nil {
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrNilEnforcer)
 			return
 		}
 
-		if rf == nil {
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrNilRequestFunction)
+		if c.RequestFunc == nil {
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrNilRequestFunction)
 			return
 		}
 
-		o.enforcer = enforcer
-		o.requestFunc = rf
-
-		items, err := o.requestFunc(ctx)
+		items, err := c.RequestFunc(ctx)
 		if err != nil {
-			if o.logger != nil {
-				o.logger.Errorf("%s: %s", ErrGettingCasbinRequestParameters, err)
+			if c.Logger != nil {
+				c.Logger.Errorf("%s: %s", ErrGettingCasbinRequestParameters, err)
 			}
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrGettingCasbinRequestParameters)
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrGettingCasbinRequestParameters)
 			return
 		}
 
-		if o.logger != nil {
-			o.logger.Debugf("casbin request: %v", items)
+		if c.Logger != nil {
+			c.Logger.Debugf("casbin request: %v", items)
 		}
 
-		ok, err := o.enforcer.Enforce(items...)
+		ok, err := c.Enforcer.Enforce(items...)
 		if err != nil {
-			if o.logger != nil {
-				o.logger.Errorf("%s: %s", ErrMatchingCasbinRequestParameters, err)
+			if c.Logger != nil {
+				c.Logger.Errorf("%s: %s", ErrMatchingCasbinRequestParameters, err)
 			}
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrMatchingCasbinRequestParameters)
+			errorResponse(ctx, http.StatusInternalServerError, c, ErrMatchingCasbinRequestParameters)
 			return
 		}
 
 		if !ok {
-			validateFailedResponse(ctx, http.StatusForbidden, o)
+			validateFailedResponse(ctx, http.StatusForbidden, c)
 			return
 		}
 
@@ -116,13 +123,13 @@ func Validate(enforcer *pcasbin.Enforcer, rf requestFunc, options ...Option) gin
 	}
 }
 
-func errorResponse(ctx *gin.Context, code int, c *option, err error) {
-	if c.errorResponseBody == nil {
+func errorResponse(ctx *gin.Context, code int, c *Casbin, err error) {
+	if c.ErrorResponseBody == nil {
 		ctx.AbortWithStatus(code)
 		return
 	}
 
-	body := c.errorResponseBody
+	body := c.ErrorResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
@@ -131,12 +138,12 @@ func errorResponse(ctx *gin.Context, code int, c *option, err error) {
 	return
 }
 
-func validateFailedResponse(ctx *gin.Context, code int, c *option) {
-	if c.validateFailedResponseBody == nil {
+func validateFailedResponse(ctx *gin.Context, code int, c *Casbin) {
+	if c.ValidateFailedResponseBody == nil {
 		ctx.AbortWithStatus(code)
 		return
 	}
 
-	ctx.AbortWithStatusJSON(code, c.validateFailedResponseBody)
+	ctx.AbortWithStatusJSON(code, c.ValidateFailedResponseBody)
 	return
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
-	pjwt "github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v4"
 	"go-scaffold/internal/app/transport/http/middleware"
 	"net/http"
 	"strings"
@@ -12,7 +12,6 @@ import (
 
 var (
 	ErrMissingKey       = errors.New("key is missing")
-	ErrInvalidToken     = errors.New("token is invalid")
 	ErrParseTokenFailed = errors.New("parse token failed")
 )
 
@@ -32,182 +31,184 @@ var DefaultContextKey = ContextKey{}
 
 type ContextKey struct{}
 
-// option middleware configuration
-type option struct {
+// JWT middleware configuration
+type JWT struct {
 
-	// key used for signing
-	key string
+	// Key used for signing
+	Key string
 
-	// headerName HTTP header key of token
+	// HeaderName HTTP header key of token
 	// if not specified，default: "Authorization"
-	headerName string
+	HeaderName string
 
-	// headerPrefix HTTP header value prefix of token
+	// HeaderPrefix HTTP header value prefix of token
 	// if not specified，default: "Bearer "
-	headerPrefix string
+	HeaderPrefix string
 
-	// errorResponseBody returned in application/json format in case of server error
+	// ErrorResponseBody returned in application/json format in case of server error
 	// if nil, body is not returned
-	errorResponseBody middleware.ResponseBody
+	ErrorResponseBody middleware.ResponseBody
 
-	// validateFailedResponseBody returned in application/json format when validate failed
+	// ValidateFailedResponseBody returned in application/json format when validate failed
 	// if nil, body is not returned
-	validateFailedResponseBody middleware.ResponseBody
+	ValidateFailedResponseBody middleware.ResponseBody
 
-	// logger log when an error occurs
+	// Logger log when an error occurs
 	// if nil, no error is logged
-	logger middleware.Logger
+	Logger middleware.Logger
 
-	// postFunc the hook function that will be called after token verification is successful
+	// PostFunc the hook function that will be called after token verification is successful
 	// this will override the default behavior of writing Claims to the Context
-	postFunc func(ctx *gin.Context, claims pjwt.Claims)
+	PostFunc func(ctx *gin.Context, claims jwt.Claims)
 
-	// raw original token
-	raw string
+	// Raw original token
+	Raw string
 }
 
-// Option middleware option function
-type Option func(config *option)
+// Option middleware JWT function
+type Option func(j *JWT)
 
 // WithHeaderName set the HTTP header key of token
 func WithHeaderName(headerName string) Option {
-	return func(config *option) {
-		config.headerName = headerName
+	return func(j *JWT) {
+		j.HeaderName = headerName
 	}
 }
 
 // WithHeaderPrefix set the HTTP header value prefix of token
 func WithHeaderPrefix(headerPrefix string) Option {
-	return func(config *option) {
-		config.headerPrefix = headerPrefix
+	return func(j *JWT) {
+		j.HeaderPrefix = headerPrefix
 	}
 }
 
 // WithErrorResponseBody body returned in case of server error
 func WithErrorResponseBody(body middleware.ResponseBody) Option {
-	return func(config *option) {
-		config.errorResponseBody = body
+	return func(j *JWT) {
+		j.ErrorResponseBody = body
 	}
 }
 
 // WithValidateFailedResponseBody body returned when validate failed
 func WithValidateFailedResponseBody(body middleware.ResponseBody) Option {
-	return func(config *option) {
-		config.validateFailedResponseBody = body
+	return func(j *JWT) {
+		j.ValidateFailedResponseBody = body
 	}
 }
 
-// WithLogger error logger
+// WithLogger error Logger
 func WithLogger(logger middleware.Logger) Option {
-	return func(config *option) {
-		config.logger = logger
+	return func(j *JWT) {
+		j.Logger = logger
 	}
 }
 
 // WithPostFunc set the hook function that will be called after token verification is successful
-func WithPostFunc(f func(ctx *gin.Context, claims pjwt.Claims)) Option {
-	return func(config *option) {
-		config.postFunc = f
+func WithPostFunc(f func(ctx *gin.Context, claims jwt.Claims)) Option {
+	return func(j *JWT) {
+		j.PostFunc = f
 	}
 }
 
+func New(key string, options ...Option) *JWT {
+	j := &JWT{
+		Key:                        key,
+		HeaderName:                 defaultHeaderName,
+		HeaderPrefix:               defaultHeaderPrefix,
+		ErrorResponseBody:          nil,
+		ValidateFailedResponseBody: nil,
+		Logger:                     nil,
+		PostFunc:                   defaultPostFunc,
+		Raw:                        "",
+	}
+
+	for _, opt := range options {
+		opt(j)
+	}
+
+	return j
+}
+
 // Validate check if the token is valid
-func Validate(key string, options ...Option) gin.HandlerFunc {
+func (j *JWT) Validate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		o := defaultOption(key)
-
-		for _, op := range options {
-			op(o)
-		}
-
-		if o.key == "" {
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrMissingKey)
+		if j.Key == "" {
+			errorResponse(ctx, http.StatusInternalServerError, j, ErrMissingKey)
 			return
 		}
 
-		tokenString := ctx.GetHeader(o.headerName)
+		tokenString := ctx.GetHeader(j.HeaderName)
 
-		if o.headerPrefix != NoneHeaderPrefix {
-			tokenString = strings.TrimPrefix(tokenString, o.headerPrefix)
+		if j.HeaderPrefix != NoneHeaderPrefix {
+			tokenString = strings.TrimPrefix(tokenString, j.HeaderPrefix)
 		}
 
 		if tokenString == "" {
-			validateFailedResponse(ctx, http.StatusUnauthorized, o, nil)
+			validateFailedResponse(ctx, http.StatusUnauthorized, j, nil)
 			return
 		}
 
-		o.raw = tokenString
+		j.Raw = tokenString
 
-		if o.logger != nil {
-			o.logger.Debugf("token: %s", tokenString)
+		if j.Logger != nil {
+			j.Logger.Debugf("token: %s", tokenString)
 		}
 
-		token, err := pjwt.Parse(tokenString, func(token *pjwt.Token) (interface{}, error) {
-			return []byte(o.key), nil
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(j.Key), nil
 		})
 		if err != nil {
-			if o.logger != nil {
-				o.logger.Errorf("%s: %s", ErrParseTokenFailed, err)
+			if ve, ok := err.(*jwt.ValidationError); ok {
+				validateFailedResponse(ctx, http.StatusUnauthorized, j, ve)
+				return
+			} else {
+				if j.Logger != nil {
+					j.Logger.Errorf("%s: %s", ErrParseTokenFailed, err)
+				}
+				errorResponse(ctx, http.StatusInternalServerError, j, ErrParseTokenFailed)
+				return
 			}
-			errorResponse(ctx, http.StatusInternalServerError, o, ErrParseTokenFailed)
-			return
 		}
 
-		if !token.Valid {
-			validateFailedResponse(ctx, http.StatusUnauthorized, o, ErrInvalidToken)
-			return
-		}
-
-		if o.postFunc != nil {
-			o.postFunc(ctx, token.Claims)
+		if j.PostFunc != nil {
+			j.PostFunc(ctx, token.Claims)
 		}
 
 		ctx.Next()
 	}
 }
 
-func defaultOption(key string) *option {
-	return &option{
-		key:                        key,
-		headerName:                 defaultHeaderName,
-		headerPrefix:               defaultHeaderPrefix,
-		errorResponseBody:          nil,
-		validateFailedResponseBody: nil,
-		logger:                     nil,
-		postFunc: func(ctx *gin.Context, claims pjwt.Claims) {
-			claimsContext := context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
-			ctx.Request = ctx.Request.WithContext(claimsContext)
-		},
-		raw: "",
-	}
+func defaultPostFunc(ctx *gin.Context, claims jwt.Claims) {
+	claimsContext := context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
+	ctx.Request = ctx.Request.WithContext(claimsContext)
 }
 
-func errorResponse(ctx *gin.Context, code int, o *option, err error) {
-	if o.errorResponseBody == nil {
-		ctx.AbortWithStatus(code)
+func errorResponse(ctx *gin.Context, httpStatusCode int, j *JWT, err error) {
+	if j.ErrorResponseBody == nil {
+		ctx.AbortWithStatus(httpStatusCode)
 		return
 	}
 
-	body := o.errorResponseBody
+	body := j.ErrorResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
 
-	ctx.AbortWithStatusJSON(code, body)
+	ctx.AbortWithStatusJSON(httpStatusCode, body)
 	return
 }
 
-func validateFailedResponse(ctx *gin.Context, code int, o *option, err error) {
-	if o.validateFailedResponseBody == nil {
-		ctx.AbortWithStatus(code)
+func validateFailedResponse(ctx *gin.Context, httpStatusCode int, j *JWT, err error) {
+	if j.ValidateFailedResponseBody == nil {
+		ctx.AbortWithStatus(httpStatusCode)
 		return
 	}
 
-	body := o.validateFailedResponseBody
+	body := j.ValidateFailedResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
 
-	ctx.AbortWithStatusJSON(code, body)
+	ctx.AbortWithStatusJSON(httpStatusCode, body)
 	return
 }
