@@ -5,6 +5,8 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"go-scaffold/internal/app/component/casbin"
+	"go-scaffold/internal/app/model"
+	"gorm.io/gorm"
 )
 
 var ProviderSet = wire.NewSet(
@@ -34,6 +36,16 @@ func Loaded(hLogger log.Logger, cfg config.Config, conf *Config) error {
 		conf.Trace.ServiceName = conf.App.Name
 		conf.Trace.Env = conf.App.Env.String()
 		conf.Trace.Timeout = conf.App.Timeout
+	}
+
+	if conf.Casbin != nil {
+		if conf.Casbin.Adapter != nil {
+			if conf.Casbin.Adapter.Gorm != nil {
+				conf.Casbin.Adapter.Gorm.SetMigration(func(db *gorm.DB) error {
+					return (&model.CasbinRule{}).Migrate(db)
+				})
+			}
+		}
 	}
 
 	if err := Watch(hLogger, cfg, conf); err != nil {

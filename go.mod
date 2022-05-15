@@ -8,7 +8,7 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/casbin/casbin/v2 v2.46.0
-	github.com/casbin/gorm-adapter/v3 v3.7.0
+	github.com/casbin/gorm-adapter/v3 v3.7.1
 	github.com/casbin/json-adapter/v2 v2.0.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/zap v0.0.2

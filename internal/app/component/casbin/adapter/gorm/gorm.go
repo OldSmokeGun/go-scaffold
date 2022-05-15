@@ -5,23 +5,36 @@ import (
 	"gorm.io/gorm"
 )
 
-const defaultTableName = "casbin_rule"
-
 type Config struct {
 	TableName string
+
+	migration func(db *gorm.DB) error
+}
+
+func (c *Config) SetMigration(fn func(db *gorm.DB) error) {
+	c.migration = fn
 }
 
 // New casin gorm adapter
 func New(config *Config, db *gorm.DB) (adp *gormadapter.Adapter, err error) {
-	tableName := defaultTableName
+	if config.TableName == "" {
+		adp, err = gormadapter.NewAdapterByDB(db)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		db = gormadapter.TurnOffAutoMigrate(db)
 
-	if config.TableName != "" {
-		tableName = config.TableName
-	}
+		if config.migration != nil {
+			if err = config.migration(db); err != nil {
+				return nil, err
+			}
+		}
 
-	adp, err = gormadapter.NewAdapterByDBUseTableName(db, "", tableName)
-	if err != nil {
-		return nil, err
+		adp, err = gormadapter.NewAdapterByDBUseTableName(db, "", config.TableName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return
