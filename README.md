@@ -215,18 +215,18 @@ package trace
 import "go-scaffold/internal/app/config"
 
 type Handler struct {
-	conf    *config.Config
-	appConf *config.App
+    conf    *config.Config
+    appConf *config.App
 }
 
 func NewHandler(
-	conf *config.Config,
-	appConf *config.App,
+    conf *config.Config,
+    appConf *config.App,
 ) *Handler {
-	return &Handler{
-		conf:    conf,
-		appConf: appConf,
-	}
+    return &Handler{
+    	conf:    conf,
+    	appConf: appConf,
+    }
 }
 ```
 
@@ -297,14 +297,14 @@ func NewService(logger log.Logger) *Service {
 
 ```go
 type Error struct {
-	// Code 状态码
-	Code ErrorCode
+    // Code 状态码
+    Code ErrorCode
 
-	// Message 错误信息
-	Message string
+    // Message 错误信息
+    Message string
 
-	// Metadata 元数据
-	Metadata map[string]string
+    // Metadata 元数据
+    Metadata map[string]string
 }
 ```
 
@@ -313,37 +313,37 @@ type Error struct {
 ```go
 // ServerError 服务器错误
 func ServerError(options ...Option) *Error {
-	return New(ServerErrorCode, ServerErrorCode.String(), options...)
+    return New(ServerErrorCode, ServerErrorCode.String(), options...)
 }
 
 // ClientError 客户端错误
 func ClientError(options ...Option) *Error {
-	return New(ClientErrorCode, ClientErrorCode.String(), options...)
+    return New(ClientErrorCode, ClientErrorCode.String(), options...)
 }
 
 // ValidateError 参数校验错误
 func ValidateError(options ...Option) *Error {
-	return New(ValidateErrorCode, ValidateErrorCode.String(), options...)
+    return New(ValidateErrorCode, ValidateErrorCode.String(), options...)
 }
 
 // Unauthorized 未认证
 func Unauthorized(options ...Option) *Error {
-	return New(UnauthorizedCode, UnauthorizedCode.String(), options...)
+    return New(UnauthorizedCode, UnauthorizedCode.String(), options...)
 }
 
 // PermissionDenied 权限拒绝错误
 func PermissionDenied(options ...Option) *Error {
-	return New(PermissionDeniedCode, PermissionDeniedCode.String(), options...)
+    return New(PermissionDeniedCode, PermissionDeniedCode.String(), options...)
 }
 
 // ResourceNotFound 资源不存在
 func ResourceNotFound(options ...Option) *Error {
-	return New(ResourceNotFoundCode, ResourceNotFoundCode.String(), options...)
+    return New(ResourceNotFoundCode, ResourceNotFoundCode.String(), options...)
 }
 
 // TooManyRequest 请求太过频繁
 func TooManyRequest(options ...Option) *Error {
-	return New(TooManyRequestCode, TooManyRequestCode.String(), options...)
+    return New(TooManyRequestCode, TooManyRequestCode.String(), options...)
 }
 ```
 
@@ -358,9 +358,9 @@ func (s *Service) Hello(ctx context.Context, req HelloRequest) (*HelloResponse, 
     // ...
     
     // 返回 Error
-	return nil, errors.ServerError()
+    return nil, errors.ServerError()
 	
-	// ...
+    // ...
 }
 ```
 
@@ -371,8 +371,8 @@ func (s *Service) Hello(ctx context.Context, req HelloRequest) (*HelloResponse, 
 ret, err := h.service.Hello(ctx.Request.Context(), *req)
 if err != nil {
     // response.Error 方法会自动将 Error 转换为对应的 HTTP 状态
-	response.Error(ctx, err)
-	return
+    response.Error(ctx, err)
+    return
 }
 
 // ...
@@ -448,17 +448,17 @@ casbin:
 func Loaded(hLogger log.Logger, cfg config.Config, conf *Config) error {
     // ...
     
-	if conf.Casbin != nil {
-		if conf.Casbin.Adapter != nil {
-			if conf.Casbin.Adapter.Gorm != nil {
-				conf.Casbin.Adapter.Gorm.SetMigration(func(db *gorm.DB) error {
-					return (&model.CasbinRule{}).Migrate(db)
-				})
-			}
-		}
-	}
+    if conf.Casbin != nil {
+        if conf.Casbin.Adapter != nil {
+            if conf.Casbin.Adapter.Gorm != nil {
+                conf.Casbin.Adapter.Gorm.SetMigration(func(db *gorm.DB) error {
+                    return (&model.CasbinRule{}).Migrate(db)
+                })
+            }
+        }
+    }
 
-	// ...
+    // ...
 }
 ```
 
@@ -480,15 +480,15 @@ package trace
 import "go-scaffold/internal/app/component/client/grpc"
 
 type Handler struct {
-	grpcClient *grpc.Client
+    grpcClient *grpc.Client
 }
 
 func NewHandler(
-	grpcClient *grpc.Client,
+    grpcClient *grpc.Client,
 ) *Handler {
-	return &Handler{
-		grpcClient: grpcClient,
-	}
+    return &Handler{
+    	grpcClient: grpcClient,
+    }
 }
 ```
 
@@ -744,32 +744,32 @@ $ go generate ./...
 
 ```go
 type CreateRequest struct {
-	Name  string `json:"name"`
-	Age   int8   `json:"age"`
-	Phone string `json:"phone"`
+    Name  string `json:"name"`
+    Age   int8   `json:"age"`
+    Phone string `json:"phone"`
 }
 
 func (r CreateRequest) Validate() error {
-	return validation.ValidateStruct(&r,
-		validation.Field(&r.Name, validation.Required.Error("名称不能为空")),
-		validation.Field(&r.Phone, validation.By(validator.IsMobilePhone)),
-	)
+    return validation.ValidateStruct(&r,
+    	validation.Field(&r.Name, validation.Required.Error("名称不能为空")),
+    	validation.Field(&r.Phone, validation.By(validator.IsMobilePhone)),
+    )
 }
 
 type CreateResponse struct {
-	Id    uint64 `json:"id"`
-	Name  string `json:"name"`
-	Age   int8   `json:"age"`
-	Phone string `json:"phone"`
+    Id    uint64 `json:"id"`
+    Name  string `json:"name"`
+    Age   int8   `json:"age"`
+    Phone string `json:"phone"`
 }
 
 func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateResponse, error) {
     // 参数校验
-	if err := req.Validate(); err != nil {
-		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
-	}
+    if err := req.Validate(); err != nil {
+        return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+    }
 
-	// ...
+    // ...
 }
 ```
 
