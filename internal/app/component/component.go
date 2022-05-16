@@ -4,8 +4,8 @@ import (
 	"github.com/google/wire"
 	"go-scaffold/internal/app/component/casbin"
 	"go-scaffold/internal/app/component/client/grpc"
-	"go-scaffold/internal/app/component/data"
 	"go-scaffold/internal/app/component/discovery"
+	"go-scaffold/internal/app/component/ent"
 	"go-scaffold/internal/app/component/orm"
 	"go-scaffold/internal/app/component/redis"
 	"go-scaffold/internal/app/component/trace"
@@ -14,7 +14,7 @@ import (
 
 var ProviderSet = wire.NewSet(
 	wire.NewSet(orm.New),
-	wire.NewSet(data.New),
+	wire.NewSet(ent.New),
 	wire.NewSet(redis.New),
 	wire.NewSet(trace.New),
 	wire.NewSet(discovery.New),

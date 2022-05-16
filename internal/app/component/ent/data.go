@@ -1,11 +1,12 @@
-package data
+package ent
 
 import (
 	"context"
 	"entgo.io/ent/dialect/sql"
 	"github.com/go-kratos/kratos/v2/log"
-	"go-scaffold/internal/app/component/data/ent"
-	"go-scaffold/internal/app/component/data/ent/migrate"
+	"go-scaffold/internal/app/component/ent/ent"
+	"go-scaffold/internal/app/component/ent/ent/migrate"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,7 +25,7 @@ const (
 type Config struct {
 	Driver          Driver
 	Host            string
-	Port            string
+	Port            int
 	Database        string
 	Username        string
 	Password        string
@@ -88,12 +89,12 @@ func buildSource(c *Config) string {
 	switch c.Driver {
 	case PostgresSQL:
 		options := strings.Join(c.Options, " ")
-		dsn = "host=" + c.Host + " port=" + c.Port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
+		dsn = "host=" + c.Host + " port=" + strconv.Itoa(c.Port) + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
 	case MySQL:
 		fallthrough
 	default:
 		options := strings.Join(c.Options, "&")
-		dsn = c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + c.Port + ")/" + c.Database + "?" + options
+		dsn = c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + strconv.Itoa(c.Port) + ")/" + c.Database + "?" + options
 	}
 
 	return dsn
