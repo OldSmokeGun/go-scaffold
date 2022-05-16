@@ -829,11 +829,11 @@ func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateRespons
 
 部署前根据需要将 `docker-compose.yaml.example` 或 `docker-compose-dev.yaml.example` 拷贝为 `docker-compose.yaml`，然后根据 [`docker-compose`](#docker-compose) 运行
 
-## `kubernetes`
+## `Kubernetes`
 
-`kubernetes` 编排文件位于 `deploy/kubernetes` 目录中
+`Kubernetes` 编排文件位于 `deploy/kubernetes` 目录中
 
-`kubernetes` 的方式基于 `helm`，部署前需要将 `values.yaml.example` 拷贝为 `values.yaml`
+`Kubernetes` 的方式基于 `helm`，部署前需要将 `values.yaml.example` 拷贝为 `values.yaml`
 
 然后执行：
 
