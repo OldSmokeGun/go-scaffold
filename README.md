@@ -1,3 +1,61 @@
+* [介绍](#介绍)
+* [架构图](#架构图)
+* [生命周期](#生命周期)
+* [目录结构](#目录结构)
+* [如何运行](#如何运行)
+  * [go build 或 go run](#go-build-或-go-run)
+  * [make](#make)
+  * [docker-compose](#docker-compose)
+  * [热重启](#热重启)
+  * [运行子命令或脚本](#运行子命令或脚本)
+* [依赖注入](#依赖注入)
+* [配置](#配置)
+  * [配置模型](#配置模型)
+  * [远程配置](#远程配置)
+  * [监听配置变更](#监听配置变更)
+* [日志](#日志)
+* [错误处理](#错误处理)
+  * [转换为 HTTP 状态码](#转换为-http-状态码)
+  * [将 GRPC 错误转换为 Error](#将-grpc-错误转换为-error)
+* [组件](#组件)
+  * [Casbin](#casbin)
+  * [Client](#client)
+    * [gRPC 客户端](#grpc-客户端)
+  * [Discovery 服务发现与注册](#discovery-服务发现与注册)
+  * [Ent](#ent)
+  * [orm](#orm)
+  * [Redis 客户端](#redis-客户端)
+  * [trace](#trace)
+  * [uid](#uid)
+* [transport 层](#transport-层)
+  * [HTTP](#http)
+    * [响应](#响应)
+    * [swagger 文档生成](#swagger-文档生成)
+    * [如何访问 swagger 文档](#如何访问-swagger-文档)
+* [service 层](#service-层)
+* [命令行功能模块](#命令行功能模块)
+* [cron 定时任务功能模块](#cron-定时任务功能模块)
+* [如何部署](#如何部署)
+  * [Dockerfile](#dockerfile)
+  * [docker-compose](#docker-compose-1)
+  * [kubernetes](#kubernetes)
+
+# 介绍
+
+`go-scaffold` 是一个基于 [cobra](https://github.com/cosmtrek/air) 和 [kratos](https://github.com/go-kratos/kratos) 框架的脚手架，设计思想是基于 [wire](https://github.com/google/wire) 实现模块和功能的组件化
+
+`go-scaffold` 开箱即用，使用简单，可以快速搭建起一个微服务进行业务代码的开发，支持功能：
+
+- 依赖注入
+- [cobra](https://github.com/cosmtrek/air) 命令行
+- [cron](https://github.com/robfig/cron) 定时任务
+- `apollo` 远程配置中心和配置监听
+- 日志切割
+- 服务注册和发现
+- `jaeger` 链路追踪
+- `Swagger` 文档生成
+- `docker-compose` 和 `Kubernetes` 部署
+
 # 架构图
 
 ![image](./docs/images/architecture.png)
@@ -46,11 +104,9 @@
 `-- proto # 第三方 proto 文件目录
 ```
 
-# 准备
-
-脚手架核心基于 [kratos](https://github.com/go-kratos/kratos) 框架和 [wire](https://github.com/google/wire) 依赖注入框架，请先自行根据官方文档学习
-
 # 如何运行
+
+首先将 `etc/config.yaml.example` 拷贝为 `etc/config.yaml`
 
 ## `go build` 或 `go run`
 
@@ -178,12 +234,12 @@ func NewHandler(
 
 在启动程序时，可通过以下选项配置远程配置中心
 
-- `config.apollo.enable`: `apollo` 是否启用
-- `config.apollo.endpoint`: 连接地址
-- `config.apollo.appid`: `appID`
-- `config.apollo.cluster`: `cluster`
-- `config.apollo.namespace`: 命名空间
-- `config.apollo.secret`: `secret`
+- `--config.apollo.enable`: `apollo` 是否启用
+- `--config.apollo.endpoint`: 连接地址
+- `--config.apollo.appid`: `appID`
+- `--config.apollo.cluster`: `cluster`
+- `--config.apollo.namespace`: 命名空间
+- `--config.apollo.secret`: `secret`
 
 ## 监听配置变更
 
@@ -208,10 +264,10 @@ var watchKeys = []string{
 
 可在程序启动时，通过以下选项改变日志行为：
 
-- `log.path`: 日志输出路径
-- `log.level`: 日志等级（`debug`、`info`、`warn`、`error`、`panic`、`fatal`）
-- `log.format`: 日志输出格式（`text`、`json`）
-- `log.caller-skip`: 日志 `caller` 跳过层数
+- `--log.path`: 日志输出路径
+- `--log.level`: 日志等级（`debug`、`info`、`warn`、`error`、`panic`、`fatal`）
+- `--log.format`: 日志输出格式（`text`、`json`）
+- `--log.caller-skip`: 日志 `caller` 跳过层数
 
 如何获取日志实例：
 
@@ -231,118 +287,6 @@ type Service struct {
 func NewService(logger log.Logger) *Service {
     return &Service{
         logger: log.NewHelper(logger),
-    }
-}
-```
-
-# 组件
-
-## `DB`
-
-`DB` 基于 [gorm](https://github.com/go-gorm/gorm)
-
-如何获取 `DB` 实例：
-
-- 注入类型：`*gorm.DB`
-
-例：
-
-```go
-package user
-
-import "gorm.io/gorm"
-
-type Repository struct {
-    db *gorm.DB
-}
-
-func NewRepository(db *gorm.DB) *Repository {
-    return &Repository{
-        db: db,
-    }
-}
-```
-
-## `Redis` 客户端
-
-`Redis` 客户端基于 [go-redis](https://github.com/go-redis/redis)
-
-如何获取 `Redis` 客户端：
-
-- 注入类型：`*redis.Client`
-
-例：
-
-```go
-package user
-
-import "github.com/go-redis/redis/v8"
-
-type Repository struct {
-    rdb *redis.Client
-}
-
-func NewRepository(rdb *redis.Client) *Repository {
-    return &Repository{
-        rdb: rdb,
-    }
-}
-```
-
-## `GRPC` 客户端
-
-`GRPC` 客户端基于 `kratos` 的 `GRPC` 客户端再封装，自动判断与服务端通信时是直连还是服务发现
-
-如何获取 `GRPC` 客户端：
-
-- 注入类型：`*grpc.Client`
-
-例：
-
-```go
-package trace
-
-import "go-scaffold/internal/app/component/client/grpc"
-
-type Handler struct {
-	grpcClient *grpc.Client
-}
-
-func NewHandler(
-	grpcClient *grpc.Client,
-) *Handler {
-	return &Handler{
-		grpcClient: grpcClient,
-	}
-}
-```
-
-## 链路追踪
-
-脚手架基于 [opentelemetry-go](https://github.com/open-telemetry/opentelemetry-go) 实现了 `OpenTelemetry` 规范的链路追踪
-
-`transport` 中 `HTTP` 和 `GRPC` 均已注册链路追踪的中间件
-
-如何获取 `tracerProvider` 和 `tracer`：
-
-- 注入类型：`*redis.Client`
-
-例：
-
-```go
-package trace
-
-import "go-scaffold/internal/app/component/trace"
-
-type Handler struct {
-    trace *trace.Tracer
-}
-
-func NewHandler(
-    trace *trace.Tracer,
-) *Handler {
-    return &Handler{
-        trace: trace,
     }
 }
 ```
@@ -455,6 +399,277 @@ if err != nil {
 // ...
 ```
 
+# 组件
+
+## `Casbin`
+
+基于 [casbin](https://github.com/casbin/casbin) 进行封装，现支持 `file` 和 `gorm` 两种类型的 `adapter`，如果同时配置，`file` 类型生效
+
+如何获取 `Enforcer` 实例：
+
+- 注入类型：`*casbin.Enforcer`
+
+例：
+
+```go
+package permission
+
+import "github.com/casbin/casbin/v2"
+
+type Service struct {
+    enforcer *casbin.Enforcer
+}
+
+func NewService(enforcer *casbin.Enforcer) *Service {
+    return &Service{
+        enforcer: enforcer,
+    }
+}
+```
+
+如何进行配置：
+
+```yaml
+casbin:
+  model: # casbin 模型
+    path: "assets/casbin/rbac_model.conf"
+  adapter: # 适配器配置
+    file:
+      path: "assets/casbin/rbac_policy.csv"
+    gorm:
+      tableName: "casbin_rules" # 数据表名称
+```
+
+如何自定义 `casbin policy` 的数据库存储模型：
+
+在 `internal/app/config/config.go` 文件的 `Loaded` 函数中增加代码
+
+```go
+func Loaded(hLogger log.Logger, cfg config.Config, conf *Config) error {
+    // ...
+    
+	if conf.Casbin != nil {
+		if conf.Casbin.Adapter != nil {
+			if conf.Casbin.Adapter.Gorm != nil {
+				conf.Casbin.Adapter.Gorm.SetMigration(func(db *gorm.DB) error {
+					return (&model.CasbinRule{}).Migrate(db)
+				})
+			}
+		}
+	}
+
+	// ...
+}
+```
+
+## `Client`
+
+### `gRPC` 客户端
+
+基于 `kratos` 的 `gRPC` 客户端进行封装，根据传入的地址自动判断是走直连还是服务发现
+
+如何获取客户端实例：
+
+- 注入类型：`*grpc.Client`
+
+例：
+
+```go
+package trace
+
+import "go-scaffold/internal/app/component/client/grpc"
+
+type Handler struct {
+	grpcClient *grpc.Client
+}
+
+func NewHandler(
+	grpcClient *grpc.Client,
+) *Handler {
+	return &Handler{
+		grpcClient: grpcClient,
+	}
+}
+```
+
+如何进行配置：
+
+```yaml
+services:
+  self: "127.0.0.1:9528"
+  # self: "discovery:///go-scaffold" # 服务发现地址
+```
+
+## `Discovery` 服务发现与注册
+
+基于 `kratos` 的服务注册与发现进行封装，现支持 `etcd` 和 `consul`，可根据配置进行切换，如果同时配置，`etcd` 生效
+
+如何获取 `Discovery` 实例：
+
+- 注入类型：`discovery.Discovery`
+
+例：
+
+```go
+package transport
+
+import "go-scaffold/internal/app/component/discovery"
+
+type Transport struct {
+    // ...
+}
+
+func New(discovery discovery.Discovery) *Transport {
+    // ...
+}
+```
+
+如何进行配置：
+
+```yaml
+discovery:
+  etcd:
+    endpoints:
+      - "localhost:12379"
+  # consul:
+  #   addr: "localhost:8500"
+  #   schema: "http"
+```
+
+## `Ent`
+
+`ent` 组件基于 [ent](https://github.com/ent/ent)
+
+如何获取 `ent` 客户端：
+
+- 注入类型：`*ent.Client`
+
+例：
+
+```go
+package user
+
+import "go-scaffold/internal/app/component/ent/ent"
+
+type Repository struct {
+    ent *ent.Client
+}
+
+func NewRepository(ent *ent.Client) *Repository {
+    return &Repository{
+        ent: ent,
+    }
+}
+```
+
+## `orm`
+
+`orm` 组件基于 [gorm](https://github.com/go-gorm/gorm)
+
+如何获取 `orm` 实例：
+
+- 注入类型：`*gorm.DB`
+
+例：
+
+```go
+package user
+
+import "gorm.io/gorm"
+
+type Repository struct {
+    db *gorm.DB
+}
+
+func NewRepository(db *gorm.DB) *Repository {
+    return &Repository{
+        db: db,
+    }
+}
+```
+
+## `Redis` 客户端
+
+`Redis` 客户端基于 [go-redis](https://github.com/go-redis/redis)
+
+如何获取 `Redis` 客户端：
+
+- 注入类型：`*redis.Client`
+
+例：
+
+```go
+package user
+
+import "github.com/go-redis/redis/v8"
+
+type Repository struct {
+    rdb *redis.Client
+}
+
+func NewRepository(rdb *redis.Client) *Repository {
+    return &Repository{
+        rdb: rdb,
+    }
+}
+```
+
+## `trace`
+
+脚手架基于 [opentelemetry-go](https://github.com/open-telemetry/opentelemetry-go) 实现了 `OpenTelemetry` 规范的链路追踪
+
+`transport` 中 `HTTP` 和 `gRPC` 均已注册链路追踪的中间件
+
+如何获取 `tracerProvider` 和 `tracer`：
+
+- 注入类型：`*redis.Client`
+
+例：
+
+```go
+package trace
+
+import "go-scaffold/internal/app/component/trace"
+
+type Handler struct {
+    trace *trace.Tracer
+}
+
+func NewHandler(
+    trace *trace.Tracer,
+) *Handler {
+    return &Handler{
+        trace: trace,
+    }
+}
+```
+
+## `uid`
+
+`uid` 组件是基于 [snowflake](github.com/bwmarrin/snowflake) 实现的 `uid` 生成器，可用于数据库主键
+
+如何获取 `uid` 实例：
+
+- 注入类型：`uid.Generator`
+
+例：
+
+```go
+package user
+
+import "go-scaffold/internal/app/component/uid"
+
+type Repository struct {
+    id uid.Generator
+}
+
+func NewRepository(id uid.Generator) *Repository {
+    return &Repository{
+        id: id,
+    }
+}
+```
+
 # `transport` 层
 
 ## `HTTP`
@@ -478,15 +693,15 @@ func (h *Handler) Hello(ctx *gin.Context) {
 
 ```go
 func (h *Handler) Hello(ctx *gin.Context) {
-// ...
-
-ret, err := h.service.Hello(ctx.Request.Context(), *req)
-if err != nil {
-response.Error(ctx, err)
-return
-}
-
-// ...
+    // ...
+    
+    ret, err := h.service.Hello(ctx.Request.Context(), *req)
+        if err != nil {
+        response.Error(ctx, err)
+        return
+    }
+    
+    // ...
 }
 ```
 
@@ -518,6 +733,45 @@ $ go generate ./...
 ### 如何访问 `swagger` 文档
 
 浏览器打开 `<host>/api/docs`
+
+# `service` 层
+
+`service` 层处理业务逻辑 `transport` 层中的 `HTTP` 和 `gRPC`，或命令行都只是其中一个入口
+
+参数的校验基于 [ozzo-validation](https://github.com/go-ozzo/ozzo-validation)，统一放到 `service` 层
+
+例：
+
+```go
+type CreateRequest struct {
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
+}
+
+func (r CreateRequest) Validate() error {
+	return validation.ValidateStruct(&r,
+		validation.Field(&r.Name, validation.Required.Error("名称不能为空")),
+		validation.Field(&r.Phone, validation.By(validator.IsMobilePhone)),
+	)
+}
+
+type CreateResponse struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
+}
+
+func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateResponse, error) {
+    // 参数校验
+	if err := req.Validate(); err != nil {
+		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+	}
+
+	// ...
+}
+```
 
 # 命令行功能模块
 
@@ -562,3 +816,31 @@ $ go generate ./...
 - 在 `internal/app/cron/job` 目录中进行定义
 - 任务结构体的名称为任务文件名，并且实现 `cron.Job` 接口
 - 结构体的注释应该说明此任务的用途
+
+# 如何部署
+
+## `Dockerfile`
+
+`Dockerfile` 文件位于项目根目录
+
+## `docker-compose`
+
+`docker-compose` 编排文件位于 `deploy/docker-compose` 目录中
+
+部署前根据需要将 `docker-compose.yaml.example` 或 `docker-compose-dev.yaml.example` 拷贝为 `docker-compose.yaml`，然后根据 [`docker-compose`](#docker-compose) 运行
+
+## `kubernetes`
+
+`kubernetes` 编排文件位于 `deploy/kubernetes` 目录中
+
+`kubernetes` 的方式基于 `helm`，部署前需要将 `values.yaml.example` 拷贝为 `values.yaml`
+
+然后执行：
+
+```shell
+$ kubectl apply -Rf deploy/kubernetes
+
+# 或
+
+$ helm install go-scaffold kubernetes/
+```
