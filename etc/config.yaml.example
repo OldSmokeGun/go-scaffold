@@ -86,6 +86,6 @@ services:
 #     path: "assets/casbin/rbac_model.conf"
 #   adapter:
 #     file:
-#       path: "assets/casbin/policy.csv"
+#       path: "assets/casbin/rbac_policy.csv"
 #     gorm:
 #       tableName: ""
