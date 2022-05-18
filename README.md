@@ -42,12 +42,12 @@
 
 # 介绍
 
-`go-scaffold` 是一个基于 [cobra](https://github.com/cosmtrek/air) 和 [kratos](https://github.com/go-kratos/kratos) 框架的脚手架，设计思想是基于 [wire](https://github.com/google/wire) 实现模块和功能的组件化
+`go-scaffold` 是一个基于 [cobra](https://github.com/spf13/cobra) 和 [kratos](https://github.com/go-kratos/kratos) 框架的脚手架，设计思想是基于 [wire](https://github.com/google/wire) 实现模块和功能的组件化
 
 `go-scaffold` 开箱即用，使用简单，可以快速搭建起一个微服务进行业务代码的开发，支持功能：
 
 - 依赖注入
-- [cobra](https://github.com/cosmtrek/air) 命令行
+- [cobra](https://github.com/spf13/cobra) 命令行
 - [cron](https://github.com/robfig/cron) 定时任务
 - `apollo` 远程配置中心和配置监听
 - 日志切割
@@ -169,7 +169,7 @@ $ air
 
 ## 运行子命令或脚本
 
-命令行程序功能基于 [cobra](https://github.com/cosmtrek/air)
+命令行程序功能基于 [cobra](https://github.com/spf13/cobra)
 
 ```shell
 $ ./bin/app [标志] <子命令> [标志] [参数]
@@ -258,7 +258,7 @@ var watchKeys = []string{
 
 # 日志
 
-日志基于 [zap](https://github.com/uber-go/zap)，日志的轮转基于 [file-rotatelogs](github.com/lestrrat-go/file-rotatelogs)
+日志基于 [zap](https://github.com/uber-go/zap)，日志的轮转基于 [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs)
 
 日志内容默认输出到 `logs` 目录中，并且根据每天的日期进行分割
 
