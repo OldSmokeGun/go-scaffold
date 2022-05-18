@@ -16,6 +16,7 @@ var (
 	ErrUnsupportedType = errors.New("unsupported database type")
 )
 
+// Driver database driver type
 type Driver string
 
 func (d Driver) String() string {
@@ -27,6 +28,7 @@ const (
 	PostgresSQL Driver = "postgres"
 )
 
+// LogLevel database logger level
 type LogLevel string
 
 const (
@@ -36,6 +38,7 @@ const (
 	Info   LogLevel = "info"
 )
 
+// Convert convert to gorm logger level
 func (l LogLevel) Convert() logger.LogLevel {
 	switch l {
 	case Silent:
@@ -51,22 +54,28 @@ func (l LogLevel) Convert() logger.LogLevel {
 	}
 }
 
+// DSN database connection configuration
+type DSN struct {
+	Host     string
+	Port     int
+	Database string
+	Username string
+	Password string
+	Options  []string
+}
+
 type Config struct {
-	Driver          Driver
-	Host            string
-	Port            int
-	Database        string
-	Username        string
-	Password        string
-	Options         []string
+	Driver Driver
+	DSN
 	MaxIdleConn     int
 	MaxOpenConn     int
 	ConnMaxIdleTime int64
 	ConnMaxLifeTime int64
 	LogLevel        LogLevel
+	Plugins         func(db *gorm.DB) ([]gorm.Plugin, error)
 }
 
-// New 初始化 orm
+// New initialize orm
 func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB, cleanup func(), err error) {
 	if config == nil {
 		return nil, func() {}, nil
@@ -122,6 +131,16 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 		}
 	default:
 		return nil, nil, ErrUnsupportedType
+	}
+
+	plugins, err := config.Plugins(db)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, plugin := range plugins {
+		if err = db.Use(plugin); err != nil {
+			return nil, nil, err
+		}
 	}
 
 	cleanup = func() {

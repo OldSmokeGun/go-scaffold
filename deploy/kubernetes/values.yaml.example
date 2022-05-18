@@ -97,11 +97,22 @@ configMap:
     #   connMaxIdleTime: 120
     #   connMaxLifeTime: 120
     #   logLevel: "error"
+    #   resolvers:
+    #     - type: "replica"
+    #       host: "127.0.0.1"
+    #       port: 3306
+    #       database: "go-scaffold"
+    #       username: "root"
+    #       password: "root"
+    #       options:
+    #         - "charset=utf8mb4"
+    #         - "parseTime=True"
+    #         - "loc=Local"
 
     #  driver: "postgres"
     #  host: "127.0.0.1"
     #  port: 5432
-    #  database: "postgres"
+    #  database: "go-scaffold"
     #  username: "postgres"
     #  password: "root"
     #  options:
@@ -112,6 +123,16 @@ configMap:
     #  connMaxIdleTime: 120
     #  connMaxLifeTime: 120
     #  logLevel: "warn"
+    #  resolvers:
+    #    - type: "replica"
+    #      host: "127.0.0.1"
+    #      port: 5432
+    #      database: "go-scaffold"
+    #      username: "postgres"
+    #      password: "root"
+    #      options:
+    #        - "sslmode=disable"
+    #        - "TimeZone=Asia/Shanghai"
 
     # redis 配置
     # redis:

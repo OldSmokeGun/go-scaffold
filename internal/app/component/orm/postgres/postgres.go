@@ -27,11 +27,11 @@ type Config struct {
 	PreferSimpleProtocol bool
 }
 
-// New 返回 *gorm.DB
+// New initialize *gorm.DB
 func New(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.New(postgres.Config{
 		DriverName:           c.Driver,
-		DSN:                  buildDNS(c),
+		DSN:                  BuildDSN(c),
 		PreferSimpleProtocol: c.PreferSimpleProtocol,
 		Conn:                 c.Conn,
 	}), &gorm.Config{
@@ -67,8 +67,8 @@ func New(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-// buildDNS 构建连接数据库的 dns
-func buildDNS(c Config) string {
+// BuildDSN build dss to connect to the database
+func BuildDSN(c Config) string {
 	options := strings.Join(c.Options, " ")
 	dsn := "host=" + c.Host + " port=" + strconv.Itoa(c.Port) + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
 	return dsn

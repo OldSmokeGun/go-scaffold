@@ -40,8 +40,9 @@ import (
 // Injectors from wire.go:
 
 func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger *zap.Logger, configConfig *config2.Config) (*app.App, func(), error) {
-	ormConfig := configConfig.DB
-	db, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
+	db := configConfig.DB
+	ormConfig := db.Config
+	gormDB, cleanup2, err := orm.New(ormConfig, logLogger, zapLogger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -59,7 +60,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 		return nil, nil, err
 	}
 	example := job.NewExample(logLogger)
-	cronCron, err := cron.New(logLogger, db, client, example)
+	cronCron, err := cron.New(logLogger, gormDB, client, example)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -70,7 +71,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	configHTTP := configConfig.HTTP
 	jwt := configConfig.JWT
 	casbinConfig := configConfig.Casbin
-	enforcer, err := casbin.New(casbinConfig, db)
+	enforcer, err := casbin.New(casbinConfig, gormDB)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -89,7 +90,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	}
 	grpcClient := grpc.New(logLogger, discoveryDiscovery)
 	traceHandler := trace2.NewHandler(logLogger, configConfig, tracer, grpcClient)
-	repository := user.NewRepository(db, client)
+	repository := user.NewRepository(gormDB, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
 	engine := router.New(rotateLogs, zapLogger, logLogger, configApp, configHTTP, jwt, enforcer, handler, traceHandler, userHandler)
@@ -99,7 +100,7 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	handler2 := user4.NewHandler(logLogger, userService, repository)
 	grpcServer := grpc2.NewServer(logLogger, configGRPC, greetHandler, handler2)
 	transportTransport := transport.New(logLogger, configApp, server, grpcServer, discoveryDiscovery)
-	appApp := app.New(logLogger, db, tracer, cronCron, transportTransport, enforcer)
+	appApp := app.New(logLogger, gormDB, tracer, cronCron, transportTransport, enforcer)
 	return appApp, func() {
 		cleanup4()
 		cleanup3()

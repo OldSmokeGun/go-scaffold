@@ -588,6 +588,98 @@ func NewRepository(db *gorm.DB) *Repository {
 }
 ```
 
+### 如何配置多数据库
+
+参考：https://gorm.io/docs/dbresolver.html
+
+`etc/config.yaml`:
+
+```yaml
+db:
+  driver: "mysql"
+  host: "127.0.0.1"
+  port: 13306
+  database: "go-scaffold"
+  username: "root"
+  password: "root"
+  options:
+    - "charset=utf8mb4"
+    - "parseTime=True"
+    - "loc=Local"
+  maxIdleConn: 5
+  maxOpenConn: 10
+  connMaxIdleTime: 120
+  connMaxLifeTime: 120
+  logLevel: "info"
+  # 多数据库配置
+  resolvers:
+    - type: "replica" # source 或 replica
+      host: "127.0.0.1"
+      port: 13307
+      database: "go-scaffold"
+      username: "root"
+      password: "root"
+      options:
+        - "charset=utf8mb4"
+        - "parseTime=True"
+        - "loc=Local"
+    - type: "replica"
+      host: "127.0.0.1"
+      port: 13308
+      database: "go-scaffold"
+      username: "root"
+      password: "root"
+      options:
+        - "charset=utf8mb4"
+        - "parseTime=True"
+        - "loc=Local"
+```
+
+`internal/app/config/config.go`:
+
+```go
+func Loaded(hLogger log.Logger, cfg config.Config, conf *Config) error {
+    // ...
+	
+    // 配置多数据库
+    if conf.DB != nil {
+        if len(conf.DB.Resolvers) > 0 {
+            var (
+                sources  = make([]gorm.Dialector, 0, len(conf.DB.Resolvers))
+                replicas = make([]gorm.Dialector, 0, len(conf.DB.Resolvers))
+            )
+    
+            for _, resolver := range conf.DB.Resolvers {
+                dial, err := orm.BuildDialector(conf.DB.Driver, resolver.DSN)
+                if err != nil {
+                    return err
+                }
+                switch resolver.Type {
+                case orm.Source:
+                    sources = append(sources, dial)
+                case orm.Replica:
+                    replicas = append(replicas, dial)
+                default:
+                    return fmt.Errorf("unsupported resolver type %s", resolver.Type)
+                }
+            }
+    
+            conf.DB.Plugins = func(db *gorm.DB) ([]gorm.Plugin, error) {
+                return []gorm.Plugin{
+                    dbresolver.Register(dbresolver.Config{
+                        Sources:  sources,
+                        Replicas: replicas,
+                        Policy:   dbresolver.RandomPolicy{},
+                    }),
+                }, nil
+            }
+        }
+    }
+	
+    // ...
+}
+```
+
 ## `Redis` 客户端
 
 `Redis` 客户端基于 [go-redis](https://github.com/go-redis/redis)

@@ -28,7 +28,7 @@ type Config struct {
 	App       *App              `json:"app"`
 	HTTP      *HTTP             `json:"http"`
 	GRPC      *GRPC             `json:"grpc"`
-	DB        *orm.Config       `json:"db"`
+	DB        *DB               `json:"db"`
 	Redis     *redis.Config     `json:"redis"`
 	Trace     *trace.Config     `json:"trace"`
 	Discovery *discovery.Config `json:"discovery"`
@@ -54,6 +54,11 @@ type GRPC struct {
 	Network string `json:"network"`
 	Addr    string `json:"addr"`
 	Timeout int64  `json:"timeout"`
+}
+
+type DB struct {
+	*orm.Config
+	Resolvers []orm.Resolver
 }
 
 type Services struct {

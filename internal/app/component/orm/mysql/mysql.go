@@ -30,11 +30,11 @@ type Config struct {
 	DontSupportRenameColumn   bool
 }
 
-// New 返回 *gorm.DB
+// New initialize *gorm.DB
 func New(c Config) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DriverName:                c.Driver,
-		DSN:                       buildDNS(c),
+		DSN:                       BuildDSN(c),
 		Conn:                      c.Conn,
 		SkipInitializeWithVersion: c.SkipInitializeWithVersion,
 		DefaultStringSize:         c.DefaultStringSize,
@@ -74,8 +74,8 @@ func New(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-// buildDNS 构建连接数据库的 dns
-func buildDNS(c Config) string {
+// BuildDSN build dss to connect to the database
+func BuildDSN(c Config) string {
 	options := strings.Join(c.Options, "&")
 	dsn := c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + strconv.Itoa(c.Port) + ")/" + c.Database + "?" + options
 	return dsn
