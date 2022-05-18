@@ -133,13 +133,15 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 		return nil, nil, ErrUnsupportedType
 	}
 
-	plugins, err := config.Plugins(db)
-	if err != nil {
-		return nil, nil, err
-	}
-	for _, plugin := range plugins {
-		if err = db.Use(plugin); err != nil {
+	if config.Plugins != nil {
+		plugins, err := config.Plugins(db)
+		if err != nil {
 			return nil, nil, err
+		}
+		for _, plugin := range plugins {
+			if err = db.Use(plugin); err != nil {
+				return nil, nil, err
+			}
 		}
 	}
 

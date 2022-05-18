@@ -37,7 +37,7 @@ func BuildDialector(driver Driver, dsn DSN) (dialector gorm.Dialector, err error
 				Options:  dsn.Options,
 			}),
 		})
-	case Postgres:
+	case PostgresSQL:
 		dialector = postgres.New(postgres.Config{
 			DriverName: driver.String(),
 			DSN: postgresx.BuildDSN(postgresx.Config{
