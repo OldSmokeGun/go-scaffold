@@ -24,6 +24,7 @@
   * [Discovery 服务发现与注册](#discovery-服务发现与注册)
   * [Ent](#ent)
   * [orm](#orm)
+    * [如何配置多数据库](#如何配置多数据库)
   * [Redis 客户端](#redis-客户端)
   * [trace](#trace)
   * [uid](#uid)
