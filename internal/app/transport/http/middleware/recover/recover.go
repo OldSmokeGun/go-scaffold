@@ -71,7 +71,10 @@ func CustomRecoveryWithZap(logger *zap.Logger, stack bool, handler RecoveryFunc)
 						zap.String("request", string(httpRequest)),
 					)
 				}
-				handler(c, err)
+
+				if handler != nil {
+					handler(c, err)
+				}
 			}
 		}()
 		c.Next()

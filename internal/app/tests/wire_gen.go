@@ -20,7 +20,7 @@ func Init() (*Tests, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	tests := New(logLogger, db, redisClient)
+	tests := New(logger, logLogger, db, redisClient)
 	return tests, func() {
 		cleanup2()
 		cleanup()

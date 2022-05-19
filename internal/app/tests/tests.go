@@ -4,6 +4,7 @@ import (
 	"flag"
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"go.uber.org/zap"
 	"os"
 	"testing"
 )
@@ -37,17 +38,20 @@ func init() {
 }
 
 type Tests struct {
+	ZapLogger   *zap.Logger
 	Logger      klog.Logger
 	DB          *DB
 	RedisClient *RedisClient
 }
 
 func New(
+	zapLogger *zap.Logger,
 	logger klog.Logger,
 	db *DB,
 	redisClient *RedisClient,
 ) *Tests {
 	return &Tests{
+		ZapLogger:   zapLogger,
 		Logger:      logger,
 		DB:          db,
 		RedisClient: redisClient,
