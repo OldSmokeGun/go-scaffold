@@ -8,12 +8,14 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/plugin/dbresolver"
 	zapgorm "moul.io/zapgorm2"
 	"time"
 )
 
 var (
-	ErrUnsupportedType = errors.New("unsupported database type")
+	ErrUnsupportedType         = errors.New("unsupported database type")
+	ErrUnsupportedResolverType = errors.New("unsupported resolver type")
 )
 
 // Driver database driver type
@@ -73,6 +75,7 @@ type Config struct {
 	ConnMaxLifeTime int64
 	LogLevel        LogLevel
 	Plugins         func(db *gorm.DB) ([]gorm.Plugin, error)
+	Resolvers       []Resolver
 }
 
 // New initialize orm
@@ -133,15 +136,9 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 		return nil, nil, ErrUnsupportedType
 	}
 
-	if config.Plugins != nil {
-		plugins, err := config.Plugins(db)
-		if err != nil {
+	if len(config.Resolvers) > 0 {
+		if err = registerResolver(db, config.Driver, config.Resolvers); err != nil {
 			return nil, nil, err
-		}
-		for _, plugin := range plugins {
-			if err = db.Use(plugin); err != nil {
-				return nil, nil, err
-			}
 		}
 	}
 
@@ -159,4 +156,36 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 	}
 
 	return db, cleanup, nil
+}
+
+func registerResolver(db *gorm.DB, driver Driver, resolvers []Resolver) error {
+	if len(resolvers) > 0 {
+		var (
+			sources  = make([]gorm.Dialector, 0, len(resolvers))
+			replicas = make([]gorm.Dialector, 0, len(resolvers))
+		)
+
+		for _, resolver := range resolvers {
+			dial, err := BuildDialector(driver, resolver.DSN)
+			if err != nil {
+				return err
+			}
+			switch resolver.Type {
+			case Source:
+				sources = append(sources, dial)
+			case Replica:
+				replicas = append(replicas, dial)
+			default:
+				return ErrUnsupportedResolverType
+			}
+		}
+
+		return db.Use(dbresolver.Register(dbresolver.Config{
+			Sources:  sources,
+			Replicas: replicas,
+			Policy:   dbresolver.RandomPolicy{},
+		}))
+	}
+
+	return nil
 }
