@@ -2,58 +2,126 @@ package app
 
 import (
 	"context"
-	"go-scaffold/internal/app/cli"
+	"github.com/casbin/casbin/v2"
+	"github.com/google/wire"
+	"go-scaffold/internal/app/component"
+	"go-scaffold/internal/app/component/trace"
+	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/cron"
-	"go-scaffold/internal/app/global"
+	"go-scaffold/internal/app/http"
 	"go-scaffold/internal/app/model"
-	"go-scaffold/internal/app/pkg/migratorx"
-	"go-scaffold/internal/app/rest"
+	"go-scaffold/internal/app/repository"
+	"go-scaffold/internal/app/service"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-// Setup 应用初始化钩子
-// 在这里可以执行一些初始化操作，例如：命令行 flag 的注册
-func Setup() (err error) {
-	// 初始化命令行
-	if err = cli.Setup(); err != nil {
-		return
-	}
+//go:generate swag fmt -g app.go
+//go:generate swag init -g app.go -o http/api/docs --parseInternal
 
-	return nil
+// @title                       API 接口文档
+// @description                 API 接口文档
+// @version                     0.0.0
+// @host                        localhost
+// @BasePath                    /api
+// @schemes                     http https
+// @accept                      json
+// @accept                      x-www-form-urlencoded
+// @produce                     json
+// @securityDefinitions.apikey  Authorization
+// @in                          header
+// @name                        Token
+
+var ProviderSet = wire.NewSet(
+	config.ProviderSet,
+	component.ProviderSet,
+	cron.ProviderSet,
+	http.ProviderSet,
+	repository.ProviderSet,
+	service.ProviderSet,
+)
+
+type App struct {
+	logger   *zap.Logger
+	db       *gorm.DB
+	trace    *trace.Tracer
+	cron     *cron.Cron
+	http     *http.Server
+	enforcer *casbin.Enforcer
 }
 
-// Start 应用启动钩子
-func Start() (err error) {
+func New(
+	logger *zap.Logger,
+	db *gorm.DB,
+	trace *trace.Tracer,
+	cron *cron.Cron,
+	http *http.Server,
+	enforcer *casbin.Enforcer,
+) *App {
+	return &App{
+		logger:   logger,
+		db:       db,
+		trace:    trace,
+		cron:     cron,
+		http:     http,
+		enforcer: enforcer,
+	}
+}
+
+// Start 启动 app
+func (a *App) Start(cancel context.CancelFunc) (err error) {
+	// 设置 tracer
+	if a.trace != nil {
+		otel.SetTracerProvider(a.trace.TracerProvider())
+		otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		))
+	}
+
 	// 数据迁移
-	if global.DB() != nil {
-		if err = migratorx.New(global.DB()).Run(model.MigrationTasks()); err != nil {
+	if a.db != nil {
+		if err = model.Migrate(a.db); err != nil {
 			return
 		}
 
-		global.Logger().Info("database migration completed")
+		a.logger.Info("database migration completed")
+	}
+
+	if a.enforcer != nil {
+		if err = a.enforcer.LoadPolicy(); err != nil {
+			return
+		}
+
+		a.logger.Info("casbin policy loaded")
 	}
 
 	// 启动 cron 服务
-	if err = cron.Start(); err != nil {
+	if err = a.cron.Start(); err != nil {
 		return
 	}
 
 	// 启动 HTTP 服务
-	if err = rest.Start(); err != nil {
+	if err = a.http.Start(); err != nil {
+		a.logger.Sugar().Error(err)
+		cancel()
 		return
 	}
 
 	return nil
 }
 
-// Stop 应用关闭钩子
-func Stop(ctx context.Context) (err error) {
+// Stop 关闭 app
+func (a *App) Stop(ctx context.Context) (err error) {
 	// 关闭 cron 服务
-	if err = cron.Stop(ctx); err != nil {
+	if err = a.cron.Stop(ctx); err != nil {
 		return
 	}
 
 	// 关闭 HTTP 服务
-	if err = rest.Stop(ctx); err != nil {
+	if err = a.http.Stop(ctx); err != nil {
 		return
 	}
 

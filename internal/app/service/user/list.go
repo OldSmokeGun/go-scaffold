@@ -2,40 +2,50 @@ package user
 
 import (
 	"context"
-	"errors"
-	"github.com/jinzhu/copier"
-	"go-scaffold/internal/app/rest/pkg/responsex"
+	"go-scaffold/internal/app/model"
+	errorsx "go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/app/repository/user"
 )
 
-type ListParam struct {
-	Keyword string // 查询字符串
+// ListRequest 用户列表请求参数
+type ListRequest struct {
+	Keyword string `json:"keyword" form:"keyword"`
 }
 
-type ListResult []*struct {
-	ID    uint
-	Name  string
-	Age   int8
-	Phone string
+// ListItem 用户列表项
+type ListItem struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
 }
+
+// ListResponse 用户列表响应数据
+type ListResponse []*ListItem
 
 // List 用户列表
-func (s *service) List(ctx context.Context, param *ListParam) (ListResult, error) {
-	users, err := s.Repository.FindByKeyword(
-		context.TODO(),
+func (s *Service) List(ctx context.Context, req ListRequest) (ListResponse, error) {
+	list, err := s.repo.FindList(
+		ctx,
+		user.FindListParam{Keyword: req.Keyword},
 		[]string{"*"},
-		param.Keyword,
 		"updated_at DESC",
 	)
 	if err != nil {
-		s.Logger.Error(err.Error())
-		return nil, ErrDataQueryFailed
+		s.logger.Sugar().Errorf("%s: %s", model.ErrDataQueryFailed, err)
+		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
 	}
 
-	var result ListResult
-	if err = copier.Copy(&result, users); err != nil {
-		s.Logger.Error(err.Error())
-		return nil, errors.New(responsex.ServerErrorCode.String())
+	resp := make(ListResponse, 0, len(list))
+
+	for _, item := range list {
+		resp = append(resp, &ListItem{
+			Id:    item.Id,
+			Name:  item.Name,
+			Age:   item.Age,
+			Phone: item.Phone,
+		})
 	}
 
-	return result, nil
+	return resp, nil
 }

@@ -1,0 +1,93 @@
+app:
+  name: "go-scaffold"     # 应用名称
+  env: "local"            # 当前环境（local、test 或 prod）
+  timeout: 5              # 停止应用的等待时间
+
+http:
+  network: "tcp"
+  addr: "0.0.0.0:9527"    # http 服务监听地址
+  timeout: 5
+  externalAddr: ""        # 外部访问地址，如反向代理
+
+# 数据库配置
+# db:
+#   driver: "mysql"
+#   host: "127.0.0.1"
+#   port: 3306
+#   database: "go-scaffold"
+#   username: "root"
+#   password: "root"
+#   options:
+#     - "charset=utf8mb4"
+#     - "parseTime=True"
+#     - "loc=Local"
+#   maxIdleConn: 20
+#   maxOpenConn: 40
+#   connMaxIdleTime: 120
+#   connMaxLifeTime: 120
+#   logLevel: "error"
+#   resolvers:
+#     - type: "replica"
+#       host: "127.0.0.1"
+#       port: 3306
+#       database: "go-scaffold"
+#       username: "root"
+#       password: "root"
+#       options:
+#         - "charset=utf8mb4"
+#         - "parseTime=True"
+#         - "loc=Local"
+
+#  driver: "postgres"
+#  host: "127.0.0.1"
+#  port: 5432
+#  database: "go-scaffold"
+#  username: "postgres"
+#  password: "root"
+#  options:
+#    - "sslmode=disable"
+#    - "TimeZone=Asia/Shanghai"
+#  maxIdleConn: 20
+#  maxOpenConn: 40
+#  connMaxIdleTime: 120
+#  connMaxLifeTime: 120
+#  logLevel: "warn"
+#  resolvers:
+#    - type: "replica"
+#      host: "127.0.0.1"
+#      port: 5432
+#      database: "go-scaffold"
+#      username: "postgres"
+#      password: "root"
+#      options:
+#        - "sslmode=disable"
+#        - "TimeZone=Asia/Shanghai"
+
+# redis 配置
+# redis:
+#   host: "localhost"
+#   port: 6379
+#   password: ""
+#   db: 0               # 连接到服务器后要选择的数据库
+#   poolSize: 20        # 连接池最大连接数
+#   minIdleConns: 10    # 连接池空闲连接数
+#   idleTimeout: 600    # 连接池空闲连接超时时间
+
+# 链路追踪配置
+# trace:
+#   endpoint: "localhost:6831"
+#   # endpoint: "http://localhost:14268/api/traces"
+
+# JWT 配置
+# jwt:
+#   key: ""     # JWT 密钥
+
+# casbin 配置
+# casbin:
+#   model:
+#     path: "assets/casbin/rbac_model.conf"
+#   adapter:
+#     file:
+#       path: "assets/casbin/rbac_policy.csv"
+#     gorm:
+#       tableName: ""

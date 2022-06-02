@@ -2,30 +2,57 @@ package user
 
 import (
 	"context"
-	"errors"
-	"github.com/jinzhu/copier"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go-scaffold/internal/app/model"
-	"go-scaffold/internal/app/rest/pkg/responsex"
+	errorsx "go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/app/pkg/validator"
 )
 
-type CreateParam struct {
-	Name  string // 名称
-	Age   int8   // 年龄
-	Phone string // 电话
+// CreateRequest 创建用户请求参数
+type CreateRequest struct {
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
+}
+
+func (r CreateRequest) Validate() error {
+	return validation.ValidateStruct(&r,
+		validation.Field(&r.Name, validation.Required.Error("名称不能为空")),
+		validation.Field(&r.Phone, validation.By(validator.IsMobilePhone)),
+	)
+}
+
+// CreateResponse 创建用户响应数据
+type CreateResponse struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
 }
 
 // Create 创建用户
-func (s *service) Create(ctx context.Context, param *CreateParam) error {
-	m := new(model.User)
-	if err := copier.Copy(m, param); err != nil {
-		s.Logger.Error(err.Error())
-		return errors.New(responsex.ServerErrorCode.String())
+func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
 	}
 
-	if _, err := s.Repository.Create(context.TODO(), m); err != nil {
-		s.Logger.Error(err.Error())
-		return ErrDataStoreFailed
+	m := &model.User{
+		Name:  req.Name,
+		Age:   req.Age,
+		Phone: req.Phone,
 	}
 
-	return nil
+	if _, err := s.repo.Create(ctx, m); err != nil {
+		s.logger.Sugar().Errorf("%s: %s", model.ErrDataStoreFailed, err)
+		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataStoreFailed.Error()))
+	}
+
+	resp := &CreateResponse{
+		Id:    m.Id,
+		Name:  m.Name,
+		Age:   m.Age,
+		Phone: m.Phone,
+	}
+
+	return resp, nil
 }

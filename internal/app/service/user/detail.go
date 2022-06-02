@@ -3,44 +3,56 @@ package user
 import (
 	"context"
 	"errors"
-	"github.com/jinzhu/copier"
-	"go-scaffold/internal/app/rest/pkg/responsex"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"go-scaffold/internal/app/model"
+	errorsx "go-scaffold/internal/app/pkg/errors"
 	"gorm.io/gorm"
 )
 
-type (
-	DetailParam struct {
-		ID uint // 用户 ID
-	}
+// DetailRequest 用户详情请求参数
+type DetailRequest struct {
+	Id uint64 `json:"id" uri:"id"`
+}
 
-	DetailResult struct {
-		ID    uint
-		Name  string
-		Age   int8
-		Phone string
-	}
-)
+func (c DetailRequest) Validate() error {
+	return validation.ValidateStruct(&c,
+		validation.Field(&c.Id, validation.Required.Error("id 不能为空")),
+	)
+}
+
+// DetailResponse 用户详情响应数据
+type DetailResponse struct {
+	Id    uint64 `json:"id"`
+	Name  string `json:"name"`
+	Age   int8   `json:"age"`
+	Phone string `json:"phone"`
+}
 
 // Detail 用户详情
-func (s *service) Detail(ctx context.Context, param *DetailParam) (*DetailResult, error) {
-	user, err := s.Repository.FindOneByID(
-		context.TODO(),
-		param.ID,
+func (s *Service) Detail(ctx context.Context, req DetailRequest) (*DetailResponse, error) {
+	if err := req.Validate(); err != nil {
+		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+	}
+
+	m, err := s.repo.FindOneById(
+		ctx,
+		req.Id,
 		[]string{"*"},
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotExist
+			return nil, errorsx.ResourceNotFound(errorsx.WithMessage(model.ErrDataNotFound.Error()))
 		}
-		s.Logger.Error(err.Error())
-		return nil, ErrDataQueryFailed
+		s.logger.Sugar().Errorf("%s: %s", model.ErrDataQueryFailed, err)
+		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
 	}
 
-	result := new(DetailResult)
-	if err = copier.Copy(result, user); err != nil {
-		s.Logger.Error(err.Error())
-		return nil, errors.New(responsex.ServerErrorCode.String())
+	resp := &DetailResponse{
+		Id:    m.Id,
+		Name:  m.Name,
+		Age:   m.Age,
+		Phone: m.Phone,
 	}
 
-	return result, nil
+	return resp, nil
 }

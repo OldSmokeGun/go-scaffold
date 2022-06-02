@@ -8,18 +8,17 @@ import (
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	jsoniter "github.com/json-iterator/go"
-	"go-scaffold/internal/app/global"
 	"go-scaffold/internal/app/model"
 	"gorm.io/gorm"
 	"time"
 )
 
-type Interface interface {
-	// FindByKeyword 根据关键字查询用户列表
-	FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error)
+type RepositoryInterface interface {
+	// FindList 列表查询
+	FindList(ctx context.Context, param FindListParam, columns []string, order string) ([]*model.User, error)
 
-	// FindOneByID 根据 ID 查询用户详情
-	FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error)
+	// FindOneById 根据 id 查询用户详情
+	FindOneById(ctx context.Context, id uint64, columns []string) (*model.User, error)
 
 	// Create 创建用户
 	Create(ctx context.Context, user *model.User) (*model.User, error)
@@ -31,15 +30,18 @@ type Interface interface {
 	Delete(ctx context.Context, user *model.User) error
 }
 
-type repository struct {
+type Repository struct {
 	db  *gorm.DB
 	rdb *redis.Client
 }
 
-func New() *repository {
-	return &repository{
-		db:  global.DB(),
-		rdb: global.RedisClient(),
+func NewRepository(
+	db *gorm.DB,
+	rdb *redis.Client,
+) *Repository {
+	return &Repository{
+		db:  db,
+		rdb: rdb,
 	}
 }
 
@@ -48,13 +50,21 @@ var (
 	cacheExpire    = 3600
 )
 
-func (r *repository) FindByKeyword(ctx context.Context, columns []string, keyword string, order string) ([]*model.User, error) {
+// FindListParam 列表查询参数
+type FindListParam struct {
+	Keyword string
+}
+
+// FindList 列表查询
+func (r *Repository) FindList(ctx context.Context, param FindListParam, columns []string, order string) ([]*model.User, error) {
 	var users []*model.User
 	query := r.db.Select(columns)
 
-	if keyword != "" {
-		query.Where("name LIKE ?", "%"+keyword+"%").
-			Or("phone LIKE ?", "%"+keyword+"%")
+	if param.Keyword != "" {
+		query.Where(
+			r.db.Where("name LIKE ?", "%"+param.Keyword+"%").
+				Or("phone LIKE ?", "%"+param.Keyword+"%"),
+		)
 	}
 
 	err := query.Order(order).Find(&users).Error
@@ -65,7 +75,7 @@ func (r *repository) FindByKeyword(ctx context.Context, columns []string, keywor
 	return users, nil
 }
 
-func (r *repository) FindOneByID(ctx context.Context, id uint, columns []string) (*model.User, error) {
+func (r *Repository) FindOneById(ctx context.Context, id uint64, columns []string) (*model.User, error) {
 	m := new(model.User)
 
 	cacheValue, err := r.rdb.Get(
@@ -109,7 +119,7 @@ func (r *repository) FindOneByID(ctx context.Context, id uint, columns []string)
 	return m, nil
 }
 
-func (r *repository) Create(ctx context.Context, user *model.User) (*model.User, error) {
+func (r *Repository) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Create(user).Error; err != nil {
 		return nil, err
 	}
@@ -121,7 +131,7 @@ func (r *repository) Create(ctx context.Context, user *model.User) (*model.User,
 
 	err = r.rdb.Set(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
 	).Err()
@@ -132,7 +142,7 @@ func (r *repository) Create(ctx context.Context, user *model.User) (*model.User,
 	return user, nil
 }
 
-func (r *repository) Save(ctx context.Context, user *model.User) (*model.User, error) {
+func (r *Repository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	if err := r.db.Save(user).Error; err != nil {
 		return nil, err
 	}
@@ -144,7 +154,7 @@ func (r *repository) Save(ctx context.Context, user *model.User) (*model.User, e
 
 	err = r.rdb.Set(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 		string(cacheValue),
 		time.Duration(cacheExpire)*time.Second,
 	).Err()
@@ -155,14 +165,14 @@ func (r *repository) Save(ctx context.Context, user *model.User) (*model.User, e
 	return user, nil
 }
 
-func (r *repository) Delete(ctx context.Context, user *model.User) error {
+func (r *Repository) Delete(ctx context.Context, user *model.User) error {
 	if err := r.db.Delete(user).Error; err != nil {
 		return err
 	}
 
 	err := r.rdb.Del(
 		context.Background(),
-		fmt.Sprintf(cacheKeyFormat, user.ID),
+		fmt.Sprintf(cacheKeyFormat, user.Id),
 	).Err()
 	if err != nil {
 		return err

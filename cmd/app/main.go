@@ -4,62 +4,81 @@ import (
 	"context"
 	"github.com/apolloconfig/agollo/v4/storage"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go-scaffold/internal/app"
+	"github.com/thoas/go-funk"
+	"go-scaffold/internal/app/command"
 	appconfig "go-scaffold/internal/app/config"
-	"go-scaffold/internal/app/global"
 	"go-scaffold/pkg/config/local"
 	"go-scaffold/pkg/config/remote"
-	"go-scaffold/pkg/helper"
-	"go-scaffold/pkg/helper/slicex"
-	"go-scaffold/pkg/logger"
-	"go-scaffold/pkg/orm"
-	"go-scaffold/pkg/redisclient"
-	"go-scaffold/pkg/trace"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	oteltrace "go.opentelemetry.io/otel/trace"
+	"go-scaffold/pkg/log"
+	"go-scaffold/pkg/path"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
-	"log"
+	"io"
+	"os"
 	"os/signal"
-	"path"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 )
 
 var (
-	rootPath   = helper.RootPath()
-	logPath    string
-	logLevel   string
-	logFormat  string
-	configPath string
-	remotePath string
+	rootPath           = path.RootPath()
+	logPath            string
+	logLevel           string
+	logFormat          string
+	logCallerSkip      int    // 日志 caller 跳过层数
+	configPath         string // 配置文件路径
+	configRemoteType   string // 远程配置中心类型
+	configRemoteFormat string // 远程配置中心类型配置格式
+
+	apolloConfigEndpoint  string // apollo 连接地址
+	apolloConfigAppID     string // apollo appID
+	apolloConfigCluster   string // apollo cluster
+	apolloConfigNamespace string // apollo 命名空间
+	apolloConfigSecret    string // apollo 密钥
+
+	etcdConfigEndpoint      string // etcd 连接地址
+	etcdConfigPath          string // etcd 配置路径
+	etcdConfigSecretKeyring string // etcd 密钥
+
+	consulConfigEndpoint      string // consul 连接地址
+	consulConfigPath          string // consul 配置路径
+	consulConfigSecretKeyring string // consul 密钥
 )
 
 func init() {
 	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
 	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、panic、fatal）")
 	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志格式（text、json）")
-	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/app/config.yaml"), "配置文件路径")
-	pflag.StringVarP(&remotePath, "config.remote", "", filepath.Join(rootPath, "etc/app/remote.yaml"), "远程配置中心配置文件路径")
+	pflag.IntVarP(&logCallerSkip, "log.caller-skip", "", 4, "日志 caller 跳过层数")
+	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/config.yaml"), "配置文件路径")
+	pflag.StringVarP(&configRemoteType, "config.remote.type", "", "", "远程配置中心类型（etcd、consul、apollo）")
+	pflag.StringVarP(&configRemoteFormat, "config.remote.format", "", "", "远程配置中心类型配置格式（json、yaml）")
+
+	pflag.StringVarP(&apolloConfigEndpoint, "config.apollo.endpoint", "", "http://localhost:8080", "apollo 连接地址")
+	pflag.StringVarP(&apolloConfigAppID, "config.apollo.appid", "", "", "apollo appID")
+	pflag.StringVarP(&apolloConfigCluster, "config.apollo.cluster", "", "default", "apollo cluster")
+	pflag.StringVarP(&apolloConfigNamespace, "config.apollo.namespace", "", "application", "apollo 命名空间")
+	pflag.StringVarP(&apolloConfigSecret, "config.apollo.secret", "", "", "apollo 密钥")
+
+	pflag.StringVarP(&etcdConfigEndpoint, "config.etcd.endpoint", "", "http://localhost:2379", "etcd 连接地址")
+	pflag.StringVarP(&etcdConfigPath, "config.etcd.path", "", "", "etcd 配置路径")
+	pflag.StringVarP(&etcdConfigSecretKeyring, "config.etcd.secretKeyring", "", "", "etcd 密钥")
+
+	pflag.StringVarP(&consulConfigEndpoint, "config.consul.endpoint", "", "http://localhost:8500", "consul 连接地址")
+	pflag.StringVarP(&consulConfigPath, "config.consul.path", "", "", "consul 配置路径")
+	pflag.StringVarP(&consulConfigSecretKeyring, "config.consul.secretKeyring", "", "", "consul 密钥")
 
 	cobra.OnInitialize(setup)
 }
 
 var (
-	conf         = new(appconfig.Config)  // app 配置实例
-	loggerOutput *rotatelogs.RotateLogs   // 日志输出对象
-	zLogger      *zap.Logger              // 日志实例
-	db           *gorm.DB                 // 数据库实例
-	rdb          *redis.Client            // redis 客户端实例
-	tp           *sdktrace.TracerProvider // otel TracerProvider
-	tracer       oteltrace.Tracer         // otel Tracer
+	loggerWriter *rotatelogs.RotateLogs  // 日志输出对象
+	logger       *zap.Logger             // 日志实例
+	configModel  = new(appconfig.Config) // app 配置实例
 )
 
 func main() {
@@ -68,43 +87,44 @@ func main() {
 	cmd := &cobra.Command{
 		Use: "app",
 		Run: func(cmd *cobra.Command, args []string) {
+			logger.Info("starting app ...")
+
 			// 监听退出信号
 			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 			defer signalStop()
 
+			appServ, appCleanup, err := initApp(loggerWriter, logger, configModel)
+			if err != nil {
+				panic(err)
+			}
+			defer appCleanup()
 			// 调用 app 启动钩子
-			go func() {
-				if err := app.Start(); err != nil {
-					panic(err)
-				}
-			}()
+			if err := appServ.Start(signalStop); err != nil {
+				panic(err)
+			}
 
 			// 等待退出信号
 			<-signalCtx.Done()
 
 			signalStop() // 取消信号的监听
 
-			zLogger.Info("the app is shutting down ...")
+			logger.Info("the app is shutting down ...")
 
-			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.ShutdownWaitTime)*time.Second)
+			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(configModel.App.Timeout)*time.Second)
 			defer cancel()
 
 			// 关闭应用
-			if err := app.Stop(ctx); err != nil {
+			if err := appServ.Stop(ctx); err != nil {
 				panic(err)
 			}
 
-			zLogger.Info("the app has been stop")
+			logger.Info("the app has been stop")
 		},
 	}
 
-	// 设置全局变量
-	global.SetCommand(cmd)
-
-	// 调用 app 初始化钩子
-	if err := app.Setup(); err != nil {
-		panic(err)
-	}
+	command.Setup(cmd, func() (*command.Command, func(), error) {
+		return initCommand(loggerWriter, logger, configModel)
+	})
 
 	if err := cmd.Execute(); err != nil {
 		panic(err)
@@ -112,18 +132,14 @@ func main() {
 }
 
 func setup() {
-	var (
-		supportedEnvs = []string{"local", "test", "prod"}
-		remoteInfo    = &appconfig.Remote{} // app 远程配置中心配置信息
-		err           error
-	)
+	var err error
 
 	if logPath != "" {
 		if !filepath.IsAbs(logPath) {
-			logPath = filepath.Join(helper.RootPath(), logPath)
+			logPath = filepath.Join(path.RootPath(), logPath)
 		}
 
-		loggerOutput, err = rotatelogs.New(
+		loggerWriter, err = rotatelogs.New(
 			logPath,
 			rotatelogs.WithClock(rotatelogs.Local),
 		)
@@ -133,14 +149,21 @@ func setup() {
 	}
 
 	// 日志初始化
-	zLogger = logger.MustNew(logger.Config{
-		Level:  logger.Level(logLevel),
-		Format: logger.Format(logFormat),
-		Output: loggerOutput,
-	})
+	var writer io.Writer
+	if loggerWriter == nil {
+		writer = os.Stdout
+	} else {
+		writer = io.MultiWriter(os.Stdout, loggerWriter)
+	}
+	logger = log.New(
+		log.WithLevel(log.Level(logLevel)),
+		log.WithFormat(log.Format(logFormat)),
+		log.WithWriter(writer),
+		log.WithCallerSkip(logCallerSkip),
+	)
 
-	zLogger.Info("setup resource ...")
-	zLogger.Sugar().Infof("log output directory: %s", filepath.Dir(logPath))
+	logger.Info("setup resource ...")
+	logger.Sugar().Infof("log output directory: %s", filepath.Dir(logPath))
 
 	// 加载配置
 	if configPath == "" {
@@ -148,161 +171,121 @@ func setup() {
 	}
 
 	if !filepath.IsAbs(configPath) {
-		configPath = filepath.Join(helper.RootPath(), configPath)
+		configPath = filepath.Join(path.RootPath(), configPath)
 	}
 
-	zLogger.Sugar().Infof("load config from: %s", configPath)
+	logger.Sugar().Infof("load config from: %s", configPath)
 
 	localConfig, err := local.New(configPath)
 	if err != nil {
 		panic(err)
 	}
-	localConfig.MustLoad(conf)
+	localConfig.MustLoad(configModel)
 	localConfig.Watch(func(v *viper.Viper, event fsnotify.Event) {
-		zLogger.Sugar().Infof("config changed, filepath: %s, op: %s", event.Name, event.Op.String())
+		logger.Sugar().Infof("config changed, filepath: %s, op: %s", event.Name, event.Op.String())
 
 		if err := v.MergeInConfig(); err != nil {
-			zLogger.Error(err.Error())
+			logger.Error(err.Error())
 			return
 		}
-		if err := v.Unmarshal(conf); err != nil {
-			zLogger.Error(err.Error())
+		if err := v.Unmarshal(configModel); err != nil {
+			logger.Error(err.Error())
 			return
 		}
 	})
 
-	if !conf.Priority {
-		zLogger.Sugar().Infof("the local config priority is %t, will load remote config", conf.Priority)
-		zLogger.Sugar().Infof("load remote info from: %s", remotePath)
+	if configRemoteType != "" {
+		logger.Sugar().Infof("enable remote config, config will be loaded from %s", configRemoteType)
 
-		if remotePath != "" {
-			if !filepath.IsAbs(remotePath) {
-				remotePath = filepath.Join(helper.RootPath(), remotePath)
+		var (
+			rc            *remote.Remote
+			rcEndpoint    string
+			rcPath        string
+			rcSecret      string
+			rcOptions     = map[string]interface{}{}
+			rcOptionsFunc remote.OptionFunc
+		)
+
+		switch configRemoteType {
+		case "etcd":
+			rcEndpoint = etcdConfigEndpoint
+			rcPath = etcdConfigPath
+			rcSecret = etcdConfigSecretKeyring
+		case "consul":
+			rcEndpoint = consulConfigEndpoint
+			rcPath = consulConfigPath
+			rcSecret = consulConfigSecretKeyring
+		case "apollo":
+			rcEndpoint = apolloConfigEndpoint
+			rcPath = apolloConfigNamespace
+			rcSecret = apolloConfigSecret
+			rcOptions = map[string]interface{}{
+				"AppID":   apolloConfigAppID,
+				"Cluster": apolloConfigCluster,
 			}
+			rcOptionsFunc = remote.WithOptions(rcOptions)
+		}
+		rc, err = remote.New(configRemoteType, rcEndpoint, rcPath, rcSecret, configRemoteFormat, rcOptionsFunc)
+		if err != nil {
+			panic(err)
+		}
 
-			localRemoteConfig, err := local.New(remotePath)
-			if err != nil {
-				panic(err)
-			}
-			localRemoteConfig.MustLoad(remoteInfo)
+		logger.Sugar().Infof("remote provider type: %s", configRemoteType)
+		logger.Sugar().Infof("remote provider endpoint: %s", rcEndpoint)
+		logger.Sugar().Infof("remote provider path: %s", rcPath)
+		logger.Sugar().Infof("remote provider config format: %s", configRemoteFormat)
+		logger.Sugar().Infof("remote provider options: %v", rcOptions)
 
-			// 远程配置加载
-			remoteConfigType := strings.TrimPrefix(path.Ext(configPath), ".")
-			rc, err := remote.New(
-				remoteInfo.Type,
-				remoteInfo.Endpoint,
-				remoteInfo.Path,
-				remoteInfo.SecretKeyring,
-				remoteConfigType,
-				remote.WithOptions(remoteInfo.Options),
-			)
-			if err != nil {
-				panic(err)
-			}
+		rc.MustLoad(configModel)
+		if configRemoteType == "apollo" {
+			rc.MustWatch(nil, func(v *viper.Viper, e interface{}) {
+				event := e.(*storage.FullChangeEvent)
 
-			zLogger.Sugar().Infof("remote provider type: %s", remoteInfo.Type)
-			zLogger.Sugar().Infof("remote provider endpoint: %s", remoteInfo.Endpoint)
-			zLogger.Sugar().Infof("remote provider path: %s", remoteInfo.Path)
-			zLogger.Sugar().Infof("remote provider config type: %s", remoteConfigType)
-			zLogger.Sugar().Infof("remote provider options: %v", remoteInfo.Options)
+				logger.Sugar().Infof("remote config changed, namespace: %s, notification_id: %d", event.Namespace, event.NotificationID)
 
-			rc.MustLoad(conf)
-			if remoteInfo.Type == "apollo" {
-				rc.MustWatch(nil, func(v *viper.Viper, e interface{}) {
-					event := e.(*storage.FullChangeEvent)
-
-					zLogger.Sugar().Infof("remote config changed, namespace: %s, notification_id: %d", event.Namespace, event.NotificationID)
-
-					for k, c := range event.Changes {
-						v.Set(k, c)
-					}
-					if err := v.Unmarshal(conf); err != nil {
-						zLogger.Error(err.Error())
-						return
-					}
-				})
-			} else {
-				if err := rc.Watch(); err != nil {
-					panic(err)
+				for k, c := range event.Changes {
+					v.Set(k, c)
 				}
+				if err := v.Unmarshal(configModel); err != nil {
+					logger.Error(err.Error())
+					return
+				}
+			})
+		} else {
+			if err := rc.Watch(); err != nil {
+				panic(err)
 			}
 		}
+
+	}
+
+	if err := appconfig.Loaded(logger, configModel); err != nil {
+		panic(err)
 	}
 
 	// 检查环境是否设置正确
-	if !slicex.InStringSlice(conf.Env, supportedEnvs) {
-		panic("unsupported env value: " + conf.Env)
+	if !funk.ContainsString(appconfig.SupportedEnvs, configModel.App.Env.String()) {
+		panic("unsupported env value: " + configModel.App.Env)
 	}
 
-	zLogger.Sugar().Infof("cunrrent env: %s", conf.Env)
-
-	// orm 初始化
-	if conf.DB != nil {
-		db = orm.MustNew(*conf.DB)
-	}
-
-	// redis 初始化
-	if conf.Redis != nil {
-		rdb = redisclient.MustNew(*conf.Redis)
-	}
-
-	// tracer 初始化
-	if conf.Trace != nil {
-		tp = trace.MustNew(trace.Config{
-			Endpoint:    conf.Trace.Endpoint,
-			ServiceName: conf.Name,
-			Env:         conf.Env,
-		})
-		tracer = tp.Tracer(conf.Name)
-	}
-
-	// 设置全局变量
-	global.SetLoggerOutput(loggerOutput)
-	global.SetConfig(conf)
-	global.SetLogger(zLogger)
-	global.SetDB(db)
-	global.SetRedisClient(rdb)
-	global.SetTracer(tracer)
+	logger.Sugar().Infof("cunrrent env: %s", configModel.App.Env)
 }
 
 // cleanup 资源回收
 func cleanup() {
-	zLogger.Info("cleaning resource ...")
+	if logger != nil {
+		logger.Info("resource cleaning ...")
+	}
 
-	if rdb != nil {
-		if err := rdb.Close(); err != nil {
-			log.Println(err.Error())
+	if loggerWriter != nil {
+		if err := loggerWriter.Close(); err != nil {
+			panic(err)
 		}
 	}
 
-	if db != nil {
-		sqlDB, err := db.DB()
-		if err != nil {
-			log.Println(err.Error())
-		}
-
-		if err := sqlDB.Close(); err != nil {
-			log.Println(err.Error())
-		}
-	}
-
-	if zLogger != nil {
-		if err := zLogger.Sync(); err != nil {
-			log.Println(err)
-		}
-	}
-
-	if loggerOutput != nil {
-		if err := loggerOutput.Close(); err != nil {
-			log.Println(err)
-		}
-	}
-
-	if tp != nil {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(conf.Trace.ShutdownWaitTime)*time.Second)
-		defer cancel()
-		if err := tp.Shutdown(ctx); err != nil {
-			log.Println(err)
+	if logger != nil {
+		if err := logger.Sync(); err != nil {
+			logger.Error(err.Error())
 		}
 	}
 }
