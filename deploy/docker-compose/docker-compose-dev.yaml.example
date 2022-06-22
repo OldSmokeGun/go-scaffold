@@ -113,7 +113,7 @@ services:
     ports:
       - "$PORT:8070"
 
-  rest:
+  http:
     image: cosmtrek/air
     networks:
       go-scaffold:

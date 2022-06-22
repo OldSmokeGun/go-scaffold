@@ -2,9 +2,9 @@
 
 APP_BIN_PATH = bin/app
 APP_MAIN_DIR = cmd/app
-REST_DOC_SCAN_DIR = internal/app/rest/handler
-REST_DOC_SCAN_ENTRY = handler.go
-REST_DOC_OUT_DIR = internal/app/rest/handler/docs
+API_DOC_SCAN_DIR = internal/app
+API_DOC_SCAN_ENTRY = app.go
+API_DOC_OUT_DIR = internal/app/http/api/docs
 
 build:
 	go generate -x ./...
@@ -34,7 +34,8 @@ download:
 	go env -w GOPROXY=https://goproxy.cn,direct; go mod download; \
 	go install github.com/cosmtrek/air@latest; \
 	go install github.com/swaggo/swag/cmd/swag@v1.7.8; \
-	go install github.com/golang/mock/mockgen@latest
+	go install github.com/golang/mock/mockgen@latest; \
+	go install entgo.io/ent/cmd/ent@latest;
 
 clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi
@@ -43,8 +44,8 @@ test:
 	go test -gcflags=-l -v ./...
 
 doc:
-	swag fmt -d ${REST_DOC_SCAN_DIR} -g ${REST_DOC_SCAN_ENTRY}
-	swag init -d ${REST_DOC_SCAN_DIR} -g ${REST_DOC_SCAN_ENTRY} -o ${REST_DOC_OUT_DIR} --parseInternal
+	swag fmt -d ${API_DOC_SCAN_DIR} -g ${API_DOC_SCAN_ENTRY}
+	swag init -d ${API_DOC_SCAN_DIR} -g ${API_DOC_SCAN_ENTRY} -o ${API_DOC_OUT_DIR} --parseInternal
 
 help:
 	@printf "%-30s %-100s\n" "make" "默认自动根据平台编译二进制文件"

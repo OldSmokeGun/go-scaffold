@@ -113,7 +113,7 @@ services:
     ports:
       - "$PORT:8070"
 
-  rest:
+  http:
     build: ../../
     networks:
       go-scaffold:
