@@ -132,7 +132,7 @@ services:
     networks:
       go-scaffold:
         aliases:
-          - rest
+          - app
     ports:
       - "$PORT:9527"
     command:
