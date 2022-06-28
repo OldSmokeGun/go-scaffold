@@ -133,7 +133,7 @@ func New(key string, options ...Option) *JWT {
 func (j *JWT) Validate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if j.Key == "" {
-			errorResponse(ctx, http.StatusInternalServerError, j, ErrMissingKey)
+			handleResponse(ctx, http.StatusInternalServerError, j.ErrorResponseBody, ErrMissingKey)
 			return
 		}
 
@@ -144,7 +144,7 @@ func (j *JWT) Validate() gin.HandlerFunc {
 		}
 
 		if tokenString == "" {
-			validateFailedResponse(ctx, http.StatusUnauthorized, j, nil)
+			handleResponse(ctx, http.StatusUnauthorized, j.ValidateFailedResponseBody, nil)
 			return
 		}
 
@@ -159,13 +159,13 @@ func (j *JWT) Validate() gin.HandlerFunc {
 		})
 		if err != nil {
 			if ve, ok := err.(*jwt.ValidationError); ok {
-				validateFailedResponse(ctx, http.StatusUnauthorized, j, ve)
+				handleResponse(ctx, http.StatusUnauthorized, j.ValidateFailedResponseBody, ve)
 				return
 			} else {
 				if j.Logger != nil {
 					j.Logger.Errorf("%s: %s", ErrParseTokenFailed, err)
 				}
-				errorResponse(ctx, http.StatusInternalServerError, j, ErrParseTokenFailed)
+				handleResponse(ctx, http.StatusInternalServerError, j.ErrorResponseBody, ErrParseTokenFailed)
 				return
 			}
 		}
@@ -183,28 +183,12 @@ func defaultPostFunc(ctx *gin.Context, claims jwt.Claims) {
 	ctx.Request = ctx.Request.WithContext(claimsContext)
 }
 
-func errorResponse(ctx *gin.Context, httpStatusCode int, j *JWT, err error) {
-	if j.ErrorResponseBody == nil {
+func handleResponse(ctx *gin.Context, httpStatusCode int, body middleware.ResponseBody, err error) {
+	if body == nil {
 		ctx.AbortWithStatus(httpStatusCode)
 		return
 	}
 
-	body := j.ErrorResponseBody
-	if err != nil {
-		body.WithMsg(err.Error())
-	}
-
-	ctx.AbortWithStatusJSON(httpStatusCode, body)
-	return
-}
-
-func validateFailedResponse(ctx *gin.Context, httpStatusCode int, j *JWT, err error) {
-	if j.ValidateFailedResponseBody == nil {
-		ctx.AbortWithStatus(httpStatusCode)
-		return
-	}
-
-	body := j.ValidateFailedResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}

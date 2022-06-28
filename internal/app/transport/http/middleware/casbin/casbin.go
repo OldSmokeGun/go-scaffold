@@ -83,12 +83,12 @@ func New(enforcer *pcasbin.Enforcer, rf requestFunc, options ...Option) *Casbin 
 func (c *Casbin) Validate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if c.Enforcer == nil {
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrNilEnforcer)
+			handleResponse(ctx, http.StatusInternalServerError, c.ErrorResponseBody, ErrNilEnforcer)
 			return
 		}
 
 		if c.RequestFunc == nil {
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrNilRequestFunction)
+			handleResponse(ctx, http.StatusInternalServerError, c.ErrorResponseBody, ErrNilRequestFunction)
 			return
 		}
 
@@ -97,7 +97,7 @@ func (c *Casbin) Validate() gin.HandlerFunc {
 			if c.Logger != nil {
 				c.Logger.Errorf("%s: %s", ErrGettingCasbinRequestParameters, err)
 			}
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrGettingCasbinRequestParameters)
+			handleResponse(ctx, http.StatusInternalServerError, c.ErrorResponseBody, ErrGettingCasbinRequestParameters)
 			return
 		}
 
@@ -110,12 +110,12 @@ func (c *Casbin) Validate() gin.HandlerFunc {
 			if c.Logger != nil {
 				c.Logger.Errorf("%s: %s", ErrMatchingCasbinRequestParameters, err)
 			}
-			errorResponse(ctx, http.StatusInternalServerError, c, ErrMatchingCasbinRequestParameters)
+			handleResponse(ctx, http.StatusInternalServerError, c.ErrorResponseBody, ErrMatchingCasbinRequestParameters)
 			return
 		}
 
 		if !ok {
-			validateFailedResponse(ctx, http.StatusForbidden, c)
+			handleResponse(ctx, http.StatusForbidden, c.ValidateFailedResponseBody, nil)
 			return
 		}
 
@@ -123,27 +123,16 @@ func (c *Casbin) Validate() gin.HandlerFunc {
 	}
 }
 
-func errorResponse(ctx *gin.Context, code int, c *Casbin, err error) {
-	if c.ErrorResponseBody == nil {
+func handleResponse(ctx *gin.Context, code int, body middleware.ResponseBody, err error) {
+	if body == nil {
 		ctx.AbortWithStatus(code)
 		return
 	}
 
-	body := c.ErrorResponseBody
 	if err != nil {
 		body.WithMsg(err.Error())
 	}
 
 	ctx.AbortWithStatusJSON(code, body)
-	return
-}
-
-func validateFailedResponse(ctx *gin.Context, code int, c *Casbin) {
-	if c.ValidateFailedResponseBody == nil {
-		ctx.AbortWithStatus(code)
-		return
-	}
-
-	ctx.AbortWithStatusJSON(code, c.ValidateFailedResponseBody)
 	return
 }

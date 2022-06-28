@@ -39,7 +39,7 @@ func (s *Service) Update(ctx context.Context, req UpdateRequest) (*UpdateRespons
 	if err := req.Validate(); err != nil {
 		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
 	}
-	
+
 	m, err := s.repo.FindOneById(
 		ctx,
 		req.Id,

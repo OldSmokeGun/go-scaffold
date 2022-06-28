@@ -268,77 +268,9 @@ func Test_defaultPostFunc(t *testing.T) {
 	assert.Equal(t, exceptClaims["name"], body["name"])
 }
 
-func Test_errorResponse(t *testing.T) {
+func Test_handleResponse(t *testing.T) {
 	var (
-		errorResponseBody = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
-	)
-
-	type want struct {
-		httpStatusCode int
-		code           errorsx.ErrorCode
-		msg            string
-	}
-
-	tts := []struct {
-		name        string
-		handlerFunc gin.HandlerFunc
-		want        want
-	}{
-		{
-			"without_response_body",
-			func(ctx *gin.Context) {
-				cfg := &JWT{}
-				errorResponse(ctx, http.StatusInternalServerError, cfg, nil)
-				return
-			},
-			want{http.StatusInternalServerError, 0, ""},
-		},
-		{
-			"with_response_body_without_error",
-			func(ctx *gin.Context) {
-				cfg := &JWT{ErrorResponseBody: errorResponseBody}
-				errorResponse(ctx, http.StatusInternalServerError, cfg, nil)
-				return
-			},
-			want{http.StatusInternalServerError, errorsx.ServerErrorCode, errorsx.ServerErrorCode.String()},
-		},
-		{
-			"with_response_body_with_error",
-			func(ctx *gin.Context) {
-				cfg := &JWT{ErrorResponseBody: errorResponseBody}
-				errorResponse(ctx, http.StatusInternalServerError, cfg, errors.New("test error"))
-				return
-			},
-			want{http.StatusInternalServerError, errorsx.ServerErrorCode, "test error"},
-		},
-	}
-
-	for _, tt := range tts {
-		t.Run(tt.name, func(t *testing.T) {
-			router := setupRouter(tt.handlerFunc)
-
-			r := httptest.NewRequest("GET", "/test", nil)
-			w := httptest.NewRecorder()
-			router.ServeHTTP(w, r)
-
-			assert.Equal(t, tt.want.httpStatusCode, w.Code)
-
-			if w.Body.Bytes() != nil {
-				body := new(response.Body)
-				if err := json.Unmarshal(w.Body.Bytes(), body); err != nil {
-					t.Fatal(err)
-					return
-				}
-
-				assert.EqualValues(t, tt.want.code, body.Code)
-				assert.Equal(t, tt.want.msg, body.Msg)
-			}
-		})
-	}
-}
-
-func Test_validateFailedResponse(t *testing.T) {
-	var (
+		errorResponseBody          = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
 		validateFailedResponseBody = response.NewBody(int(errorsx.UnauthorizedCode), errorsx.UnauthorizedCode.String(), nil)
 	)
 
@@ -354,28 +286,49 @@ func Test_validateFailedResponse(t *testing.T) {
 		want        want
 	}{
 		{
-			"without_response_body",
+			"without_error_response_body",
 			func(ctx *gin.Context) {
-				cfg := &JWT{}
-				validateFailedResponse(ctx, http.StatusUnauthorized, cfg, nil)
+				handleResponse(ctx, http.StatusInternalServerError, nil, nil)
+				return
+			},
+			want{http.StatusInternalServerError, 0, ""},
+		},
+		{
+			"with_error_response_body_without_error",
+			func(ctx *gin.Context) {
+				handleResponse(ctx, http.StatusInternalServerError, errorResponseBody, nil)
+				return
+			},
+			want{http.StatusInternalServerError, errorsx.ServerErrorCode, errorsx.ServerErrorCode.String()},
+		},
+		{
+			"with_error_response_body_with_error",
+			func(ctx *gin.Context) {
+				handleResponse(ctx, http.StatusInternalServerError, errorResponseBody, errors.New("test error"))
+				return
+			},
+			want{http.StatusInternalServerError, errorsx.ServerErrorCode, "test error"},
+		},
+		{
+			"without_validate_failed_response_body",
+			func(ctx *gin.Context) {
+				handleResponse(ctx, http.StatusUnauthorized, nil, nil)
 				return
 			},
 			want{http.StatusUnauthorized, 0, ""},
 		},
 		{
-			"with_response_body_without_error",
+			"with_validate_failed_response_body_without_error",
 			func(ctx *gin.Context) {
-				cfg := &JWT{ErrorResponseBody: validateFailedResponseBody}
-				validateFailedResponse(ctx, http.StatusUnauthorized, cfg, nil)
+				handleResponse(ctx, http.StatusUnauthorized, validateFailedResponseBody, nil)
 				return
 			},
 			want{http.StatusUnauthorized, errorsx.UnauthorizedCode, errorsx.UnauthorizedCode.String()},
 		},
 		{
-			"with_response_body_with_error",
+			"with_validate_failed_response_body_with_error",
 			func(ctx *gin.Context) {
-				cfg := &JWT{ErrorResponseBody: validateFailedResponseBody}
-				validateFailedResponse(ctx, http.StatusUnauthorized, cfg, errors.New("test error"))
+				handleResponse(ctx, http.StatusUnauthorized, validateFailedResponseBody, errors.New("test error"))
 				return
 			},
 			want{http.StatusUnauthorized, errorsx.UnauthorizedCode, "test error"},
