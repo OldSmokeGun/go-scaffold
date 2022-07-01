@@ -37,13 +37,13 @@ func TestNew(t *testing.T) {
 
 func TestWithErrorResponseBody(t *testing.T) {
 	var (
-		cfg             = &Casbin{}
-		errResponseBody = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
+		cfg                   = &Casbin{}
+		testErrorResponseBody = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
 	)
 
-	WithErrorResponseBody(errResponseBody)(cfg)
+	WithErrorResponseBody(testErrorResponseBody)(cfg)
 
-	assert.Equal(t, errResponseBody, cfg.ErrorResponseBody)
+	assert.Equal(t, testErrorResponseBody, cfg.ErrorResponseBody)
 }
 
 func TestWithLogger(t *testing.T) {
@@ -64,13 +64,13 @@ func TestWithLogger(t *testing.T) {
 
 func TestWithValidateFailedResponseBody(t *testing.T) {
 	var (
-		cfg                        = &Casbin{}
-		validateFailedResponseBody = response.NewBody(int(errorsx.UnauthorizedCode), errorsx.UnauthorizedCode.String(), nil)
+		cfg                            = &Casbin{}
+		testValidateFailedResponseBody = response.NewBody(int(errorsx.UnauthorizedCode), errorsx.UnauthorizedCode.String(), nil)
 	)
 
-	WithValidateFailedResponseBody(validateFailedResponseBody)(cfg)
+	WithValidateFailedResponseBody(testValidateFailedResponseBody)(cfg)
 
-	assert.Equal(t, validateFailedResponseBody, cfg.ValidateFailedResponseBody)
+	assert.Equal(t, testValidateFailedResponseBody, cfg.ValidateFailedResponseBody)
 }
 
 func TestCasbin_Validate(t *testing.T) {
@@ -215,8 +215,8 @@ func TestCasbin_Validate(t *testing.T) {
 
 func Test_handleResponse(t *testing.T) {
 	var (
-		errorResponseBody          = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
-		validateFailedResponseBody = response.NewBody(int(errorsx.PermissionDeniedCode), errorsx.PermissionDeniedCode.String(), nil)
+		testErrorResponseBody          = response.NewBody(int(errorsx.ServerErrorCode), errorsx.ServerErrorCode.String(), nil)
+		testValidateFailedResponseBody = response.NewBody(int(errorsx.PermissionDeniedCode), errorsx.PermissionDeniedCode.String(), nil)
 	)
 
 	type want struct {
@@ -241,7 +241,7 @@ func Test_handleResponse(t *testing.T) {
 		{
 			"with_error_response_body_without_error",
 			func(ctx *gin.Context) {
-				handleResponse(ctx, http.StatusInternalServerError, errorResponseBody, nil)
+				handleResponse(ctx, http.StatusInternalServerError, testErrorResponseBody, nil)
 				return
 			},
 			want{http.StatusInternalServerError, errorsx.ServerErrorCode, errorsx.ServerErrorCode.String()},
@@ -249,7 +249,7 @@ func Test_handleResponse(t *testing.T) {
 		{
 			"with_error_response_body_with_error",
 			func(ctx *gin.Context) {
-				handleResponse(ctx, http.StatusInternalServerError, errorResponseBody, errors.New("test error"))
+				handleResponse(ctx, http.StatusInternalServerError, testErrorResponseBody, errors.New("test error"))
 				return
 			},
 			want{http.StatusInternalServerError, errorsx.ServerErrorCode, "test error"},
@@ -265,7 +265,7 @@ func Test_handleResponse(t *testing.T) {
 		{
 			"with_validate_failed_response_body",
 			func(ctx *gin.Context) {
-				handleResponse(ctx, http.StatusForbidden, validateFailedResponseBody, nil)
+				handleResponse(ctx, http.StatusForbidden, testValidateFailedResponseBody, nil)
 				return
 			},
 			want{http.StatusForbidden, errorsx.PermissionDeniedCode, errorsx.PermissionDeniedCode.String()},

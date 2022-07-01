@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	ErrMissingKey       = errors.New("key is missing")
-	ErrParseTokenFailed = errors.New("parse token failed")
+	ErrMissingKey         = errors.New("key is missing")
+	ErrParseTokenFailed   = errors.New("parse token failed")
+	ErrCallPostFuncFailed = errors.New("call post func failed")
 )
 
 const (
@@ -59,7 +60,7 @@ type JWT struct {
 
 	// PostFunc the hook function that will be called after token verification is successful
 	// this will override the default behavior of writing Claims to the Context
-	PostFunc func(ctx *gin.Context, claims jwt.Claims)
+	PostFunc func(ctx *gin.Context, claims jwt.Claims) error
 
 	// Raw original token
 	Raw string
@@ -104,7 +105,7 @@ func WithLogger(logger middleware.Logger) Option {
 }
 
 // WithPostFunc set the hook function that will be called after token verification is successful
-func WithPostFunc(f func(ctx *gin.Context, claims jwt.Claims)) Option {
+func WithPostFunc(f func(ctx *gin.Context, claims jwt.Claims) error) Option {
 	return func(j *JWT) {
 		j.PostFunc = f
 	}
@@ -171,16 +172,23 @@ func (j *JWT) Validate() gin.HandlerFunc {
 		}
 
 		if j.PostFunc != nil {
-			j.PostFunc(ctx, token.Claims)
+			if err = j.PostFunc(ctx, token.Claims); err != nil {
+				if j.Logger != nil {
+					j.Logger.Errorf("%s: %s", ErrCallPostFuncFailed, err)
+				}
+				handleResponse(ctx, http.StatusInternalServerError, j.ErrorResponseBody, ErrCallPostFuncFailed)
+				return
+			}
 		}
 
 		ctx.Next()
 	}
 }
 
-func defaultPostFunc(ctx *gin.Context, claims jwt.Claims) {
+func defaultPostFunc(ctx *gin.Context, claims jwt.Claims) error {
 	claimsContext := context.WithValue(ctx.Request.Context(), DefaultContextKey, claims)
 	ctx.Request = ctx.Request.WithContext(claimsContext)
+	return nil
 }
 
 func handleResponse(ctx *gin.Context, httpStatusCode int, body middleware.ResponseBody, err error) {
