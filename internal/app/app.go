@@ -71,7 +71,7 @@ func New(
 }
 
 // Start 启动应用
-func (a *App) Start(cancel context.CancelFunc) (err error) {
+func (a *App) Start() (stop chan error, err error) {
 	// 设置 tracer
 	if a.trace != nil {
 		otel.SetTracerProvider(a.trace.TracerProvider())
@@ -103,29 +103,28 @@ func (a *App) Start(cancel context.CancelFunc) (err error) {
 		return
 	}
 
+	stop = make(chan error, 1)
+
 	// 启动 transport 服务
 	go func() {
 		if err = a.transport.Start(); err != nil {
-			a.logger.Error(err)
-			cancel()
+			stop <- err
 			return
 		}
 	}()
 
-	return nil
+	return stop, nil
 }
 
 // Stop 停止应用
-func (a *App) Stop(ctx context.Context) (err error) {
+func (a *App) Stop(ctx context.Context) {
 	// 关闭 cron 服务
-	if err = a.cron.Stop(ctx); err != nil {
-		return
+	if err := a.cron.Stop(ctx); err != nil {
+		a.logger.Error(err)
 	}
 
 	// 关闭 transport 服务
-	if err = a.transport.Stop(); err != nil {
-		return
+	if err := a.transport.Stop(); err != nil {
+		a.logger.Error(err)
 	}
-
-	return nil
 }

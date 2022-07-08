@@ -32,42 +32,42 @@ var (
 
 var (
 	rootPath              = path.RootPath()
-	logPath               string // 日志输出路径
-	logLevel              string // 日志等级
-	logFormat             string // 日志输出格式
-	logCallerSkip         int    // 日志 caller 跳过层数
-	configPath            string // 配置文件路径
-	apolloConfigEnable    bool   // apollo 是否启用
-	apolloConfigEndpoint  string // apollo 连接地址
+	logPath               string // log output path
+	logLevel              string // log level
+	logFormat             string // log output format
+	logCallerSkip         int    // log caller skip
+	configPath            string // configuration file path
+	apolloConfigEnable    bool   // enable apollo
+	apolloConfigEndpoint  string // apollo endpoint
 	apolloConfigAppID     string // apollo appID
 	apolloConfigCluster   string // apollo cluster
-	apolloConfigNamespace string // apollo 命名空间
-	apolloConfigSecret    string // apollo 密钥
+	apolloConfigNamespace string // apollo namespace
+	apolloConfigSecret    string // apollo secret
 )
 
 func init() {
-	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "日志输出路径")
-	pflag.StringVarP(&logLevel, "log.level", "", "info", "日志等级（debug、info、warn、error、panic、fatal）")
-	pflag.StringVarP(&logFormat, "log.format", "", "json", "日志输出格式（text、json）")
-	pflag.IntVarP(&logCallerSkip, "log.caller-skip", "", 4, "日志 caller 跳过层数")
-	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/config.yaml"), "配置文件路径")
-	pflag.BoolVarP(&apolloConfigEnable, "config.apollo.enable", "", false, "apollo 是否启用")
-	pflag.StringVarP(&apolloConfigEndpoint, "config.apollo.endpoint", "", "http://localhost:8080", "apollo 连接地址")
+	pflag.StringVarP(&logPath, "log.path", "", "logs/%Y%m%d.log", "log output path")
+	pflag.StringVarP(&logLevel, "log.level", "", "info", "log level（debug、info、warn、error、panic、fatal）")
+	pflag.StringVarP(&logFormat, "log.format", "", "json", "log output format（text、json）")
+	pflag.IntVarP(&logCallerSkip, "log.caller-skip", "", 4, "log caller skip")
+	pflag.StringVarP(&configPath, "config", "f", filepath.Join(rootPath, "etc/config.yaml"), "configuration file path")
+	pflag.BoolVarP(&apolloConfigEnable, "config.apollo.enable", "", false, "enable apollo")
+	pflag.StringVarP(&apolloConfigEndpoint, "config.apollo.endpoint", "", "http://localhost:8080", "apollo endpoint")
 	pflag.StringVarP(&apolloConfigAppID, "config.apollo.appid", "", "", "apollo appID")
 	pflag.StringVarP(&apolloConfigCluster, "config.apollo.cluster", "", "default", "apollo cluster")
-	pflag.StringVarP(&apolloConfigNamespace, "config.apollo.namespace", "", "application", "apollo 命名空间")
-	pflag.StringVarP(&apolloConfigSecret, "config.apollo.secret", "", "", "apollo 密钥")
+	pflag.StringVarP(&apolloConfigNamespace, "config.apollo.namespace", "", "application", "apollo namespace")
+	pflag.StringVarP(&apolloConfigSecret, "config.apollo.secret", "", "", "apollo secret")
 
 	cobra.OnInitialize(setup)
 }
 
 var (
-	loggerWriter *rotatelogs.RotateLogs // 日志全局 Writer
-	logger       klog.Logger            // 日志实例
-	hLogger      *klog.Helper           // 日志实例
-	zLogger      *zap.Logger            // zap 日志实例
-	config       kconfig.Config
-	configModel  = new(appconfig.Config) // app 配置实例
+	loggerWriter *rotatelogs.RotateLogs  // log writer
+	logger       klog.Logger             // kratos log interface
+	hLogger      *klog.Helper            // kratos log helper
+	zLogger      *zap.Logger             // zap logger
+	config       kconfig.Config          // kratos config interface
+	configModel  = new(appconfig.Config) // app config model
 )
 
 func main() {
@@ -78,22 +78,28 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			hLogger.Info("starting app ...")
 
-			// 监听退出信号
-			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-			defer signalStop()
-
 			appServ, appCleanup, err := initApp(loggerWriter, logger, zLogger, configModel)
 			if err != nil {
 				panic(err)
 			}
 			defer appCleanup()
-			// 调用 app 启动钩子
-			if err := appServ.Start(signalStop); err != nil {
+
+			// app start
+			appStop, err := appServ.Start()
+			if err != nil {
 				panic(err)
 			}
 
-			// 等待退出信号
-			<-signalCtx.Done()
+			// monitor signal
+			signalCtx, signalStop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+			defer signalStop()
+
+			// waiting exit signal ...
+			select {
+			case err = <-appStop:
+				hLogger.Error(err)
+			case <-signalCtx.Done():
+			}
 			signalStop()
 
 			hLogger.Info("the app is shutting down ...")
@@ -101,10 +107,8 @@ func main() {
 			ctx, cancel := context.WithTimeout(context.Background(), time.Duration(configModel.App.Timeout)*time.Second)
 			defer cancel()
 
-			// 关闭应用
-			if err := appServ.Stop(ctx); err != nil {
-				panic(err)
-			}
+			// stop app
+			appServ.Stop(ctx)
 		},
 	}
 
@@ -134,7 +138,7 @@ func setup() {
 		}
 	}
 
-	// 日志初始化
+	// initialization logger
 	var writer io.Writer
 	if loggerWriter == nil {
 		writer = os.Stdout
@@ -159,7 +163,7 @@ func setup() {
 	hLogger.Info("initializing resource ...")
 	hLogger.Infof("the log output directory: %s", filepath.Dir(logPath))
 
-	// 加载配置
+	// load configuration
 	if configPath == "" {
 		panic("config path is missing")
 	}
@@ -171,7 +175,7 @@ func setup() {
 	hLogger.Infof("load config from: %s", configPath)
 
 	configResources := []kconfig.Source{file.NewSource(configPath)}
-	if apolloConfigEnable { // 启用 apollo
+	if apolloConfigEnable { // enable apollo
 		hLogger.Infof("enable remote config, config will be loaded from remote config center")
 
 		configResources = append(configResources, apollo.NewSource(
@@ -200,7 +204,7 @@ func setup() {
 		panic(err)
 	}
 
-	// 检查环境是否设置正确
+	// check that the environment is set correctly
 	if !funk.ContainsString(appconfig.SupportedEnvs, configModel.App.Env.String()) {
 		panic("unsupported env value: " + configModel.App.Env)
 	}
@@ -208,7 +212,7 @@ func setup() {
 	hLogger.Infof("current env: %s", configModel.App.Env)
 }
 
-// cleanup 资源回收
+// cleanup recycle resources
 func cleanup() {
 	if hLogger != nil {
 		hLogger.Info("resource cleaning ...")
