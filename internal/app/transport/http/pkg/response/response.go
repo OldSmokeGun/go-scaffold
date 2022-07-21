@@ -24,7 +24,7 @@ func Success(ctx *gin.Context, ops ...Option) {
 func Error(ctx *gin.Context, err error, ops ...Option) {
 	ae, ok := err.(*errors.Error)
 	if !ok {
-		ae = errors.ServerError(errors.WithMessage(err.Error()))
+		ae = errors.ServerError().WithMessage(err.Error())
 	}
 	Response(ctx, ae.Code.HTTPStatusCode(), int(ae.Code), ae.Message, ops...)
 }

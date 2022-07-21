@@ -11,7 +11,7 @@ import (
 
 // Error 业务错误
 type Error struct {
-	// Code 状态码
+	// Code 错误状态码
 	Code ErrorCode
 
 	// Message 错误信息
@@ -19,9 +19,20 @@ type Error struct {
 
 	// Metadata 元数据
 	Metadata map[string]string
+
+	cause error
 }
 
-func (e Error) Error() string {
+// New 返回 *Error
+func New(code ErrorCode, message string, metadata map[string]string) *Error {
+	return &Error{
+		Code:     code,
+		Message:  message,
+		Metadata: metadata,
+	}
+}
+
+func (e *Error) Error() string {
 	errStr := fmt.Sprintf("code: %d, message: %s", e.Code, e.Message)
 
 	if len(e.Metadata) > 0 {
@@ -34,34 +45,38 @@ func (e Error) Error() string {
 		errStr = fmt.Sprintf("%s, metadata: {%s}", errStr, strings.Join(kvs, ", "))
 	}
 
+	if e.cause != nil {
+		errStr = fmt.Sprintf("%s, cause: %v", errStr, e.cause)
+	}
+
 	return errStr
 }
 
-type Option func(e *Error)
+// Unwrap 兼容 Go 1.13 错误链
+func (e *Error) Unwrap() error { return e.cause }
 
-func WithMessage(message string) Option {
-	return func(e *Error) {
-		e.Message = message
-	}
+// WithCode 设置错误状态码
+func (e *Error) WithCode(code ErrorCode) *Error {
+	e.Code = code
+	return e
 }
 
-func WithMetadata(metadata map[string]string) Option {
-	return func(e *Error) {
-		e.Metadata = metadata
-	}
+// WithMessage 设置错误信息
+func (e *Error) WithMessage(message string) *Error {
+	e.Message = message
+	return e
 }
 
-func New(code ErrorCode, message string, options ...Option) *Error {
-	err := &Error{
-		Code:    code,
-		Message: message,
-	}
+// WithMetadata 设置错误元数据
+func (e *Error) WithMetadata(metadata map[string]string) *Error {
+	e.Metadata = metadata
+	return e
+}
 
-	for _, option := range options {
-		option(err)
-	}
-
-	return err
+// WithCause 设置错误根本原因
+func (e *Error) WithCause(cause error) *Error {
+	e.cause = cause
+	return e
 }
 
 // GRPCStatus 返回 GRPC 状态
@@ -83,7 +98,7 @@ func FromGRPCError(err error) *Error {
 	}
 	gs, ok := status.FromError(err)
 	if ok {
-		ret := New(ErrorCode(gs.Code()), gs.Message())
+		ret := &Error{Code: ErrorCode(gs.Code()), Message: gs.Message()}
 		for _, detail := range gs.Details() {
 			switch d := detail.(type) {
 			case *errdetails.ErrorInfo:
@@ -92,40 +107,40 @@ func FromGRPCError(err error) *Error {
 		}
 		return ret
 	}
-	return New(ServerErrorCode, err.Error())
+	return &Error{Code: ServerErrorCode, Message: err.Error()}
 }
 
 // ServerError 服务器错误
-func ServerError(options ...Option) *Error {
-	return New(ServerErrorCode, ServerErrorCode.String(), options...)
+func ServerError() *Error {
+	return New(ServerErrorCode, ServerErrorCode.String(), nil)
 }
 
 // ClientError 客户端错误
-func ClientError(options ...Option) *Error {
-	return New(ClientErrorCode, ClientErrorCode.String(), options...)
+func ClientError() *Error {
+	return New(ClientErrorCode, ClientErrorCode.String(), nil)
 }
 
 // ValidateError 参数校验错误
-func ValidateError(options ...Option) *Error {
-	return New(ValidateErrorCode, ValidateErrorCode.String(), options...)
+func ValidateError() *Error {
+	return New(ValidateErrorCode, ValidateErrorCode.String(), nil)
 }
 
 // Unauthorized 未认证
-func Unauthorized(options ...Option) *Error {
-	return New(UnauthorizedCode, UnauthorizedCode.String(), options...)
+func Unauthorized() *Error {
+	return New(UnauthorizedCode, UnauthorizedCode.String(), nil)
 }
 
 // PermissionDenied 权限拒绝错误
-func PermissionDenied(options ...Option) *Error {
-	return New(PermissionDeniedCode, PermissionDeniedCode.String(), options...)
+func PermissionDenied() *Error {
+	return New(PermissionDeniedCode, PermissionDeniedCode.String(), nil)
 }
 
 // ResourceNotFound 资源不存在
-func ResourceNotFound(options ...Option) *Error {
-	return New(ResourceNotFoundCode, ResourceNotFoundCode.String(), options...)
+func ResourceNotFound() *Error {
+	return New(ResourceNotFoundCode, ResourceNotFoundCode.String(), nil)
 }
 
 // TooManyRequest 请求太过频繁
-func TooManyRequest(options ...Option) *Error {
-	return New(TooManyRequestCode, TooManyRequestCode.String(), options...)
+func TooManyRequest() *Error {
+	return New(TooManyRequestCode, TooManyRequestCode.String(), nil)
 }

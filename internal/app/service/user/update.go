@@ -37,7 +37,7 @@ type UpdateResponse struct {
 // Update 更新用户
 func (s *Service) Update(ctx context.Context, req UpdateRequest) (*UpdateResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+		return nil, errorsx.ValidateError().WithMessage(err.Error())
 	}
 
 	m, err := s.repo.FindOneById(
@@ -47,10 +47,10 @@ func (s *Service) Update(ctx context.Context, req UpdateRequest) (*UpdateRespons
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound(errorsx.WithMessage(model.ErrDataNotFound.Error()))
+			return nil, errorsx.ResourceNotFound().WithMessage(model.ErrDataNotFound.Error())
 		}
 		s.logger.Errorf("%s: %s", model.ErrDataQueryFailed, err)
-		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
+		return nil, errorsx.ServerError().WithMessage(model.ErrDataQueryFailed.Error())
 	}
 
 	m = &model.User{
@@ -62,7 +62,7 @@ func (s *Service) Update(ctx context.Context, req UpdateRequest) (*UpdateRespons
 
 	if _, err = s.repo.Save(ctx, m); err != nil {
 		s.logger.Errorf("%s: %s", model.ErrDataStoreFailed, err)
-		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataStoreFailed.Error()))
+		return nil, errorsx.ServerError().WithMessage(model.ErrDataStoreFailed.Error())
 	}
 
 	resp := &UpdateResponse{

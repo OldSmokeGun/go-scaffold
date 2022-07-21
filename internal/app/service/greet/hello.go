@@ -23,7 +23,7 @@ type HelloResponse struct {
 
 func (s *Service) Hello(ctx context.Context, req HelloRequest) (*HelloResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+		return nil, errorsx.ValidateError().WithMessage(err.Error())
 	}
 
 	return &HelloResponse{

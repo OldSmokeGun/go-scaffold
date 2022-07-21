@@ -23,7 +23,7 @@ func (r DeleteRequest) Validate() error {
 // Delete 删除用户
 func (s *Service) Delete(ctx context.Context, req DeleteRequest) error {
 	if err := req.Validate(); err != nil {
-		return errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+		return errorsx.ValidateError().WithMessage(err.Error())
 	}
 
 	m, err := s.repo.FindOneById(
@@ -33,15 +33,15 @@ func (s *Service) Delete(ctx context.Context, req DeleteRequest) error {
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errorsx.ResourceNotFound(errorsx.WithMessage(model.ErrDataNotFound.Error()))
+			return errorsx.ResourceNotFound().WithMessage(model.ErrDataNotFound.Error())
 		}
 		s.logger.Errorf("%s: %s", model.ErrDataQueryFailed, err)
-		return errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
+		return errorsx.ServerError().WithMessage(model.ErrDataQueryFailed.Error())
 	}
 
 	if err = s.repo.Delete(ctx, m); err != nil {
 		s.logger.Errorf("%s: %s", model.ErrDataDeleteFailed, err)
-		return errorsx.ServerError(errorsx.WithMessage(model.ErrDataDeleteFailed.Error()))
+		return errorsx.ServerError().WithMessage(model.ErrDataDeleteFailed.Error())
 	}
 
 	return nil

@@ -33,7 +33,7 @@ type CreateResponse struct {
 // Create 创建用户
 func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+		return nil, errorsx.ValidateError().WithMessage(err.Error())
 	}
 
 	m := &model.User{
@@ -44,7 +44,7 @@ func (s *Service) Create(ctx context.Context, req CreateRequest) (*CreateRespons
 
 	if _, err := s.repo.Create(ctx, m); err != nil {
 		s.logger.Errorf("%s: %s", model.ErrDataStoreFailed, err)
-		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataStoreFailed.Error()))
+		return nil, errorsx.ServerError().WithMessage(model.ErrDataStoreFailed.Error())
 	}
 
 	resp := &CreateResponse{

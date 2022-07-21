@@ -31,7 +31,7 @@ type DetailResponse struct {
 // Detail 用户详情
 func (s *Service) Detail(ctx context.Context, req DetailRequest) (*DetailResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, errorsx.ValidateError(errorsx.WithMessage(err.Error()))
+		return nil, errorsx.ValidateError().WithMessage(err.Error())
 	}
 
 	m, err := s.repo.FindOneById(
@@ -41,10 +41,10 @@ func (s *Service) Detail(ctx context.Context, req DetailRequest) (*DetailRespons
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound(errorsx.WithMessage(model.ErrDataNotFound.Error()))
+			return nil, errorsx.ResourceNotFound().WithMessage(model.ErrDataNotFound.Error())
 		}
 		s.logger.Errorf("%s: %s", model.ErrDataQueryFailed, err)
-		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
+		return nil, errorsx.ServerError().WithMessage(model.ErrDataQueryFailed.Error())
 	}
 
 	resp := &DetailResponse{

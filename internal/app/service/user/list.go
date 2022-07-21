@@ -33,7 +33,7 @@ func (s *Service) List(ctx context.Context, req ListRequest) (ListResponse, erro
 	)
 	if err != nil {
 		s.logger.Errorf("%s: %s", model.ErrDataQueryFailed, err)
-		return nil, errorsx.ServerError(errorsx.WithMessage(model.ErrDataQueryFailed.Error()))
+		return nil, errorsx.ServerError().WithMessage(model.ErrDataQueryFailed.Error())
 	}
 
 	resp := make(ListResponse, 0, len(list))
