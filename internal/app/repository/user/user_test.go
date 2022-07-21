@@ -1,18 +1,19 @@
 package user
 
 import (
-	"bou.ke/monkey"
 	"context"
 	"errors"
 	"fmt"
+	"go-scaffold/internal/app/model"
+	"go-scaffold/internal/app/tests"
+	"testing"
+	"time"
+
+	"bou.ke/monkey"
 	"github.com/DATA-DOG/go-sqlmock"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/stretchr/testify/assert"
-	"go-scaffold/internal/app/model"
-	"go-scaffold/internal/app/tests"
 	"gorm.io/gorm"
-	"testing"
-	"time"
 )
 
 func Test_repository_FindByKeyword(t *testing.T) {

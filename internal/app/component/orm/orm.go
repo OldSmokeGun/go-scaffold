@@ -2,15 +2,16 @@ package orm
 
 import (
 	"errors"
-	klog "github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/orm/mysql"
 	"go-scaffold/internal/app/component/orm/postgres"
+	"time"
+
+	klog "github.com/go-kratos/kratos/v2/log"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/plugin/dbresolver"
 	zapgorm "moul.io/zapgorm2"
-	"time"
 )
 
 var (

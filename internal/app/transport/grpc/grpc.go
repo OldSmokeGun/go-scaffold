@@ -1,6 +1,12 @@
 package grpc
 
 import (
+	"go-scaffold/internal/app/config"
+	greetpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
+	userpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
+	"go-scaffold/internal/app/transport/grpc/handler"
+	"time"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
@@ -8,11 +14,6 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
-	"go-scaffold/internal/app/config"
-	greetpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
-	userpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
-	"go-scaffold/internal/app/transport/grpc/handler"
-	"time"
 )
 
 var ProviderSet = wire.NewSet(

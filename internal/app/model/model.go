@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"go-scaffold/internal/app/model/migrator"
+
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 )

@@ -3,11 +3,12 @@ package jwt
 import (
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 	"go-scaffold/internal/app/transport/http/middleware"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 var (

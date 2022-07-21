@@ -1,13 +1,6 @@
 package router
 
 import (
-	"github.com/casbin/casbin/v2"
-	"github.com/gin-contrib/cors"
-	ginzap "github.com/gin-contrib/zap"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	ginSwagger "github.com/swaggo/gin-swagger"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/transport/http/api/docs"
@@ -19,15 +12,24 @@ import (
 	"go-scaffold/internal/app/transport/http/middleware/recover"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 	"go-scaffold/internal/app/transport/http/pkg/swagger"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
-	"go.uber.org/zap"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/casbin/casbin/v2"
+	"github.com/gin-contrib/cors"
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/wire"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
+
 	"io"
 	"os"
+
+	"github.com/gin-gonic/gin"
 )
 
 var ProviderSet = wire.NewSet(

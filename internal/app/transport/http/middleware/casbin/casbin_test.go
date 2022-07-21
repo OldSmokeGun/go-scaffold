@@ -3,12 +3,6 @@ package casbin
 import (
 	"encoding/json"
 	"errors"
-	"github.com/casbin/casbin/v2"
-	"github.com/casbin/casbin/v2/model"
-	jsonadapter "github.com/casbin/json-adapter/v2"
-	"github.com/gin-gonic/gin"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/stretchr/testify/assert"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/tests"
 	"go-scaffold/internal/app/transport/http/pkg/response"
@@ -16,6 +10,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
+	jsonadapter "github.com/casbin/json-adapter/v2"
+	"github.com/gin-gonic/gin"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {

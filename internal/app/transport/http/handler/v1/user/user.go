@@ -1,9 +1,10 @@
 package user
 
 import (
+	"go-scaffold/internal/app/service/user"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
-	"go-scaffold/internal/app/service/user"
 )
 
 type HandlerInterface interface {

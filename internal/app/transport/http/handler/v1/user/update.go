@@ -1,11 +1,12 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport/http/pkg/response"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Update 更新用户

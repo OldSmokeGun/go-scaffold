@@ -1,9 +1,10 @@
 package discovery
 
 import (
-	"github.com/go-kratos/kratos/v2/registry"
 	"go-scaffold/internal/app/component/discovery/consul"
 	"go-scaffold/internal/app/component/discovery/etcd"
+
+	"github.com/go-kratos/kratos/v2/registry"
 	"go.uber.org/zap"
 )
 

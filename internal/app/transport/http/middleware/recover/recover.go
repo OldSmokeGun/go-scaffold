@@ -1,8 +1,6 @@
 package recover
 
 import (
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -10,6 +8,9 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // RecoveryFunc defines the function passable to CustomRecovery.

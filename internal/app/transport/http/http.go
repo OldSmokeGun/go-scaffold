@@ -1,14 +1,15 @@
 package http
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-kratos/kratos/v2/log"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/google/wire"
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/transport/http/handler"
 	"go-scaffold/internal/app/transport/http/router"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-kratos/kratos/v2/log"
+	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(

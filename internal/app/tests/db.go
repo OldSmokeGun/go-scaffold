@@ -2,9 +2,10 @@ package tests
 
 import (
 	"database/sql"
+	"go-scaffold/pkg/log"
+
 	"github.com/DATA-DOG/go-sqlmock"
 	klog "github.com/go-kratos/kratos/v2/log"
-	"go-scaffold/pkg/log"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

@@ -3,15 +3,16 @@ package grpc
 import (
 	"context"
 	"errors"
+	"go-scaffold/internal/app/component/discovery"
+	"strings"
+	"time"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
-	"go-scaffold/internal/app/component/discovery"
 	"google.golang.org/grpc"
-	"strings"
-	"time"
 )
 
 var ErrDiscoveryIsNotSet = errors.New("the discovery is not set")

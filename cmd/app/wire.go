@@ -4,12 +4,13 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/command"
 	appconfig "go-scaffold/internal/app/config"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/wire"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 )
 

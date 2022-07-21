@@ -1,13 +1,14 @@
 package tests
 
 import (
+	"go-scaffold/pkg/log"
+	"io"
+	"os"
+
 	kzap "github.com/go-kratos/kratos/contrib/log/zap/v2"
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"go-scaffold/pkg/log"
 	"go.uber.org/zap"
-	"io"
-	"os"
 )
 
 // NewZapLogger 初始化 zap logger

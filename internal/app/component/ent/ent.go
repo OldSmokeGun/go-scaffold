@@ -2,13 +2,14 @@ package ent
 
 import (
 	"context"
-	"entgo.io/ent/dialect/sql"
-	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/ent/ent"
 	"go-scaffold/internal/app/component/ent/ent/migrate"
 	"strconv"
 	"strings"
 	"time"
+
+	"entgo.io/ent/dialect/sql"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type Driver string

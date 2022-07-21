@@ -1,14 +1,15 @@
 package command
 
 import (
-	"github.com/google/wire"
-	"github.com/spf13/cobra"
 	"go-scaffold/internal/app/command/handler"
 	"go-scaffold/internal/app/command/handler/greet"
 	"go-scaffold/internal/app/command/pkg/commandset"
 	"go-scaffold/internal/app/command/script"
 	"go-scaffold/internal/app/component"
 	"go-scaffold/internal/app/config"
+
+	"github.com/google/wire"
+	"github.com/spf13/cobra"
 )
 
 var ProviderSet = wire.NewSet(

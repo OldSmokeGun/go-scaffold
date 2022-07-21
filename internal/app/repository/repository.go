@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"github.com/google/wire"
 	"go-scaffold/internal/app/repository/user"
+
+	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(

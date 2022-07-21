@@ -6,11 +6,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go-scaffold/internal/app/model"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	jsoniter "github.com/json-iterator/go"
-	"go-scaffold/internal/app/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 type RepositoryInterface interface {

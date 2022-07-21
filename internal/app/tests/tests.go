@@ -2,11 +2,12 @@ package tests
 
 import (
 	"flag"
+	"os"
+	"testing"
+
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"go.uber.org/zap"
-	"os"
-	"testing"
 )
 
 var (

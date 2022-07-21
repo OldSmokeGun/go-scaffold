@@ -2,9 +2,6 @@ package app
 
 import (
 	"context"
-	"github.com/casbin/casbin/v2"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/wire"
 	"go-scaffold/internal/app/component"
 	"go-scaffold/internal/app/component/trace"
 	"go-scaffold/internal/app/config"
@@ -13,6 +10,10 @@ import (
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/service"
 	"go-scaffold/internal/app/transport"
+
+	"github.com/casbin/casbin/v2"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/wire"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	"gorm.io/gorm"

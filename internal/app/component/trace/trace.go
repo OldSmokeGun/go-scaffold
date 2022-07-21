@@ -2,14 +2,15 @@ package trace
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
-	"strings"
-	"time"
 )
 
 type Config struct {

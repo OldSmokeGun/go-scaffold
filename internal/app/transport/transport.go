@@ -1,17 +1,18 @@
 package transport
 
 import (
+	"go-scaffold/internal/app/component/discovery"
+	"go-scaffold/internal/app/config"
+	gtr "go-scaffold/internal/app/transport/grpc"
+	htr "go-scaffold/internal/app/transport/http"
+	"os"
+
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
-	"go-scaffold/internal/app/component/discovery"
-	"go-scaffold/internal/app/config"
-	gtr "go-scaffold/internal/app/transport/grpc"
-	htr "go-scaffold/internal/app/transport/http"
-	"os"
 )
 
 var hostname, _ = os.Hostname()

@@ -2,10 +2,11 @@ package casbin
 
 import (
 	"errors"
-	pcasbin "github.com/casbin/casbin/v2"
-	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/transport/http/middleware"
 	"net/http"
+
+	pcasbin "github.com/casbin/casbin/v2"
+	"github.com/gin-gonic/gin"
 )
 
 var (

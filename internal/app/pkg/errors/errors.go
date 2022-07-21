@@ -3,10 +3,11 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strings"
 )
 
 // Error 业务错误

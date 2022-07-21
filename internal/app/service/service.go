@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/google/wire"
 	"go-scaffold/internal/app/service/greet"
 	"go-scaffold/internal/app/service/user"
+
+	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(

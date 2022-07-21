@@ -3,9 +3,10 @@ package uid
 //go:generate mockgen -source=uid.go -destination=uid_mock.go -package=uid -mock_names=Generator=MockUid
 
 import (
-	"github.com/bwmarrin/snowflake"
 	"math/rand"
 	"time"
+
+	"github.com/bwmarrin/snowflake"
 )
 
 var defaultRand = rand.New(rand.NewSource(time.Now().UnixNano()))

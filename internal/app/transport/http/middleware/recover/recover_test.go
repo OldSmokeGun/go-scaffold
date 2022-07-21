@@ -3,19 +3,20 @@ package recover
 import (
 	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/tests"
 	"go-scaffold/internal/app/transport/http/pkg/response"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func TestCustomRecoveryWithZap(t *testing.T) {

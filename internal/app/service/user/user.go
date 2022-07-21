@@ -2,8 +2,9 @@ package user
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/repository/user"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type ServiceInterface interface {

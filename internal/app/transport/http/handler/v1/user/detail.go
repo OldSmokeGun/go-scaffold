@@ -1,10 +1,11 @@
 package user
 
 import (
-	"github.com/gin-gonic/gin"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/user"
 	"go-scaffold/internal/app/transport/http/pkg/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Detail 用户详情

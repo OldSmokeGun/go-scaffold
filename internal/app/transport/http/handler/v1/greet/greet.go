@@ -1,9 +1,10 @@
 package greet
 
 import (
+	"go-scaffold/internal/app/service/greet"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
-	"go-scaffold/internal/app/service/greet"
 )
 
 type HandlerInterface interface {

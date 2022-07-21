@@ -1,10 +1,11 @@
 package greet
 
 import (
-	"github.com/gin-gonic/gin"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/service/greet"
 	"go-scaffold/internal/app/transport/http/pkg/response"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Hello 示例方法

@@ -1,13 +1,8 @@
 package jwt
 
 import (
-	"bou.ke/monkey"
 	"encoding/json"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/golang-jwt/jwt/v4"
-	"github.com/stretchr/testify/assert"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/tests"
 	"go-scaffold/internal/app/transport/http/pkg/response"
@@ -16,6 +11,12 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"bou.ke/monkey"
+	"github.com/gin-gonic/gin"
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNew(t *testing.T) {

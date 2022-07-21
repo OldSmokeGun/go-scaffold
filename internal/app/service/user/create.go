@@ -2,10 +2,11 @@ package user
 
 import (
 	"context"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go-scaffold/internal/app/model"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/pkg/validator"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 // CreateRequest 创建用户请求参数

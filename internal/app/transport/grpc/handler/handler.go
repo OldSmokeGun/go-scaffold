@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/google/wire"
 	greetpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
 	userpb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/user"
 	"go-scaffold/internal/app/transport/grpc/handler/v1/greet"
 	"go-scaffold/internal/app/transport/grpc/handler/v1/user"
+
+	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(

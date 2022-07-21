@@ -1,11 +1,12 @@
 package config
 
 import (
+	"go-scaffold/internal/app/component/casbin"
+	"go-scaffold/internal/app/model"
+
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"go-scaffold/internal/app/component/casbin"
-	"go-scaffold/internal/app/model"
 	"gorm.io/gorm"
 )
 

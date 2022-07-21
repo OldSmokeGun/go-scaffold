@@ -1,11 +1,12 @@
 package trace
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/component/client/grpc"
 	"go-scaffold/internal/app/component/trace"
 	"go-scaffold/internal/app/config"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type HandlerInterface interface {

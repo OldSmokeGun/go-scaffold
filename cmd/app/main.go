@@ -2,6 +2,17 @@ package main
 
 import (
 	"context"
+	"go-scaffold/internal/app/command"
+	appconfig "go-scaffold/internal/app/config"
+	"go-scaffold/pkg/log"
+	"go-scaffold/pkg/path"
+	"io"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"syscall"
+	"time"
+
 	"github.com/go-kratos/kratos/contrib/config/apollo/v2"
 	kzap "github.com/go-kratos/kratos/contrib/log/zap/v2"
 	kconfig "github.com/go-kratos/kratos/v2/config"
@@ -12,17 +23,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/thoas/go-funk"
-	"go-scaffold/internal/app/command"
-	appconfig "go-scaffold/internal/app/config"
-	"go-scaffold/pkg/log"
-	"go-scaffold/pkg/path"
 	"go.uber.org/zap"
-	"io"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"syscall"
-	"time"
 )
 
 var (

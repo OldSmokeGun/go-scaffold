@@ -7,8 +7,6 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/lestrrat-go/file-rotatelogs"
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/command"
 	greet4 "go-scaffold/internal/app/command/handler/greet"
@@ -34,6 +32,9 @@ import (
 	trace2 "go-scaffold/internal/app/transport/http/handler/v1/trace"
 	user3 "go-scaffold/internal/app/transport/http/handler/v1/user"
 	"go-scaffold/internal/app/transport/http/router"
+
+	"github.com/go-kratos/kratos/v2/log"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"go.uber.org/zap"
 )
 

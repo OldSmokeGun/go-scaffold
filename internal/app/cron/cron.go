@@ -2,13 +2,14 @@ package cron
 
 import (
 	"context"
+	"go-scaffold/internal/app/cron/job"
+	"log"
+
 	klog "github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/wire"
 	"github.com/robfig/cron/v3"
-	"go-scaffold/internal/app/cron/job"
 	"gorm.io/gorm"
-	"log"
 )
 
 var ProviderSet = wire.NewSet(job.NewExample, New)

@@ -1,9 +1,10 @@
 package adapter
 
 import (
-	"github.com/casbin/casbin/v2/persist"
 	fileadapter "go-scaffold/internal/app/component/casbin/adapter/file"
 	gormadapter "go-scaffold/internal/app/component/casbin/adapter/gorm"
+
+	"github.com/casbin/casbin/v2/persist"
 	"gorm.io/gorm"
 )
 

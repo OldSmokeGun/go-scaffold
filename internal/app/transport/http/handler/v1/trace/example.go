@@ -4,18 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	errorsx "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
 	"go-scaffold/internal/app/transport/http/pkg/response"
+	"math/rand"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/baggage"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
-	"math/rand"
-	"net/http"
 )
 
 // Example 示例方法

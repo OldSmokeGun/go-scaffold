@@ -3,9 +3,10 @@ package user
 import (
 	"context"
 	"errors"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"go-scaffold/internal/app/model"
 	errorsx "go-scaffold/internal/app/pkg/errors"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"gorm.io/gorm"
 )
 

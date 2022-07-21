@@ -1,9 +1,10 @@
 package greet
 
 import (
-	"github.com/go-kratos/kratos/v2/log"
 	"go-scaffold/internal/app/service/greet"
 	pb "go-scaffold/internal/app/transport/grpc/api/scaffold/v1/greet"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 var _ pb.GreetServer = (*Handler)(nil)

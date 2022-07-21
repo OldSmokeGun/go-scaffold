@@ -1,9 +1,10 @@
 package response
 
 import (
-	"github.com/gin-gonic/gin"
 	"go-scaffold/internal/app/pkg/errors"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Response HTTP 请求响应

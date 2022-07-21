@@ -2,9 +2,10 @@ package errors
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
-	"testing"
 )
 
 func TestError(t *testing.T) {
