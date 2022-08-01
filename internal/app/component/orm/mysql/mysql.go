@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"strconv"
-	"strings"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -12,12 +10,11 @@ import (
 
 type Config struct {
 	Driver                    string
-	Host                      string
-	Port                      int
+	Addr                      string
 	Database                  string
 	Username                  string
 	Password                  string
-	Options                   []string
+	Options                   string
 	MaxIdleConn               int
 	MaxOpenConn               int
 	ConnMaxIdleTime           time.Duration
@@ -77,7 +74,6 @@ func New(c Config) (*gorm.DB, error) {
 
 // BuildDSN build dss to connect to the database
 func BuildDSN(c Config) string {
-	options := strings.Join(c.Options, "&")
-	dsn := c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + strconv.Itoa(c.Port) + ")/" + c.Database + "?" + options
+	dsn := c.Username + ":" + c.Password + "@tcp(" + c.Addr + ")/" + c.Database + "?" + c.Options
 	return dsn
 }

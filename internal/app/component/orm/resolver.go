@@ -30,8 +30,7 @@ func BuildDialector(driver Driver, dsn DSN) (dialector gorm.Dialector, err error
 		dialector = mysql.New(mysql.Config{
 			DriverName: driver.String(),
 			DSN: mysqlx.BuildDSN(mysqlx.Config{
-				Host:     dsn.Host,
-				Port:     dsn.Port,
+				Addr:     dsn.Addr,
 				Database: dsn.Database,
 				Username: dsn.Username,
 				Password: dsn.Password,
@@ -42,8 +41,7 @@ func BuildDialector(driver Driver, dsn DSN) (dialector gorm.Dialector, err error
 		dialector = postgres.New(postgres.Config{
 			DriverName: driver.String(),
 			DSN: postgresx.BuildDSN(postgresx.Config{
-				Host:     dsn.Host,
-				Port:     dsn.Port,
+				Addr:     dsn.Addr,
 				Database: dsn.Database,
 				Username: dsn.Username,
 				Password: dsn.Password,

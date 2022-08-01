@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"strconv"
 	"strings"
 	"time"
 
@@ -13,12 +12,11 @@ import (
 
 type Config struct {
 	Driver               string
-	Host                 string
-	Port                 int
+	Addr                 string
 	Database             string
 	Username             string
 	Password             string
-	Options              []string
+	Options              string
 	MaxIdleConn          int
 	MaxOpenConn          int
 	ConnMaxIdleTime      time.Duration
@@ -70,7 +68,13 @@ func New(c Config) (*gorm.DB, error) {
 
 // BuildDSN build dss to connect to the database
 func BuildDSN(c Config) string {
-	options := strings.Join(c.Options, " ")
-	dsn := "host=" + c.Host + " port=" + strconv.Itoa(c.Port) + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
+	var host, port string
+	s := strings.SplitN(c.Addr, ":", 2)
+	if len(s) == 2 {
+		host = s[0]
+		port = s[1]
+	}
+
+	dsn := "host=" + host + " port=" + port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + c.Options
 	return dsn
 }

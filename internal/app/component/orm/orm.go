@@ -59,12 +59,11 @@ func (l LogLevel) Convert() logger.LogLevel {
 
 // DSN database connection configuration
 type DSN struct {
-	Host     string
-	Port     int
+	Addr     string
 	Database string
 	Username string
 	Password string
-	Options  []string
+	Options  string
 }
 
 type Config struct {
@@ -72,8 +71,8 @@ type Config struct {
 	DSN
 	MaxIdleConn     int
 	MaxOpenConn     int
-	ConnMaxIdleTime int64
-	ConnMaxLifeTime int64
+	ConnMaxIdleTime time.Duration
+	ConnMaxLifeTime time.Duration
 	LogLevel        LogLevel
 	Plugins         func(db *gorm.DB) ([]gorm.Plugin, error)
 	Resolvers       []Resolver
@@ -92,16 +91,15 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 	case MySQL:
 		db, err = mysql.New(mysql.Config{
 			Driver:                    config.Driver.String(),
-			Host:                      config.Host,
-			Port:                      config.Port,
+			Addr:                      config.Addr,
 			Database:                  config.Database,
 			Username:                  config.Username,
 			Password:                  config.Password,
 			Options:                   config.Options,
 			MaxIdleConn:               config.MaxIdleConn,
 			MaxOpenConn:               config.MaxOpenConn,
-			ConnMaxIdleTime:           time.Second * time.Duration(config.ConnMaxIdleTime),
-			ConnMaxLifeTime:           time.Second * time.Duration(config.ConnMaxLifeTime),
+			ConnMaxIdleTime:           config.ConnMaxIdleTime * time.Second,
+			ConnMaxLifeTime:           config.ConnMaxLifeTime * time.Second,
 			Logger:                    gLogger.LogMode(config.LogLevel.Convert()),
 			Conn:                      nil,
 			SkipInitializeWithVersion: false,
@@ -116,16 +114,15 @@ func New(config *Config, kLogger klog.Logger, zLogger *zap.Logger) (db *gorm.DB,
 	case PostgresSQL:
 		db, err = postgres.New(postgres.Config{
 			Driver:               config.Driver.String(),
-			Host:                 config.Host,
-			Port:                 config.Port,
+			Addr:                 config.Addr,
 			Database:             config.Database,
 			Username:             config.Username,
 			Password:             config.Password,
 			Options:              config.Options,
 			MaxIdleConn:          config.MaxIdleConn,
 			MaxOpenConn:          config.MaxOpenConn,
-			ConnMaxIdleTime:      time.Second * time.Duration(config.ConnMaxIdleTime),
-			ConnMaxLifeTime:      time.Second * time.Duration(config.ConnMaxLifeTime),
+			ConnMaxIdleTime:      config.ConnMaxIdleTime * time.Second,
+			ConnMaxLifeTime:      config.ConnMaxLifeTime * time.Second,
 			Logger:               gLogger.LogMode(config.LogLevel.Convert()),
 			Conn:                 nil,
 			PreferSimpleProtocol: false,
