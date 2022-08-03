@@ -2,9 +2,9 @@ package example
 
 // Success 成功
 type Success struct {
-	Code int         `json:"code" example:"10000"`
-	Msg  string      `json:"msg" example:"OK"`
-	Data interface{} `json:"data,omitempty"`
+	Code int    `json:"code" example:"10000"`
+	Msg  string `json:"msg" example:"OK"`
+	Data any    `json:"data,omitempty"`
 }
 
 // ServerError 服务器出错

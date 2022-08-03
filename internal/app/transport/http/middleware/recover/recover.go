@@ -14,7 +14,7 @@ import (
 )
 
 // RecoveryFunc defines the function passable to CustomRecovery.
-type RecoveryFunc func(c *gin.Context, err interface{})
+type RecoveryFunc func(c *gin.Context, err any)
 
 // RecoveryWithZap returns a gin.HandlerFunc (middleware)
 // that recovers from any panics and logs requests using uber-go/zap.
@@ -82,6 +82,6 @@ func CustomRecoveryWithZap(logger *zap.Logger, stack bool, handler RecoveryFunc)
 	}
 }
 
-func defaultHandleRecovery(c *gin.Context, err interface{}) {
+func defaultHandleRecovery(c *gin.Context, err any) {
 	c.AbortWithStatus(http.StatusInternalServerError)
 }

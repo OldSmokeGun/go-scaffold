@@ -156,7 +156,7 @@ func (j *JWT) Validate() gin.HandlerFunc {
 			j.Logger.Debugf("token: %s", tokenString)
 		}
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
 			return []byte(j.Key), nil
 		})
 		if err != nil {

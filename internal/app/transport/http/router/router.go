@@ -74,7 +74,7 @@ func New(
 
 	router := gin.New()
 	router.Use(ginzap.Ginzap(zLogger.WithOptions(zap.AddCallerSkip(4)), time.RFC3339, false))
-	router.Use(recover.CustomRecoveryWithZap(zLogger.WithOptions(zap.AddCallerSkip(4)), true, func(c *gin.Context, err interface{}) {
+	router.Use(recover.CustomRecoveryWithZap(zLogger.WithOptions(zap.AddCallerSkip(4)), true, func(c *gin.Context, err any) {
 		response.Error(c, errors.ServerError())
 		c.Abort()
 	}))
@@ -104,7 +104,7 @@ func New(
 		if enforcer != nil {
 			apiGroup.Use(casbinmd.New(
 				enforcer,
-				func(ctx *gin.Context) ([]interface{}, error) {
+				func(ctx *gin.Context) ([]any, error) {
 					// TODO
 					return nil, nil
 				},

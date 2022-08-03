@@ -39,12 +39,12 @@ download:
 	go get github.com/google/wire/cmd/wire@v0.5.0; \
 	go install github.com/google/wire/cmd/wire@latest; \
 	go install github.com/cosmtrek/air@latest; \
-	go install github.com/swaggo/swag/cmd/swag@v1.7.8; \
+	go install github.com/swaggo/swag/cmd/swag@v1.8.4; \
 	go install github.com/golang/mock/mockgen@latest; \
 	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest; \
 	go install github.com/envoyproxy/protoc-gen-validate@latest; \
 	go install github.com/favadi/protoc-go-inject-tag@latest; \
-	go install entgo.io/ent/cmd/ent@v0.10.0;
+	go install entgo.io/ent/cmd/ent@v0.11.0;
 
 clean:
 	@if [ -f ${APP_BIN_PATH} ] ; then rm ${APP_BIN_PATH} ; fi

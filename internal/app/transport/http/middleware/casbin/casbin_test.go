@@ -25,7 +25,7 @@ func TestNew(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cfg := New(enforcer, func(ctx *gin.Context) ([]interface{}, error) {
+	cfg := New(enforcer, func(ctx *gin.Context) ([]any, error) {
 		return nil, nil
 	})
 
@@ -119,7 +119,7 @@ func TestCasbin_Validate(t *testing.T) {
 		{
 			name: "without_enforcer",
 			uri:  uri{"/test", "GET"},
-			args: args{nil, func(ctx *gin.Context) ([]interface{}, error) {
+			args: args{nil, func(ctx *gin.Context) ([]any, error) {
 				return nil, nil
 			}},
 			want: want{http.StatusInternalServerError, errorsx.ServerErrorCode, ErrNilEnforcer.Error()},
@@ -133,7 +133,7 @@ func TestCasbin_Validate(t *testing.T) {
 		{
 			name: "get_casbin_request_parameters_error",
 			uri:  uri{"/test", "GET"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
 				return nil, errors.New("test error")
 			}},
 			want: want{http.StatusInternalServerError, errorsx.ServerErrorCode, ErrGettingCasbinRequestParameters.Error()},
@@ -141,48 +141,48 @@ func TestCasbin_Validate(t *testing.T) {
 		{
 			name: "match_casbin_request_parameters_error",
 			uri:  uri{"/test", "GET"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"alice", ctx.Request.RequestURI, ctx.Request.Method, "match error"}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"alice", ctx.Request.RequestURI, ctx.Request.Method, "match error"}, nil
 			}},
 			want: want{http.StatusInternalServerError, errorsx.ServerErrorCode, ErrMatchingCasbinRequestParameters.Error()},
 		},
 		{
 			name: "validate_failed",
 			uri:  uri{"/test", "GET"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"bob", ctx.Request.RequestURI, ctx.Request.Method}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"bob", ctx.Request.RequestURI, ctx.Request.Method}, nil
 			}},
 			want: want{http.StatusForbidden, errorsx.PermissionDeniedCode, errorsx.PermissionDeniedCode.String()},
 		},
 		{
 			name: "validate_success [/test GET]",
 			uri:  uri{"/test", "GET"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
 			}},
 			want: want{http.StatusOK, errorsx.SuccessCode, errorsx.SuccessCode.String()},
 		},
 		{
 			name: "validate_success [/path/123 DELETE]",
 			uri:  uri{"/path/123", "DELETE"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
 			}},
 			want: want{http.StatusOK, errorsx.SuccessCode, errorsx.SuccessCode.String()},
 		},
 		{
 			name: "validate_success [/parent/123/child/123 PUT]",
 			uri:  uri{"/parent/123/child/123", "PUT"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
 			}},
 			want: want{http.StatusOK, errorsx.SuccessCode, errorsx.SuccessCode.String()},
 		},
 		{
 			name: "validate_success [/parent/123/child/456 PUT]",
 			uri:  uri{"/parent/123/child/456", "PUT"},
-			args: args{enforcer, func(ctx *gin.Context) ([]interface{}, error) {
-				return []interface{}{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
+			args: args{enforcer, func(ctx *gin.Context) ([]any, error) {
+				return []any{"alice", ctx.Request.RequestURI, ctx.Request.Method}, nil
 			}},
 			want: want{http.StatusOK, errorsx.SuccessCode, errorsx.SuccessCode.String()},
 		},

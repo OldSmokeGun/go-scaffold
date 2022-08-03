@@ -4,7 +4,6 @@ import (
 	"context"
 	"go-scaffold/internal/app/component/ent/ent"
 	"go-scaffold/internal/app/component/ent/ent/migrate"
-	"strconv"
 	"strings"
 	"time"
 
@@ -25,12 +24,11 @@ const (
 
 type Config struct {
 	Driver          Driver
-	Host            string
-	Port            int
+	Addr            string
 	Database        string
 	Username        string
 	Password        string
-	Options         []string
+	Options         string
 	MaxIdleConn     int
 	MaxOpenConn     int
 	ConnMaxIdleTime int64
@@ -68,7 +66,7 @@ func New(config *Config, logger log.Logger) (*ent.Client, func(), error) {
 
 	client := ent.NewClient(
 		ent.Driver(driver),
-		ent.Log(func(i ...interface{}) {
+		ent.Log(func(i ...any) {
 			hLogger.Debug(i)
 		}),
 	)
@@ -89,13 +87,18 @@ func buildSource(c *Config) string {
 
 	switch c.Driver {
 	case PostgresSQL:
-		options := strings.Join(c.Options, " ")
-		dsn = "host=" + c.Host + " port=" + strconv.Itoa(c.Port) + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + options
+		var host, port string
+		s := strings.SplitN(c.Addr, ":", 2)
+		if len(s) == 2 {
+			host = s[0]
+			port = s[1]
+		}
+
+		dsn = "host=" + host + " port=" + port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + c.Options
 	case MySQL:
 		fallthrough
 	default:
-		options := strings.Join(c.Options, "&")
-		dsn = c.Username + ":" + c.Password + "@tcp(" + c.Host + ":" + strconv.Itoa(c.Port) + ")/" + c.Database + "?" + options
+		dsn = c.Username + ":" + c.Password + "@tcp(" + c.Addr + ")/" + c.Database + "?" + c.Options
 	}
 
 	return dsn

@@ -251,7 +251,7 @@ func Test_repository_FindOneById(t *testing.T) {
 
 			ts.RedisClient.Mock.ExpectGet(fmt.Sprintf(cacheKeyFormat, 0)).SetVal("")
 
-			monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
+			monkey.Patch(jsoniter.Marshal, func(v any) ([]byte, error) {
 				return nil, errors.New("test error")
 			})
 			defer monkey.Unpatch(jsoniter.Marshal)
@@ -381,7 +381,7 @@ func Test_repository_Create(t *testing.T) {
 		ts.DB.Mock.ExpectExec("INSERT INTO (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
-		monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
+		monkey.Patch(jsoniter.Marshal, func(v any) ([]byte, error) {
 			return nil, errors.New("test error")
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)
@@ -502,7 +502,7 @@ func Test_repository_Save(t *testing.T) {
 		ts.DB.Mock.ExpectExec("UPDATE (.+) SET (.+)").
 			WillReturnResult(sqlmock.NewResult(0, 1))
 
-		monkey.Patch(jsoniter.Marshal, func(v interface{}) ([]byte, error) {
+		monkey.Patch(jsoniter.Marshal, func(v any) ([]byte, error) {
 			return nil, errors.New("test error")
 		})
 		defer monkey.Unpatch(jsoniter.Marshal)

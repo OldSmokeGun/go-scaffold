@@ -17,7 +17,7 @@ var (
 )
 
 // requestFunc how to get request parameters in PERM model
-type requestFunc func(ctx *gin.Context) ([]interface{}, error)
+type requestFunc func(ctx *gin.Context) ([]any, error)
 
 // Casbin middleware configuration
 type Casbin struct {

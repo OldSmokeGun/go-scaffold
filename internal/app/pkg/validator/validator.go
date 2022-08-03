@@ -13,7 +13,7 @@ var (
 
 // IsMobilePhone 校验是否为手机号
 // 基于 google 的 libphonenumber 库的 go 版本
-func IsMobilePhone(value interface{}) error {
+func IsMobilePhone(value any) error {
 	phone, ok := value.(string)
 	if !ok {
 		return ErrAssertTypeToStringFailed

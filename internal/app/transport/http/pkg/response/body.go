@@ -4,18 +4,18 @@ package response
 type BodyInterface interface {
 	WithCode(code int)
 	WithMsg(msg string)
-	WithData(data interface{})
+	WithData(data any)
 }
 
 // Body 响应格式
 type Body struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Data any    `json:"data,omitempty"`
 }
 
 // NewBody 返回 BodyInterface
-func NewBody(code int, msg string, data interface{}) *Body {
+func NewBody(code int, msg string, data any) *Body {
 	return &Body{
 		Code: code,
 		Msg:  msg,
@@ -34,7 +34,7 @@ func (b *Body) WithMsg(msg string) {
 }
 
 // WithData 设置 Body 的 Data
-func (b *Body) WithData(data interface{}) {
+func (b *Body) WithData(data any) {
 	b.Data = data
 }
 
@@ -56,7 +56,7 @@ func WithMsg(msg string) Option {
 }
 
 // WithData 设置 Body 的 Data
-func WithData(data interface{}) Option {
+func WithData(data any) Option {
 	return func(p *Body) {
 		p.Data = data
 	}

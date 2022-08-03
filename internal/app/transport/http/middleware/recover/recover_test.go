@@ -85,7 +85,7 @@ func TestCustomRecoveryWithZap(t *testing.T) {
 
 	t.Run("panic_with_stack_with_handler", func(t *testing.T) {
 		assert.NotPanics(t, func() {
-			md := CustomRecoveryWithZap(logger, true, func(c *gin.Context, err interface{}) {
+			md := CustomRecoveryWithZap(logger, true, func(c *gin.Context, err any) {
 				response.Error(c, errorsx.ServerError())
 				c.Abort()
 			})
