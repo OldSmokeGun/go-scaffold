@@ -1,4 +1,4 @@
-FROM golang:1.17 as builder
+FROM golang:1.19 as builder
 
 ARG PROTOC_VERSION=3.19.1
 ARG PROTOC_ZIP=protoc-${PROTOC_VERSION}-linux-x86_64.zip

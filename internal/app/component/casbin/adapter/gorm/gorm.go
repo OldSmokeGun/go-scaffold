@@ -23,7 +23,7 @@ func New(config *Config, db *gorm.DB) (adp *gormadapter.Adapter, err error) {
 			return nil, err
 		}
 	} else {
-		db = gormadapter.TurnOffAutoMigrate(db)
+		gormadapter.TurnOffAutoMigrate(db)
 
 		if config.migration != nil {
 			if err = config.migration(db); err != nil {
