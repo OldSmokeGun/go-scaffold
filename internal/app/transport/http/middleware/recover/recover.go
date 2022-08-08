@@ -62,14 +62,14 @@ func CustomRecoveryWithZap(logger *zap.Logger, stack bool, handler RecoveryFunc)
 					logger.Error("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
-						zap.String("request", string(httpRequest)),
-						zap.String("stack", string(debug.Stack())),
+						zap.Strings("request", formatHttpRequestString(string(httpRequest))),
+						zap.Strings("stack", formatStackString(string(debug.Stack()))),
 					)
 				} else {
 					logger.Error("[Recovery from panic]",
 						zap.Time("time", time.Now()),
 						zap.Any("error", err),
-						zap.String("request", string(httpRequest)),
+						zap.Strings("request", formatHttpRequestString(string(httpRequest))),
 					)
 				}
 
@@ -84,4 +84,21 @@ func CustomRecoveryWithZap(logger *zap.Logger, stack bool, handler RecoveryFunc)
 
 func defaultHandleRecovery(c *gin.Context, err any) {
 	c.AbortWithStatus(http.StatusInternalServerError)
+}
+
+// formatHttpRequestString format http request string to make it more readable
+func formatHttpRequestString(httpRequest string) []string {
+	return strings.Split(strings.Trim(httpRequest, "\r\n"), "\r\n")
+}
+
+// formatStackString format stack track string to make it more readable
+func formatStackString(stack string) []string {
+	return strings.Split(
+		strings.ReplaceAll(
+			strings.Trim(stack, "\n"),
+			"\n\t",
+			" ",
+		),
+		"\n",
+	)
 }
