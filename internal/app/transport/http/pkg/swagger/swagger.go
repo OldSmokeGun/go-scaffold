@@ -10,14 +10,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// Config swagger 文档配置
+// Config swagger documentation config
 type Config struct {
 	Path   string
 	Option func(c *ginSwagger.Config)
 }
 
-// Setup 初始化 swagger 文档
-func Setup(router *gin.Engine, conf Config) {
+// Register register swagger routing
+func Register(router *gin.Engine, conf Config) {
 	g := router.Group(conf.Path).Use(func(context *gin.Context) {
 		if strings.HasSuffix(context.Request.URL.Path, "/") {
 			context.Request.URL.Path = strings.TrimSuffix(context.Request.URL.Path, "/")

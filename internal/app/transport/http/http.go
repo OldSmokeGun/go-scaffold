@@ -4,9 +4,9 @@ import (
 	"go-scaffold/internal/app/config"
 	"go-scaffold/internal/app/transport/http/handler"
 	"go-scaffold/internal/app/transport/http/router"
+	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-kratos/kratos/v2/log"
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
@@ -22,9 +22,9 @@ var ProviderSet = wire.NewSet(
 func NewServer(
 	logger log.Logger,
 	httpConf *config.HTTP,
-	router *gin.Engine,
+	handler http.Handler,
 ) *khttp.Server {
-	if router == nil {
+	if handler == nil {
 		return nil
 	}
 
@@ -45,7 +45,7 @@ func NewServer(
 	}
 
 	srv := khttp.NewServer(opts...)
-	srv.HandlePrefix("/", router)
+	srv.HandlePrefix("/", handler)
 
 	return srv
 }

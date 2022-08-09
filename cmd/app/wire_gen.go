@@ -92,8 +92,10 @@ func initApp(rotateLogs *rotatelogs.RotateLogs, logLogger log.Logger, zapLogger 
 	repository := user.NewRepository(db, client)
 	userService := user2.NewService(logLogger, repository)
 	userHandler := user3.NewHandler(logLogger, userService)
-	engine := router.New(rotateLogs, zapLogger, logLogger, configApp, configHTTP, jwt, enforcer, handler, traceHandler, userHandler)
-	server := http.NewServer(logLogger, configHTTP, engine)
+	apiV1Group := router.NewAPIV1Group(handler, traceHandler, userHandler)
+	apiGroup := router.NewAPIGroup(logLogger, configApp, configHTTP, jwt, enforcer, apiV1Group)
+	httpHandler := router.New(configApp, configHTTP, rotateLogs, zapLogger, logLogger, apiGroup)
+	server := http.NewServer(logLogger, configHTTP, httpHandler)
 	configGRPC := configConfig.GRPC
 	greetHandler := greet3.NewHandler(logLogger, service)
 	handler2 := user4.NewHandler(logLogger, userService, repository)
