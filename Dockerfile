@@ -1,4 +1,4 @@
-FROM golang:1.19 as builder
+FROM golang:1.20 as builder
 
 ARG PROTOC_VERSION=3.19.1
 ARG PROTOC_ZIP=protoc-${PROTOC_VERSION}-linux-x86_64.zip
@@ -25,8 +25,9 @@ WORKDIR /app/
 COPY --from=builder /usr/local/go/lib/time/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=builder /app/.air.conf.example /app/.air.conf
+COPY --from=builder /app/etc /app/etc
 COPY --from=builder /app/etc/config.yaml.example /app/etc/config.yaml
 COPY --from=builder /app/assets /app/assets
 COPY --from=builder /app/bin/app /app/bin/app
 
-CMD ["./bin/app"]
+CMD ["./bin/app", "server"]

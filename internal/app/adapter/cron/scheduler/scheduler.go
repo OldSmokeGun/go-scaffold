@@ -1,0 +1,41 @@
+package scheduler
+
+import (
+	"go-scaffold/internal/app/adapter/cron/job"
+	"go-scaffold/internal/config"
+
+	"github.com/robfig/cron/v3"
+)
+
+// Scheduler job scheduler
+type Scheduler struct {
+	appConf    config.App
+	exampleJob *job.Example
+}
+
+// New build job scheduler
+func New(
+	appConf config.App,
+	exampleJob *job.Example,
+) *Scheduler {
+	return &Scheduler{
+		appConf:    appConf,
+		exampleJob: exampleJob,
+	}
+}
+
+// Register registers job
+func (s *Scheduler) Register(server *cron.Cron) error {
+	// TODO 编写 cron 任务
+	if _, err := server.AddFunc("*/5 * * * * *", func() {}); err != nil { // 每 5 秒钟运行一次
+		return err
+	}
+	if _, err := server.AddJob("@daily", s.exampleJob); err != nil { // 每天 00:00 运行一次
+		return err
+	}
+	if _, err := server.AddJob("@every 1h30m10s", s.exampleJob); err != nil { // 每 1 小时 30 分 10 秒运行一次
+		return err
+	}
+
+	return nil
+}

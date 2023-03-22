@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.user;
+
+option go_package = "go-scaffold/internal/app/adapter/grpc/api/v1;v1";
+
+service User {
+  rpc Create (UserCreateRequest) returns (UserCreateResponse) {};
+  rpc Update (UserUpdateRequest) returns (UserUpdateResponse) {};
+  rpc Delete (UserDeleteRequest) returns (UserDeleteResponse) {};
+  rpc Detail (UserDetailRequest) returns (UserDetailResponse) {};
+  rpc List (UserListRequest) returns (UserListResponse) {};
+}
+
+message UserCreateRequest {
+  string name = 1;  // @gotags: json:"name"
+  int32 age = 2;    // @gotags: json:"age"
+  string phone = 3; // @gotags: json:"phone"
+}
+message UserCreateResponse {}
+
+message UserUpdateRequest {
+  int64 id = 1;    // @gotags: json:"id"
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
+}
+message UserUpdateResponse {}
+
+message UserDeleteRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message UserDeleteResponse {}
+
+message UserDetailRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message UserDetailResponse {
+  int64 id = 1;    // @gotags: json:"id"
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
+}
+
+message UserListRequest {
+  string keyword = 1; // @gotags: json:"keyword"
+}
+
+message ListItem {
+  int64 id = 1;    // @gotags: json:"id"
+  string name = 2;  // @gotags: json:"name"
+  int32 age = 3;    // @gotags: json:"age"
+  string phone = 4; // @gotags: json:"phone"
+}
+
+message UserListResponse {
+  repeated ListItem items = 1; // @gotags: json:"items"
+}

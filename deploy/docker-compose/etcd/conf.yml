@@ -130,8 +130,8 @@ log-level: debug
 
 logger: zap
 
-# Specify 'stdout' or 'stderr' to skip journald logging even when running under systemd.
-log-outputs: [stderr]
+# Specify 'stdout' or 'berr' to skip journald logging even when running under systemd.
+log-outputs: [berr]
 
 # Force to create a new one member cluster.
 force-new-cluster: false

@@ -1,18 +1,16 @@
 package tests
 
 import (
-	"go-scaffold/pkg/log"
 	"io"
 	"os"
 
-	kzap "github.com/go-kratos/kratos/contrib/log/zap/v2"
-	klog "github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
-	"go.uber.org/zap"
+	"go-scaffold/pkg/log"
+
+	"golang.org/x/exp/slog"
 )
 
-// NewZapLogger 初始化 zap logger
-func NewZapLogger() *zap.Logger {
+// NewLogger init slog logger
+func NewLogger() *slog.Logger {
 	var writer io.Writer
 	if logLevel == "silent" {
 		writer = io.Discard
@@ -24,20 +22,9 @@ func NewZapLogger() *zap.Logger {
 		log.WithLevel(log.Level(logLevel)),
 		log.WithFormat(log.Format(logFormat)),
 		log.WithWriter(writer),
-		log.WithCallerSkip(logCallerSkip),
-	)
-
-	return logger
-}
-
-// NewLogger 初始化日志
-func NewLogger(zLogger *zap.Logger) klog.Logger {
-	logger := klog.With(
-		kzap.NewLogger(zLogger),
-		"service.id", hostname,
-		"service.name", appName,
-		"trace_id", tracing.TraceID(),
-		"span_id", tracing.SpanID(),
+		log.WithAttrs([]slog.Attr{
+			slog.String("app", appName),
+		}),
 	)
 
 	return logger

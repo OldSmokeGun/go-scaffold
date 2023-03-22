@@ -1,6 +1,4 @@
 app:
-  name: "go-scaffold"     # 应用名称
-  env: "local"            # 当前环境（local、test 或 prod）
   timeout: 5              # 停止应用的等待时间
 
 http:
@@ -31,7 +29,7 @@ services:
 #   maxOpenConn: 40
 #   connMaxIdleTime: 120
 #   connMaxLifeTime: 120
-#   logLevel: "error"
+#   logInfo: true
 #   resolvers:
 #     - type: "replica"
 #       addr: "127.0.0.1:3306"
@@ -50,7 +48,7 @@ services:
 #  maxOpenConn: 40
 #  connMaxIdleTime: 120
 #  connMaxLifeTime: 120
-#  logLevel: "warn"
+#  logInfo: true
 #  resolvers:
 #    - type: "replica"
 #      addr: "127.0.0.1:5432"
@@ -89,9 +87,9 @@ services:
 # casbin 配置
 # casbin:
 #   model:
-#     path: "assets/casbin/rbac_model.conf"
+#     path: "etc/rbac_model.conf"
 #   adapter:
 #     file:
-#       path: "assets/casbin/rbac_policy.csv"
+#       path: "etc/rbac_policy.csv"
 #     gorm:
 #       tableName: ""
