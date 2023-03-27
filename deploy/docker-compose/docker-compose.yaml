@@ -1,0 +1,180 @@
+version: "3"
+
+services:
+
+  #################### app ####################
+  app:
+    image: ${APP_IMAGE}
+    networks:
+      go-scaffold:
+        aliases:
+          - app
+    ports:
+      - "${APP_PORT}:9527"
+    command:
+      - "./dockerize"
+      - "-wait"
+      - "tcp://mysql:3306"
+      - "./bin/app"
+      - "server"
+    volumes:
+      - "./dockerize:/app/dockerize"
+      - "${APP_CONFIG_PATH}:/app/etc/config.yaml"
+    depends_on:
+      - mysql
+      - redis
+    restart: always
+  #################### app ####################
+
+  #################### mysql ####################
+  mysql:
+    image: mysql:${MYSQL_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: go-scaffold
+    ports:
+      - "${MYSQL_PORT}:3306"
+    command: >
+      bash -c "chmod 644 /etc/mysql/conf.d/*.cnf && /entrypoint.sh mysqld"
+    volumes:
+      - "./mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
+      - "./mysql/data:/var/lib/mysql"
+      - "./apollo/migrate:/docker-entrypoint-initdb.d"
+  #################### mysql ####################
+
+  #################### redis ####################
+  redis:
+    image: redislabs/redismod:${REDIS_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    entrypoint:
+      - "redis-server"
+      - "/usr/local/etc/redis/redis.conf"
+    volumes:
+      - "./redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./redis/data:/data/"
+
+  redis-insight:
+    image: redislabs/redisinsight:${REDIS_INSIGHT_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - redis-insight
+    restart: always
+    ports:
+      - "${REDIS_INSIGHT_PORT}:8001"
+    volumes:
+      - "./redisinsight/data/:/db/"
+  #################### redis ####################
+
+  #################### jaeger ####################
+  jaeger:
+    image: jaegertracing/all-in-one:${JAEGER_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - jaeger
+    environment:
+      SPAN_STORAGE_TYPE: "badger"
+      BADGER_EPHEMERAL: "false"
+      BADGER_DIRECTORY_VALUE: "/badger/data"
+      BADGER_DIRECTORY_KEY: "/badger/key"
+    ports:
+      - "${JAEGER_COMPACT_ZIPKIN_THRIFT_PORT}:5775/udp"   # accept zipkin.thrift over compact Thrift protocol (used by legacy clients only, deprecated)
+      - "${JAEGER_COMPACT_THRIFT_PORT}:6831/udp"          # accept jaeger.thrift over Thrift-compact protocol (used by most SDKs)
+      - "${JAEGER_BINARY_THRIFT_PORT}:6832/udp"           # accept jaeger.thrift over Thrift-binary protocol (used by Node.js SDK)
+      - "${JAEGER_SERVE_CONFIGS_PORT}:5778"               # serve configs port
+      - "${JAEGER_SERVE_FRONTEND_PORT}:16686"             # serve UI port
+      - "${JAEGER_ZIPKIN_COMPATIBLE_ENDPOINT_PORT}:9411"  # Zipkin compatible endpoint (optional)
+      - "${JAEGER_PROTO_SEND_PORT}:14250"                 # accept model.proto
+      - "${JAEGER_THRIFT_SEND_PORT}:14267"                # used by jaeger-agent to send spans in jaeger.thrift format
+      - "${JAEGER_THRIFT_ACCEPT_PORT}:14268"              # accept jaeger.thrift directly from clients（collector component port）
+      - "${JAEGER_HEALTH_CHECK_PORT}:14269"               # health check at / and metrics at /metrics
+    volumes:
+      - "./jaeger/data:/badger"
+  #################### jaeger ####################
+
+  #################### apollo ####################
+  apollo-configservice:
+    image: apolloconfig/apollo-configservice:${APOLLO_CONFIG_SERVICE_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - apollo-configservice
+    depends_on:
+      - mysql
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloConfigDB?characterEncoding=utf8"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      EUREKA_INSTANCE_HOME_PAGE_URL: "http://apollo-configservice:8080"
+    ports:
+      - "${APOLLO_CONFIG_SERVICE_PORT}:8080"
+
+  apollo-adminservice:
+    image: apolloconfig/apollo-adminservice:${APOLLO_ADMIN_SERVICE_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - apollo-adminservice
+    depends_on:
+      - mysql
+      - apollo-configservice
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloConfigDB?characterEncoding=utf8"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      EUREKA_INSTANCE_HOME_PAGE_URL: "http://apollo-adminservice:8090"
+    ports:
+      - "${APOLLO_ADMIN_SERVICE_PORT}:8090"
+
+  apollo-portal:
+    image: apolloconfig/apollo-portal:${APOLLO_PORTAL_SERVICE_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - apollo-portal
+    depends_on:
+      - mysql
+      - apollo-configservice
+      - apollo-adminservice
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloPortalDB?characterEncoding=utf8"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "root"
+      APOLLO_PORTAL_ENVS: "dev"
+      DEV_META: "http://apollo-configservice:8080"
+    ports:
+      - "${APOLLO_PORTAL_SERVICE_PORT}:8070"
+  #################### apollo ####################
+
+  #################### etcd ####################
+  etcd:
+    image: bitnami/etcd:${ETCD_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - etcd
+    restart: always
+    environment:
+      ALLOW_NONE_AUTHENTICATION: "yes"
+    ports:
+      - "${ETCD_PORT}:2379"
+      - "${ETCD_ADVERTISED_PORT}:2380"
+    volumes:
+      - "./etcd/conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml"
+  #################### etcd ####################
+
+networks:
+  go-scaffold:

@@ -11,7 +11,7 @@ deployment:
   tolerations: []
   affinity: {}
   containers:
-    - image: oldsmokegun/go-scaffold
+    - image: go-scaffold
       name: app
       tag: latest
       pullPolicy: IfNotPresent
@@ -59,28 +59,39 @@ deployment:
 
 configMap:
   config.yaml: |-
+    ##################### app configuration #####################
+
     app:
-      name: "go-scaffold"     # 应用名称
-      env: "test"             # 当前环境（local、test 或 prod）
-      timeout: 5              # 停止应用的等待时间
+      timeout: 5    # wait time for stopping an application
+
+    ##################### app configuration #####################
+
+
+    ##################### server configuration #####################
 
     http:
       network: "tcp"
-      addr: "0.0.0.0:9527"    # http 服务监听地址
+      addr: "0.0.0.0:9527"
       timeout: 5
-      externalAddr: ""        # 外部访问地址，如反向代理
+      externalAddr: ""  # external access address, such as reverse proxy
 
     grpc:
       network: "tcp"
-      addr: "0.0.0.0:9528"  # grpc 服务监听地址
+      addr: "0.0.0.0:9528"
       timeout: 5
 
-    # 服务 grpc 地址
+    ##################### server configuration #####################
+
+
+    ##################### gRPC service address #####################
     services:
       self: "0.0.0.0:9528"
-      # self: "discovery:///go-scaffold" # 服务发现地址
+      # self: "discovery:///go-scaffold"    # service discovery address
+    ##################### gRPC service address #####################
 
-    # 数据库配置
+
+    ##################### database configuration #####################
+
     # db:
     #   driver: "mysql"
     #   addr: "127.0.0.1:3306"
@@ -92,7 +103,7 @@ configMap:
     #   maxOpenConn: 40
     #   connMaxIdleTime: 120
     #   connMaxLifeTime: 120
-    #   logLevel: "error"
+    #   logInfo: true
     #   resolvers:
     #     - type: "replica"
     #       addr: "127.0.0.1:3306"
@@ -111,7 +122,7 @@ configMap:
     #  maxOpenConn: 40
     #  connMaxIdleTime: 120
     #  connMaxLifeTime: 120
-    #  logLevel: "warn"
+    #  logInfo: true
     #  resolvers:
     #    - type: "replica"
     #      addr: "127.0.0.1:5432"
@@ -120,21 +131,33 @@ configMap:
     #      password: "root"
     #      options: "sslmode=disable&TimeZone=Asia/Shanghai"
 
-    # redis 配置
+    ##################### database configuration #####################
+
+
+    ##################### redis configuration #####################
+
     # redis:
     #   addr: "localhost:6379"
     #   password: ""
-    #   db: 0               # 连接到服务器后要选择的数据库
-    #   poolSize: 20        # 连接池最大连接数
-    #   minIdleConns: 10    # 连接池空闲连接数
-    #   idleTimeout: 600    # 连接池空闲连接数
+    #   db: 0               # database
+    #   poolSize: 20        # the maximum number of the connection pool
+    #   minIdleConns: 10    # minimum number of idle connections
+    #   idleTimeout: 600    # amount of time after which client closes idle connections.
 
-    # 链路追踪配置
+    ##################### redis configuration #####################
+
+
+    ##################### trace configuration #####################
+
     # trace:
     #   endpoint: "localhost:6831"
     #   # endpoint: "http://localhost:14268/api/traces"
 
-    # 服务发现
+    ##################### trace configuration #####################
+
+
+    ##################### service discovery configuration #####################
+
     # discovery:
     #   etcd:
     #     endpoints:
@@ -143,19 +166,29 @@ configMap:
     #     addr: "localhost:8500"
     #     schema: "http"
 
-    # JWT 配置
+    ##################### service discovery configuration #####################
+
+
+    ##################### JWT configuration #####################
+
     # jwt:
     #   key: ""     # JWT 密钥
 
-    # casbin 配置
+    ##################### JWT configuration #####################
+
+
+    ##################### casbin configuration #####################
+
     # casbin:
     #   model:
-    #     path: "assets/casbin/rbac_model.conf"
+    #     path: "etc/rbac_model.conf"
     #   adapter:
     #     file:
-    #       path: "assets/casbin/rbac_policy.csv"
+    #       path: "etc/rbac_policy.csv"
     #     gorm:
     #       tableName: ""
+
+    ##################### casbin configuration #####################
 
 secret:
   imagePull:
