@@ -59,15 +59,15 @@ deployment:
 
 configMap:
   config.yaml: |-
-    ##################### app configuration #####################
+    ##################### app #####################
 
     app:
       timeout: 5    # wait time for stopping an application
 
-    ##################### app configuration #####################
+    ##################### app #####################
 
 
-    ##################### server configuration #####################
+    ##################### server #####################
 
     http:
       network: "tcp"
@@ -80,7 +80,7 @@ configMap:
       addr: "0.0.0.0:9528"
       timeout: 5
 
-    ##################### server configuration #####################
+    ##################### server #####################
 
 
     ##################### gRPC service address #####################
@@ -90,7 +90,7 @@ configMap:
     ##################### gRPC service address #####################
 
 
-    ##################### database configuration #####################
+    ##################### database #####################
 
     # db:
     #   driver: "mysql"
@@ -131,10 +131,10 @@ configMap:
     #      password: "root"
     #      options: "sslmode=disable&TimeZone=Asia/Shanghai"
 
-    ##################### database configuration #####################
+    ##################### database #####################
 
 
-    ##################### redis configuration #####################
+    ##################### redis #####################
 
     # redis:
     #   addr: "localhost:6379"
@@ -144,19 +144,19 @@ configMap:
     #   minIdleConns: 10    # minimum number of idle connections
     #   idleTimeout: 600    # amount of time after which client closes idle connections.
 
-    ##################### redis configuration #####################
+    ##################### redis #####################
 
 
-    ##################### trace configuration #####################
+    ##################### trace #####################
 
     # trace:
     #   endpoint: "localhost:6831"
     #   # endpoint: "http://localhost:14268/api/traces"
 
-    ##################### trace configuration #####################
+    ##################### trace #####################
 
 
-    ##################### service discovery configuration #####################
+    ##################### service discovery #####################
 
     # discovery:
     #   etcd:
@@ -166,18 +166,18 @@ configMap:
     #     addr: "localhost:8500"
     #     schema: "http"
 
-    ##################### service discovery configuration #####################
+    ##################### service discovery #####################
 
 
-    ##################### JWT configuration #####################
+    ##################### JWT #####################
 
     # jwt:
     #   key: ""     # JWT 密钥
 
-    ##################### JWT configuration #####################
+    ##################### JWT #####################
 
 
-    ##################### casbin configuration #####################
+    ##################### casbin #####################
 
     # casbin:
     #   model:
@@ -188,7 +188,7 @@ configMap:
     #     gorm:
     #       tableName: ""
 
-    ##################### casbin configuration #####################
+    ##################### casbin #####################
 
 secret:
   imagePull:
