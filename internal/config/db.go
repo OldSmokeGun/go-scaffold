@@ -1,6 +1,7 @@
 package config
 
 import (
+	"net/url"
 	"time"
 
 	"github.com/samber/lo"
@@ -33,6 +34,21 @@ type DBDsn struct {
 	Username string   `json:"username"`
 	Password string   `json:"password"`
 	Options  string   `json:"options"`
+}
+
+// EnableMultiStatement enable the execution of multi sql statement
+func (d *DBDsn) EnableMultiStatement() error {
+	options, err := url.ParseQuery(d.Options)
+	if err != nil {
+		return err
+	}
+
+	if !options.Has("multiStatements") {
+		options.Set("multiStatements", "true")
+	}
+	
+	d.Options = options.Encode()
+	return nil
 }
 
 // DBConnPool database connection pool config

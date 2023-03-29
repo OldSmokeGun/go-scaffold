@@ -58,6 +58,11 @@ func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 		panic(err)
 	}
 
+	// supported for multi sql statement
+	if err := dbConfig.EnableMultiStatement(); err != nil {
+		panic(err)
+	}
+
 	db, _, err := initDB(cmd.Context(), dbConfig, nil)
 	if err != nil {
 		panic(err)
