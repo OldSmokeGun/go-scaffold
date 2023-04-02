@@ -57,7 +57,7 @@ func (c *serverCmd) run(ctx context.Context) {
 	defer cleanup()
 
 	go func() {
-		if err := server.Run(); err != nil {
+		if err := server.Start(); err != nil {
 			stop <- err
 		}
 	}()
@@ -72,7 +72,7 @@ func (c *serverCmd) run(ctx context.Context) {
 	case <-signalCtx.Done():
 	}
 
-	if err := server.Shutdown(); err != nil {
+	if err := server.Stop(); err != nil {
 		panic(err)
 	}
 }

@@ -61,12 +61,12 @@ func New(
 	return &Server{server}
 }
 
-// Run kratos server
-func (t *Server) Run() error {
+// Start kratos server
+func (t *Server) Start() error {
 	return t.server.Run()
 }
 
-// Shutdown kratos server
-func (t *Server) Shutdown() error {
+// Stop kratos server
+func (t *Server) Stop() error {
 	return t.server.Stop()
 }
