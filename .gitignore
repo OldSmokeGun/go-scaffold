@@ -3,6 +3,5 @@
 
 tmp
 .air.conf
-etc/*
-!etc/*.example
+etc/config.yaml
 requests.http
