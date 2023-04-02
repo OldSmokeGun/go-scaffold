@@ -38,6 +38,10 @@ type DBDsn struct {
 
 // EnableMultiStatement enable the execution of multi sql statement
 func (d *DBDsn) EnableMultiStatement() error {
+	if d.Driver != MySQL {
+		return nil
+	}
+
 	options, err := url.ParseQuery(d.Options)
 	if err != nil {
 		return err
@@ -46,7 +50,7 @@ func (d *DBDsn) EnableMultiStatement() error {
 	if !options.Has("multiStatements") {
 		options.Set("multiStatements", "true")
 	}
-	
+
 	d.Options = options.Encode()
 	return nil
 }
