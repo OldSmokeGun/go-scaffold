@@ -27,6 +27,7 @@ func newRootCmd() *rootCmd {
 		newServerCmd(),
 		newCronCmd(),
 		newMigrateCmd(),
+		newKafkaCmd(),
 	)
 
 	return c

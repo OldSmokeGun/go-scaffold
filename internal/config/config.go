@@ -21,6 +21,7 @@ var ProviderSet = wire.NewSet(
 	GetServices,
 	GetJWT,
 	GetCasbin,
+	GetKafka,
 )
 
 type Configure interface {
@@ -41,6 +42,7 @@ type Config struct {
 	Services  *Services  `json:"services"`
 	JWT       *JWT       `json:"jwt"`
 	Casbin    *Casbin    `json:"casbin"`
+	Kafka     *Kafka     `json:"kafka"`
 }
 
 // SetConfig set configuration
@@ -104,6 +106,10 @@ func GetJWT() (JWT, error) {
 
 func GetCasbin() (Casbin, error) {
 	return getEntry(config.Casbin)
+}
+
+func GetKafka() (Kafka, error) {
+	return getEntry(config.Kafka)
 }
 
 func getEntry[T Configure](t *T) (T, error) {

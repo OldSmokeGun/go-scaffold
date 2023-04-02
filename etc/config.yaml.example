@@ -128,3 +128,11 @@ services:
 #       tableName: ""
 
 ##################### casbin #####################
+
+##################### kafka #####################
+kafka:
+  example:
+    brokers:
+      - localhost:9092
+    topic: "example-topic"
+##################### kafka #####################

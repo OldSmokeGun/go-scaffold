@@ -9,6 +9,7 @@ import (
 
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/adapter/cron"
+	"go-scaffold/internal/app/adapter/kafka"
 	"go-scaffold/internal/app/adapter/server"
 	"go-scaffold/internal/app/pkg"
 	"go-scaffold/internal/config"
@@ -37,6 +38,18 @@ func initCron(
 	config.Env,
 	*slog.Logger,
 ) (*cron.Cron, func(), error) {
+	panic(wire.Build(
+		config.ProviderSet,
+		app.ProviderSet,
+	))
+}
+
+func initKafka(
+	context.Context,
+	config.AppName,
+	config.Env,
+	*slog.Logger,
+) (*kafka.Kafka, func(), error) {
 	panic(wire.Build(
 		config.ProviderSet,
 		app.ProviderSet,
