@@ -10,13 +10,13 @@ import (
 // Scheduler job scheduler
 type Scheduler struct {
 	appConf    config.App
-	exampleJob *job.Example
+	exampleJob *job.ExampleJob
 }
 
 // New build job scheduler
 func New(
 	appConf config.App,
-	exampleJob *job.Example,
+	exampleJob *job.ExampleJob,
 ) *Scheduler {
 	return &Scheduler{
 		appConf:    appConf,
@@ -26,7 +26,7 @@ func New(
 
 // Register registers job
 func (s *Scheduler) Register(server *cron.Cron) error {
-	// TODO 编写 cron 任务
+	// TODO register cron job
 	if _, err := server.AddFunc("*/5 * * * * *", func() {}); err != nil { // 每 5 秒钟运行一次
 		return err
 	}

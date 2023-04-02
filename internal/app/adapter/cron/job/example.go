@@ -2,20 +2,19 @@ package job
 
 import "golang.org/x/exp/slog"
 
-// Example 示例任务
-// 任务说明：TODO
-type Example struct {
+// ExampleJob example job
+type ExampleJob struct {
 	logger *slog.Logger
 }
 
-// NewExample 构造函数
-func NewExample(logger *slog.Logger) *Example {
-	return &Example{
+// NewExampleJob build example job
+func NewExampleJob(logger *slog.Logger) *ExampleJob {
+	return &ExampleJob{
 		logger: logger,
 	}
 }
 
-// Run 任务执行方法
-func (s Example) Run() {
-	s.logger.Info("Example 任务执行成功")
+// Run execute job
+func (s ExampleJob) Run() {
+	s.logger.Info("example Job executed successfully")
 }

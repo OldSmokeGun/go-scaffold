@@ -13,7 +13,8 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	job.NewExample,
+	// cron job
+	job.NewExampleJob,
 	// scheduler
 	scheduler.New,
 	// cron server
