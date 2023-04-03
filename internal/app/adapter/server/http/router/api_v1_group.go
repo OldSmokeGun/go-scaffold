@@ -8,10 +8,11 @@ import (
 
 // ApiV1Group v1 API routing group
 type ApiV1Group struct {
-	greetHandler *v1.GreetHandler
-	traceHandler *v1.TraceHandler
-	userHandler  *v1.UserHandler
-	group        *echo.Group
+	greetHandler    *v1.GreetHandler
+	traceHandler    *v1.TraceHandler
+	producerHandler *v1.ProducerHandler
+	userHandler     *v1.UserHandler
+	group           *echo.Group
 
 	basePath string
 }
@@ -20,12 +21,14 @@ type ApiV1Group struct {
 func NewAPIV1Group(
 	greetHandler *v1.GreetHandler,
 	traceHandler *v1.TraceHandler,
+	producerHandler *v1.ProducerHandler,
 	userHandler *v1.UserHandler,
 ) *ApiV1Group {
 	return &ApiV1Group{
-		greetHandler: greetHandler,
-		traceHandler: traceHandler,
-		userHandler:  userHandler,
+		greetHandler:    greetHandler,
+		traceHandler:    traceHandler,
+		producerHandler: producerHandler,
+		userHandler:     userHandler,
 	}
 }
 
@@ -37,7 +40,8 @@ func (g *ApiV1Group) setup(prefix string, rg *echo.Group) {
 
 func (g *ApiV1Group) useRoutes() {
 	g.group.GET("/greet", g.greetHandler.Hello)
-	g.group.GET("/trace", g.traceHandler.Example)
+	g.group.POST("/trace/example", g.traceHandler.Example)
+	g.group.POST("/producer/example", g.producerHandler.Example)
 
 	g.group.GET("/users", g.userHandler.List)
 	g.group.GET("/user/:id", g.userHandler.Detail)

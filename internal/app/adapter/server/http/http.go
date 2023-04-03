@@ -33,6 +33,7 @@ var ProviderSet = wire.NewSet(
 	v1.NewGreetHandler,
 	v1.NewTraceHandler,
 	v1.NewUserHandler,
+	v1.NewProducerHandler,
 	// router
 	router.New,
 	router.NewAPIGroup,

@@ -30,7 +30,7 @@ func NewGreetHandler(
 
 // Hello 示例方法
 func (h *GreetHandler) Hello(ctx context.Context, req *v1.GreetHelloRequest) (*v1.GreetHelloResponse, error) {
-	controllerReq := controller.HelloRequest{Name: req.Name}
+	controllerReq := controller.GreetHelloRequest{Name: req.Name}
 
 	ret, err := h.controller.Hello(ctx, controllerReq)
 	if err != nil {

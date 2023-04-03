@@ -50,11 +50,11 @@ func NewTraceHandler(
 
 // Example 示例方法
 //
-//	@Router			/v1/trace [get]
+//	@Router			/v1/trace/example [post]
 //	@Summary		示例接口
 //	@Description	示例接口
 //	@Tags			示例
-//	@Accept			x-www-form-urlencoded
+//	@Accept			json
 //	@Produce		json
 //	@Success		200	{object}	example.Success				"成功响应"
 //	@Failure		500	{object}	example.ServerError			"服务器出错"

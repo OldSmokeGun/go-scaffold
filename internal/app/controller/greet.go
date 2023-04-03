@@ -18,30 +18,30 @@ func NewGreetController() *GreetController {
 	return &GreetController{}
 }
 
-// HelloRequest 请求参数
-type HelloRequest struct {
+// GreetHelloRequest 请求参数
+type GreetHelloRequest struct {
 	Name string `json:"name" query:"name"`
 }
 
 // Validate 验证参数
-func (r HelloRequest) Validate() error {
+func (r GreetHelloRequest) Validate() error {
 	return errors.WithStack(validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Required.Error("名称不能为空")),
 	))
 }
 
-// HelloResponse 请求响应
-type HelloResponse struct {
+// GreetHelloResponse 请求响应
+type GreetHelloResponse struct {
 	Msg string
 }
 
 // Hello 示例方法
-func (s *GreetController) Hello(ctx context.Context, req HelloRequest) (*HelloResponse, error) {
+func (c *GreetController) Hello(ctx context.Context, req GreetHelloRequest) (*GreetHelloResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, errors.WithStack(berr.ErrValidateError.WithMsg(err.Error()))
 	}
 
-	return &HelloResponse{
+	return &GreetHelloResponse{
 		Msg: fmt.Sprintf("Hello, %s", req.Name),
 	}, nil
 }

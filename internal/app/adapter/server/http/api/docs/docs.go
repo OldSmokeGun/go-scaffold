@@ -63,7 +63,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.HelloResponse"
+                                            "$ref": "#/definitions/v1.GreetHelloResponse"
                                         }
                                     }
                                 }
@@ -109,8 +109,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/trace": {
-            "get": {
+        "/v1/producer/example": {
+            "post": {
                 "security": [
                     {
                         "Authorization": []
@@ -118,7 +118,83 @@ const docTemplate = `{
                 ],
                 "description": "示例接口",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "示例"
+                ],
+                "summary": "示例接口",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "生产者消息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.ProducerExampleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/trace/example": {
+            "post": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "示例接口",
+                "consumes": [
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -667,7 +743,15 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.HelloResponse": {
+        "v1.GreetHelloResponse": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.ProducerExampleRequest": {
             "type": "object",
             "properties": {
                 "msg": {
