@@ -13,7 +13,7 @@ WORKDIR /app/
 
 COPY . .
 
-RUN make download && make proto && make build
+RUN make download && make build
 
 FROM alpine:3.14
 
