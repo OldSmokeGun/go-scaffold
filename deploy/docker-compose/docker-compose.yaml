@@ -176,5 +176,53 @@ services:
       - "./etcd/conf.yml:/opt/bitnami/etcd/conf/etcd.conf.yml"
   #################### etcd ####################
 
+  #################### kafka ####################
+  kafka-1:
+    image: 'bitnami/kafka:${KAFKA_TAG}'
+    networks:
+      go-scaffold:
+        aliases:
+          - kafka-1
+    user: "root"
+    ports:
+      - '${KAFKA_1_PORT}:${KAFKA_1_PORT}'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_KRAFT_CLUSTER_ID=avyt1wlZRqyXwQ4JupT7Aw
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:${KAFKA_1_PORT},CONTROLLER://kafka-1:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_1_ADVERTISED_LISTENERS}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    volumes:
+      - "./kafka/broker-1/data:/bitnami/kafka"
+
+  kafka-2:
+    image: 'bitnami/kafka:${KAFKA_TAG}'
+    networks:
+      go-scaffold:
+        aliases:
+          - kafka-2
+    user: "root"
+    ports:
+      - '${KAFKA_2_PORT}:${KAFKA_2_PORT}'
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_ENABLE_KRAFT=yes
+      - KAFKA_KRAFT_CLUSTER_ID=avyt1wlZRqyXwQ4JupT7Aw
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:${KAFKA_2_PORT},CONTROLLER://kafka-2:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://${KAFKA_2_ADVERTISED_LISTENERS}
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-1:9093,2@kafka-2:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    volumes:
+      - "./kafka/broker-2/data:/bitnami/kafka"
+  #################### kafka ####################
+
 networks:
   go-scaffold:

@@ -190,6 +190,16 @@ configMap:
 
     ##################### casbin #####################
 
+    ##################### kafka #####################
+
+    kafka:
+      example:
+        brokers:
+          - localhost:9092
+        topic: "example-topic"
+
+    ##################### kafka #####################
+
 secret:
   imagePull:
     name: "go-scaffold-image-pull-secret"

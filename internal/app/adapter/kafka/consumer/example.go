@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 
 	"go-scaffold/internal/app/adapter/kafka/handler"
@@ -45,6 +46,8 @@ func NewExampleConsumer(logger *slog.Logger, kafkaConfig config.Kafka, handler *
 }
 
 func (c *ExampleConsumer) Consume(ctx context.Context) {
+	c.logger.Debug("receiving message")
+
 	defer func() {
 		if err := c.reader.Close(); err != nil {
 			slog.Error("close consumer error", err)
@@ -55,6 +58,8 @@ func (c *ExampleConsumer) Consume(ctx context.Context) {
 		message, err := c.reader.ReadMessage(ctx)
 		if errors.Is(err, context.Canceled) {
 			break
+		} else if errors.Is(err, io.EOF) {
+			continue
 		} else if err != nil {
 			c.logger.Error("read message error", err)
 			continue
