@@ -29,7 +29,7 @@ var ProviderSet = wire.NewSet(
 
 // New build gRPC server
 func New(
-	grpcConf config.GRPC,
+	gsConf config.GRPCServer,
 	router *router.Router,
 ) *grpc.Server {
 	var opts = []grpc.ServerOption{
@@ -41,16 +41,16 @@ func New(
 		),
 	}
 
-	if grpcConf.Network != "" {
-		opts = append(opts, grpc.Network(grpcConf.Network))
+	if gsConf.Network != "" {
+		opts = append(opts, grpc.Network(gsConf.Network))
 	}
 
-	if grpcConf.Addr != "" {
-		opts = append(opts, grpc.Address(grpcConf.Addr))
+	if gsConf.Addr != "" {
+		opts = append(opts, grpc.Address(gsConf.Addr))
 	}
 
-	if grpcConf.Timeout != 0 {
-		opts = append(opts, grpc.Timeout(grpcConf.Timeout*time.Second))
+	if gsConf.Timeout != 0 {
+		opts = append(opts, grpc.Timeout(gsConf.Timeout*time.Second))
 	}
 
 	srv := grpc.NewServer(opts...)

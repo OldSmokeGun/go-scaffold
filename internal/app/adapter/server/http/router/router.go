@@ -17,7 +17,7 @@ type router struct {
 	logger   *slog.Logger
 	appName  config.AppName
 	appEnv   config.Env
-	httpConf config.HTTP
+	hsConf   config.HTTPServer
 	apiGroup *ApiGroup
 }
 
@@ -26,14 +26,14 @@ func New(
 	logger *slog.Logger,
 	appName config.AppName,
 	appEnv config.Env,
-	httpConf config.HTTP,
+	hsConf config.HTTPServer,
 	apiGroup *ApiGroup,
 ) http.Handler {
 	r := &router{
 		logger:   logger,
 		appName:  appName,
 		appEnv:   appEnv,
-		httpConf: httpConf,
+		hsConf:   hsConf,
 		apiGroup: apiGroup,
 	}
 
@@ -55,7 +55,7 @@ func (r *router) useMiddlewares(e *echo.Echo) {
 
 func (r *router) useRoutes(e *echo.Echo) {
 	path := ""
-	_, extPath := parseExternalAddr(r.httpConf.ExternalAddr)
+	_, extPath := parseExternalAddr(r.hsConf.ExternalAddr)
 	if extPath != "" {
 		path = "/" + extPath
 	}

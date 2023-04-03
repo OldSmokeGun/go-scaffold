@@ -1,33 +1,17 @@
 package repository
 
-import "gorm.io/gorm"
-
 type casbinRuleModel struct {
-	ID    uint   `gorm:"primaryKey;autoIncrement"`
-	Ptype string `gorm:"size:100"`
-	V0    string `gorm:"size:100"`
-	V1    string `gorm:"size:100"`
-	V2    string `gorm:"size:100"`
-	V3    string `gorm:"size:100"`
-	V4    string `gorm:"size:100"`
-	V5    string `gorm:"size:100"`
-	V6    string `gorm:"size:25"`
-	V7    string `gorm:"size:25"`
+	ID    uint   `gorm:"column:id;primaryKey"`
+	Ptype string `gorm:"column:ptype"`
+	V0    string `gorm:"column:v0"`
+	V1    string `gorm:"column:v1"`
+	V2    string `gorm:"column:v2"`
+	V3    string `gorm:"column:v3"`
+	V4    string `gorm:"column:v4"`
+	V5    string `gorm:"column:v5"`
 }
 
 // TableName 表名
 func (r casbinRuleModel) TableName() string {
 	return "casbin_rules"
-}
-
-// Migrate 迁移
-func (r casbinRuleModel) Migrate(db *gorm.DB) error {
-	if err := db.Set(
-		"gorm:table_options",
-		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表'",
-	).AutoMigrate(r); err != nil {
-		return err
-	}
-
-	return nil
 }

@@ -11,7 +11,6 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	// wire.NewSet(wire.Bind(new(user.RepositoryInterface), new(*user.Repository)), user.NewRepository),
 	wire.NewSet(wire.Bind(new(domain.UserRepository), new(*UserRepository)), NewUserRepository),
 )
 
@@ -32,25 +31,4 @@ func convertError(err error) error {
 		return errors.WithStack(berr.ErrResourceNotFound)
 	}
 	return errors.WithStack(err)
-}
-
-// Migrator 模型数据迁移接口
-type Migrator interface {
-	Migrate(db *gorm.DB) error
-}
-
-// Migrate 数据迁移
-func Migrate(db *gorm.DB) error {
-	models := []Migrator{
-		&casbinRuleModel{},
-		&userModel{},
-	}
-
-	for _, model := range models {
-		if err := model.Migrate(db); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

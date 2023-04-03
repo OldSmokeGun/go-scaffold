@@ -36,7 +36,7 @@ import (
 // Injectors from wire.go:
 
 func initServer(contextContext context.Context, appName config.AppName, env config.Env, logger *slog.Logger, traceTrace *trace.Trace) (*server.Server, func(), error) {
-	configHTTP, err := config.GetHTTP()
+	httpServer, err := config.GetHTTPServer()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -47,7 +47,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 		return nil, nil, err
 	}
 	clientGRPC := client.ProvideGRPC()
-	traceHandler := v1.NewTraceHandler(logger, services, configHTTP, traceTrace, clientGRPC)
+	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
 	kafka, err := config.GetKafka()
 	if err != nil {
 		return nil, nil, err
@@ -67,10 +67,10 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	userController := controller.NewUserController(userUseCase)
 	userHandler := v1.NewUserHandler(userController)
 	apiV1Group := router.NewAPIV1Group(greetHandler, traceHandler, producerHandler, userHandler)
-	apiGroup := router.NewAPIGroup(env, logger, configHTTP, apiV1Group)
-	handler := router.New(logger, appName, env, configHTTP, apiGroup)
-	httpServer := http.New(configHTTP, handler)
-	configGRPC, err := config.GetGRPC()
+	apiGroup := router.NewAPIGroup(env, logger, httpServer, apiV1Group)
+	handler := router.New(logger, appName, env, httpServer, apiGroup)
+	server2 := http.New(httpServer, handler)
+	grpcServer, err := config.GetGRPCServer()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -78,8 +78,8 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	v1GreetHandler := v1_2.NewGreetHandler(logger, greetController)
 	v1UserHandler := v1_2.NewUserHandler(logger, userController)
 	routerRouter := router2.New(v1GreetHandler, v1UserHandler)
-	grpcServer := grpc.New(configGRPC, routerRouter)
-	serverServer := server.New(contextContext, appName, httpServer, grpcServer)
+	server3 := grpc.New(grpcServer, routerRouter)
+	serverServer := server.New(contextContext, appName, server2, server3)
 	return serverServer, func() {
 		cleanup()
 	}, nil

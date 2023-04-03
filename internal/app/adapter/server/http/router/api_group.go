@@ -12,11 +12,16 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+// optional middleware (prevent deletion by formatters)
+// "github.com/casbin/casbin/v2"
+// casbinmw "github.com/labstack/echo-contrib/casbin"
+// jwtmw "github.com/labstack/echo-jwt/v4"
+
 // ApiGroup api routing group
 type ApiGroup struct {
-	env      config.Env
-	logger   *slog.Logger
-	httpConf config.HTTP
+	env    config.Env
+	logger *slog.Logger
+	hsConf config.HTTPServer
 	// jwtConf    config.JWT       // optional jwt middleware
 	// enforcer   *casbin.Enforcer // optional casbin middleware
 	apiV1Group *ApiV1Group
@@ -29,15 +34,15 @@ type ApiGroup struct {
 func NewAPIGroup(
 	env config.Env,
 	logger *slog.Logger,
-	httpConf config.HTTP,
+	hsConf config.HTTPServer,
 	// jwtConf config.JWT, // optional jwt middleware
 	// enforcer *casbin.Enforcer, // optional casbin middleware
 	apiV1Group *ApiV1Group,
 ) *ApiGroup {
 	return &ApiGroup{
-		env:      env,
-		logger:   logger,
-		httpConf: httpConf,
+		env:    env,
+		logger: logger,
+		hsConf: hsConf,
 		// jwtConf:    jwtConf,  // optional jwt middleware
 		// enforcer:   enforcer, // optional casbin middleware
 		apiV1Group: apiV1Group,
@@ -75,8 +80,8 @@ func (g *ApiGroup) useRoutes(e *echo.Echo) {
 func (g *ApiGroup) useSwagger() {
 	// swagger documentation
 	if g.env == config.Dev {
-		docs.SwaggerInfo.Host = g.httpConf.Addr
-		extHost, _ := parseExternalAddr(g.httpConf.ExternalAddr)
+		docs.SwaggerInfo.Host = g.hsConf.Addr
+		extHost, _ := parseExternalAddr(g.hsConf.ExternalAddr)
 		if extHost != "" {
 			docs.SwaggerInfo.Host = extHost
 		}

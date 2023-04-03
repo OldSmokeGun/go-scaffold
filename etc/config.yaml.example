@@ -9,15 +9,27 @@ app:
 ##################### server #####################
 
 http:
-  network: "tcp"
-  addr: "0.0.0.0:9527"
-  timeout: 5
-  externalAddr: ""  # external access address, such as reverse proxy
+  server:
+    network: "tcp"
+    addr: "0.0.0.0:9527"
+    timeout: 5
+    externalAddr: ""    # external access address, such as reverse proxy
+  # jwt:
+  #   key: ""
+  # casbin:
+  #   model:
+  #     path: "etc/rbac_model.conf"
+  #   adapter:
+  #     file:
+  #       path: "etc/rbac_policy.csv"
+  #     gorm:
+  #       tableName: ""
 
 grpc:
-  network: "tcp"
-  addr: "0.0.0.0:9528"
-  timeout: 5
+  server:
+    network: "tcp"
+    addr: "0.0.0.0:9528"
+    timeout: 5
 
 ##################### server #####################
 
@@ -27,6 +39,19 @@ services:
   self: "0.0.0.0:9528"
   # self: "discovery:///go-scaffold"    # service discovery address
 ##################### gRPC service address #####################
+
+
+##################### service discovery #####################
+
+# discovery:
+#   etcd:
+#     endpoints:
+#       - "localhost:12379"
+#   consul:
+#     addr: "localhost:8500"
+#     schema: "http"
+
+##################### service discovery #####################
 
 
 ##################### database #####################
@@ -86,49 +111,6 @@ services:
 ##################### redis #####################
 
 
-##################### trace #####################
-
-# trace:
-#   endpoint: "localhost:6831"
-#   # endpoint: "http://localhost:14268/api/traces"
-
-##################### trace #####################
-
-
-##################### service discovery #####################
-
-# discovery:
-#   etcd:
-#     endpoints:
-#       - "localhost:12379"
-#   consul:
-#     addr: "localhost:8500"
-#     schema: "http"
-
-##################### service discovery #####################
-
-
-##################### JWT #####################
-
-# jwt:
-#   key: ""     # JWT 密钥
-
-##################### JWT #####################
-
-
-##################### casbin #####################
-
-# casbin:
-#   model:
-#     path: "etc/rbac_model.conf"
-#   adapter:
-#     file:
-#       path: "etc/rbac_policy.csv"
-#     gorm:
-#       tableName: ""
-
-##################### casbin #####################
-
 ##################### kafka #####################
 
 kafka:
@@ -138,3 +120,12 @@ kafka:
     topic: "example-topic"
 
 ##################### kafka #####################
+
+
+##################### trace #####################
+
+# trace:
+#   endpoint: "localhost:6831"
+#   # endpoint: "http://localhost:14268/api/traces"
+
+##################### trace #####################

@@ -13,6 +13,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// create a migration file like this:
+// migrate create -tz Asia/Shanghai -ext sql -dir migrations create_<table name>_table
+
 type migrateCmd struct {
 	*baseCmd
 	migrate *sdkmg.Migrate

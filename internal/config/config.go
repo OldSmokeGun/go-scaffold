@@ -11,17 +11,17 @@ var ErrEntryNotConfigured = errors.New("the configuration entry is not configure
 
 var ProviderSet = wire.NewSet(
 	GetApp,
-	GetHTTP,
-	GetGRPC,
+	GetHTTPServer,
+	GetHTTPJWT,
+	GetHTTPCasbin,
+	GetGRPCServer,
+	GetServices,
+	GetDiscovery,
 	GetDB,
 	GetDBConn,
 	GetRedis,
-	GetTrace,
-	GetDiscovery,
-	GetServices,
-	GetJWT,
-	GetCasbin,
 	GetKafka,
+	GetTrace,
 )
 
 type Configure interface {
@@ -35,14 +35,12 @@ type Config struct {
 	App       *App       `json:"app"`
 	HTTP      *HTTP      `json:"http"`
 	GRPC      *GRPC      `json:"grpc"`
+	Services  *Services  `json:"services"`
+	Discovery *Discovery `json:"discovery"`
 	DB        *DB        `json:"db"`
 	Redis     *Redis     `json:"redis"`
-	Trace     *Trace     `json:"trace"`
-	Discovery *Discovery `json:"discovery"`
-	Services  *Services  `json:"services"`
-	JWT       *JWT       `json:"jwt"`
-	Casbin    *Casbin    `json:"casbin"`
 	Kafka     *Kafka     `json:"kafka"`
+	Trace     *Trace     `json:"trace"`
 }
 
 // SetConfig set configuration
@@ -64,12 +62,44 @@ func GetApp() (App, error) {
 	return getEntry(config.App)
 }
 
-func GetHTTP() (HTTP, error) {
-	return getEntry(config.HTTP)
+func GetHTTPServer() (HTTPServer, error) {
+	httpConfig, err := getHTTP()
+	if err != nil {
+		return HTTPServer{}, err
+	}
+	return getEntry(httpConfig.Server)
 }
 
-func GetGRPC() (GRPC, error) {
-	return getEntry(config.GRPC)
+func GetHTTPJWT() (JWT, error) {
+	httpConfig, err := getHTTP()
+	if err != nil {
+		return JWT{}, err
+	}
+	return getEntry(httpConfig.JWT)
+}
+
+func GetHTTPCasbin() (Casbin, error) {
+	httpConfig, err := getHTTP()
+	if err != nil {
+		return Casbin{}, err
+	}
+	return getEntry(httpConfig.Casbin)
+}
+
+func GetGRPCServer() (GRPCServer, error) {
+	grpcConfig, err := getGRPC()
+	if err != nil {
+		return GRPCServer{}, err
+	}
+	return getEntry(grpcConfig.Server)
+}
+
+func GetServices() (Services, error) {
+	return getEntry(config.Services)
+}
+
+func GetDiscovery() (Discovery, error) {
+	return getEntry(config.Discovery)
 }
 
 func GetDB() (DB, error) {
@@ -88,28 +118,20 @@ func GetRedis() (Redis, error) {
 	return getEntry(config.Redis)
 }
 
+func GetKafka() (Kafka, error) {
+	return getEntry(config.Kafka)
+}
+
 func GetTrace() (Trace, error) {
 	return getEntry(config.Trace)
 }
 
-func GetDiscovery() (Discovery, error) {
-	return getEntry(config.Discovery)
+func getHTTP() (HTTP, error) {
+	return getEntry(config.HTTP)
 }
 
-func GetServices() (Services, error) {
-	return getEntry(config.Services)
-}
-
-func GetJWT() (JWT, error) {
-	return getEntry(config.JWT)
-}
-
-func GetCasbin() (Casbin, error) {
-	return getEntry(config.Casbin)
-}
-
-func GetKafka() (Kafka, error) {
-	return getEntry(config.Kafka)
+func getGRPC() (GRPC, error) {
+	return getEntry(config.GRPC)
 }
 
 func getEntry[T Configure](t *T) (T, error) {

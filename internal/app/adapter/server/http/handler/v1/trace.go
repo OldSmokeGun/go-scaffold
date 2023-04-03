@@ -27,7 +27,7 @@ import (
 type TraceHandler struct {
 	logger       *slog.Logger
 	servicesConf config.Services
-	httpConf     config.HTTP
+	hsConf       config.HTTPServer
 	trace        *trace.Trace
 	grpcClient   *client.GRPC
 }
@@ -35,14 +35,14 @@ type TraceHandler struct {
 func NewTraceHandler(
 	logger *slog.Logger,
 	servicesConf config.Services,
-	httpConf config.HTTP,
+	hsConf config.HTTPServer,
 	trace *trace.Trace,
 	grpcClient *client.GRPC,
 ) *TraceHandler {
 	return &TraceHandler{
 		logger:       logger,
 		servicesConf: servicesConf,
-		httpConf:     httpConf,
+		hsConf:       hsConf,
 		trace:        trace,
 		grpcClient:   grpcClient,
 	}
@@ -86,7 +86,7 @@ func (h *TraceHandler) Example(ctx echo.Context) error {
 	span := sdktrace.SpanFromContext(otel.GetTextMapPropagator().Extract(reqCtx, propagation.HeaderCarrier(ctx.Request().Header)))
 	defer span.End()
 
-	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.httpConf.Addr)
+	requestUrl := fmt.Sprintf("http://%s/api/v1/greet?name=tracer", h.hsConf.Addr)
 	request, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		span.RecordError(err)

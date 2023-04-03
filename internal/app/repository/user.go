@@ -14,21 +14,14 @@ var _ domain.UserRepository = (*UserRepository)(nil)
 // UserRepository 用户仓储
 type UserRepository struct {
 	db *gorm.DB
-	// rdb *redis.Client
 }
 
 // NewUserRepository 构造用户仓储
 func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{
 		db: db,
-		// rdb: rdb,
 	}
 }
-
-// var (
-// 	cacheKeyFormat = model.User{}.TableName() + "_%d"
-// 	cacheExpire    = 3600
-// )
 
 // FindListParam 列表查询参数
 type FindListParam struct {
@@ -130,18 +123,6 @@ type userModel struct {
 // TableName 表名
 func (u userModel) TableName() string {
 	return "users"
-}
-
-// Migrate 迁移
-func (u userModel) Migrate(db *gorm.DB) error {
-	if err := db.Set(
-		"gorm:table_options",
-		"ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表'",
-	).AutoMigrate(u); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (u userModel) toEntity() *domain.User {

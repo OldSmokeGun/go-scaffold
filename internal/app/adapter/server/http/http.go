@@ -44,7 +44,7 @@ var ProviderSet = wire.NewSet(
 
 // New build HTTP server
 func New(
-	httpConf config.HTTP,
+	hsConf config.HTTPServer,
 	handler http.Handler,
 ) *khttp.Server {
 	if handler == nil {
@@ -53,16 +53,16 @@ func New(
 
 	var opts []khttp.ServerOption
 
-	if httpConf.Network != "" {
-		opts = append(opts, khttp.Network(httpConf.Network))
+	if hsConf.Network != "" {
+		opts = append(opts, khttp.Network(hsConf.Network))
 	}
 
-	if httpConf.Addr != "" {
-		opts = append(opts, khttp.Address(httpConf.Addr))
+	if hsConf.Addr != "" {
+		opts = append(opts, khttp.Address(hsConf.Addr))
 	}
 
-	if httpConf.Timeout != 0 {
-		opts = append(opts, khttp.Timeout(httpConf.Timeout*time.Second))
+	if hsConf.Timeout != 0 {
+		opts = append(opts, khttp.Timeout(hsConf.Timeout*time.Second))
 	}
 
 	srv := khttp.NewServer(opts...)
