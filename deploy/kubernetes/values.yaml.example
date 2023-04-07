@@ -137,24 +137,24 @@ configMap:
     #       password: "root"
     #       options: "charset=utf8mb4&parseTime=True&loc=Local"
 
-    #  driver: "postgres"
-    #  addr: "127.0.0.1:5432"
-    #  database: "go-scaffold"
-    #  username: "postgres"
-    #  password: "root"
-    #  options: "sslmode=disable&TimeZone=Asia/Shanghai"
-    #  maxIdleConn: 20
-    #  maxOpenConn: 40
-    #  connMaxIdleTime: 120
-    #  connMaxLifeTime: 120
-    #  logInfo: true
-    #  resolvers:
-    #    - type: "replica"
-    #      addr: "127.0.0.1:5432"
-    #      database: "go-scaffold"
-    #      username: "postgres"
-    #      password: "root"
-    #      options: "sslmode=disable&TimeZone=Asia/Shanghai"
+    #   driver: "postgres"
+    #   addr: "127.0.0.1:5432"
+    #   database: "go-scaffold"
+    #   username: "postgres"
+    #   password: "root"
+    #   options: "sslmode=disable&TimeZone=Asia/Shanghai"
+    #   maxIdleConn: 20
+    #   maxOpenConn: 40
+    #   connMaxIdleTime: 120
+    #   connMaxLifeTime: 120
+    #   logInfo: true
+    #   resolvers:
+    #     - type: "replica"
+    #       addr: "127.0.0.1:5432"
+    #       database: "go-scaffold"
+    #       username: "postgres"
+    #       password: "root"
+    #       options: "sslmode=disable&TimeZone=Asia/Shanghai"
 
     ##################### database #####################
 
