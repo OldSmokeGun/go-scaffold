@@ -10,8 +10,8 @@ import (
 )
 
 // Provide db client
-func Provide(ctx context.Context, conf config.DBConn, logger *slog.Logger) (*ent.Client, func(), error) {
-	client, err := New(ctx, conf, logger)
+func Provide(ctx context.Context, env config.Env, conf config.DBConn, logger *slog.Logger) (*ent.Client, func(), error) {
+	client, err := New(ctx, env, conf, logger)
 	if err != nil {
 		return nil, nil, err
 	}

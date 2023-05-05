@@ -2,11 +2,11 @@ package repository
 
 import (
 	"go-scaffold/internal/app/domain"
+	"go-scaffold/internal/app/pkg/ent/ent"
 	berr "go-scaffold/internal/app/pkg/errors"
 
 	"github.com/google/wire"
 	"github.com/pkg/errors"
-	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 )
 
@@ -23,11 +23,14 @@ type BaseModel struct {
 	DeletedAt soft_delete.DeletedAt `gorm:"index;NOT NULL;DEFAULT:0"`
 }
 
-// convertError 转换 gorm 包的错误为内部错误
+// convertError 转换 ent 包的错误为内部错误
 //
 // 屏蔽 repository 层的内部实现
 func convertError(err error) error {
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if err == nil {
+		return nil
+	}
+	if ent.IsNotFound(err) {
 		return errors.WithStack(berr.ErrResourceNotFound)
 	}
 	return errors.WithStack(err)

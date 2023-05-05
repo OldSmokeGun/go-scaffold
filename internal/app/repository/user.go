@@ -4,22 +4,21 @@ import (
 	"context"
 
 	"go-scaffold/internal/app/domain"
-
-	"github.com/pkg/errors"
-	"gorm.io/gorm"
+	"go-scaffold/internal/app/pkg/ent/ent"
+	"go-scaffold/internal/app/pkg/ent/ent/user"
 )
 
 var _ domain.UserRepository = (*UserRepository)(nil)
 
 // UserRepository 用户仓储
 type UserRepository struct {
-	db *gorm.DB
+	client *ent.Client
 }
 
 // NewUserRepository 构造用户仓储
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(client *ent.Client) *UserRepository {
 	return &UserRepository{
-		db: db,
+		client: client,
 	}
 }
 
@@ -30,25 +29,22 @@ type FindListParam struct {
 
 // FindList 列表查询
 func (r *UserRepository) FindList(ctx context.Context, param domain.FindUserListParam) ([]*domain.User, error) {
-	var models []*userModel
-
-	query := r.db.WithContext(ctx).Select("*")
+	query := r.client.User.Query()
 
 	if param.Keyword != "" {
-		query.Where(
-			r.db.Where("name LIKE ?", "%"+param.Keyword+"%").
-				Or("phone LIKE ?", "%"+param.Keyword+"%"),
-		)
+		query.Where(user.NameContains(param.Keyword))
 	}
 
-	err := query.Order("updated_at DESC").Find(&models).Error
+	list, err := query.
+		Order(ent.Desc(user.FieldUpdatedAt)).
+		All(ctx)
 	if err != nil {
 		return nil, convertError(err)
 	}
 
-	entities := make([]*domain.User, 0, len(models))
-	for _, m := range models {
-		entities = append(entities, m.toEntity())
+	entities := make([]*domain.User, 0, len(list))
+	for _, i := range list {
+		entities = append(entities, toUserEntity(*i))
 	}
 
 	return entities, nil
@@ -56,80 +52,50 @@ func (r *UserRepository) FindList(ctx context.Context, param domain.FindUserList
 
 // FindOneByID 根据 id 查询详情
 func (r *UserRepository) FindOneByID(ctx context.Context, id domain.ID) (*domain.User, error) {
-	m := new(userModel)
-
-	err := r.db.WithContext(ctx).Select("*").
-		Where("id = ?", id).
-		Take(m).Error
+	m, err := r.client.User.Get(ctx, id.Int64())
 	if err != nil {
 		return nil, convertError(err)
 	}
-
-	return m.toEntity(), nil
+	return toUserEntity(*m), nil
 }
 
 // Exist 数据是否存在
 func (r *UserRepository) Exist(ctx context.Context, id domain.ID) (bool, error) {
-	var count int64
-
-	err := r.db.WithContext(ctx).Model(userModel{}).Where("id = ?", id).Count(&count).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, nil
-	} else if err != nil {
-		return false, convertError(err)
-	}
-
-	return count == 1, nil
+	exist, err := r.client.User.Query().Where(user.IDEQ(id.Int64())).Exist(ctx)
+	return exist, convertError(err)
 }
 
 // Create 创建数据
-func (r *UserRepository) Create(ctx context.Context, user domain.User) error {
-	m := &userModel{
-		Name:  user.Name,
-		Age:   user.Age,
-		Phone: user.Phone,
-	}
-
-	return errors.WithStack(r.db.WithContext(ctx).Create(m).Error)
+func (r *UserRepository) Create(ctx context.Context, m domain.User) error {
+	_, err := r.client.User.Create().
+		SetName(m.Name).
+		SetAge(m.Age).
+		SetPhone(m.Phone).
+		Save(ctx)
+	return convertError(err)
 }
 
 // Update 保存数据
-func (r *UserRepository) Update(ctx context.Context, user domain.User) error {
-	m := &userModel{
-		BaseModel: BaseModel{
-			ID: user.ID.Int64(),
-		},
-		Name:  user.Name,
-		Age:   user.Age,
-		Phone: user.Phone,
-	}
-
-	return errors.WithStack(r.db.WithContext(ctx).Save(m).Error)
+func (r *UserRepository) Update(ctx context.Context, m domain.User) error {
+	_, err := r.client.User.
+		UpdateOneID(m.ID.Int64()).
+		SetName(m.Name).
+		SetAge(m.Age).
+		SetPhone(m.Phone).
+		Save(ctx)
+	return convertError(err)
 }
 
 // Delete 删除数据
 func (r *UserRepository) Delete(ctx context.Context, user domain.User) error {
-	return errors.WithStack(r.db.WithContext(ctx).Delete(&userModel{}, user.ID).Error)
+	return convertError(r.client.User.DeleteOneID(user.ID.Int64()).Exec(ctx))
 }
 
-// userModel 用户模型
-type userModel struct {
-	BaseModel
-	Name  string `gorm:"column:name;type:varchar(64);not null;default:'';comment:名称"`
-	Age   int8   `gorm:"column:age;type:tinyint(3);not null;default:0;comment:年龄"`
-	Phone string `gorm:"column:phone;type:varchar(11);not null;default:'';comment:手机号码"`
-}
-
-// TableName 表名
-func (u userModel) TableName() string {
-	return "users"
-}
-
-func (u userModel) toEntity() *domain.User {
+func toUserEntity(m ent.User) *domain.User {
 	return &domain.User{
-		ID:    domain.ID(u.ID),
-		Name:  u.Name,
-		Age:   u.Age,
-		Phone: u.Phone,
+		ID:    domain.ID(m.ID),
+		Name:  m.Name,
+		Age:   m.Age,
+		Phone: m.Phone,
 	}
 }

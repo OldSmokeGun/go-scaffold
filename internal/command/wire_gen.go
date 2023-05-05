@@ -25,7 +25,7 @@ import (
 	"go-scaffold/internal/app/controller"
 	"go-scaffold/internal/app/pkg/client"
 	"go-scaffold/internal/app/pkg/db"
-	"go-scaffold/internal/app/pkg/gorm"
+	"go-scaffold/internal/app/pkg/ent"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
 	"go-scaffold/internal/config"
@@ -54,15 +54,15 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	}
 	producerController := controller.NewProducerController(kafka)
 	producerHandler := v1.NewProducerHandler(producerController)
-	db, err := config.GetDB()
+	dbConn, err := config.GetDBConn()
 	if err != nil {
 		return nil, nil, err
 	}
-	gormDB, cleanup, err := gorm.Provide(contextContext, db, logger)
+	entClient, cleanup, err := ent.Provide(contextContext, env, dbConn, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	userRepository := repository.NewUserRepository(gormDB)
+	userRepository := repository.NewUserRepository(entClient)
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	userController := controller.NewUserController(userUseCase)
 	userHandler := v1.NewUserHandler(userController)

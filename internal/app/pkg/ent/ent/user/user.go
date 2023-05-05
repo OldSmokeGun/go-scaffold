@@ -3,7 +3,9 @@
 package user
 
 import (
-	"time"
+	"go-scaffold/internal/app/repository/schema/types"
+
+	"entgo.io/ent"
 )
 
 const (
@@ -48,21 +50,26 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "go-scaffold/internal/app/pkg/ent/ent/runtime"
 var (
+	Hooks        [1]ent.Hook
+	Interceptors [1]ent.Interceptor
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
+	DefaultCreatedAt func() types.UnixTimestamp
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
-	DefaultUpdatedAt func() time.Time
+	DefaultUpdatedAt func() types.UnixTimestamp
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
-	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultDeletedAt holds the default value on creation for the "deleted_at" field.
-	DefaultDeletedAt time.Time
+	UpdateDefaultUpdatedAt func() types.UnixTimestamp
 	// DefaultName holds the default value on creation for the "name" field.
 	DefaultName string
 	// DefaultAge holds the default value on creation for the "age" field.
-	DefaultAge int
+	DefaultAge int8
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
-	AgeValidator func(int) error
+	AgeValidator func(int8) error
 	// DefaultPhone holds the default value on creation for the "phone" field.
 	DefaultPhone string
 )
