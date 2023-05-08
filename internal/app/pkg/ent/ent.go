@@ -17,7 +17,6 @@ import (
 
 // New build db client
 func New(ctx context.Context, env config.Env, dbConf config.DBConn, logger *slog.Logger) (*ent.Client, error) {
-
 	sdb, err := db.New(ctx, dbConf)
 	if err != nil {
 		return nil, err
