@@ -24,7 +24,8 @@ var (
 	flagLoggerLevel  = flag{"log.level", "", "info", "log level (debug, info, warn, error)"}
 	flagLoggerFormat = flag{"log.format", "", "json", "log output format (text, json)"}
 
-	migrationDirConfig = flag{"migration", "m", "file://migrations", "migration directory"}
+	flagMigrationDir           = flag{"migration", "m", "migrations", "migration directory"}
+	flagMigrationIgnoreUnknown = flag{"ignore-unknown", "", false, "whether to skip checking the database for migrations that are not in the migration source"}
 )
 
 type flag struct {
@@ -69,7 +70,8 @@ func addLoggerFlag(cmd *cobra.Command, persistent bool) {
 }
 
 func addMigrationFlag(cmd *cobra.Command, persistent bool) {
-	getFlags(cmd, persistent).StringP(migrationDirConfig.name, migrationDirConfig.shortName, migrationDirConfig.defaultValue.(string), migrationDirConfig.usage)
+	getFlags(cmd, persistent).StringP(flagMigrationDir.name, flagMigrationDir.shortName, flagMigrationDir.defaultValue.(string), flagMigrationDir.usage)
+	getFlags(cmd, persistent).BoolP(flagMigrationIgnoreUnknown.name, flagMigrationIgnoreUnknown.shortName, flagMigrationIgnoreUnknown.defaultValue.(bool), flagMigrationIgnoreUnknown.usage)
 }
 
 func getAppName(cmd *cobra.Command) config.AppName {

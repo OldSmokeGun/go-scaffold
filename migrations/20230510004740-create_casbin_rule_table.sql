@@ -1,3 +1,5 @@
+-- +migrate Up
+
 CREATE TABLE IF NOT EXISTS `casbin_rule`
 (
     `id`    bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -12,3 +14,7 @@ CREATE TABLE IF NOT EXISTS `casbin_rule`
     UNIQUE KEY `idx_casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+-- +migrate Down
+
+DROP TABLE IF EXISTS `casbin_rule`;

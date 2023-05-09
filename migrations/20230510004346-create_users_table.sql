@@ -1,4 +1,6 @@
-CREATE TABLE `users`
+-- +migrate Up
+
+CREATE TABLE IF NOT EXISTS `users`
 (
     `id`         int unsigned    NOT NULL AUTO_INCREMENT,
     `name`       varchar(64)     NOT NULL DEFAULT '' COMMENT '名称',
@@ -11,3 +13,7 @@ CREATE TABLE `users`
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户表';
+
+-- +migrate Down
+
+DROP TABLE IF EXISTS `users`;

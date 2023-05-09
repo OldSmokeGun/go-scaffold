@@ -7,6 +7,9 @@ import (
 	"strings"
 
 	"go-scaffold/internal/config"
+
+	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx"
 )
 
 // ErrUnsupportedDriver unsupported database driver

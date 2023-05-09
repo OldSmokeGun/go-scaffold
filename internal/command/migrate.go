@@ -1,24 +1,30 @@
 package command
 
 import (
-	"errors"
-	"math"
+	"database/sql"
+	"os"
 	"strconv"
+	"time"
 
 	"go-scaffold/internal/config"
-	"go-scaffold/pkg/migrate"
 
 	printer "github.com/fatih/color"
-	sdkmg "github.com/golang-migrate/migrate/v4"
+	"github.com/olekukonko/tablewriter"
+	migrate "github.com/rubenv/sql-migrate"
 	"github.com/spf13/cobra"
 )
 
 // create a migration file like this:
-// migrate create -tz Asia/Shanghai -ext sql -dir migrations create_<table name>_table
+// sql-migrate new create_<table name>_table
+// NOTE: you must create dbconfig.yml first!
+// more details: https://github.com/rubenv/sql-migrate
 
 type migrateCmd struct {
 	*baseCmd
-	migrate *sdkmg.Migrate
+	driver     string
+	db         *sql.DB
+	cleanup    func()
+	migrations *migrate.FileMigrationSource
 }
 
 func newMigrateCmd() *migrateCmd {
@@ -39,10 +45,7 @@ func newMigrateCmd() *migrateCmd {
 	c.addCommands(
 		newMigrateUpCmd(),
 		newMigrateDownCmd(),
-		newMigrateStepCmd(),
-		newMigrateToCmd(),
-		newMigrateForceCmd(),
-		newMigrateVersionCmd(),
+		newMigrateStatusCmd(),
 	)
 
 	return c
@@ -51,9 +54,18 @@ func newMigrateCmd() *migrateCmd {
 func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 	c.mustConfig()
 
-	dir := cmd.Flag(migrationDirConfig.name).Value.String()
+	dir := cmd.Flag(flagMigrationDir.name).Value.String()
 	if dir == "" {
 		panic("migration directory must be specified")
+	}
+
+	ignoreUnknown, err := cmd.Flags().GetBool(flagMigrationIgnoreUnknown.name)
+	if err != nil {
+		panic(err)
+	}
+
+	migrations := &migrate.FileMigrationSource{
+		Dir: dir,
 	}
 
 	dbConfig, err := config.GetDBConn()
@@ -66,61 +78,54 @@ func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 		panic(err)
 	}
 
-	db, _, err := initDB(cmd.Context(), dbConfig, nil)
+	db, cleanup, err := initDB(cmd.Context(), dbConfig, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	m, err := migrate.NewWithDB(dir, migrate.Driver(dbConfig.Driver), db)
-	if err != nil {
-		panic(err)
-	}
+	migrate.SetTable("migrations")
+	migrate.SetIgnoreUnknown(ignoreUnknown)
 
-	c.migrate = m
+	c.driver = dbConfig.Driver.String()
+	c.db = db
+	c.cleanup = cleanup
+	c.migrations = migrations
 }
 
 func (c *migrateCmd) closeMigrate() {
-	se, de := c.migrate.Close()
-	if se != nil {
-		panic(se)
-	}
-	if de != nil {
-		panic(de)
-	}
+	c.cleanup()
 }
 
-func (c *migrateCmd) getVersionUint(args []string) (uint, error) {
-	arg := args[0]
-	n, err := strconv.ParseUint(arg, 10, 64)
-	if err != nil {
-		return 0, err
+func (c *migrateCmd) getVersionInt(args []string) (int64, error) {
+	if len(args) == 0 {
+		return 0, nil
 	}
-	return uint(n), nil
-}
-
-func (c *migrateCmd) getVersionInt(args []string) (int, error) {
 	arg := args[0]
-	return strconv.Atoi(arg)
+	return strconv.ParseInt(arg, 10, 64)
 }
 
 func (c *migrateCmd) printError(err error) {
-	if errors.Is(err, sdkmg.ErrNilVersion) {
-		printer.Red("no migration record")
-	} else if errors.Is(err, sdkmg.ErrNoChange) {
-		printer.Red("no migration changed")
-	} else if err != nil {
-		printer.Red("migration error: %s", err)
-	}
+	printer.Red(err.Error())
 }
 
-func (c *migrateCmd) printCurrentVersion() {
-	version, dirty, err := c.migrate.Version()
+func (c *migrateCmd) printRecords() {
+	records, err := migrate.GetMigrationRecords(c.db, c.driver)
 	if err != nil {
 		c.printError(err)
 		return
 	}
 
-	printer.Green("current version: %d, dirty status: %t\n", version, dirty)
+	if len(records) == 0 {
+		printer.Green("no migration records!")
+		return
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"MIGRATION ID", "APPLIED TIME"})
+	for _, record := range records {
+		table.Append([]string{record.Id, record.AppliedAt.Format(time.DateTime)})
+	}
+	table.Render()
 }
 
 type migrateUpCmd struct {
@@ -131,28 +136,44 @@ func newMigrateUpCmd() *migrateUpCmd {
 	c := &migrateUpCmd{&migrateCmd{baseCmd: new(baseCmd)}}
 
 	c.cmd = &cobra.Command{
-		Use:   "up",
-		Short: "migrate up (migrate all the way up from the currently active migration version)",
+		Use:   "up [version]",
+		Short: "migrate the database to the most recent version available (you can specify the version number)",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
 			c.initConfig(cmd, false)
 			defer c.closeConfig()
 			c.initMigrate(cmd)
 			defer c.closeMigrate()
-			c.run()
+			c.run(args)
 		},
 	}
 
 	return c
 }
 
-func (c *migrateUpCmd) run() {
-	if err := c.migrate.Up(); err != nil {
-		c.printError(err)
+func (c *migrateUpCmd) run(args []string) {
+	v, err := c.getVersionInt(args)
+	if err != nil {
+		printer.Red(err.Error())
 		return
 	}
-	c.printCurrentVersion()
-	printer.Green("all migrations are complete")
+
+	n := 0
+	if v > 0 {
+		n, err = migrate.ExecVersion(c.db, c.driver, c.migrations, migrate.Up, v)
+		if err != nil {
+			c.printError(err)
+			return
+		}
+	} else {
+		n, err = migrate.Exec(c.db, c.driver, c.migrations, migrate.Up)
+		if err != nil {
+			c.printError(err)
+			return
+		}
+	}
+
+	printer.Green("migrations are completed, applied %d migrations!", n)
 }
 
 type migrateDownCmd struct {
@@ -163,41 +184,8 @@ func newMigrateDownCmd() *migrateDownCmd {
 	c := &migrateDownCmd{&migrateCmd{baseCmd: new(baseCmd)}}
 
 	c.cmd = &cobra.Command{
-		Use:   "down",
-		Short: "migrate down (migrate all the way down from the currently active migration version)",
-		Run: func(cmd *cobra.Command, args []string) {
-			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
-			defer c.closeConfig()
-			c.initMigrate(cmd)
-			defer c.closeMigrate()
-			c.run()
-		},
-	}
-
-	return c
-}
-
-func (c *migrateDownCmd) run() {
-	if err := c.migrate.Down(); err != nil {
-		c.printError(err)
-		return
-	}
-	printer.Green("all migrations are rolled back")
-}
-
-type migrateStepCmd struct {
-	*migrateCmd
-}
-
-func newMigrateStepCmd() *migrateStepCmd {
-	c := &migrateStepCmd{&migrateCmd{baseCmd: new(baseCmd)}}
-
-	c.cmd = &cobra.Command{
-		Use:     "step",
-		Short:   "migrate from the specified version n (up if n > 0, down if n < 0)",
-		Example: "  app migrate step n",
-		Args:    cobra.MinimumNArgs(1),
+		Use:   "down [version]",
+		Short: "undo a database migration (you can specify the version number)",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
 			c.initConfig(cmd, false)
@@ -211,119 +199,41 @@ func newMigrateStepCmd() *migrateStepCmd {
 	return c
 }
 
-func (c *migrateStepCmd) run(args []string) {
-	n, err := c.getVersionInt(args)
-	if err != nil {
-		printer.Red(err.Error())
-		return
-	}
-
-	if n > 0 {
-		printer.Green("migrate %d versions up", n)
-	} else if n < 0 {
-		printer.Green("migrate %d versions down", int(math.Abs(float64(n))))
-	}
-
-	if err := c.migrate.Steps(n); err != nil {
-		c.printError(err)
-		return
-	}
-	c.printCurrentVersion()
-}
-
-type migrateToCmd struct {
-	*migrateCmd
-}
-
-func newMigrateToCmd() *migrateToCmd {
-	c := &migrateToCmd{&migrateCmd{baseCmd: new(baseCmd)}}
-
-	c.cmd = &cobra.Command{
-		Use:     "to",
-		Short:   "migrate from the currently active version to the specified version n",
-		Example: "  app migrate to n",
-		Args:    cobra.MinimumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
-			defer c.closeConfig()
-			c.initMigrate(cmd)
-			defer c.closeMigrate()
-			c.run(args)
-		},
-	}
-
-	return c
-}
-
-func (c *migrateToCmd) run(args []string) {
-	v, err := c.getVersionUint(args)
-	if err != nil {
-		printer.Red(err.Error())
-		return
-	}
-
-	printer.Green("attempt to migrate to version %d", v)
-
-	if err := c.migrate.Migrate(v); err != nil {
-		c.printError(err)
-		return
-	}
-
-	c.printCurrentVersion()
-}
-
-type migrateForceCmd struct {
-	*migrateCmd
-}
-
-func newMigrateForceCmd() *migrateForceCmd {
-	c := &migrateForceCmd{&migrateCmd{baseCmd: new(baseCmd)}}
-
-	c.cmd = &cobra.Command{
-		Use:     "force",
-		Short:   "force set the currently active migration version (it doesn't check any currently active version in the database, it resets the dirty state of the migration version to false)",
-		Example: "  app migrate force n",
-		Args:    cobra.MinimumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
-			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
-			defer c.closeConfig()
-			c.initMigrate(cmd)
-			defer c.closeMigrate()
-			c.run(args)
-		},
-	}
-
-	return c
-}
-
-func (c *migrateForceCmd) run(args []string) {
+func (c *migrateDownCmd) run(args []string) {
 	v, err := c.getVersionInt(args)
 	if err != nil {
 		printer.Red(err.Error())
 		return
 	}
 
-	if err := c.migrate.Force(v); err != nil {
-		c.printError(err)
-		return
+	n := 0
+	if v > 0 {
+		n, err = migrate.ExecVersion(c.db, c.driver, c.migrations, migrate.Down, v)
+		if err != nil {
+			c.printError(err)
+			return
+		}
+	} else {
+		n, err = migrate.Exec(c.db, c.driver, c.migrations, migrate.Down)
+		if err != nil {
+			c.printError(err)
+			return
+		}
 	}
 
-	printer.Green("reset the dirty state to false for version %d, please run migrate again", v)
-	c.printCurrentVersion()
+	printer.Green("migrations are rolled back, applied %d migrations!", n)
 }
 
-type migrateVersionCmd struct {
+type migrateStatusCmd struct {
 	*migrateCmd
 }
 
-func newMigrateVersionCmd() *migrateVersionCmd {
-	c := &migrateVersionCmd{&migrateCmd{baseCmd: new(baseCmd)}}
+func newMigrateStatusCmd() *migrateStatusCmd {
+	c := &migrateStatusCmd{&migrateCmd{baseCmd: new(baseCmd)}}
 
 	c.cmd = &cobra.Command{
-		Use:   "version",
-		Short: "view currently active migration versions",
+		Use:   "status",
+		Short: "show the migration records",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
 			c.initConfig(cmd, false)
@@ -337,6 +247,6 @@ func newMigrateVersionCmd() *migrateVersionCmd {
 	return c
 }
 
-func (c *migrateVersionCmd) run() {
-	c.printCurrentVersion()
+func (c *migrateStatusCmd) run() {
+	c.printRecords()
 }

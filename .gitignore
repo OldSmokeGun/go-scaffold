@@ -4,4 +4,6 @@
 tmp
 .air.conf
 etc/config.yaml
+
 requests.http
+dbconfig.yml
