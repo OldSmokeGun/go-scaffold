@@ -2,6 +2,8 @@ package command
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
@@ -108,6 +110,50 @@ func (c *migrateCmd) printError(err error) {
 	printer.Red(err.Error())
 }
 
+func (c *migrateCmd) applyMigrations(args []string, direction migrate.MigrationDirection) (n int, err error) {
+	version, err := c.getVersionInt(args)
+	if err != nil {
+		return
+	}
+
+	if err = c.printPlanMigrations(direction, version); err != nil {
+		return
+	}
+
+	if version > 0 {
+		n, err = migrate.ExecVersion(c.db, c.driver, c.migrations, direction, version)
+	} else {
+		n, err = migrate.Exec(c.db, c.driver, c.migrations, direction)
+	}
+	return
+}
+
+func (c *migrateCmd) printPlanMigrations(direction migrate.MigrationDirection, version int64) (err error) {
+	var planMigrations []*migrate.PlannedMigration
+
+	if version > 0 {
+		planMigrations, _, err = migrate.PlanMigrationToVersion(c.db, c.driver, c.migrations, direction, version)
+	} else {
+		planMigrations, _, err = migrate.PlanMigration(c.db, c.driver, c.migrations, direction, 0)
+	}
+	if err != nil {
+		return err
+	}
+
+	if len(planMigrations) == 0 {
+		return errors.New("no migration will be applied")
+	}
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"PLAN MIGRATION ID", "ENABLE TRANSACTION"})
+	table.SetRowLine(true)
+	for _, planMigration := range planMigrations {
+		table.Append([]string{planMigration.Id, fmt.Sprintf("%t", !planMigration.DisableTransaction)})
+	}
+	table.Render()
+	return nil
+}
+
 func (c *migrateCmd) printRecords() {
 	records, err := migrate.GetMigrationRecords(c.db, c.driver)
 	if err != nil {
@@ -116,12 +162,13 @@ func (c *migrateCmd) printRecords() {
 	}
 
 	if len(records) == 0 {
-		printer.Green("no migration records!")
+		c.printError(errors.New("no migration records"))
 		return
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"MIGRATION ID", "APPLIED TIME"})
+	table.SetRowLine(true)
 	for _, record := range records {
 		table.Append([]string{record.Id, record.AppliedAt.Format(time.DateTime)})
 	}
@@ -152,25 +199,10 @@ func newMigrateUpCmd() *migrateUpCmd {
 }
 
 func (c *migrateUpCmd) run(args []string) {
-	v, err := c.getVersionInt(args)
+	n, err := c.applyMigrations(args, migrate.Up)
 	if err != nil {
-		printer.Red(err.Error())
+		c.printError(err)
 		return
-	}
-
-	n := 0
-	if v > 0 {
-		n, err = migrate.ExecVersion(c.db, c.driver, c.migrations, migrate.Up, v)
-		if err != nil {
-			c.printError(err)
-			return
-		}
-	} else {
-		n, err = migrate.Exec(c.db, c.driver, c.migrations, migrate.Up)
-		if err != nil {
-			c.printError(err)
-			return
-		}
 	}
 
 	printer.Green("migrations are completed, applied %d migrations!", n)
@@ -200,25 +232,10 @@ func newMigrateDownCmd() *migrateDownCmd {
 }
 
 func (c *migrateDownCmd) run(args []string) {
-	v, err := c.getVersionInt(args)
+	n, err := c.applyMigrations(args, migrate.Down)
 	if err != nil {
-		printer.Red(err.Error())
+		c.printError(err)
 		return
-	}
-
-	n := 0
-	if v > 0 {
-		n, err = migrate.ExecVersion(c.db, c.driver, c.migrations, migrate.Down, v)
-		if err != nil {
-			c.printError(err)
-			return
-		}
-	} else {
-		n, err = migrate.Exec(c.db, c.driver, c.migrations, migrate.Down)
-		if err != nil {
-			c.printError(err)
-			return
-		}
 	}
 
 	printer.Green("migrations are rolled back, applied %d migrations!", n)
