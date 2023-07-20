@@ -20,15 +20,18 @@ jobs:
         with:
           go-version-file : 'go.mod'
 
+      - name: Setup Go Task
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
       - name: Setup Protoc
         uses: arduino/setup-protoc@v1
 
       - name: Run Unit Test
         run: |
-          make download
-          make proto
-          make generate
-          make test
+          task download
+          task proto
+          task generate
+          task test
 
   semantic-release:
     needs: [test]
