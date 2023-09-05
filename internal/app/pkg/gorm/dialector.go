@@ -1,12 +1,12 @@
 package gorm
 
 import (
-	"go-scaffold/internal/app/pkg/db"
-	"go-scaffold/internal/config"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"go-scaffold/internal/app/pkg/db"
+	"go-scaffold/internal/config"
 )
 
 // NewDialect build dialect

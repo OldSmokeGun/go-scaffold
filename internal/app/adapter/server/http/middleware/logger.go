@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"log/slog"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"golang.org/x/exp/slog"
 )
 
 // Logger request logger middleware

@@ -179,7 +179,7 @@ var watchKeys = []string{
 
 # 日志
 
-日志基于 [slog](https://pkg.go.dev/golang.org/x/exp/slog)，日志的切割基于 [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs)
+日志基于 [slog](https://pkg.go.dev/log/slog)，日志的切割基于 [file-rotatelogs](https://github.com/lestrrat-go/file-rotatelogs)
 
 日志内容默认输出到 `logs` 目录中，并且根据每天的日期进行分割
 
@@ -198,7 +198,7 @@ var watchKeys = []string{
 ```go
 package v1
 
-import "golang.org/x/exp/slog"
+import "log/slog"
 
 type Handler struct {
     logger *slog.Logger

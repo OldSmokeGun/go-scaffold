@@ -1,6 +1,8 @@
 package pkg
 
 import (
+	"github.com/google/wire"
+
 	"go-scaffold/internal/app/pkg/casbin"
 	"go-scaffold/internal/app/pkg/client"
 	"go-scaffold/internal/app/pkg/db"
@@ -9,8 +11,6 @@ import (
 	"go-scaffold/internal/app/pkg/gorm"
 	"go-scaffold/internal/app/pkg/redis"
 	"go-scaffold/internal/app/pkg/uid"
-
-	"github.com/google/wire"
 )
 
 var ProviderSet = wire.NewSet(

@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/google/wire"
+
 	v1 "go-scaffold/internal/app/adapter/server/http/handler/v1"
 	"go-scaffold/internal/app/adapter/server/http/router"
 	"go-scaffold/internal/config"
-
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/google/wire"
 )
 
 //	@title						API 接口文档
@@ -32,8 +32,12 @@ var ProviderSet = wire.NewSet(
 	// handler
 	v1.NewGreetHandler,
 	v1.NewTraceHandler,
-	v1.NewUserHandler,
 	v1.NewProducerHandler,
+	v1.NewAccountHandler,
+	v1.NewUserHandler,
+	v1.NewRoleHandler,
+	v1.NewPermissionHandler,
+	v1.NewProductHandler,
 	// router
 	router.New,
 	router.NewAPIGroup,

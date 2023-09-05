@@ -3,9 +3,9 @@ package redis
 import (
 	"context"
 
-	"go-scaffold/internal/config"
-
 	"github.com/go-redis/redis/v8"
+
+	"go-scaffold/internal/config"
 )
 
 // Provide redis client

@@ -3,9 +3,9 @@ package discovery
 import (
 	"context"
 
-	"go-scaffold/internal/config"
-
 	"github.com/go-kratos/kratos/v2/registry"
+
+	"go-scaffold/internal/config"
 )
 
 // Discovery the interface that discovery must implement

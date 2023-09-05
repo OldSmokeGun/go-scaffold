@@ -2,14 +2,14 @@ package cron
 
 import (
 	"context"
+	"log/slog"
+
+	"github.com/google/wire"
+	"github.com/robfig/cron/v3"
 
 	"go-scaffold/internal/app/adapter/cron/job"
 	"go-scaffold/internal/app/adapter/cron/scheduler"
 	clog "go-scaffold/pkg/log/cron"
-
-	"github.com/google/wire"
-	"github.com/robfig/cron/v3"
-	"golang.org/x/exp/slog"
 )
 
 var ProviderSet = wire.NewSet(

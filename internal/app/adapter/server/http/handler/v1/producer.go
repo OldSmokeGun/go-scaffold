@@ -3,11 +3,10 @@ package v1
 import (
 	"net/http"
 
-	"go-scaffold/internal/app/controller"
-	berr "go-scaffold/internal/app/pkg/errors"
-
 	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
+
+	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	"go-scaffold/internal/app/controller"
 )
 
 type ProducerHandler struct {
@@ -42,7 +41,7 @@ type ProducerExampleRequest struct {
 func (h *ProducerHandler) Example(ctx echo.Context) error {
 	req := new(controller.ProducerExampleRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.Wrap(err, berr.ErrBadRequest.Error())
+		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
 	}
 
 	if err := h.controller.Example(ctx.Request().Context(), *req); err != nil {

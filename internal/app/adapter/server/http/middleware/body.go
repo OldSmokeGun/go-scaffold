@@ -2,10 +2,10 @@ package middleware
 
 // Body formatted json response
 type Body struct {
-	ErrNo  int `json:"errNo,omitempty"`
-	ErrMsg any `json:"errMsg,omitempty"`
-	Stack  any `json:"stack,omitempty"`
-	Data   any `json:"data,omitempty"`
+	ErrNo  int    `json:"errNo,omitempty"`
+	ErrMsg string `json:"errMsg,omitempty"`
+	Stack  any    `json:"stack,omitempty"`
+	Data   any    `json:"data,omitempty"`
 }
 
 // NewDefaultBody return json response body
@@ -18,7 +18,7 @@ func (b *Body) WithErrNo(code int) *Body {
 	return b
 }
 
-func (b *Body) WithErrMsg(msg any) *Body {
+func (b *Body) WithErrMsg(msg string) *Body {
 	b.ErrMsg = msg
 	return b
 }

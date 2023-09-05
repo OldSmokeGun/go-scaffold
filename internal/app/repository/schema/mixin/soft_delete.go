@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	gen "go-scaffold/internal/app/pkg/ent/ent"
-	"go-scaffold/internal/app/pkg/ent/ent/hook"
-	"go-scaffold/internal/app/pkg/ent/ent/intercept"
-	"go-scaffold/internal/app/repository/schema/types"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
+
+	gen "go-scaffold/internal/app/pkg/ent/ent"
+	"go-scaffold/internal/app/pkg/ent/ent/hook"
+	"go-scaffold/internal/app/pkg/ent/ent/intercept"
+	"go-scaffold/internal/app/repository/schema/types"
 )
 
 // UnexpectedMutationTypeError mutation does not implement the specified interface

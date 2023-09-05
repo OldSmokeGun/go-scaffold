@@ -1,29 +1,22 @@
 package router
 
 import (
+	"log/slog"
 	"net/http"
-
-	"go-scaffold/internal/app/adapter/server/http/api/docs"
-	"go-scaffold/internal/config"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"golang.org/x/exp/slog"
-)
 
-// optional middleware (prevent deletion by formatters)
-// "github.com/casbin/casbin/v2"
-// casbinmw "github.com/labstack/echo-contrib/casbin"
-// jwtmw "github.com/labstack/echo-jwt/v4"
+	"go-scaffold/internal/app/adapter/server/http/api/docs"
+	"go-scaffold/internal/config"
+)
 
 // ApiGroup api routing group
 type ApiGroup struct {
-	env    config.Env
-	logger *slog.Logger
-	hsConf config.HTTPServer
-	// jwtConf    config.JWT       // optional jwt middleware
-	// enforcer   *casbin.Enforcer // optional casbin middleware
+	env        config.Env
+	logger     *slog.Logger
+	hsConf     config.HTTPServer
 	apiV1Group *ApiV1Group
 	group      *echo.Group
 
@@ -35,16 +28,12 @@ func NewAPIGroup(
 	env config.Env,
 	logger *slog.Logger,
 	hsConf config.HTTPServer,
-	// jwtConf config.JWT, // optional jwt middleware
-	// enforcer *casbin.Enforcer, // optional casbin middleware
 	apiV1Group *ApiV1Group,
 ) *ApiGroup {
 	return &ApiGroup{
-		env:    env,
-		logger: logger,
-		hsConf: hsConf,
-		// jwtConf:    jwtConf,  // optional jwt middleware
-		// enforcer:   enforcer, // optional casbin middleware
+		env:        env,
+		logger:     logger,
+		hsConf:     hsConf,
 		apiV1Group: apiV1Group,
 	}
 }
@@ -58,14 +47,6 @@ func (g *ApiGroup) setup(prefix string, rg *echo.Group) {
 func (g *ApiGroup) useMiddlewares() {
 	// allowed to cross
 	g.group.Use(middleware.CORS())
-
-	// g.group.Use(jwtmw.JWT([]byte(g.jwtConf.Key))) // optional jwt middleware
-	// optional casbin middleware
-	// if err := g.enforcer.LoadPolicy(); err != nil {
-	// 	g.logger.Error("load casbin policy error", err)
-	// } else {
-	// 	g.group.Use(casbinmw.Middleware(g.enforcer))
-	// }
 }
 
 func (g *ApiGroup) useRoutes(e *echo.Echo) {

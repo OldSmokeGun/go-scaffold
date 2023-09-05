@@ -1,10 +1,10 @@
 package discovery
 
 import (
-	"go-scaffold/internal/config"
-
 	consul "github.com/go-kratos/consul/registry"
 	"github.com/hashicorp/consul/api"
+
+	"go-scaffold/internal/config"
 )
 
 // NewConsul build consul discovery

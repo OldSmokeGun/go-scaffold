@@ -1,6 +1,6 @@
 package handler
 
-import "golang.org/x/exp/slog"
+import "log/slog"
 
 type ExampleMessage struct {
 	Msg string `json:"msg"`

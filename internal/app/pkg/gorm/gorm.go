@@ -3,16 +3,16 @@ package gorm
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"time"
+
+	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
+	"gorm.io/plugin/dbresolver"
 
 	"go-scaffold/internal/app/pkg/db"
 	"go-scaffold/internal/config"
 	glog "go-scaffold/pkg/log/gorm"
-
-	"golang.org/x/exp/slog"
-	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
-	"gorm.io/plugin/dbresolver"
 )
 
 // ErrUnsupportedResolverType unsupported resolver type

@@ -2,11 +2,11 @@ package gorm
 
 import (
 	"context"
+	"log/slog"
+
+	"gorm.io/gorm"
 
 	"go-scaffold/internal/config"
-
-	"golang.org/x/exp/slog"
-	"gorm.io/gorm"
 )
 
 // Provide gorm

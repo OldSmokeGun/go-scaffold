@@ -9,15 +9,78 @@ import (
 )
 
 var (
+	// PermissionsColumns holds the columns for the "permissions" table.
+	PermissionsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "key", Type: field.TypeString, Unique: true, Size: 128, Comment: "权限标识"},
+		{Name: "name", Type: field.TypeString, Size: 128, Comment: "权限名称", Default: ""},
+		{Name: "desc", Type: field.TypeString, Size: 255, Comment: "权限描述", Default: ""},
+		{Name: "parent_id", Type: field.TypeInt64, Comment: "父级权限 id", Default: 0},
+	}
+	// PermissionsTable holds the schema information for the "permissions" table.
+	PermissionsTable = &schema.Table{
+		Name:       "permissions",
+		Columns:    PermissionsColumns,
+		PrimaryKey: []*schema.Column{PermissionsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "permission_key",
+				Unique:  false,
+				Columns: []*schema.Column{PermissionsColumns[4]},
+			},
+		},
+	}
+	// ProductsColumns holds the columns for the "products" table.
+	ProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Comment: "名称", Default: ""},
+		{Name: "desc", Type: field.TypeString, Comment: "描述", Default: ""},
+		{Name: "price", Type: field.TypeInt, Comment: "价格", Default: 0},
+	}
+	// ProductsTable holds the schema information for the "products" table.
+	ProductsTable = &schema.Table{
+		Name:       "products",
+		Columns:    ProductsColumns,
+		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "product_name",
+				Unique:  false,
+				Columns: []*schema.Column{ProductsColumns[4]},
+			},
+		},
+	}
+	// RolesColumns holds the columns for the "roles" table.
+	RolesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Size: 32, Comment: "角色名称"},
+	}
+	// RolesTable holds the schema information for the "roles" table.
+	RolesTable = &schema.Table{
+		Name:       "roles",
+		Columns:    RolesColumns,
+		PrimaryKey: []*schema.Column{RolesColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
-		{Name: "name", Type: field.TypeString, Comment: "名称", Default: ""},
-		{Name: "age", Type: field.TypeInt8, Comment: "年龄", Default: 0},
+		{Name: "username", Type: field.TypeString, Comment: "用户名", Default: ""},
+		{Name: "password", Type: field.TypeString, Comment: "密码", Default: ""},
+		{Name: "nickname", Type: field.TypeString, Comment: "用户名", Default: ""},
 		{Name: "phone", Type: field.TypeString, Comment: "电话", Default: ""},
+		{Name: "salt", Type: field.TypeString, Comment: "盐值", Default: ""},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -26,24 +89,39 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "user_name",
+				Name:    "user_username",
 				Unique:  false,
 				Columns: []*schema.Column{UsersColumns[4]},
 			},
 			{
 				Name:    "user_phone",
 				Unique:  false,
-				Columns: []*schema.Column{UsersColumns[6]},
+				Columns: []*schema.Column{UsersColumns[7]},
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		PermissionsTable,
+		ProductsTable,
+		RolesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	PermissionsTable.Annotation = &entsql.Annotation{
+		Table:   "permissions",
+		Options: "COMMENT='权限表'",
+	}
+	ProductsTable.Annotation = &entsql.Annotation{
+		Table:   "products",
+		Options: "COMMENT='产品表'",
+	}
+	RolesTable.Annotation = &entsql.Annotation{
+		Table:   "roles",
+		Options: "COMMENT='角色表'",
+	}
 	UsersTable.Annotation = &entsql.Annotation{
 		Table:   "users",
 		Options: "COMMENT='用户表'",

@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"strings"
+
+	"github.com/segmentio/kafka-go"
 
 	"go-scaffold/internal/app/adapter/kafka/handler"
 	"go-scaffold/internal/config"
-
-	"github.com/segmentio/kafka-go"
-	"golang.org/x/exp/slog"
 )
 
 type ExampleConsumer struct {
@@ -61,7 +61,7 @@ func (c *ExampleConsumer) Consume(ctx context.Context) {
 		} else if errors.Is(err, io.EOF) {
 			continue
 		} else if err != nil {
-			c.logger.Error("read message error", err)
+			c.logger.Error("read message error", slog.Any("error", err))
 			continue
 		}
 
@@ -72,7 +72,7 @@ func (c *ExampleConsumer) Consume(ctx context.Context) {
 		}
 
 		if err := c.handler.Handle(msg); err != nil {
-			c.logger.Error("handle message error", err)
+			c.logger.Error("handle message error", slog.Any("error", err))
 			continue
 		}
 	}

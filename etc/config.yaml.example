@@ -14,16 +14,13 @@ http:
     addr: "0.0.0.0:9527"
     timeout: 5
     externalAddr: ""    # external access address, such as reverse proxy
-  # jwt:
-  #   key: ""
   # casbin:
   #   model:
   #     path: "etc/rbac_model.conf"
   #   adapter:
-  #     file:
-  #       path: "etc/rbac_policy.csv"
-  #     gorm:
-  #       tableName: ""
+  #     file: "etc/rbac_policy.csv"
+  #     gorm: {}
+  #     ent: {}
 
 grpc:
   server:

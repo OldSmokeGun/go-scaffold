@@ -2,10 +2,10 @@ package tests
 
 import (
 	"flag"
+	"log/slog"
 	"testing"
 
 	"github.com/google/wire"
-	"golang.org/x/exp/slog"
 )
 
 const appName = "go-scaffold-test"

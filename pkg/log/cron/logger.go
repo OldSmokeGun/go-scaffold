@@ -2,10 +2,9 @@ package cron
 
 import (
 	"context"
+	"log/slog"
 
 	"go-scaffold/pkg/log"
-
-	"golang.org/x/exp/slog"
 )
 
 // Logger adapts to cron.Logger

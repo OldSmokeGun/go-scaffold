@@ -12,7 +12,6 @@ var ErrEntryNotConfigured = errors.New("the configuration entry is not configure
 var ProviderSet = wire.NewSet(
 	GetApp,
 	GetHTTPServer,
-	GetHTTPJWT,
 	GetHTTPCasbin,
 	GetGRPCServer,
 	GetServices,
@@ -68,14 +67,6 @@ func GetHTTPServer() (HTTPServer, error) {
 		return HTTPServer{}, err
 	}
 	return getEntry(httpConfig.Server)
-}
-
-func GetHTTPJWT() (JWT, error) {
-	httpConfig, err := getHTTP()
-	if err != nil {
-		return JWT{}, err
-	}
-	return getEntry(httpConfig.JWT)
 }
 
 func GetHTTPCasbin() (Casbin, error) {

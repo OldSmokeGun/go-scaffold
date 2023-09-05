@@ -6,6 +6,9 @@ package command
 import (
 	"context"
 	"database/sql"
+	"log/slog"
+
+	"github.com/google/wire"
 
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/adapter/cron"
@@ -14,9 +17,6 @@ import (
 	"go-scaffold/internal/app/pkg"
 	"go-scaffold/internal/config"
 	"go-scaffold/pkg/trace"
-
-	"github.com/google/wire"
-	"golang.org/x/exp/slog"
 )
 
 func initServer(

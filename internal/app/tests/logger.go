@@ -2,11 +2,10 @@ package tests
 
 import (
 	"io"
+	"log/slog"
 	"os"
 
 	"go-scaffold/pkg/log"
-
-	"golang.org/x/exp/slog"
 )
 
 // NewLogger init slog logger

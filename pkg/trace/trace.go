@@ -19,25 +19,24 @@ type Trace struct {
 	tracerProvider *sdktrace.TracerProvider
 }
 
-// OptionFunc optional function
-type OptionFunc func(t *Trace)
+type Option func(t *Trace)
 
 // WithServiceName optional service name
-func WithServiceName(serviceName string) OptionFunc {
+func WithServiceName(serviceName string) Option {
 	return func(t *Trace) {
 		t.serviceName = serviceName
 	}
 }
 
 // WithEnv optional environment value
-func WithEnv(env string) OptionFunc {
+func WithEnv(env string) Option {
 	return func(t *Trace) {
 		t.env = env
 	}
 }
 
 // New build Trace
-func New(endpoint string, options ...OptionFunc) (*Trace, error) {
+func New(endpoint string, options ...Option) (*Trace, error) {
 	t := &Trace{}
 	for _, option := range options {
 		option(t)

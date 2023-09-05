@@ -5,40 +5,35 @@ import (
 	"fmt"
 	"time"
 
-	berr "go-scaffold/internal/app/pkg/errors"
-	"go-scaffold/internal/config"
-
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
 	"github.com/segmentio/kafka-go"
+
+	berr "go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/config"
 )
 
-// ProducerController 示例控制器
 type ProducerController struct {
 	kafkaConfig config.Kafka
 }
 
-// NewProducerController 构造示例控制器
 func NewProducerController(kafkaConfig config.Kafka) *ProducerController {
 	return &ProducerController{kafkaConfig}
 }
 
-// ProducerExampleRequest 请求参数
 type ProducerExampleRequest struct {
 	Msg string `json:"msg"`
 }
 
-// Validate 验证参数
 func (r ProducerExampleRequest) Validate() error {
-	return errors.WithStack(validation.ValidateStruct(&r,
-		validation.Field(&r.Msg, validation.Required.Error("消息不能为空")),
-	))
+	return validation.ValidateStruct(&r,
+		validation.Field(&r.Msg, validation.Required.Error("message is required")),
+	)
 }
 
-// Example 示例方法
 func (c *ProducerController) Example(ctx context.Context, req ProducerExampleRequest) error {
 	if err := req.Validate(); err != nil {
-		return errors.WithStack(berr.ErrValidateError.WithMsg(err.Error()))
+		return berr.ErrValidateError.WithError(errors.WithStack(err))
 	}
 
 	return c.sendMsg(ctx, req.Msg)

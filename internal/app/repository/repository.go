@@ -1,37 +1,45 @@
 package repository
 
 import (
-	"go-scaffold/internal/app/domain"
-	"go-scaffold/internal/app/pkg/ent/ent"
-	berr "go-scaffold/internal/app/pkg/errors"
+	"errors"
 
 	"github.com/google/wire"
-	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
+
+	"go-scaffold/internal/app/pkg/ent/ent"
 )
 
 var ProviderSet = wire.NewSet(
-	wire.NewSet(wire.Bind(new(domain.UserRepository), new(*UserRepository)), NewUserRepository),
+	wire.NewSet(wire.Bind(new(UserRepositoryInterface), new(*UserRepository)), NewUserRepository),
+	wire.NewSet(wire.Bind(new(RoleRepositoryInterface), new(*RoleRepository)), NewRoleRepository),
+	wire.NewSet(wire.Bind(new(PermissionRepositoryInterface), new(*PermissionRepository)), NewPermissionRepository),
+	wire.NewSet(wire.Bind(new(ProductRepositoryInterface), new(*ProductRepository)), NewProductRepository),
 )
 
-// BaseModel 基础模型
-// 自动更新时间戳、软删除
-type BaseModel struct {
+var ErrRecordNotFound = errors.New("record not found")
+
+func IsNotFound(err error) bool {
+	return errors.Is(err, ErrRecordNotFound) || errors.Is(err, gorm.ErrRecordNotFound) || ent.IsNotFound(err)
+}
+
+// handleError handle ent and gorm error
+// masking the internal implementation of the repository layer
+func handleError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) || ent.IsNotFound(err) {
+		return ErrRecordNotFound
+	}
+	return err
+}
+
+// baseModel base model
+// automatic update of timestamps, soft delete
+type baseModel struct {
 	ID        int64                 `gorm:"primaryKey"`
 	CreatedAt int64                 `gorm:"NOT NULL"`
 	UpdatedAt int64                 `gorm:"NOT NULL;DEFAULT:0"`
 	DeletedAt soft_delete.DeletedAt `gorm:"index;NOT NULL;DEFAULT:0"`
-}
-
-// convertError 转换 ent 包的错误为内部错误
-//
-// 屏蔽 repository 层的内部实现
-func convertError(err error) error {
-	if err == nil {
-		return nil
-	}
-	if ent.IsNotFound(err) {
-		return errors.WithStack(berr.ErrResourceNotFound)
-	}
-	return errors.WithStack(err)
 }

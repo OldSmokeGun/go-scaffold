@@ -2,11 +2,11 @@ package kratos
 
 import (
 	"context"
-
-	"go-scaffold/pkg/log"
+	"log/slog"
 
 	klog "github.com/go-kratos/kratos/v2/log"
-	"golang.org/x/exp/slog"
+
+	"go-scaffold/pkg/log"
 )
 
 var _ klog.Logger = (*Logger)(nil)

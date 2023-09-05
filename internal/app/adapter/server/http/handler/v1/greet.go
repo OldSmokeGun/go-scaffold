@@ -3,11 +3,10 @@ package v1
 import (
 	"net/http"
 
-	"go-scaffold/internal/app/controller"
-	berr "go-scaffold/internal/app/pkg/errors"
-
 	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
+
+	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	"go-scaffold/internal/app/controller"
 )
 
 type GreetHandler struct {
@@ -42,7 +41,7 @@ type GreetHelloResponse struct {
 func (h *GreetHandler) Hello(ctx echo.Context) error {
 	req := new(controller.GreetHelloRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.Wrap(err, berr.ErrBadRequest.Error())
+		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
 	}
 
 	ret, err := h.controller.Hello(ctx.Request().Context(), *req)

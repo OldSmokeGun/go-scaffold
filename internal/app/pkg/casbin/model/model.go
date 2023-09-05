@@ -1,9 +1,9 @@
 package model
 
 import (
-	"go-scaffold/internal/config"
-
 	"github.com/casbin/casbin/v2/model"
+
+	"go-scaffold/internal/config"
 )
 
 // New creates model

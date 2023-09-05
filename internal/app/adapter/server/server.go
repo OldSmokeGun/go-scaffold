@@ -4,15 +4,15 @@ import (
 	"context"
 	"os"
 
-	gserv "go-scaffold/internal/app/adapter/server/grpc"
-	hserv "go-scaffold/internal/app/adapter/server/http"
-	"go-scaffold/internal/config"
-
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
+
+	gserv "go-scaffold/internal/app/adapter/server/grpc"
+	hserv "go-scaffold/internal/app/adapter/server/http"
+	"go-scaffold/internal/config"
 )
 
 var ProviderSet = wire.NewSet(

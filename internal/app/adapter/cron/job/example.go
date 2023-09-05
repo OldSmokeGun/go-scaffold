@@ -1,6 +1,6 @@
 package job
 
-import "golang.org/x/exp/slog"
+import "log/slog"
 
 // ExampleJob example job
 type ExampleJob struct {

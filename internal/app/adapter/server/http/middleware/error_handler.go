@@ -1,21 +1,21 @@
 package middleware
 
 import (
+	"fmt"
+	"log/slog"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
+	"github.com/samber/lo"
 
 	berr "go-scaffold/internal/app/pkg/errors"
 	uerr "go-scaffold/pkg/errors"
-
-	"github.com/labstack/echo/v4"
-	"github.com/pkg/errors"
-	"github.com/samber/lo"
-	"golang.org/x/exp/slog"
 )
 
 // ErrorHandler is HTTP error handler. It sends a JSON response
 func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 	return func(err error, ctx echo.Context) {
-		logger.Error("handle request error", err)
+		logger.Error("handle request error", slog.Any("error", err))
 
 		if ctx.Response().Committed {
 			return
@@ -23,26 +23,35 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 
 		var (
 			bc         int
-			hintMsg    any
+			hintMsg    string
 			statusCode int
 		)
 
-		ce := errors.Cause(err)
-
-		switch er := ce.(type) {
+		switch ae := err.(type) {
 		case *echo.HTTPError:
-			statusCode = er.Code
-			bc = berr.ErrServerError.Code()
+			statusCode = ae.Code
+			bc = berr.ErrInternalError.Code()
 			if c, ok := lo.Invert(errHttpStatusCode)[statusCode]; ok {
 				bc = c
 			}
-			hintMsg = er.Message
+			hintMsg = fmt.Sprintf("%v", ae.Message)
+			if une := ae.Unwrap(); une != nil {
+				err = une
+				if ce, ok := une.(*berr.Error); ok {
+					if ce.Unwrap() != nil {
+						err = ce.Unwrap()
+					}
+				}
+			}
 		case *berr.Error:
-			bc = er.Code()
-			hintMsg = hintMessage(er.Label())
+			bc = ae.Code()
+			hintMsg = ae.Msg()
 			statusCode = httpStatusCode(bc)
+			if ae.Unwrap() != nil {
+				err = ae.Unwrap()
+			}
 		default:
-			de := berr.ErrServerError
+			de := berr.ErrInternalError
 			bc = de.Code()
 			hintMsg = hintMessage(de.Label())
 			statusCode = httpStatusCode(bc)
@@ -53,7 +62,11 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			WithErrMsg(hintMsg)
 
 		if debug {
-			responseBody.WithErrMsg(err.Error())
+			wrapMsg := err.Error()
+			if hintMsg != "" {
+				wrapMsg = fmt.Sprintf("%s: %s", hintMsg, err)
+			}
+			responseBody.WithErrMsg(wrapMsg)
 
 			stack := uerr.ErrorStackTrace(err)
 			if stack != nil {
@@ -67,19 +80,19 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			err = ctx.JSON(statusCode, responseBody)
 		}
 		if err != nil {
-			logger.Error("send error response error", err)
+			logger.Error("send error response error", slog.Any("error", err))
 		}
 	}
 }
 
 var errHttpStatusCode = map[int]int{
-	berr.ErrServerError.Code():      http.StatusInternalServerError,
-	berr.ErrBadRequest.Code():       http.StatusBadRequest,
-	berr.ErrValidateError.Code():    http.StatusBadRequest,
-	berr.ErrUnauthorized.Code():     http.StatusUnauthorized,
-	berr.ErrPermissionDenied.Code(): http.StatusForbidden,
-	berr.ErrResourceNotFound.Code(): http.StatusNotFound,
-	berr.ErrTooManyRequest.Code():   http.StatusTooManyRequests,
+	berr.ErrInternalError.Code():      http.StatusInternalServerError,
+	berr.ErrBadCall.Code():            http.StatusBadRequest,
+	berr.ErrValidateError.Code():      http.StatusBadRequest,
+	berr.ErrInvalidAuthorized.Code():  http.StatusUnauthorized,
+	berr.ErrAccessDenied.Code():       http.StatusForbidden,
+	berr.ErrResourceNotFound.Code():   http.StatusNotFound,
+	berr.ErrCallsTooFrequently.Code(): http.StatusTooManyRequests,
 }
 
 func httpStatusCode(c int) int {
@@ -87,13 +100,13 @@ func httpStatusCode(c int) int {
 }
 
 var errHintMsg = map[string]string{
-	berr.ErrServerError.Label():      "服务器出错",
-	berr.ErrBadRequest.Label():       "客户端请求错误",
-	berr.ErrValidateError.Label():    "参数校验错误",
-	berr.ErrUnauthorized.Label():     "未经授权",
-	berr.ErrPermissionDenied.Label(): "暂无权限",
-	berr.ErrResourceNotFound.Label(): "资源不存在",
-	berr.ErrTooManyRequest.Label():   "请求过于频繁",
+	berr.ErrInternalError.Label():      "服务器出错",
+	berr.ErrBadCall.Label():            "客户端请求错误",
+	berr.ErrValidateError.Label():      "参数校验错误",
+	berr.ErrInvalidAuthorized.Label():  "未经授权",
+	berr.ErrAccessDenied.Label():       "暂无权限",
+	berr.ErrResourceNotFound.Label():   "资源不存在",
+	berr.ErrCallsTooFrequently.Label(): "请求太频繁",
 }
 
 func hintMessage(l string) string {

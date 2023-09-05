@@ -3,13 +3,8 @@ package command
 import (
 	"context"
 	"io"
+	"log/slog"
 	"os"
-
-	"go-scaffold/internal/config"
-	"go-scaffold/pkg/ioutils"
-	"go-scaffold/pkg/log"
-	iklog "go-scaffold/pkg/log/kratos"
-	"go-scaffold/pkg/trace"
 
 	"github.com/go-kratos/kratos/contrib/config/apollo/v2"
 	kconfig "github.com/go-kratos/kratos/v2/config"
@@ -19,7 +14,12 @@ import (
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"golang.org/x/exp/slog"
+
+	"go-scaffold/internal/config"
+	"go-scaffold/pkg/ioutils"
+	"go-scaffold/pkg/log"
+	iklog "go-scaffold/pkg/log/kratos"
+	"go-scaffold/pkg/trace"
 )
 
 type baseCmd struct {

@@ -6,14 +6,15 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
-
-	"go-scaffold/internal/config"
 
 	printer "github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
 	migrate "github.com/rubenv/sql-migrate"
 	"github.com/spf13/cobra"
+
+	"go-scaffold/internal/config"
 )
 
 // create a migration file like this:
@@ -232,6 +233,21 @@ func newMigrateDownCmd() *migrateDownCmd {
 }
 
 func (c *migrateDownCmd) run(args []string) {
+	if len(args) == 0 {
+		printer.Yellow("this will roll back all migrations, yes/no?")
+
+		ret := ""
+		_, err := fmt.Scan(&ret)
+		if err != nil {
+			c.printError(err)
+			return
+		}
+
+		if strings.ToLower(ret) != "yes" && strings.ToLower(ret) != "y" {
+			return
+		}
+	}
+
 	n, err := c.applyMigrations(args, migrate.Down)
 	if err != nil {
 		c.printError(err)

@@ -1,13 +1,23 @@
 package casbin
 
 import (
-	"go-scaffold/internal/config"
+	"database/sql"
+	"log/slog"
 
 	"github.com/casbin/casbin/v2"
 	"gorm.io/gorm"
+
+	"go-scaffold/internal/config"
 )
 
 // Provide casbin
-func Provide(conf config.Casbin, db *gorm.DB) (*casbin.Enforcer, error) {
-	return New(conf, db)
+func Provide(
+	env config.Env,
+	conf config.Casbin,
+	dbConf config.DBConn,
+	logger *slog.Logger,
+	gdb *gorm.DB,
+	sdb *sql.DB,
+) (*casbin.Enforcer, error) {
+	return New(env, conf, dbConf, logger, gdb, sdb)
 }

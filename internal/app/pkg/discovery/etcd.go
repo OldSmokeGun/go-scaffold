@@ -3,10 +3,10 @@ package discovery
 import (
 	"context"
 
-	"go-scaffold/internal/config"
-
 	"github.com/go-kratos/kratos/contrib/registry/etcd/v2"
 	etcdctl "go.etcd.io/etcd/client/v3"
+
+	"go-scaffold/internal/config"
 )
 
 // NewEtcd build etcd discovery

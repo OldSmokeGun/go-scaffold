@@ -5,7 +5,6 @@ import "time"
 // HTTP the HTTP config
 type HTTP struct {
 	Server *HTTPServer `json:"server"`
-	JWT    *JWT        `json:"jwt"`
 	Casbin *Casbin     `json:"casbin"`
 }
 
@@ -23,15 +22,6 @@ type HTTPServer struct {
 
 func (HTTPServer) GetName() string {
 	return "http.server"
-}
-
-// JWT the JWT config
-type JWT struct {
-	Key string `json:"key"`
-}
-
-func (JWT) GetName() string {
-	return "http.jwt"
 }
 
 // Casbin casbin config
@@ -53,18 +43,16 @@ type CasbinModel struct {
 type (
 	// CasbinAdapter casbin adapter
 	CasbinAdapter struct {
-		File *CasbinFileAdapter `json:"file"`
+		File string             `json:"file"`
 		Gorm *CasbinGormAdapter `json:"gorm"`
-	}
-
-	CasbinFileAdapter struct {
-		Path string `json:"path"`
+		Ent  *CasbinEntAdapter  `json:"ent"`
 	}
 
 	// CasbinGormAdapter casbin gorm adapter
-	CasbinGormAdapter struct {
-		TableName string `json:"tableName"`
-	}
+	CasbinGormAdapter struct{}
+
+	// CasbinEntAdapter casbin ent adapter
+	CasbinEntAdapter struct{}
 )
 
 // GRPC the gRPC config

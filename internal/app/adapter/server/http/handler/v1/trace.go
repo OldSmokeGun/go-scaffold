@@ -3,14 +3,9 @@ package v1
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"net/http"
-
-	v1 "go-scaffold/internal/app/adapter/server/grpc/api/v1"
-	"go-scaffold/internal/app/pkg/client"
-	berr "go-scaffold/internal/app/pkg/errors"
-	"go-scaffold/internal/config"
-	"go-scaffold/pkg/trace"
 
 	kerr "github.com/go-kratos/kratos/v2/errors"
 	"github.com/labstack/echo/v4"
@@ -21,7 +16,12 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/trace"
-	"golang.org/x/exp/slog"
+
+	v1 "go-scaffold/internal/app/adapter/server/grpc/api/v1"
+	"go-scaffold/internal/app/pkg/client"
+	berr "go-scaffold/internal/app/pkg/errors"
+	"go-scaffold/internal/config"
+	"go-scaffold/pkg/trace"
 )
 
 type TraceHandler struct {
@@ -91,7 +91,7 @@ func (h *TraceHandler) Example(ctx echo.Context) error {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return errors.WithStack(berr.ErrServerError)
+		return berr.ErrInternalError.WithError(errors.WithStack(err))
 	}
 
 	// 携带 baggage 信息
@@ -99,14 +99,14 @@ func (h *TraceHandler) Example(ctx echo.Context) error {
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return errors.WithStack(berr.ErrServerError)
+		return berr.ErrInternalError.WithError(errors.WithStack(err))
 	}
 
 	bag, err := baggage.New(mem)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		return errors.WithStack(berr.ErrServerError)
+		return berr.ErrInternalError.WithError(errors.WithStack(err))
 	}
 	reqCtx = baggage.ContextWithBaggage(reqCtx, bag)
 

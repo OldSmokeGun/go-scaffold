@@ -1,10 +1,13 @@
 package adapter
 
 import (
-	"go-scaffold/internal/config"
+	"database/sql"
+	"log/slog"
 
 	"github.com/casbin/casbin/v2/persist"
 	"gorm.io/gorm"
+
+	"go-scaffold/internal/config"
 )
 
 // Adapter the interface that casbin adapter must implement
@@ -16,16 +19,30 @@ type Adapter interface {
 }
 
 // New creates casin adapter
-func New(conf config.CasbinAdapter, db *gorm.DB) (adp Adapter, err error) {
+func New(
+	env config.Env,
+	conf config.CasbinAdapter,
+	dbConf config.DBConn,
+	logger *slog.Logger,
+	db *gorm.DB,
+	sdb *sql.DB,
+) (adp Adapter, err error) {
 	if conf.Gorm != nil {
-		adp, err = NewGormAdapter(*conf.Gorm, db)
+		adp, err = NewGormAdapter(db)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if conf.File != nil {
-		adp = NewFileAdapter(*conf.File)
+	if conf.Ent != nil {
+		adp, err = NewEntAdapter(env, dbConf, logger, sdb)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if conf.File != "" {
+		adp = NewFileAdapter(conf.File)
 	}
 
 	return

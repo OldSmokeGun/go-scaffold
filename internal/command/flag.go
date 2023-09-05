@@ -1,10 +1,10 @@
 package command
 
 import (
-	"go-scaffold/internal/config"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
+	"go-scaffold/internal/config"
 )
 
 var (

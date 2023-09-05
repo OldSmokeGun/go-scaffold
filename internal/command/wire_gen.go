@@ -23,14 +23,16 @@ import (
 	"go-scaffold/internal/app/adapter/server/http/handler/v1"
 	"go-scaffold/internal/app/adapter/server/http/router"
 	"go-scaffold/internal/app/controller"
+	"go-scaffold/internal/app/pkg/casbin"
 	"go-scaffold/internal/app/pkg/client"
 	"go-scaffold/internal/app/pkg/db"
 	"go-scaffold/internal/app/pkg/ent"
+	"go-scaffold/internal/app/pkg/gorm"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
 	"go-scaffold/internal/config"
 	"go-scaffold/pkg/trace"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Injectors from wire.go:
@@ -40,47 +42,107 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
+	dbConn, err := config.GetDBConn()
+	if err != nil {
+		return nil, nil, err
+	}
+	sqlDB, cleanup, err := db.Provide(contextContext, dbConn)
+	if err != nil {
+		return nil, nil, err
+	}
+	entClient, cleanup2, err := ent.Provide(env, dbConn, logger, sqlDB)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	configCasbin, err := config.GetHTTPCasbin()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	configDB, err := config.GetDB()
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	gormDB, cleanup3, err := gorm.Provide(contextContext, configDB, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	enforcer, err := casbin.Provide(env, configCasbin, dbConn, logger, gormDB, sqlDB)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	userRepository := repository.NewUserRepository(entClient, enforcer)
+	accountUseCase := usecase.NewAccountUseCase(userRepository)
+	accountTokenController := controller.NewAccountTokenController(accountUseCase, userRepository)
+	roleRepository := repository.NewRoleRepository(entClient, enforcer)
+	permissionRepository := repository.NewPermissionRepository(entClient, enforcer)
+	accountPermissionController := controller.NewAccountPermissionController(roleRepository, permissionRepository, enforcer)
 	greetController := controller.NewGreetController()
 	greetHandler := v1.NewGreetHandler(greetController)
 	services, err := config.GetServices()
 	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
 		return nil, nil, err
 	}
 	clientGRPC := client.ProvideGRPC()
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
 	kafka, err := config.GetKafka()
 	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
 		return nil, nil, err
 	}
 	producerController := controller.NewProducerController(kafka)
 	producerHandler := v1.NewProducerHandler(producerController)
-	dbConn, err := config.GetDBConn()
-	if err != nil {
-		return nil, nil, err
-	}
-	entClient, cleanup, err := ent.Provide(contextContext, env, dbConn, logger)
-	if err != nil {
-		return nil, nil, err
-	}
-	userRepository := repository.NewUserRepository(entClient)
 	userUseCase := usecase.NewUserUseCase(userRepository)
-	userController := controller.NewUserController(userUseCase)
+	accountController := controller.NewAccountController(accountUseCase, userUseCase, userRepository)
+	accountHandler := v1.NewAccountHandler(accountController)
+	userController := controller.NewUserController(userUseCase, userRepository, roleRepository)
 	userHandler := v1.NewUserHandler(userController)
-	apiV1Group := router.NewAPIV1Group(greetHandler, traceHandler, producerHandler, userHandler)
+	roleUseCase := usecase.NewRoleUseCase(roleRepository)
+	roleController := controller.NewRoleController(roleUseCase, roleRepository, permissionRepository)
+	roleHandler := v1.NewRoleHandler(roleController)
+	permissionUseCase := usecase.NewPermissionUseCase(permissionRepository)
+	permissionController := controller.NewPermissionController(permissionUseCase, permissionRepository)
+	permissionHandler := v1.NewPermissionHandler(permissionController)
+	productRepository := repository.NewProductRepository(entClient)
+	productUseCase := usecase.NewProductUseCase(productRepository)
+	productController := controller.NewProductController(productUseCase, productRepository)
+	productHandler := v1.NewProductHandler(productController)
+	apiV1Group := router.NewAPIV1Group(accountTokenController, accountPermissionController, greetHandler, traceHandler, producerHandler, accountHandler, userHandler, roleHandler, permissionHandler, productHandler)
 	apiGroup := router.NewAPIGroup(env, logger, httpServer, apiV1Group)
 	handler := router.New(logger, appName, env, httpServer, apiGroup)
 	server2 := http.New(httpServer, handler)
 	grpcServer, err := config.GetGRPCServer()
 	if err != nil {
+		cleanup3()
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	v1GreetHandler := v1_2.NewGreetHandler(logger, greetController)
 	v1UserHandler := v1_2.NewUserHandler(logger, userController)
-	routerRouter := router2.New(v1GreetHandler, v1UserHandler)
+	v1RoleHandler := v1_2.NewRoleHandler(logger, roleController)
+	v1PermissionHandler := v1_2.NewPermissionHandler(logger, permissionController)
+	v1ProductHandler := v1_2.NewProductHandler(logger, productController)
+	routerRouter := router2.New(v1GreetHandler, v1UserHandler, v1RoleHandler, v1PermissionHandler, v1ProductHandler)
 	server3 := grpc.New(grpcServer, routerRouter)
 	serverServer := server.New(contextContext, appName, server2, server3)
 	return serverServer, func() {
+		cleanup3()
+		cleanup2()
 		cleanup()
 	}, nil
 }

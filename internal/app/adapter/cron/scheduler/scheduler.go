@@ -1,10 +1,10 @@
 package scheduler
 
 import (
+	"github.com/robfig/cron/v3"
+
 	"go-scaffold/internal/app/adapter/cron/job"
 	"go-scaffold/internal/config"
-
-	"github.com/robfig/cron/v3"
 )
 
 // Scheduler job scheduler

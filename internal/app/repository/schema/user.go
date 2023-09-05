@@ -1,13 +1,13 @@
 package schema
 
 import (
-	"go-scaffold/internal/app/repository/schema/mixin"
-
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
+
+	"go-scaffold/internal/app/repository/schema/mixin"
 )
 
 // User holds the schema definition for the User entity.
@@ -34,7 +34,7 @@ func (User) Mixin() []ent.Mixin {
 
 func (User) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("name"),
+		index.Fields("username"),
 		index.Fields("phone"),
 	}
 }
@@ -43,9 +43,11 @@ func (User) Indexes() []ent.Index {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int64("id").Unique().Immutable(),
-		field.String("name").Default("").Comment("名称"),
-		field.Int8("age").Default(0).Positive().Comment("年龄"),
+		field.String("username").Default("").Comment("用户名"),
+		field.String("password").Default("").Comment("密码"),
+		field.String("nickname").Default("").Comment("用户名"),
 		field.String("phone").Default("").Comment("电话"),
+		field.String("salt").Default("").Comment("盐值"),
 	}
 }
 

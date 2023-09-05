@@ -1,17 +1,14 @@
 package errors
 
-// NoErrorCode code when there are no errors
-const NoErrorCode = 10000
-
 // standard errors
 var (
-	ErrServerError      = New("server error", 10001, "SERVER_ERROR")
-	ErrBadRequest       = New("bad request", 10002, "BAD_REQUEST")
-	ErrValidateError    = New("parameters validate error", 10003, "VALIDATE_ERROR")
-	ErrUnauthorized     = New("unauthorized", 10004, "UNAUTHORIZED")
-	ErrPermissionDenied = New("permission denied", 10005, "PERMISSION_DENIED")
-	ErrResourceNotFound = New("resource not found", 10006, "RESOURCE_NOT_FOUND")
-	ErrTooManyRequest   = New("too many request", 10007, "TOO_MANY_REQUEST")
+	ErrInternalError      = New("internal error", 10001, "INTERNAL_ERROR")
+	ErrBadCall            = New("bad call", 20001, "BAD_CALL")
+	ErrValidateError      = New("parameters validate error", 20002, "VALIDATE_ERROR")
+	ErrInvalidAuthorized  = New("invalid authorized", 20003, "INVALID_AUTHORIZED")
+	ErrAccessDenied       = New("access denied", 20004, "ACCESS_DENIED")
+	ErrResourceNotFound   = New("resource not found", 20005, "RESOURCE_NOT_FOUND")
+	ErrCallsTooFrequently = New("call too frequently", 20006, "CALLS_TOO_FREQUENTLY")
 )
 
 // Error application internal error
@@ -19,14 +16,27 @@ type Error struct {
 	msg   string
 	code  int
 	label string
+	error error
 }
 
 // New returns an error that formats as the given text.
 func New(text string, code int, label string) *Error {
-	return &Error{text, code, label}
+	return &Error{text, code, label, nil}
 }
 
 func (e *Error) Error() string {
+	return e.msg
+}
+
+func (e *Error) Cause() error {
+	return e.error
+}
+
+func (e *Error) Unwrap() error {
+	return e.error
+}
+
+func (e *Error) Msg() string {
 	return e.msg
 }
 
@@ -40,5 +50,10 @@ func (e *Error) Label() string {
 
 func (e *Error) WithMsg(msg string) *Error {
 	e.msg = msg
+	return e
+}
+
+func (e *Error) WithError(err error) *Error {
+	e.error = err
 	return e
 }

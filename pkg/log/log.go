@@ -2,20 +2,23 @@ package log
 
 import (
 	"context"
+	"fmt"
 	"go/build"
 	"io"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	ierrors "go-scaffold/pkg/errors"
 	"go-scaffold/pkg/path"
-
-	"github.com/pkg/errors"
-	"golang.org/x/exp/slog"
 )
+
+const AttrErrorKey = "error"
 
 var (
 	// DefaultLevel default log level
@@ -28,8 +31,8 @@ var (
 	DefaultWriter = os.Stdout
 )
 
-// option is logger option
-type option struct {
+// config is logger config
+type config struct {
 	level  Level
 	format Format
 	writer io.Writer
@@ -37,47 +40,46 @@ type option struct {
 	attrs  []slog.Attr
 }
 
-// OptionFunc optional function
-type OptionFunc func(logger *option)
+type Option func(c *config)
 
 // WithLevel set log level
-func WithLevel(level Level) OptionFunc {
-	return func(logger *option) {
-		logger.level = level
+func WithLevel(level Level) Option {
+	return func(c *config) {
+		c.level = level
 	}
 }
 
 // WithFormat set log format
-func WithFormat(format Format) OptionFunc {
-	return func(logger *option) {
-		logger.format = format
+func WithFormat(format Format) Option {
+	return func(c *config) {
+		c.format = format
 	}
 }
 
 // WithWriter set log writer
-func WithWriter(writer io.Writer) OptionFunc {
-	return func(logger *option) {
-		logger.writer = writer
+func WithWriter(writer io.Writer) Option {
+	return func(c *config) {
+		c.writer = writer
 	}
 }
 
 // WithGroup set log group
-func WithGroup(group string) OptionFunc {
-	return func(logger *option) {
-		logger.group = group
+func WithGroup(group string) Option {
+	return func(c *config) {
+		c.group = group
 	}
 }
 
 // WithAttrs set log key-value pair
-func WithAttrs(attrs []slog.Attr) OptionFunc {
-	return func(logger *option) {
-		logger.attrs = attrs
+func WithAttrs(attrs []slog.Attr) Option {
+	return func(c *config) {
+		c.attrs = attrs
 	}
 }
 
 // New build *slog.Logger
-func New(options ...OptionFunc) *slog.Logger {
-	logger := &option{
+func New(options ...Option) *slog.Logger {
+	logger := &config{
 		level:  DefaultLevel,
 		format: DefaultFormat,
 		writer: DefaultWriter,
@@ -87,7 +89,7 @@ func New(options ...OptionFunc) *slog.Logger {
 		opf(logger)
 	}
 
-	ops := slog.HandlerOptions{
+	ops := &slog.HandlerOptions{
 		AddSource:   true,
 		Level:       logger.level.Convert(),
 		ReplaceAttr: ReplaceAttr,
@@ -95,9 +97,9 @@ func New(options ...OptionFunc) *slog.Logger {
 
 	var handler slog.Handler
 	if logger.format == Text {
-		handler = ops.NewTextHandler(logger.writer)
+		handler = slog.NewTextHandler(logger.writer, ops)
 	} else {
-		handler = ops.NewJSONHandler(logger.writer)
+		handler = slog.NewJSONHandler(logger.writer, ops)
 	}
 
 	if logger.group != "" {
@@ -153,8 +155,9 @@ func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 	case slog.LevelKey:
 		return slog.String(a.Key, strings.ToLower(a.Value.String()))
 	case slog.SourceKey:
-		return slog.String(a.Key, getBriefSource(a.Value.String()))
-	case slog.ErrorKey:
+		value := a.Value.Any().(*slog.Source)
+		return slog.String(a.Key, fmt.Sprintf("%s:%d", getBriefSource(value.File), value.Line))
+	case AttrErrorKey:
 		v, ok := a.Value.Any().(interface {
 			StackTrace() errors.StackTrace
 		})
@@ -170,10 +173,10 @@ func ReplaceAttr(groups []string, a slog.Attr) slog.Attr {
 // NewNop returns a no-op logger
 func NewNop() *slog.Logger {
 	nopLevel := slog.Level(-99)
-	ops := slog.HandlerOptions{
+	ops := &slog.HandlerOptions{
 		Level: nopLevel,
 	}
-	handler := ops.NewTextHandler(io.Discard)
+	handler := slog.NewTextHandler(io.Discard, ops)
 	return slog.New(handler)
 }
 
@@ -197,7 +200,7 @@ func (l *Logger) Log(ctx context.Context, depth int, err error, level slog.Level
 	runtime.Callers(depth, pcs[:])
 	r := slog.NewRecord(time.Now(), level, msg, pcs[0])
 	if err != nil {
-		r.Add(slog.ErrorKey, err)
+		r.Add(AttrErrorKey, err)
 	}
 	r.Add(attrs...)
 	if ctx == nil {

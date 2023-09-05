@@ -3,13 +3,14 @@ version: '3'
 vars:
   APP_BIN_PATH: bin/app
   APP_MAIN_DIR: cmd
+  # wire
+  WIRE_ENTRY_DIR: ./internal/command
   # swagger
   API_SWAGGER_SCAN_DIR: internal/app/adapter/server/http
   API_SWAGGER_SCAN_ENTRY: http.go
   API_SWAGGER_OUT_DIR: internal/app/adapter/server/http/api/docs
   # proto
-  API_PROTO_DIR: internal/app/adapter/server/grpc/api
-  API_PROTO_PB_DIR: internal/app/adapter/server/grpc/api
+  API_PROTO_GENERATE_FILE: internal/app/adapter/server/grpc/api/generate.go
 
 tasks:
   build:
@@ -44,6 +45,10 @@ tasks:
   generate:
     desc: build the files required for the application
     cmd: go generate ./...
+
+  wire:
+    desc: automatically inject dependencies
+    cmd: wire {{.WIRE_ENTRY_DIR}}
 
   download:
     desc: download the dependencies required for compilation
@@ -88,20 +93,11 @@ tasks:
   proto:
     desc: generate the proto file
     silent: true
-    cmds:
-      - |
-        for f in $(find {{.API_PROTO_DIR}} -name *.proto)
-        do
-          kratos proto client --proto_path=./proto ${f}
-        done
-      # inject tag
-      - |
-        for f in $(find {{.API_PROTO_PB_DIR}} -name *.pb.go)
-        do
-          protoc-go-inject-tag -input=${f}
-        done
+    cmd: go generate {{.API_PROTO_GENERATE_FILE}}
 
   format:
     desc: format all go files
     silent: true
-    cmd: goimports-reviser -imports-order std,project,company,general -format -recursive ./...
+    cmds:
+      - gofmt -w .
+      - goimports-reviser -imports-order std,company,general,project -format -recursive ./...

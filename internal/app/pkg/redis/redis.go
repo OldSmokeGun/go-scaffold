@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"go-scaffold/internal/config"
-
 	"github.com/go-redis/redis/v8"
+
+	"go-scaffold/internal/config"
 )
 
 // New build redis client

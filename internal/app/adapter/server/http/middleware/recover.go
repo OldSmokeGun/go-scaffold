@@ -2,13 +2,13 @@ package middleware
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	uerr "go-scaffold/pkg/errors"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
-	"golang.org/x/exp/slog"
+
+	uerr "go-scaffold/pkg/errors"
 )
 
 // Recover returns a recover middleware
@@ -30,7 +30,7 @@ func Recover(logger *slog.Logger) echo.MiddlewareFunc {
 						err = errors.WithStack(err)
 					}
 
-					logger.Error("panic recover", err)
+					logger.Error("panic recover", slog.Any("error", err))
 
 					c.Error(err)
 				}

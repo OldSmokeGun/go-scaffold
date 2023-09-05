@@ -1,9 +1,10 @@
 package tests
 
 import (
+	"log/slog"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/go-redis/redismock/v8"
-	"golang.org/x/exp/slog"
 )
 
 // Redis client wrapper
@@ -18,7 +19,7 @@ func NewRDB(logger *slog.Logger) (*Redis, func(), error) {
 
 	cleanup := func() {
 		if err := client.Close(); err != nil {
-			logger.Error("close redis client", err)
+			logger.Error("close redis client", slog.Any("error", err))
 		}
 	}
 

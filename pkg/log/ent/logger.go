@@ -2,10 +2,9 @@ package ent
 
 import (
 	"context"
+	"log/slog"
 
 	"go-scaffold/pkg/log"
-
-	"golang.org/x/exp/slog"
 )
 
 const defaultMessageKey = "msg"

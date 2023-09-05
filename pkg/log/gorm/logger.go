@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
-	"go-scaffold/pkg/log"
-
-	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"go-scaffold/pkg/log"
 )
 
 // Config is logger config

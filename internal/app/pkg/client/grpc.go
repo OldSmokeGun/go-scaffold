@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"go-scaffold/internal/app/pkg/discovery"
-
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/metadata"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	kgrpc "github.com/go-kratos/kratos/v2/transport/grpc"
 	"google.golang.org/grpc"
+
+	"go-scaffold/internal/app/pkg/discovery"
 )
 
 // ErrDiscoveryIsNotSet discovery is not be set

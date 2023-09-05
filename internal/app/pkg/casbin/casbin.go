@@ -1,22 +1,32 @@
 package casbin
 
 import (
-	"go-scaffold/internal/app/pkg/casbin/adapter"
-	"go-scaffold/internal/app/pkg/casbin/model"
-	"go-scaffold/internal/config"
+	"database/sql"
+	"log/slog"
 
 	"github.com/casbin/casbin/v2"
 	"gorm.io/gorm"
+
+	"go-scaffold/internal/app/pkg/casbin/adapter"
+	"go-scaffold/internal/app/pkg/casbin/model"
+	"go-scaffold/internal/config"
 )
 
 // New build casbin
-func New(conf config.Casbin, db *gorm.DB) (*casbin.Enforcer, error) {
+func New(
+	env config.Env,
+	conf config.Casbin,
+	dbConf config.DBConn,
+	logger *slog.Logger,
+	gdb *gorm.DB,
+	sdb *sql.DB,
+) (*casbin.Enforcer, error) {
 	mod, err := model.New(conf.Model)
 	if err != nil {
 		return nil, err
 	}
 
-	adp, err := adapter.New(conf.Adapter, db)
+	adp, err := adapter.New(env, conf.Adapter, dbConf, logger, gdb, sdb)
 	if err != nil {
 		return nil, err
 	}

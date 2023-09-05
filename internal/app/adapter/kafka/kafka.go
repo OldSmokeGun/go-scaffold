@@ -2,12 +2,12 @@ package kafka
 
 import (
 	"context"
+	"log/slog"
+
+	"github.com/google/wire"
 
 	"go-scaffold/internal/app/adapter/kafka/consumer"
 	"go-scaffold/internal/app/adapter/kafka/handler"
-
-	"github.com/google/wire"
-	"golang.org/x/exp/slog"
 )
 
 var ProviderSet = wire.NewSet(

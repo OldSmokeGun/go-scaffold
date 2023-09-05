@@ -2,6 +2,7 @@ package command
 
 import (
 	"context"
+	"log/slog"
 	"os/signal"
 	"syscall"
 
@@ -67,7 +68,7 @@ func (c *serverCmd) run(ctx context.Context) {
 
 	select {
 	case err := <-stop:
-		c.logger.Error("start server error", err)
+		c.logger.Error("start server error", slog.Any("error", err))
 		return
 	case <-signalCtx.Done():
 	}

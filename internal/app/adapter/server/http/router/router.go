@@ -1,16 +1,16 @@
 package router
 
 import (
+	"log/slog"
 	"net/http"
 	"strings"
-
-	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
-	"go-scaffold/internal/config"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
-	"golang.org/x/exp/slog"
+
+	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
+	"go-scaffold/internal/config"
 )
 
 type router struct {

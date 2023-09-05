@@ -4,63 +4,68 @@ import (
 	"context"
 
 	"go-scaffold/internal/app/domain"
-	berr "go-scaffold/internal/app/pkg/errors"
-
-	"github.com/pkg/errors"
+	"go-scaffold/internal/app/repository"
 )
 
-var _ domain.UserUseCase = (*UserUseCase)(nil)
+var _ UserUseCaseInterface = (*UserUseCase)(nil)
 
-// UserUseCase 用户用例
-type UserUseCase struct {
-	repo domain.UserRepository
+type UserUseCaseInterface interface {
+	Create(ctx context.Context, user domain.User) (*domain.User, error)
+	Update(ctx context.Context, user domain.User) (*domain.User, error)
+	Delete(ctx context.Context, user domain.User) error
+	Detail(ctx context.Context, id int64) (*domain.User, error)
+	List(ctx context.Context, param UserListParam) ([]*domain.User, error)
+	AssignRoles(ctx context.Context, user int64, roles []int64) error
+	GetRoles(ctx context.Context, user int64) ([]*domain.Role, error)
+	GetPermissions(ctx context.Context, user int64) ([]*domain.Permission, error)
 }
 
-// NewUserUseCase 构造用户用例
+type UserUseCase struct {
+	repo repository.UserRepositoryInterface
+}
+
 func NewUserUseCase(
-	repo domain.UserRepository,
+	repo repository.UserRepositoryInterface,
 ) *UserUseCase {
 	return &UserUseCase{
 		repo: repo,
 	}
 }
 
-// Create 新增用户
-func (u *UserUseCase) Create(ctx context.Context, user domain.User) error {
-	return u.repo.Create(ctx, user)
+func (c *UserUseCase) Create(ctx context.Context, user domain.User) (*domain.User, error) {
+	return c.repo.Create(ctx, user)
 }
 
-// Update 更新用户
-func (u *UserUseCase) Update(ctx context.Context, user domain.User) error {
-	ok, err := u.repo.Exist(ctx, user.ID)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return errors.WithStack(berr.ErrResourceNotFound)
-	}
-
-	return u.repo.Update(ctx, user)
+func (c *UserUseCase) Update(ctx context.Context, user domain.User) (*domain.User, error) {
+	return c.repo.Update(ctx, user)
 }
 
-// Delete 删除用户
-func (u *UserUseCase) Delete(ctx context.Context, id domain.ID) error {
-	user, err := u.repo.FindOneByID(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	return u.repo.Delete(ctx, *user)
+func (c *UserUseCase) Delete(ctx context.Context, user domain.User) error {
+	return c.repo.Delete(ctx, user)
 }
 
-// Detail 用户详情
-func (u *UserUseCase) Detail(ctx context.Context, id domain.ID) (*domain.User, error) {
-	return u.repo.FindOneByID(ctx, id)
+func (c *UserUseCase) Detail(ctx context.Context, id int64) (*domain.User, error) {
+	return c.repo.FindOne(ctx, id)
 }
 
-// List 用户列表
-func (u *UserUseCase) List(ctx context.Context, param domain.UserListParam) ([]*domain.User, error) {
-	return u.repo.FindList(ctx, domain.FindUserListParam{
+type UserListParam struct {
+	Keyword string
+}
+
+func (c *UserUseCase) List(ctx context.Context, param UserListParam) ([]*domain.User, error) {
+	return c.repo.Filter(ctx, repository.UserFindListParam{
 		Keyword: param.Keyword,
 	})
+}
+
+func (c *UserUseCase) AssignRoles(ctx context.Context, user int64, roles []int64) error {
+	return c.repo.AssignRoles(ctx, user, roles)
+}
+
+func (c *UserUseCase) GetRoles(ctx context.Context, user int64) ([]*domain.Role, error) {
+	return c.repo.GetRoles(ctx, user)
+}
+
+func (c *UserUseCase) GetPermissions(ctx context.Context, user int64) ([]*domain.Permission, error) {
+	return c.repo.GetPermissions(ctx, user)
 }
