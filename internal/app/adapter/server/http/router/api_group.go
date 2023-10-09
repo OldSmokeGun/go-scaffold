@@ -9,6 +9,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"go-scaffold/internal/app/adapter/server/http/api/docs"
+	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
 	"go-scaffold/internal/config"
 )
 
@@ -47,6 +48,7 @@ func (g *ApiGroup) setup(prefix string, rg *echo.Group) {
 func (g *ApiGroup) useMiddlewares() {
 	// allowed to cross
 	g.group.Use(middleware.CORS())
+	g.group.Use(imiddleware.Limit(*imiddleware.NewDefaultLimitConfig()))
 }
 
 func (g *ApiGroup) useRoutes(e *echo.Echo) {
