@@ -22,45 +22,33 @@ func (DB) GetName() string {
 
 // DBConn database connection config
 type DBConn struct {
-	DBDsn
-	DBConnPool
-}
-
-// DBDsn database dsn config
-type DBDsn struct {
-	Driver   DBDriver `json:"driver"`
-	Addr     string   `json:"addr"`
-	Database string   `json:"database"`
-	Username string   `json:"username"`
-	Password string   `json:"password"`
-	Options  string   `json:"options"`
-}
-
-// EnableMultiStatement enable the execution of multi sql statement
-func (d *DBDsn) EnableMultiStatement() error {
-	if d.Driver != MySQL {
-		return nil
-	}
-
-	options, err := url.ParseQuery(d.Options)
-	if err != nil {
-		return err
-	}
-
-	if !options.Has("multiStatements") {
-		options.Set("multiStatements", "true")
-	}
-
-	d.Options = options.Encode()
-	return nil
-}
-
-// DBConnPool database connection pool config
-type DBConnPool struct {
+	Driver          DBDriver      `json:"driver"`
+	DSN             string        `json:"dsn"`
 	MaxIdleConn     int           `json:"maxIdleConn"`
 	MaxOpenConn     int           `json:"maxOpenConn"`
 	ConnMaxIdleTime time.Duration `json:"connMaxIdleTime"`
 	ConnMaxLifeTime time.Duration `json:"connMaxLifeTime"`
+}
+
+// EnableMultiStatement enable the execution of multi sql statement
+func (d *DBConn) EnableMultiStatement() error {
+	if d.Driver != MySQL {
+		return nil
+	}
+
+	options, err := url.Parse(d.DSN)
+	if err != nil {
+		return err
+	}
+
+	if !options.Query().Has("multiStatements") {
+		q := options.Query()
+		q.Set("multiStatements", "true")
+		options.RawQuery = q.Encode()
+	}
+
+	d.DSN = options.String()
+	return nil
 }
 
 // DBDriver database driver type

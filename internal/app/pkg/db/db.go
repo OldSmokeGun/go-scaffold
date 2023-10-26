@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx"
@@ -21,9 +21,7 @@ func New(ctx context.Context, conf config.DBConn) (*sql.DB, error) {
 		return nil, ErrUnsupportedDriver
 	}
 
-	dsn := buildDSN(conf)
-
-	db, err := sql.Open(conf.Driver.String(), dsn)
+	db, err := sql.Open(conf.Driver.String(), conf.DSN)
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +35,11 @@ func New(ctx context.Context, conf config.DBConn) (*sql.DB, error) {
 	}
 
 	if conf.ConnMaxIdleTime > 0 {
-		db.SetConnMaxLifetime(conf.ConnMaxIdleTime)
+		db.SetConnMaxLifetime(conf.ConnMaxIdleTime * time.Second)
 	}
 
 	if conf.ConnMaxLifeTime > 0 {
-		db.SetConnMaxLifetime(conf.ConnMaxLifeTime)
+		db.SetConnMaxLifetime(conf.ConnMaxLifeTime * time.Second)
 	}
 
 	if err := db.PingContext(ctx); err != nil {
@@ -49,26 +47,4 @@ func New(ctx context.Context, conf config.DBConn) (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-func buildDSN(c config.DBConn) string {
-	dsn := ""
-
-	switch c.Driver {
-	case config.Postgres:
-		var host, port string
-		s := strings.SplitN(c.Addr, ":", 2)
-		if len(s) == 2 {
-			host = s[0]
-			port = s[1]
-		}
-
-		dsn = "host=" + host + " port=" + port + " user=" + c.Username + " password=" + c.Password + " dbname=" + c.Database + " " + c.Options
-	case config.MySQL:
-		fallthrough
-	default:
-		dsn = c.Username + ":" + c.Password + "@tcp(" + c.Addr + ")/" + c.Database + "?" + c.Options
-	}
-
-	return dsn
 }

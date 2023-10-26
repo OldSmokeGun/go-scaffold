@@ -58,27 +58,20 @@ func registerResolver(ctx context.Context, gdb *gorm.DB, conf config.DB) error {
 	for _, rc := range rcs {
 		rc.Driver = conn.Driver
 
-		rcp := conn.DBConnPool
-		if rc.MaxIdleConn > 0 {
-			rcp.MaxIdleConn = rc.MaxIdleConn
+		if rc.MaxIdleConn == 0 {
+			rc.MaxIdleConn = conn.MaxIdleConn
 		}
-		if rc.MaxOpenConn > 0 {
-			rcp.MaxOpenConn = rc.MaxOpenConn
+		if rc.MaxOpenConn == 0 {
+			rc.MaxOpenConn = conn.MaxOpenConn
 		}
-		if rc.ConnMaxIdleTime > 0 {
-			rcp.ConnMaxIdleTime = rc.ConnMaxIdleTime
+		if rc.ConnMaxIdleTime == 0 {
+			rc.ConnMaxIdleTime = conn.ConnMaxIdleTime
 		}
-		if rc.ConnMaxLifeTime > 0 {
-			rcp.ConnMaxLifeTime = rc.ConnMaxLifeTime
+		if rc.ConnMaxLifeTime == 0 {
+			rc.ConnMaxLifeTime = conn.ConnMaxLifeTime
 		}
 
-		resolvers = append(resolvers, &config.DBResolver{
-			Type: rc.Type,
-			DBConn: config.DBConn{
-				DBDsn:      rc.DBDsn,
-				DBConnPool: rcp,
-			},
-		})
+		resolvers = append(resolvers, rc)
 	}
 
 	plugin, err := buildResolver(ctx, resolvers)

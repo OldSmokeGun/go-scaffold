@@ -55,11 +55,7 @@ services:
 
 # db:
 #   driver: "mysql"
-#   addr: "127.0.0.1:3306"
-#   database: "go-scaffold"
-#   username: "root"
-#   password: "root"
-#   options: "charset=utf8mb4&parseTime=True&loc=Local"
+#   dsn: "root:root@tcp(127.0.0.1:3306)/go-scaffold?charset=utf8mb4&parseTime=True&loc=Local"
 #   maxIdleConn: 20
 #   maxOpenConn: 40
 #   connMaxIdleTime: 120
@@ -67,18 +63,10 @@ services:
 #   logInfo: true
 #   resolvers:
 #     - type: "replica"
-#       addr: "127.0.0.1:3306"
-#       database: "go-scaffold"
-#       username: "root"
-#       password: "root"
-#       options: "charset=utf8mb4&parseTime=True&loc=Local"
+#       dsn: "root:root@tcp(127.0.0.1:3306)/go-scaffold?charset=utf8mb4&parseTime=True&loc=Local"
 
 #   driver: "postgres"
-#   addr: "127.0.0.1:5432"
-#   database: "go-scaffold"
-#   username: "postgres"
-#   password: "root"
-#   options: "sslmode=disable&TimeZone=Asia/Shanghai"
+#   dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable&TimeZone=Asia/Shanghai"
 #   maxIdleConn: 20
 #   maxOpenConn: 40
 #   connMaxIdleTime: 120
@@ -86,11 +74,7 @@ services:
 #   logInfo: true
 #   resolvers:
 #     - type: "replica"
-#       addr: "127.0.0.1:5432"
-#       database: "go-scaffold"
-#       username: "postgres"
-#       password: "root"
-#       options: "sslmode=disable&TimeZone=Asia/Shanghai"
+#       dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable&TimeZone=Asia/Shanghai"
 
 ##################### database #####################
 
