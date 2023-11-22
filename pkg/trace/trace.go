@@ -2,18 +2,29 @@ package trace
 
 import (
 	"context"
-	"strings"
 
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"github.com/pkg/errors"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
+var ErrUnsupportedOTPLProtocol = errors.New("unsupported otpl protocol")
+
+// OTPLProtocol OTPL protocol
+type OTPLProtocol string
+
+const (
+	HTTP OTPLProtocol = "http"
+	GRPC OTPLProtocol = "grpc"
+)
+
 // Trace OpenTelemetry trace
 type Trace struct {
-	endpoint       string
 	serviceName    string
 	env            string
 	tracerProvider *sdktrace.TracerProvider
@@ -36,31 +47,38 @@ func WithEnv(env string) Option {
 }
 
 // New build Trace
-func New(endpoint string, options ...Option) (*Trace, error) {
+func New(ctx context.Context, protocol OTPLProtocol, endpoint string, options ...Option) (*Trace, error) {
 	t := &Trace{}
 	for _, option := range options {
 		option(t)
 	}
 
-	var endpointOption jaeger.EndpointOption
+	var (
+		exporter *otlptrace.Exporter
+		err      error
+	)
 
-	if strings.HasPrefix(endpoint, "http") {
-		endpointOption = jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(endpoint))
-	} else {
-		agentConfig := strings.SplitN(endpoint, ":", 2)
-		if len(agentConfig) == 2 {
-			endpointOption = jaeger.WithAgentEndpoint(
-				jaeger.WithAgentHost(agentConfig[0]),
-				jaeger.WithAgentPort(agentConfig[1]),
-			)
-		} else {
-			endpointOption = jaeger.WithAgentEndpoint(jaeger.WithAgentHost(agentConfig[0]))
+	switch protocol {
+	case HTTP:
+		exporter, err = otlptracehttp.New(
+			ctx,
+			otlptracehttp.WithInsecure(),
+			otlptracehttp.WithEndpoint(endpoint),
+		)
+		if err != nil {
+			return nil, err
 		}
-	}
-
-	exporter, err := jaeger.New(endpointOption)
-	if err != nil {
-		return nil, err
+	case GRPC:
+		exporter, err = otlptracegrpc.New(
+			ctx,
+			otlptracegrpc.WithInsecure(),
+			otlptracegrpc.WithEndpoint(endpoint),
+		)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, ErrUnsupportedOTPLProtocol
 	}
 
 	tp := sdktrace.NewTracerProvider(

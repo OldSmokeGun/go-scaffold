@@ -109,8 +109,9 @@ kafka:
 
 ##################### trace #####################
 
-# trace:
-#   endpoint: "localhost:6831"
-#   # endpoint: "http://localhost:14268/api/traces"
+# otpl:
+#   trace:
+#     protocol: "http"
+#     endpoint: "localhost:4318"
 
 ##################### trace #####################

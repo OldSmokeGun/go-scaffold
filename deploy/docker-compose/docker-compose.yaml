@@ -87,17 +87,12 @@ services:
       BADGER_EPHEMERAL: "false"
       BADGER_DIRECTORY_VALUE: "/badger/data"
       BADGER_DIRECTORY_KEY: "/badger/key"
+      COLLECTOR_OTLP_ENABLED: true
     ports:
-      - "${JAEGER_COMPACT_ZIPKIN_THRIFT_PORT}:5775/udp"   # accept zipkin.thrift over compact Thrift protocol (used by legacy clients only, deprecated)
-      - "${JAEGER_COMPACT_THRIFT_PORT}:6831/udp"          # accept jaeger.thrift over Thrift-compact protocol (used by most SDKs)
-      - "${JAEGER_BINARY_THRIFT_PORT}:6832/udp"           # accept jaeger.thrift over Thrift-binary protocol (used by Node.js SDK)
-      - "${JAEGER_SERVE_CONFIGS_PORT}:5778"               # serve configs port
-      - "${JAEGER_SERVE_FRONTEND_PORT}:16686"             # serve UI port
-      - "${JAEGER_ZIPKIN_COMPATIBLE_ENDPOINT_PORT}:9411"  # Zipkin compatible endpoint (optional)
-      - "${JAEGER_PROTO_SEND_PORT}:14250"                 # accept model.proto
-      - "${JAEGER_THRIFT_SEND_PORT}:14267"                # used by jaeger-agent to send spans in jaeger.thrift format
-      - "${JAEGER_THRIFT_ACCEPT_PORT}:14268"              # accept jaeger.thrift directly from clients（collector component port）
-      - "${JAEGER_HEALTH_CHECK_PORT}:14269"               # health check at / and metrics at /metrics
+      - "${JAEGER_SERVE_CONFIGS_PORT}:5778"       # serve configs port
+      - "${JAEGER_SERVE_FRONTEND_PORT}:16686"     # serve UI port
+      - "${JAEGER_OTLP_GRPC_PORT}:4317"           # OTLP gRPC port
+      - "${JAEGER_OTLP_HTTP_PORT}:4318"           # OTLP HTTP port
     volumes:
       - "./jaeger/data:/badger"
   #################### jaeger ####################

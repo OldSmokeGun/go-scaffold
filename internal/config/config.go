@@ -20,7 +20,7 @@ var ProviderSet = wire.NewSet(
 	GetDBConn,
 	GetRedis,
 	GetKafka,
-	GetTrace,
+	GetOTPL,
 )
 
 type Configure interface {
@@ -39,7 +39,7 @@ type Config struct {
 	DB        *DB        `json:"db"`
 	Redis     *Redis     `json:"redis"`
 	Kafka     *Kafka     `json:"kafka"`
-	Trace     *Trace     `json:"trace"`
+	OTPL      *OTLP      `json:"otpl"`
 }
 
 // SetConfig set configuration
@@ -113,8 +113,8 @@ func GetKafka() (Kafka, error) {
 	return getEntry(config.Kafka)
 }
 
-func GetTrace() (Trace, error) {
-	return getEntry(config.Trace)
+func GetOTPL() (OTLP, error) {
+	return getEntry(config.OTPL)
 }
 
 func getHTTP() (HTTP, error) {
