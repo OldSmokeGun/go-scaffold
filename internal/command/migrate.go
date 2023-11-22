@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -57,20 +58,6 @@ func newMigrateCmd() *migrateCmd {
 func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 	c.mustConfig()
 
-	dir := cmd.Flag(flagMigrationDir.name).Value.String()
-	if dir == "" {
-		panic("migration directory must be specified")
-	}
-
-	ignoreUnknown, err := cmd.Flags().GetBool(flagMigrationIgnoreUnknown.name)
-	if err != nil {
-		panic(err)
-	}
-
-	migrations := &migrate.FileMigrationSource{
-		Dir: dir,
-	}
-
 	dbConfig, err := config.GetDBConn()
 	if err != nil {
 		panic(err)
@@ -81,13 +68,28 @@ func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 		panic(err)
 	}
 
-	db, cleanup, err := initDB(cmd.Context(), dbConfig, nil)
+	dir := cmd.Flag(flagMigrationDir.name).Value.String()
+	if dir == "" {
+		panic("migration directory must be specified")
+	}
+	migrationDir := path.Join(dir, dbConfig.Driver.String())
+
+	ignoreUnknown, err := cmd.Flags().GetBool(flagMigrationIgnoreUnknown.name)
 	if err != nil {
 		panic(err)
 	}
 
 	migrate.SetTable("migrations")
 	migrate.SetIgnoreUnknown(ignoreUnknown)
+
+	db, cleanup, err := initDB(cmd.Context(), dbConfig, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	migrations := &migrate.FileMigrationSource{
+		Dir: migrationDir,
+	}
 
 	c.driver = dbConfig.Driver.String()
 	c.db = db

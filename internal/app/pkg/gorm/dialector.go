@@ -3,6 +3,7 @@ package gorm
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"go-scaffold/internal/app/pkg/db"
@@ -17,6 +18,8 @@ func NewDialect(driver config.DBDriver, conn gorm.ConnPool) (gorm.Dialector, err
 		dialect = newMySQLDialect(conn)
 	case config.Postgres:
 		dialect = newPostgresDialect(conn)
+	case config.SQLite:
+		dialect = newSQLiteDialect(conn)
 	default:
 		return nil, db.ErrUnsupportedDriver
 	}
@@ -31,4 +34,9 @@ func newMySQLDialect(conn gorm.ConnPool) gorm.Dialector {
 // newPostgresDialect build postgres dialect
 func newPostgresDialect(conn gorm.ConnPool) gorm.Dialector {
 	return postgres.New(postgres.Config{Conn: conn})
+}
+
+// newSQLiteDialect build sqlite dialect
+func newSQLiteDialect(conn gorm.ConnPool) gorm.Dialector {
+	return sqlite.Dialector{Conn: conn}
 }

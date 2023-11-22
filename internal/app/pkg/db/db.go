@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx"
+	_ "github.com/mattn/go-sqlite3"
 
 	"go-scaffold/internal/config"
 )

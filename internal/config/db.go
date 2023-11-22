@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 )
 
-var supportedDrivers = []DBDriver{MySQL, Postgres}
+var supportedDrivers = []DBDriver{MySQL, Postgres, SQLite}
 
 // DB database config
 type DB struct {
@@ -66,6 +66,7 @@ func (d DBDriver) IsSupported() bool {
 const (
 	MySQL    DBDriver = "mysql"
 	Postgres DBDriver = "postgres"
+	SQLite   DBDriver = "sqlite3"
 )
 
 // DBResolver database resolver config

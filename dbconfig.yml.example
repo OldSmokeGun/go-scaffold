@@ -1,4 +1,29 @@
-development:
-    dialect: mysql
-    datasource: host=${DB_HOST} dbname=${DB_NAME} user=${DB_USER} password=${DB_PASSWORD} sslmode=required
-    dir: migrations
+local:
+  dialect: sqlite3
+  datasource: go-scaffold.db
+  dir: migrations/sqlite3
+  table: migrations
+
+development-mysql:
+  dialect: mysql
+  datasource: ${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST})/${DB_NAME}?charset=utf8mb4&parseTime=True&loc=Local
+  dir: migrations/mysql
+  table: migrations
+
+development-postgres:
+  dialect: postgres
+  datasource: host=${DB_HOST} dbname=${DB_NAME} user=${DB_USER} password=${DB_PASSWORD} sslmode=require
+  dir: migrations/postgres
+  table: migrations
+
+# production-mysql:
+#   dialect: mysql
+#   datasource: ${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST})/${DB_NAME}?charset=utf8mb4&parseTime=True&loc=Local
+#   dir: migrations/mysql
+#   table: migrations
+
+# production-postgres:
+#   dialect: postgres
+#   datasource: host=${DB_HOST} dbname=${DB_NAME} user=${DB_USER} password=${DB_PASSWORD} sslmode=require
+#   dir: migrations/postgres
+#   table: migrations

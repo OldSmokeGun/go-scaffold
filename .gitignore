@@ -7,3 +7,4 @@ etc/config.yaml
 
 requests.http
 dbconfig.yml
+go-scaffold.db
