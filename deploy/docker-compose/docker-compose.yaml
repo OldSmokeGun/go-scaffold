@@ -46,6 +46,27 @@ services:
       - "./apollo/migrate:/docker-entrypoint-initdb.d"
   #################### mysql ####################
 
+  #################### postgres ####################
+  postgres:
+    image: postgres:${POSTGRES_TAG}
+    networks:
+      go-scaffold:
+        aliases:
+          - postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: go-scaffold
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    command: >
+      postgres -c 'config_file=/etc/postgresql/postgresql.conf'
+    volumes:
+      - "./postgres/postgresql.conf:/etc/postgresql/postgresql.conf"
+      - "./postgres/data/:/var/lib/postgresql"
+      - "./postgres/initdb.d/:/docker-entrypoint-initdb.d/"
+  #################### postgres ####################
+
   #################### redis ####################
   redis:
     image: redislabs/redismod:${REDIS_TAG}
