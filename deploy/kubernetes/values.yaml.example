@@ -90,7 +90,7 @@ configMap:
         timeout: 5
 
     ##################### server #####################
-
+    
 
     ##################### gRPC service address #####################
     services:
@@ -127,7 +127,7 @@ configMap:
     #       dsn: "root:root@tcp(127.0.0.1:3306)/go-scaffold?charset=utf8mb4&parseTime=True&loc=Local"
 
     #   driver: "postgres"
-    #   dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable&TimeZone=Asia/Shanghai"
+    #   dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable TimeZone=Asia/Shanghai"
     #   maxIdleConn: 20
     #   maxOpenConn: 40
     #   connMaxIdleTime: 120
@@ -135,7 +135,11 @@ configMap:
     #   logInfo: true
     #   resolvers:
     #     - type: "replica"
-    #       dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable&TimeZone=Asia/Shanghai"
+    #       dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable TimeZone=Asia/Shanghai"
+
+    #   driver: "sqlite3"
+    #   dsn: "go-scaffold.db?mode=memory&cache=shared&_foreign_keys=1"
+    #   logInfo: true
 
     ##################### database #####################
 
@@ -166,9 +170,10 @@ configMap:
 
     ##################### trace #####################
 
-    # trace:
-    #   endpoint: "localhost:6831"
-    #   # endpoint: "http://localhost:14268/api/traces"
+    # otpl:
+    #   trace:
+    #     protocol: "http"
+    #     endpoint: "localhost:4318"
 
     ##################### trace #####################
 
