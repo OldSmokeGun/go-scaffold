@@ -58,7 +58,7 @@ func newMigrateCmd() *migrateCmd {
 func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 	c.mustConfig()
 
-	dbConfig, err := config.GetDBConn()
+	dbConfig, err := config.GetDatabaseConn()
 	if err != nil {
 		panic(err)
 	}

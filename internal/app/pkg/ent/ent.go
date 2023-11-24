@@ -15,7 +15,7 @@ import (
 )
 
 // New build db client
-func New(env config.Env, dbConf config.DBConn, logger *slog.Logger, sdb *sql.DB) (*ent.Client, error) {
+func New(env config.Env, dbConf config.DatabaseConn, logger *slog.Logger, sdb *sql.DB) (*ent.Client, error) {
 	driver := entsql.OpenDB(dbConf.Driver.String(), sdb)
 
 	options := []ent.Option{

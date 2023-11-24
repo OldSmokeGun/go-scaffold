@@ -22,7 +22,7 @@ type Adapter interface {
 func New(
 	env config.Env,
 	conf config.CasbinAdapter,
-	dbConf config.DBConn,
+	dbConf config.DatabaseConn,
 	logger *slog.Logger,
 	db *gorm.DB,
 	sdb *sql.DB,

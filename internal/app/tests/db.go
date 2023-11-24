@@ -33,7 +33,7 @@ func NewDB(logger *slog.Logger) (*DB, func(), error) {
 		LogInfo:                   true,
 	})
 
-	dialect, err := igorm.NewDialect(config.DBDriver(dbDriver), mdb)
+	dialect, err := igorm.NewDialect(config.DatabaseDriver(dbDriver), mdb)
 	if err != nil {
 		return nil, nil, err
 	}

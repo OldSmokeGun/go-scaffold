@@ -16,11 +16,11 @@ var ProviderSet = wire.NewSet(
 	GetGRPCServer,
 	GetServices,
 	GetDiscovery,
-	GetDB,
-	GetDBConn,
+	GetDatabase,
+	GetDatabaseConn,
 	GetRedis,
 	GetKafka,
-	GetOTPL,
+	GetTrace,
 )
 
 type Configure interface {
@@ -36,10 +36,10 @@ type Config struct {
 	GRPC      *GRPC      `json:"grpc"`
 	Services  *Services  `json:"services"`
 	Discovery *Discovery `json:"discovery"`
-	DB        *DB        `json:"db"`
+	Database  *Database  `json:"database"`
 	Redis     *Redis     `json:"redis"`
 	Kafka     *Kafka     `json:"kafka"`
-	OTPL      *OTLP      `json:"otpl"`
+	Trace     *Trace     `json:"trace"`
 }
 
 // SetConfig set configuration
@@ -93,16 +93,16 @@ func GetDiscovery() (Discovery, error) {
 	return getEntry(config.Discovery)
 }
 
-func GetDB() (DB, error) {
-	return getEntry(config.DB)
+func GetDatabase() (Database, error) {
+	return getEntry(config.Database)
 }
 
-func GetDBConn() (DBConn, error) {
-	dbConfig, err := GetDB()
+func GetDatabaseConn() (DatabaseConn, error) {
+	dbConfig, err := GetDatabase()
 	if err != nil {
-		return DBConn{}, err
+		return DatabaseConn{}, err
 	}
-	return dbConfig.DBConn, nil
+	return dbConfig.DatabaseConn, nil
 }
 
 func GetRedis() (Redis, error) {
@@ -113,8 +113,8 @@ func GetKafka() (Kafka, error) {
 	return getEntry(config.Kafka)
 }
 
-func GetOTPL() (OTLP, error) {
-	return getEntry(config.OTPL)
+func GetTrace() (Trace, error) {
+	return getEntry(config.Trace)
 }
 
 func getHTTP() (HTTP, error) {

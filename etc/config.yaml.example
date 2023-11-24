@@ -53,7 +53,7 @@ services:
 
 ##################### database #####################
 
-# db:
+# database:
 #   driver: "mysql"
 #   dsn: "root:root@tcp(127.0.0.1:3306)/go-scaffold?charset=utf8mb4&parseTime=True&loc=Local"
 #   maxIdleConn: 20
@@ -109,9 +109,8 @@ kafka:
 
 ##################### trace #####################
 
-# otpl:
-#   trace:
-#     protocol: "http"
-#     endpoint: "localhost:4318"
+# trace:
+#   protocol: "http"
+#   endpoint: "localhost:4318"
 
 ##################### trace #####################

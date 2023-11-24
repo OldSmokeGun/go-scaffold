@@ -139,14 +139,13 @@ func (c *baseCmd) initConfig(cmd *cobra.Command, enableRemote bool) {
 func (c *baseCmd) initTrace(cmd *cobra.Command) {
 	c.mustConfig()
 
-	otplConfig, err := config.GetOTPL()
+	traceConfig, err := config.GetTrace()
 	if config.IsNotConfigured(err) {
 		return
 	} else if err != nil {
 		panic(err)
 	}
 
-	traceConfig := otplConfig.Trace
 	appName := getAppName(cmd)
 	appEnv := getAppEnvironment(cmd)
 

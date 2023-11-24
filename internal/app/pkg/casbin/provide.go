@@ -14,7 +14,7 @@ import (
 func Provide(
 	env config.Env,
 	conf config.Casbin,
-	dbConf config.DBConn,
+	dbConf config.DatabaseConn,
 	logger *slog.Logger,
 	gdb *gorm.DB,
 	sdb *sql.DB,

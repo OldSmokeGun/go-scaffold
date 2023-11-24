@@ -7,31 +7,31 @@ import (
 	"github.com/samber/lo"
 )
 
-var supportedDrivers = []DBDriver{MySQL, Postgres, SQLite}
+var supportedDrivers = []DatabaseDriver{MySQL, Postgres, SQLite}
 
-// DB database config
-type DB struct {
-	DBConn
-	LogInfo   bool          `json:"logInfo"`
-	Resolvers []*DBResolver `json:"resolvers"`
+// Database config
+type Database struct {
+	DatabaseConn
+	LogInfo   bool                `json:"logInfo"`
+	Resolvers []*DatabaseResolver `json:"resolvers"`
 }
 
-func (DB) GetName() string {
-	return "db"
+func (Database) GetName() string {
+	return "database"
 }
 
-// DBConn database connection config
-type DBConn struct {
-	Driver          DBDriver      `json:"driver"`
-	DSN             string        `json:"dsn"`
-	MaxIdleConn     int           `json:"maxIdleConn"`
-	MaxOpenConn     int           `json:"maxOpenConn"`
-	ConnMaxIdleTime time.Duration `json:"connMaxIdleTime"`
-	ConnMaxLifeTime time.Duration `json:"connMaxLifeTime"`
+// DatabaseConn connection config
+type DatabaseConn struct {
+	Driver          DatabaseDriver `json:"driver"`
+	DSN             string         `json:"dsn"`
+	MaxIdleConn     int            `json:"maxIdleConn"`
+	MaxOpenConn     int            `json:"maxOpenConn"`
+	ConnMaxIdleTime time.Duration  `json:"connMaxIdleTime"`
+	ConnMaxLifeTime time.Duration  `json:"connMaxLifeTime"`
 }
 
 // EnableMultiStatement enable the execution of multi sql statement
-func (d *DBConn) EnableMultiStatement() error {
+func (d *DatabaseConn) EnableMultiStatement() error {
 	if d.Driver != MySQL {
 		return nil
 	}
@@ -51,34 +51,34 @@ func (d *DBConn) EnableMultiStatement() error {
 	return nil
 }
 
-// DBDriver database driver type
-type DBDriver string
+// DatabaseDriver database driver type
+type DatabaseDriver string
 
-func (d DBDriver) String() string {
+func (d DatabaseDriver) String() string {
 	return string(d)
 }
 
 // IsSupported check that the driver is supported
-func (d DBDriver) IsSupported() bool {
+func (d DatabaseDriver) IsSupported() bool {
 	return lo.Contains(supportedDrivers, d)
 }
 
 const (
-	MySQL    DBDriver = "mysql"
-	Postgres DBDriver = "postgres"
-	SQLite   DBDriver = "sqlite3"
+	MySQL    DatabaseDriver = "mysql"
+	Postgres DatabaseDriver = "postgres"
+	SQLite   DatabaseDriver = "sqlite3"
 )
 
-// DBResolver database resolver config
-type DBResolver struct {
-	Type DBResolverType `json:"type"`
-	DBConn
+// DatabaseResolver database resolver config
+type DatabaseResolver struct {
+	Type DatabaseResolverType `json:"type"`
+	DatabaseConn
 }
 
-// DBResolverType database resolver type
-type DBResolverType string
+// DatabaseResolverType database resolver type
+type DatabaseResolverType string
 
 const (
-	Source  DBResolverType = "source"
-	Replica DBResolverType = "replica"
+	Source  DatabaseResolverType = "source"
+	Replica DatabaseResolverType = "replica"
 )

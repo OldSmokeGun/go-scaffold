@@ -9,7 +9,7 @@ import (
 )
 
 // Provide db client
-func Provide(env config.Env, conf config.DBConn, logger *slog.Logger, db *sql.DB) (*ent.Client, func(), error) {
+func Provide(env config.Env, conf config.DatabaseConn, logger *slog.Logger, db *sql.DB) (*ent.Client, func(), error) {
 	client, err := New(env, conf, logger, db)
 	if err != nil {
 		return nil, nil, err

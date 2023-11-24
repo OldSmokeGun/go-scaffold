@@ -42,15 +42,15 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
-	dbConn, err := config.GetDBConn()
+	databaseConn, err := config.GetDatabaseConn()
 	if err != nil {
 		return nil, nil, err
 	}
-	sqlDB, cleanup, err := db.Provide(contextContext, dbConn)
+	sqlDB, cleanup, err := db.Provide(contextContext, databaseConn)
 	if err != nil {
 		return nil, nil, err
 	}
-	entClient, cleanup2, err := ent.Provide(env, dbConn, logger, sqlDB)
+	entClient, cleanup2, err := ent.Provide(env, databaseConn, logger, sqlDB)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -61,19 +61,19 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 		cleanup()
 		return nil, nil, err
 	}
-	configDB, err := config.GetDB()
+	database, err := config.GetDatabase()
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup3, err := gorm.Provide(contextContext, configDB, logger)
+	gormDB, cleanup3, err := gorm.Provide(contextContext, database, logger)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	enforcer, err := casbin.Provide(env, configCasbin, dbConn, logger, gormDB, sqlDB)
+	enforcer, err := casbin.Provide(env, configCasbin, databaseConn, logger, gormDB, sqlDB)
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -177,8 +177,8 @@ func initKafka(contextContext context.Context, appName config.AppName, env confi
 	}, nil
 }
 
-func initDB(contextContext context.Context, dbConn config.DBConn, logger *slog.Logger) (*sql.DB, func(), error) {
-	sqlDB, cleanup, err := db.Provide(contextContext, dbConn)
+func initDB(contextContext context.Context, databaseConn config.DatabaseConn, logger *slog.Logger) (*sql.DB, func(), error) {
+	sqlDB, cleanup, err := db.Provide(contextContext, databaseConn)
 	if err != nil {
 		return nil, nil, err
 	}

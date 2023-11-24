@@ -11,7 +11,7 @@ import (
 )
 
 // NewDialect build dialect
-func NewDialect(driver config.DBDriver, conn gorm.ConnPool) (gorm.Dialector, error) {
+func NewDialect(driver config.DatabaseDriver, conn gorm.ConnPool) (gorm.Dialector, error) {
 	var dialect gorm.Dialector
 	switch driver {
 	case config.MySQL:

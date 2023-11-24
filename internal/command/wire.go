@@ -58,7 +58,7 @@ func initKafka(
 
 func initDB(
 	context.Context,
-	config.DBConn,
+	config.DatabaseConn,
 	*slog.Logger,
 ) (*sql.DB, func(), error) {
 	panic(wire.Build(

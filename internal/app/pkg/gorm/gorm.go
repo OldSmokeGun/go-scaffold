@@ -19,8 +19,8 @@ import (
 var ErrUnsupportedResolverType = errors.New("unsupported resolver type")
 
 // New build gorm
-func New(ctx context.Context, conf config.DB, logger *slog.Logger) (gdb *gorm.DB, err error) {
-	sdb, err := db.New(ctx, conf.DBConn)
+func New(ctx context.Context, conf config.Database, logger *slog.Logger) (gdb *gorm.DB, err error) {
+	sdb, err := db.New(ctx, conf.DatabaseConn)
 	if err != nil {
 		return nil, err
 	}
@@ -50,11 +50,11 @@ func New(ctx context.Context, conf config.DB, logger *slog.Logger) (gdb *gorm.DB
 	return gdb, nil
 }
 
-func registerResolver(ctx context.Context, gdb *gorm.DB, conf config.DB) error {
+func registerResolver(ctx context.Context, gdb *gorm.DB, conf config.Database) error {
 	rcs := conf.Resolvers
-	conn := conf.DBConn
+	conn := conf.DatabaseConn
 
-	resolvers := make([]*config.DBResolver, 0, len(rcs))
+	resolvers := make([]*config.DatabaseResolver, 0, len(rcs))
 	for _, rc := range rcs {
 		rc.Driver = conn.Driver
 
@@ -81,14 +81,14 @@ func registerResolver(ctx context.Context, gdb *gorm.DB, conf config.DB) error {
 	return gdb.Use(plugin)
 }
 
-func buildResolver(ctx context.Context, resolvers []*config.DBResolver) (gorm.Plugin, error) {
+func buildResolver(ctx context.Context, resolvers []*config.DatabaseResolver) (gorm.Plugin, error) {
 	var (
 		sources  = make([]gorm.Dialector, 0, len(resolvers))
 		replicas = make([]gorm.Dialector, 0, len(resolvers))
 	)
 
 	for _, resolver := range resolvers {
-		sdb, err := db.New(ctx, resolver.DBConn)
+		sdb, err := db.New(ctx, resolver.DatabaseConn)
 		if err != nil {
 			return nil, err
 		}

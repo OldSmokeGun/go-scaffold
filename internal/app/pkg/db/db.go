@@ -17,7 +17,7 @@ import (
 var ErrUnsupportedDriver = errors.New("unsupported database driver")
 
 // New build database connection
-func New(ctx context.Context, conf config.DBConn) (*sql.DB, error) {
+func New(ctx context.Context, conf config.DatabaseConn) (*sql.DB, error) {
 	if !conf.Driver.IsSupported() {
 		return nil, ErrUnsupportedDriver
 	}

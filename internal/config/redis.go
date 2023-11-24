@@ -7,7 +7,7 @@ type Redis struct {
 	Addr               string        `json:"addr"`
 	Username           string        `json:"username"`
 	Password           string        `json:"password"`
-	DB                 int           `json:"DB"`
+	DB                 int           `json:"db"`
 	MaxRetries         int           `json:"maxRetries"`
 	MinRetryBackoff    time.Duration `json:"minRetryBackoff"`
 	MaxRetryBackoff    time.Duration `json:"maxRetryBackoff"`

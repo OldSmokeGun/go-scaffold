@@ -13,7 +13,7 @@ import (
 )
 
 // NewEntAdapter build casin ent adapter
-func NewEntAdapter(env config.Env, dbConf config.DBConn, logger *slog.Logger, sdb *sql.DB) (*entadapter.Adapter, error) {
+func NewEntAdapter(env config.Env, dbConf config.DatabaseConn, logger *slog.Logger, sdb *sql.DB) (*entadapter.Adapter, error) {
 	driver := entsql.OpenDB(dbConf.Driver.String(), sdb)
 
 	options := []ent.Option{

@@ -8,7 +8,7 @@ import (
 )
 
 // Provide database connection
-func Provide(ctx context.Context, conf config.DBConn) (db *sql.DB, cleanup func(), err error) {
+func Provide(ctx context.Context, conf config.DatabaseConn) (db *sql.DB, cleanup func(), err error) {
 	db, err = New(ctx, conf)
 	if err != nil {
 		return nil, nil, err
