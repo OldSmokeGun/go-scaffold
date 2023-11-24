@@ -163,20 +163,20 @@ func (h *ProductHandler) Update(ctx echo.Context) error {
 }
 
 type ProductDetailRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 type ProductDetailResponse = ProductInfo
 
 // Detail 产品详情
 //
-//	@Router			/v1/product [get]
+//	@Router			/v1/product/{id} [get]
 //	@Summary		产品详情
 //	@Description	产品详情
 //	@Tags			产品
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer										true	"产品 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer										true	"产品 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success{data=ProductDetailResponse}	"成功响应"
 //	@Failure		500	{object}	example.ServerError							"服务器出错"
 //	@Failure		400	{object}	example.ClientError							"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -207,18 +207,18 @@ func (h *ProductHandler) Detail(ctx echo.Context) error {
 }
 
 type ProductDeleteRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 // Delete 产品删除
 //
-//	@Router			/v1/product [delete]
+//	@Router			/v1/product/{id} [delete]
 //	@Summary		产品删除
 //	@Description	产品删除
 //	@Tags			产品
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer						true	"产品 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer						true	"产品 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success				"成功响应"
 //	@Failure		500	{object}	example.ServerError			"服务器出错"
 //	@Failure		400	{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"

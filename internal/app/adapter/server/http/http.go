@@ -26,7 +26,7 @@ import (
 //	@produce					json
 //	@securityDefinitions.apikey	Authorization
 //	@in							header
-//	@name						Token
+//	@name						Authorization
 
 var ProviderSet = wire.NewSet(
 	// handler

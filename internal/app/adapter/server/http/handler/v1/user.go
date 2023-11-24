@@ -89,7 +89,7 @@ type UserCreateRequest struct {
 //	@Tags			用户
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		UserCreateRequest			true	"权限信息"	format(string)
+//	@Param			data	body		UserCreateRequest			true	"用户信息"	format(string)
 //	@Success		200		{object}	example.Success				"成功响应"
 //	@Failure		500		{object}	example.ServerError			"服务器出错"
 //	@Failure		400		{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -135,7 +135,7 @@ type UserUpdateRequest struct {
 //	@Tags			用户
 //	@Accept			json
 //	@Produce		json
-//	@Param			data	body		UserUpdateRequest			true	"权限信息"	format(string)
+//	@Param			data	body		UserUpdateRequest			true	"用户信息"	format(string)
 //	@Success		200		{object}	example.Success				"成功响应"
 //	@Failure		500		{object}	example.ServerError			"服务器出错"
 //	@Failure		400		{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -167,20 +167,20 @@ func (h *UserHandler) Update(ctx echo.Context) error {
 }
 
 type UserDetailRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 type UserDetailResponse = UserInfo
 
 // Detail 用户详情
 //
-//	@Router			/v1/user [get]
+//	@Router			/v1/user/{id} [get]
 //	@Summary		用户详情
 //	@Description	用户详情
 //	@Tags			用户
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer										true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer										true	"用户 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success{data=UserDetailResponse}	"成功响应"
 //	@Failure		500	{object}	example.ServerError							"服务器出错"
 //	@Failure		400	{object}	example.ClientError							"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -211,18 +211,18 @@ func (h *UserHandler) Detail(ctx echo.Context) error {
 }
 
 type UserDeleteRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 // Delete 用户删除
 //
-//	@Router			/v1/user [delete]
+//	@Router			/v1/user/{id} [delete]
 //	@Summary		用户删除
 //	@Description	用户删除
 //	@Tags			用户
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer						true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer						true	"权限 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success				"成功响应"
 //	@Failure		500	{object}	example.ServerError			"服务器出错"
 //	@Failure		400	{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"

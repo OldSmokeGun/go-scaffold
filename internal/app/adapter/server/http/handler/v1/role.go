@@ -151,20 +151,20 @@ func (h *RoleHandler) Update(ctx echo.Context) error {
 }
 
 type RoleDetailRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 type RoleDetailResponse = RoleInfo
 
 // Detail 角色详情
 //
-//	@Router			/v1/role [get]
+//	@Router			/v1/role/{id} [get]
 //	@Summary		角色详情
 //	@Description	角色详情
 //	@Tags			角色
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer										true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer										true	"角色 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success{data=RoleDetailResponse}	"成功响应"
 //	@Failure		500	{object}	example.ServerError							"服务器出错"
 //	@Failure		400	{object}	example.ClientError							"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -193,18 +193,18 @@ func (h *RoleHandler) Detail(ctx echo.Context) error {
 }
 
 type RoleDeleteRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 // Delete 角色删除
 //
-//	@Router			/v1/role [delete]
+//	@Router			/v1/role/{id} [delete]
 //	@Summary		角色删除
 //	@Description	角色删除
 //	@Tags			角色
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer						true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer						true	"角色 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success				"成功响应"
 //	@Failure		500	{object}	example.ServerError			"服务器出错"
 //	@Failure		400	{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"

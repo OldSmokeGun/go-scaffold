@@ -169,20 +169,20 @@ func (h *PermissionHandler) Update(ctx echo.Context) error {
 }
 
 type PermissionDetailRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 type PermissionDetailResponse = PermissionInfo
 
 // Detail 权限详情
 //
-//	@Router			/v1/permission [get]
+//	@Router			/v1/permission/{id} [get]
 //	@Summary		权限详情
 //	@Description	权限详情
 //	@Tags			权限
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer											true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer											true	"权限 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success{data=PermissionDetailResponse}	"成功响应"
 //	@Failure		500	{object}	example.ServerError								"服务器出错"
 //	@Failure		400	{object}	example.ClientError								"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
@@ -214,18 +214,18 @@ func (h *PermissionHandler) Detail(ctx echo.Context) error {
 }
 
 type PermissionDeleteRequest struct {
-	ID int64 `query:"id"`
+	ID int64 `param:"id"`
 }
 
 // Delete 权限删除
 //
-//	@Router			/v1/permission [delete]
+//	@Router			/v1/permission/{id} [delete]
 //	@Summary		权限删除
 //	@Description	权限删除
 //	@Tags			权限
 //	@Accept			plain
 //	@Produce		json
-//	@Param			id	query		integer						true	"权限 id"	format(uint)	minimum(1)
+//	@Param			id	path		integer						true	"权限 id"	format(uint)	minimum(1)
 //	@Success		200	{object}	example.Success				"成功响应"
 //	@Failure		500	{object}	example.ServerError			"服务器出错"
 //	@Failure		400	{object}	example.ClientError			"客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）"
