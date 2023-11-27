@@ -1,4 +1,4 @@
-package trace
+package otel
 
 import (
 	"context"
@@ -19,5 +19,5 @@ func NewLogger(sl *slog.Logger) *ErrorLogger {
 }
 
 func (l *ErrorLogger) Handle(err error) {
-	l.logger.Log(context.Background(), 8, err, slog.LevelError, "otel error")
+	l.logger.Log(context.Background(), 7, err, slog.LevelError, "otel error")
 }

@@ -19,7 +19,7 @@ import (
 	"go-scaffold/pkg/ioutils"
 	"go-scaffold/pkg/log"
 	iklog "go-scaffold/pkg/log/kratos"
-	tlog "go-scaffold/pkg/log/otel/trace"
+	tlog "go-scaffold/pkg/log/otel"
 	"go-scaffold/pkg/trace"
 )
 

@@ -12,8 +12,6 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
 	"go.opentelemetry.io/otel/trace"
-
-	tlog "go-scaffold/pkg/log/otel/trace"
 )
 
 var ErrUnsupportedOTPLProtocol = errors.New("unsupported otpl protocol")
@@ -31,7 +29,7 @@ type Trace struct {
 	serviceName    string
 	env            string
 	tracerProvider *sdktrace.TracerProvider
-	errorLogger    *tlog.ErrorLogger
+	errorLogger    otel.ErrorHandler
 }
 
 type Option func(t *Trace)
@@ -51,7 +49,7 @@ func WithEnv(env string) Option {
 }
 
 // WithErrorLogger optional error logger
-func WithErrorLogger(logger *tlog.ErrorLogger) Option {
+func WithErrorLogger(logger otel.ErrorHandler) Option {
 	return func(t *Trace) {
 		t.errorLogger = logger
 	}
@@ -65,9 +63,7 @@ func New(ctx context.Context, protocol OTPLProtocol, endpoint string, options ..
 	}
 
 	if t.errorLogger != nil {
-		otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
-			t.errorLogger.Handle(err)
-		}))
+		otel.SetErrorHandler(t.errorLogger)
 	}
 
 	var (
