@@ -88,7 +88,7 @@ services:
 # redis:
 #   addr: "localhost:6379"
 #   password: ""
-#   db: 0               # database
+#   database: 0
 #   poolSize: 20        # the maximum number of the connection pool
 #   minIdleConns: 10    # minimum number of idle connections
 #   idleTimeout: 600    # amount of time after which client closes idle connections.

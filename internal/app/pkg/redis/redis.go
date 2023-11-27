@@ -20,8 +20,8 @@ func New(ctx context.Context, conf config.Redis) (*redis.Client, error) {
 	if conf.Password != "" {
 		option.Password = conf.Password
 	}
-	if conf.DB != 0 {
-		option.DB = conf.DB
+	if conf.Database != 0 {
+		option.DB = conf.Database
 	}
 	if conf.MaxRetries != 0 {
 		option.MaxRetries = conf.MaxRetries
