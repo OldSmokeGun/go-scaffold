@@ -55,6 +55,14 @@ func (pu *PermissionUpdate) SetKey(s string) *PermissionUpdate {
 	return pu
 }
 
+// SetNillableKey sets the "key" field if the given value is not nil.
+func (pu *PermissionUpdate) SetNillableKey(s *string) *PermissionUpdate {
+	if s != nil {
+		pu.SetKey(*s)
+	}
+	return pu
+}
+
 // SetName sets the "name" field.
 func (pu *PermissionUpdate) SetName(s string) *PermissionUpdate {
 	pu.mutation.SetName(s)
@@ -258,6 +266,14 @@ func (puo *PermissionUpdateOne) ClearDeletedAt() *PermissionUpdateOne {
 // SetKey sets the "key" field.
 func (puo *PermissionUpdateOne) SetKey(s string) *PermissionUpdateOne {
 	puo.mutation.SetKey(s)
+	return puo
+}
+
+// SetNillableKey sets the "key" field if the given value is not nil.
+func (puo *PermissionUpdateOne) SetNillableKey(s *string) *PermissionUpdateOne {
+	if s != nil {
+		puo.SetKey(*s)
+	}
 	return puo
 }
 

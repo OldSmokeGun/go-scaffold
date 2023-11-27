@@ -386,32 +386,15 @@ func PriceLTE(v int) predicate.Product {
 
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Product) predicate.Product {
-	return predicate.Product(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.Product(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.Product) predicate.Product {
-	return predicate.Product(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.Product(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.Product) predicate.Product {
-	return predicate.Product(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.Product(sql.NotPredicates(p))
 }

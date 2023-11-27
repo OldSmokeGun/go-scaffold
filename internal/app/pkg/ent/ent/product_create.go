@@ -255,11 +255,15 @@ func (pc *ProductCreate) createSpec() (*Product, *sqlgraph.CreateSpec) {
 // ProductCreateBulk is the builder for creating many Product entities in bulk.
 type ProductCreateBulk struct {
 	config
+	err      error
 	builders []*ProductCreate
 }
 
 // Save creates the Product entities in the database.
 func (pcb *ProductCreateBulk) Save(ctx context.Context) ([]*Product, error) {
+	if pcb.err != nil {
+		return nil, pcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
 	nodes := make([]*Product, len(pcb.builders))
 	mutators := make([]Mutator, len(pcb.builders))

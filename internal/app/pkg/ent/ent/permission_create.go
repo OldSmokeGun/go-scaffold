@@ -283,11 +283,15 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 // PermissionCreateBulk is the builder for creating many Permission entities in bulk.
 type PermissionCreateBulk struct {
 	config
+	err      error
 	builders []*PermissionCreate
 }
 
 // Save creates the Permission entities in the database.
 func (pcb *PermissionCreateBulk) Save(ctx context.Context) ([]*Permission, error) {
+	if pcb.err != nil {
+		return nil, pcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(pcb.builders))
 	nodes := make([]*Permission, len(pcb.builders))
 	mutators := make([]Mutator, len(pcb.builders))
