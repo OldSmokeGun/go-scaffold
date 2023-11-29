@@ -11,7 +11,7 @@ import (
 func Logger(logger *slog.Logger) echo.MiddlewareFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			logger.Info("request",
+			logger.InfoContext(c.Request().Context(), "request",
 				slog.String("id", v.RequestID),
 				slog.String("remote_ip", v.RemoteIP),
 				slog.String("host", v.Host),

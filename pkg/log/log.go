@@ -79,37 +79,42 @@ func WithAttrs(attrs []slog.Attr) Option {
 
 // New build *slog.Logger
 func New(options ...Option) *slog.Logger {
-	logger := &config{
+	c := &config{
 		level:  DefaultLevel,
 		format: DefaultFormat,
 		writer: DefaultWriter,
 	}
 
-	for _, opf := range options {
-		opf(logger)
+	for _, option := range options {
+		option(c)
 	}
 
 	ops := &slog.HandlerOptions{
 		AddSource:   true,
-		Level:       logger.level.Convert(),
+		Level:       c.level.Convert(),
 		ReplaceAttr: ReplaceAttr,
 	}
 
 	var handler slog.Handler
-	if logger.format == Text {
-		handler = slog.NewTextHandler(logger.writer, ops)
+	if c.format == Text {
+		handler = slog.NewTextHandler(c.writer, ops)
 	} else {
-		handler = slog.NewJSONHandler(logger.writer, ops)
+		handler = slog.NewJSONHandler(c.writer, ops)
 	}
 
-	if logger.group != "" {
-		handler = handler.WithGroup(logger.group)
+	if c.group != "" {
+		handler = handler.WithGroup(c.group)
 	}
 
-	if len(logger.attrs) > 0 {
-		handler = handler.WithAttrs(logger.attrs)
+	if len(c.attrs) > 0 {
+		handler = handler.WithAttrs(c.attrs)
 	}
 
+	return slog.New(handler)
+}
+
+// NewWithHandler build *slog.Logger with slog Handler
+func NewWithHandler(handler slog.Handler) *slog.Logger {
 	return slog.New(handler)
 }
 

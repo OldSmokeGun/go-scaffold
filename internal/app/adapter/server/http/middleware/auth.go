@@ -7,6 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
 )
@@ -98,7 +99,9 @@ func Auth(config AuthConfig) echo.MiddlewareFunc {
 			}
 
 			user, err := config.TokenValidator.ValidateToken(c.Request().Context(), token)
-			if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				return err
+			} else if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, "malformed token").SetInternal(err)
 			}
 

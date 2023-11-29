@@ -19,7 +19,7 @@ import (
 	"go-scaffold/pkg/ioutils"
 	"go-scaffold/pkg/log"
 	iklog "go-scaffold/pkg/log/kratos"
-	tlog "go-scaffold/pkg/log/otel"
+	otlog "go-scaffold/pkg/log/otel"
 	"go-scaffold/pkg/trace"
 )
 
@@ -155,7 +155,7 @@ func (c *baseCmd) initTrace(cmd *cobra.Command) {
 		traceConfig.Endpoint,
 		trace.WithServiceName(appName.String()),
 		trace.WithEnv(appEnv.String()),
-		trace.WithErrorLogger(tlog.NewLogger(c.logger)),
+		trace.WithErrorLogger(otlog.NewLogger(c.logger)),
 	)
 	if err != nil {
 		panic(err)
@@ -168,6 +168,7 @@ func (c *baseCmd) initTrace(cmd *cobra.Command) {
 	))
 
 	c.trace = tracing
+	c.logger = log.NewWithHandler(otlog.NewHandler(c.logger.Handler()))
 }
 
 func (c *baseCmd) closeConfig() {

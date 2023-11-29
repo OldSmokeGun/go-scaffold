@@ -47,10 +47,10 @@ func New(
 func (r *router) useMiddlewares(e *echo.Echo) {
 	e.HTTPErrorHandler = imiddleware.ErrorHandler(e.Debug, r.logger)
 	e.JSONSerializer = imiddleware.JSONSerializer()
-	e.Use(middleware.RequestID())
 	e.Use(imiddleware.Recover(r.logger))
-	e.Use(imiddleware.Logger(r.logger))
+	e.Use(middleware.RequestID())
 	e.Use(otelecho.Middleware(r.appName.String()))
+	e.Use(imiddleware.Logger(r.logger))
 }
 
 func (r *router) useRoutes(e *echo.Echo) {
