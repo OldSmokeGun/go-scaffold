@@ -43,7 +43,6 @@ services:
     volumes:
       - "./mysql/mysql.cnf:/etc/mysql/conf.d/mysql.cnf"
       - "./mysql/data:/var/lib/mysql"
-      - "./apollo/migrate:/docker-entrypoint-initdb.d"
   #################### mysql ####################
 
   #################### postgres ####################
@@ -117,63 +116,6 @@ services:
     volumes:
       - "./jaeger/data:/badger"
   #################### jaeger ####################
-
-  #################### apollo ####################
-  apollo-configservice:
-    image: apolloconfig/apollo-configservice:${APOLLO_CONFIG_SERVICE_TAG}
-    networks:
-      go-scaffold:
-        aliases:
-          - apollo-configservice
-    depends_on:
-      - mysql
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloConfigDB?characterEncoding=utf8"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "root"
-      EUREKA_INSTANCE_HOME_PAGE_URL: "http://apollo-configservice:8080"
-    ports:
-      - "${APOLLO_CONFIG_SERVICE_PORT}:8080"
-
-  apollo-adminservice:
-    image: apolloconfig/apollo-adminservice:${APOLLO_ADMIN_SERVICE_TAG}
-    networks:
-      go-scaffold:
-        aliases:
-          - apollo-adminservice
-    depends_on:
-      - mysql
-      - apollo-configservice
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloConfigDB?characterEncoding=utf8"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "root"
-      EUREKA_INSTANCE_HOME_PAGE_URL: "http://apollo-adminservice:8090"
-    ports:
-      - "${APOLLO_ADMIN_SERVICE_PORT}:8090"
-
-  apollo-portal:
-    image: apolloconfig/apollo-portal:${APOLLO_PORTAL_SERVICE_TAG}
-    networks:
-      go-scaffold:
-        aliases:
-          - apollo-portal
-    depends_on:
-      - mysql
-      - apollo-configservice
-      - apollo-adminservice
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/ApolloPortalDB?characterEncoding=utf8"
-      SPRING_DATASOURCE_USERNAME: "root"
-      SPRING_DATASOURCE_PASSWORD: "root"
-      APOLLO_PORTAL_ENVS: "dev"
-      DEV_META: "http://apollo-configservice:8080"
-    ports:
-      - "${APOLLO_PORTAL_SERVICE_PORT}:8070"
-  #################### apollo ####################
 
   #################### etcd ####################
   etcd:

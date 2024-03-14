@@ -153,7 +153,10 @@ func (r *RoleRepository) GrantPermissions(ctx context.Context, role int64, permi
 }
 
 func (r *RoleRepository) GetPermissions(ctx context.Context, id int64) ([]*domain.Permission, error) {
-	pss := r.enforcer.GetPermissionsForUser(GetPolicyRole(id))
+	pss, err := r.enforcer.GetPermissionsForUser(GetPolicyRole(id))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	ps := make([]int64, 0, len(pss))
 	for _, s := range pss {

@@ -25,12 +25,7 @@ func newServerCmd() *serverCmd {
 			c.initLogger(cmd)
 			defer c.closeLogger()
 
-			apolloConfigEnable, err := cmd.Flags().GetBool(flagApolloConfigEnable.name)
-			if err != nil {
-				panic(err)
-			}
-
-			c.initConfig(cmd, apolloConfigEnable)
+			c.initConfig(cmd)
 			defer c.closeConfig()
 
 			c.initTrace(cmd)
@@ -42,7 +37,7 @@ func newServerCmd() *serverCmd {
 		},
 	}
 
-	addApolloConfigFlag(c.cmd, false)
+	addRemoteConfigFlag(c.cmd, false)
 	addLoggerFlag(c.cmd, false)
 
 	return c

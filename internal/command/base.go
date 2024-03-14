@@ -6,14 +6,16 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/go-kratos/kratos/contrib/config/apollo/v2"
+	remote "github.com/go-kratos/kratos/contrib/config/etcd/v2"
 	kconfig "github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	klog "github.com/go-kratos/kratos/v2/log"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/spf13/cobra"
+	etcdctl "go.etcd.io/etcd/client/v3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
+	"google.golang.org/grpc"
 
 	"go-scaffold/internal/config"
 	"go-scaffold/pkg/ioutils"
@@ -97,7 +99,7 @@ func (c *baseCmd) initLogger(cmd *cobra.Command) {
 	c.loggerWriter = loggerWriter
 }
 
-func (c *baseCmd) initConfig(cmd *cobra.Command, enableRemote bool) {
+func (c *baseCmd) initConfig(cmd *cobra.Command) {
 	configPath := cmd.Flag(flagConfig.name).Value.String()
 	if configPath == "" {
 		panic("config file must be specified")
@@ -106,20 +108,45 @@ func (c *baseCmd) initConfig(cmd *cobra.Command, enableRemote bool) {
 	cm := new(config.Config)
 	configResources := []kconfig.Source{file.NewSource(configPath)}
 
-	if enableRemote { // enable apollo
-		apolloConfigEndpoint := cmd.Flag(flagApolloConfigEndpoint.name).Value.String()
-		apolloConfigAppID := cmd.Flag(flagApolloConfigAppID.name).Value.String()
-		apolloConfigCluster := cmd.Flag(flagApolloConfigCluster.name).Value.String()
-		apolloConfigNamespace := cmd.Flag(flagApolloConfigNamespace.name).Value.String()
-		apolloConfigSecret := cmd.Flag(flagApolloConfigSecret.name).Value.String()
+	if cmd.Flags().Lookup(flagRemoteConfigEnable.name) != nil { // enable remote config
+		enableRemote, err := cmd.Flags().GetBool(flagRemoteConfigEnable.name)
+		if err != nil {
+			panic(err)
+		}
 
-		configResources = append(configResources, apollo.NewSource(
-			apollo.WithEndpoint(apolloConfigEndpoint),
-			apollo.WithAppID(apolloConfigAppID),
-			apollo.WithCluster(apolloConfigCluster),
-			apollo.WithNamespace(apolloConfigNamespace),
-			apollo.WithSecret(apolloConfigSecret),
-		))
+		if enableRemote {
+			remoteConfigEndpoints, err := cmd.Flags().GetStringSlice(flagRemoteConfigEndpoints.name)
+			if err != nil {
+				panic(err)
+			}
+			remoteConfigTimeout, err := cmd.Flags().GetDuration(flagRemoteConfigTimeout.name)
+			if err != nil {
+				panic(err)
+			}
+			remoteConfigPathPrefix, err := cmd.Flags().GetString(flagRemoteConfigPathPrefix.name)
+			if err != nil {
+				panic(err)
+			}
+
+			client, err := etcdctl.New(etcdctl.Config{
+				Endpoints:   remoteConfigEndpoints,
+				DialTimeout: remoteConfigTimeout,
+				DialOptions: []grpc.DialOption{grpc.WithBlock()},
+			})
+			if err != nil {
+				panic(err)
+			}
+			remoteSource, err := remote.New(
+				client,
+				remote.WithContext(cmd.Context()),
+				remote.WithPath(remoteConfigPathPrefix),
+				remote.WithPrefix(true),
+			)
+			if err != nil {
+				panic(err)
+			}
+			configResources = append(configResources, remoteSource)
+		}
 	}
 
 	src := kconfig.New(kconfig.WithSource(configResources...))

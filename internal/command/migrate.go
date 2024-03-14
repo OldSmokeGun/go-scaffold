@@ -190,7 +190,7 @@ func newMigrateUpCmd() *migrateUpCmd {
 		Short: "migrate the database to the most recent version available (you can specify the version number)",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
+			c.initConfig(cmd)
 			defer c.closeConfig()
 			c.initMigrate(cmd)
 			defer c.closeMigrate()
@@ -223,7 +223,7 @@ func newMigrateDownCmd() *migrateDownCmd {
 		Short: "undo a database migration (you can specify the version number)",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
+			c.initConfig(cmd)
 			defer c.closeConfig()
 			c.initMigrate(cmd)
 			defer c.closeMigrate()
@@ -271,7 +271,7 @@ func newMigrateStatusCmd() *migrateStatusCmd {
 		Short: "show the migration records",
 		Run: func(cmd *cobra.Command, args []string) {
 			c.initRuntime(cmd)
-			c.initConfig(cmd, false)
+			c.initConfig(cmd)
 			defer c.closeConfig()
 			c.initMigrate(cmd)
 			defer c.closeMigrate()

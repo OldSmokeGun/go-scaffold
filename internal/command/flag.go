@@ -1,6 +1,8 @@
 package command
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
@@ -13,12 +15,10 @@ var (
 
 	flagConfig = flag{"config", "f", "./etc/config.yaml", "configuration file path"}
 
-	flagApolloConfigEnable    = flag{"config.apollo.enable", "", false, "enable apollo"}
-	flagApolloConfigEndpoint  = flag{"config.apollo.endpoint", "", "http://localhost:8080", "apollo endpoint"}
-	flagApolloConfigAppID     = flag{"config.apollo.appid", "", "", "apollo appID"}
-	flagApolloConfigCluster   = flag{"config.apollo.cluster", "", "default", "apollo cluster"}
-	flagApolloConfigNamespace = flag{"config.apollo.namespace", "", "application", "apollo namespace"}
-	flagApolloConfigSecret    = flag{"config.apollo.secret", "", "", "apollo secret"}
+	flagRemoteConfigEnable     = flag{"config.remote.enable", "", false, "enable remote config"}
+	flagRemoteConfigEndpoints  = flag{"config.remote.endpoints", "", []string{"http://localhost:2379"}, "remote config endpoint"}
+	flagRemoteConfigTimeout    = flag{"config.remote.timeout", "", time.Second * 3, "remote config timeout"}
+	flagRemoteConfigPathPrefix = flag{"config.remote.path-prefix", "", "/go-scaffold/etc", "remote config path prefix"}
 
 	flagLoggerPath   = flag{"log.path", "", "logs/%Y%m%d.log", "log output path"}
 	flagLoggerLevel  = flag{"log.level", "", "info", "log level (debug, info, warn, error)"}
@@ -52,14 +52,12 @@ func addConfigFlag(cmd *cobra.Command, persistent bool) {
 	getFlags(cmd, persistent).StringP(flagConfig.name, flagConfig.shortName, flagConfig.defaultValue.(string), flagConfig.usage)
 }
 
-func addApolloConfigFlag(cmd *cobra.Command, persistent bool) {
+func addRemoteConfigFlag(cmd *cobra.Command, persistent bool) {
 	flags := getFlags(cmd, persistent)
-	flags.BoolP(flagApolloConfigEnable.name, flagApolloConfigEnable.shortName, flagApolloConfigEnable.defaultValue.(bool), flagApolloConfigEnable.usage)
-	flags.StringP(flagApolloConfigEndpoint.name, flagApolloConfigEndpoint.shortName, flagApolloConfigEndpoint.defaultValue.(string), flagApolloConfigEndpoint.usage)
-	flags.StringP(flagApolloConfigAppID.name, flagApolloConfigAppID.shortName, flagApolloConfigAppID.defaultValue.(string), flagApolloConfigAppID.usage)
-	flags.StringP(flagApolloConfigCluster.name, flagApolloConfigCluster.shortName, flagApolloConfigCluster.defaultValue.(string), flagApolloConfigCluster.usage)
-	flags.StringP(flagApolloConfigNamespace.name, flagApolloConfigNamespace.shortName, flagApolloConfigNamespace.defaultValue.(string), flagApolloConfigNamespace.usage)
-	flags.StringP(flagApolloConfigSecret.name, flagApolloConfigSecret.shortName, flagApolloConfigSecret.defaultValue.(string), flagApolloConfigSecret.usage)
+	flags.BoolP(flagRemoteConfigEnable.name, flagRemoteConfigEnable.shortName, flagRemoteConfigEnable.defaultValue.(bool), flagRemoteConfigEnable.usage)
+	flags.StringSliceP(flagRemoteConfigEndpoints.name, flagRemoteConfigEndpoints.shortName, flagRemoteConfigEndpoints.defaultValue.([]string), flagRemoteConfigEndpoints.usage)
+	flags.DurationP(flagRemoteConfigTimeout.name, flagRemoteConfigTimeout.shortName, flagRemoteConfigTimeout.defaultValue.(time.Duration), flagRemoteConfigTimeout.usage)
+	flags.StringP(flagRemoteConfigPathPrefix.name, flagRemoteConfigPathPrefix.shortName, flagRemoteConfigPathPrefix.defaultValue.(string), flagRemoteConfigPathPrefix.usage)
 }
 
 func addLoggerFlag(cmd *cobra.Command, persistent bool) {
