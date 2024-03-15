@@ -39,6 +39,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "lts/*"
+
       - name: Run semantic-release
         if: github.repository == 'OldSmokeGun/go-scaffold' && github.event_name == 'push'
         run: |
