@@ -43,6 +43,6 @@ jobs:
         if: github.repository == 'OldSmokeGun/go-scaffold' && github.event_name == 'push'
         run: |
           npm install --save-dev semantic-release
-          npx semantic-release
+          npx -p node@v18-lts -c "npx semantic-release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
