@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 
-	"go-scaffold/internal/app/pkg/ent/ent"
+	"go-scaffold/internal/pkg/ent/ent"
 )
 
 var ProviderSet = wire.NewSet(

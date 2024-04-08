@@ -7,7 +7,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/pkg/errors"
 
-	berr "go-scaffold/internal/app/pkg/errors"
+	berr "go-scaffold/internal/pkg/errors"
 )
 
 type GreetController struct{}

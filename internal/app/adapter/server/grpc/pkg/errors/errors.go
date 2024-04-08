@@ -3,7 +3,7 @@ package errors
 import (
 	kerr "github.com/go-kratos/kratos/v2/errors"
 
-	berr "go-scaffold/internal/app/pkg/errors"
+	berr "go-scaffold/internal/pkg/errors"
 )
 
 var errMsg = map[error]string{

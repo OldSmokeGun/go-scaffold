@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
-	berr "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
+	berr "go-scaffold/internal/pkg/errors"
 )
 
 type ProductController struct {

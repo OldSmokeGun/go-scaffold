@@ -10,9 +10,9 @@ import (
 	"github.com/samber/lo"
 
 	"go-scaffold/internal/app/domain"
-	"go-scaffold/internal/app/pkg/ent/ent"
-	"go-scaffold/internal/app/pkg/ent/ent/permission"
-	"go-scaffold/internal/app/pkg/ent/ent/role"
+	"go-scaffold/internal/pkg/ent/ent"
+	"go-scaffold/internal/pkg/ent/ent/permission"
+	"go-scaffold/internal/pkg/ent/ent/role"
 )
 
 var _ RoleRepositoryInterface = (*RoleRepository)(nil)

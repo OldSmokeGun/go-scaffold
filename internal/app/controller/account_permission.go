@@ -7,8 +7,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/pkg/errors"
 
-	berr "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/app/repository"
+	berr "go-scaffold/internal/pkg/errors"
 )
 
 type AccountPermissionController struct {

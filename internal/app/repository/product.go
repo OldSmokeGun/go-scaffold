@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
-	"go-scaffold/internal/app/pkg/ent/ent"
-	"go-scaffold/internal/app/pkg/ent/ent/product"
+	"go-scaffold/internal/pkg/ent/ent"
+	"go-scaffold/internal/pkg/ent/ent/product"
 )
 
 var _ ProductRepositoryInterface = (*ProductRepository)(nil)

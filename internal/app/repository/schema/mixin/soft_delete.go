@@ -10,10 +10,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 
-	gen "go-scaffold/internal/app/pkg/ent/ent"
-	"go-scaffold/internal/app/pkg/ent/ent/hook"
-	"go-scaffold/internal/app/pkg/ent/ent/intercept"
 	"go-scaffold/internal/app/repository/schema/types"
+	gen "go-scaffold/internal/pkg/ent/ent"
+	"go-scaffold/internal/pkg/ent/ent/hook"
+	"go-scaffold/internal/pkg/ent/ent/intercept"
 )
 
 // UnexpectedMutationTypeError mutation does not implement the specified interface

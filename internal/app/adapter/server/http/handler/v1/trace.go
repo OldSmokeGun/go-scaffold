@@ -18,9 +18,9 @@ import (
 	sdktrace "go.opentelemetry.io/otel/trace"
 
 	v1 "go-scaffold/internal/app/adapter/server/grpc/api/v1"
-	"go-scaffold/internal/app/pkg/client"
-	berr "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/config"
+	"go-scaffold/internal/pkg/client"
+	berr "go-scaffold/internal/pkg/errors"
 	"go-scaffold/pkg/trace"
 )
 

@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/segmentio/kafka-go"
 
-	berr "go-scaffold/internal/app/pkg/errors"
 	"go-scaffold/internal/config"
+	berr "go-scaffold/internal/pkg/errors"
 )
 
 type ProducerController struct {

@@ -5,7 +5,6 @@ import (
 
 	"go-scaffold/internal/app/adapter"
 	"go-scaffold/internal/app/controller"
-	"go-scaffold/internal/app/pkg"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
 )
@@ -15,5 +14,4 @@ var ProviderSet = wire.NewSet(
 	controller.ProviderSet,
 	usecase.ProviderSet,
 	repository.ProviderSet,
-	pkg.ProviderSet,
 )

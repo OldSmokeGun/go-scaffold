@@ -9,8 +9,8 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 
-	igorm "go-scaffold/internal/app/pkg/gorm"
 	"go-scaffold/internal/config"
+	igorm "go-scaffold/internal/pkg/gorm"
 	glog "go-scaffold/pkg/log/gorm"
 )
 

@@ -14,8 +14,8 @@ import (
 	"go-scaffold/internal/app/adapter/cron"
 	"go-scaffold/internal/app/adapter/kafka"
 	"go-scaffold/internal/app/adapter/server"
-	"go-scaffold/internal/app/pkg"
 	"go-scaffold/internal/config"
+	"go-scaffold/internal/pkg"
 	"go-scaffold/pkg/trace"
 )
 
@@ -29,6 +29,7 @@ func initServer(
 	panic(wire.Build(
 		config.ProviderSet,
 		app.ProviderSet,
+		pkg.ProviderSet,
 	))
 }
 
@@ -41,6 +42,7 @@ func initCron(
 	panic(wire.Build(
 		config.ProviderSet,
 		app.ProviderSet,
+		// pkg.ProviderSet,
 	))
 }
 
@@ -53,6 +55,7 @@ func initKafka(
 	panic(wire.Build(
 		config.ProviderSet,
 		app.ProviderSet,
+		// pkg.ProviderSet,
 	))
 }
 
