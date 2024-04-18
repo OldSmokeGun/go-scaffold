@@ -21,10 +21,9 @@ type ExampleConsumer struct {
 	handler *handler.ExampleHandler
 }
 
-func NewExampleConsumer(logger *slog.Logger, kafkaConfig config.Kafka, handler *handler.ExampleHandler) (*ExampleConsumer, error) {
-	name := config.KafkaGroupExample
-	brokers := kafkaConfig[name].Brokers
-	topic := kafkaConfig[name].Topic
+func NewExampleConsumer(logger *slog.Logger, kafkaConfig config.ExampleKafka, handler *handler.ExampleHandler) (*ExampleConsumer, error) {
+	brokers := kafkaConfig.Brokers
+	topic := kafkaConfig.Topic
 
 	group := "example-consumer-group"
 	reader := kafka.NewReader(kafka.ReaderConfig{
@@ -35,7 +34,7 @@ func NewExampleConsumer(logger *slog.Logger, kafkaConfig config.Kafka, handler *
 
 	return &ExampleConsumer{
 		logger: logger.With(
-			slog.String("consumer", name.String()),
+			slog.String("consumer", "example"),
 			slog.String("brokers", strings.Join(brokers, ",")),
 			slog.String("topic", topic),
 			slog.String("group", group),

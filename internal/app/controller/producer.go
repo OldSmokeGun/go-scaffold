@@ -14,10 +14,10 @@ import (
 )
 
 type ProducerController struct {
-	kafkaConfig config.Kafka
+	kafkaConfig config.ExampleKafka
 }
 
-func NewProducerController(kafkaConfig config.Kafka) *ProducerController {
+func NewProducerController(kafkaConfig config.ExampleKafka) *ProducerController {
 	return &ProducerController{kafkaConfig}
 }
 
@@ -40,9 +40,8 @@ func (c *ProducerController) Example(ctx context.Context, req ProducerExampleReq
 }
 
 func (c *ProducerController) sendMsg(ctx context.Context, msg string) error {
-	name := config.KafkaGroupExample
-	brokers := c.kafkaConfig[name].Brokers
-	topic := c.kafkaConfig[name].Topic
+	brokers := c.kafkaConfig.Brokers
+	topic := c.kafkaConfig.Topic
 
 	w := &kafka.Writer{
 		Addr:                   kafka.TCP(brokers...),

@@ -19,7 +19,7 @@ var ProviderSet = wire.NewSet(
 	GetDatabase,
 	GetDatabaseConn,
 	GetRedis,
-	GetKafka,
+	GetExampleKafka,
 	GetTrace,
 )
 
@@ -31,15 +31,15 @@ var config *Config
 
 // Config application config
 type Config struct {
-	App       *App       `json:"app"`
-	HTTP      *HTTP      `json:"http"`
-	GRPC      *GRPC      `json:"grpc"`
-	Services  *Services  `json:"services"`
-	Discovery *Discovery `json:"discovery"`
-	Database  *Database  `json:"database"`
-	Redis     *Redis     `json:"redis"`
-	Kafka     *Kafka     `json:"kafka"`
-	Trace     *Trace     `json:"trace"`
+	App       *App        `json:"app"`
+	HTTP      *HTTP       `json:"http"`
+	GRPC      *GRPC       `json:"grpc"`
+	Services  *Services   `json:"services"`
+	Discovery *Discovery  `json:"discovery"`
+	Database  *Database   `json:"database"`
+	Redis     *Redis      `json:"redis"`
+	Kafka     *KafkaGroup `json:"kafka"`
+	Trace     *Trace      `json:"trace"`
 }
 
 // SetConfig set configuration
@@ -109,8 +109,12 @@ func GetRedis() (Redis, error) {
 	return getEntry(config.Redis)
 }
 
-func GetKafka() (Kafka, error) {
-	return getEntry(config.Kafka)
+func GetExampleKafka() (ExampleKafka, error) {
+	kafkaConfig, err := getEntry(config.Kafka)
+	if err != nil {
+		return ExampleKafka{}, err
+	}
+	return getEntry(kafkaConfig.Example)
 }
 
 func GetTrace() (Trace, error) {

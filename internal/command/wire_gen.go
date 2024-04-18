@@ -97,7 +97,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	}
 	clientGRPC := client.ProvideGRPC()
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
-	kafka, err := config.GetKafka()
+	kafka, err := config.GetExampleKafka()
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -163,7 +163,7 @@ func initCron(contextContext context.Context, appName config.AppName, env config
 }
 
 func initKafka(contextContext context.Context, appName config.AppName, env config.Env, logger *slog.Logger) (*kafka.Kafka, func(), error) {
-	configKafka, err := config.GetKafka()
+	configKafka, err := config.GetExampleKafka()
 	if err != nil {
 		return nil, nil, err
 	}
