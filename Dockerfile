@@ -7,13 +7,14 @@ RUN apt-get update && apt-get install -y unzip
 RUN curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/${PROTOC_ZIP} \
     && unzip -o ${PROTOC_ZIP} -d /usr/local bin/protoc \
     && rm -f ${PROTOC_ZIP} \
-    && apt-get autoclean && apt-get clean
+    && apt-get autoclean && apt-get clean \
+    && go install github.com/go-task/task/v3/cmd/task@latest
 
 WORKDIR /app/
 
 COPY . .
 
-RUN make download && make build
+RUN task download && task build
 
 FROM alpine:3.14
 
