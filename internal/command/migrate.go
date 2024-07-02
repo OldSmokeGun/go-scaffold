@@ -58,9 +58,29 @@ func newMigrateCmd() *migrateCmd {
 func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 	c.mustConfig()
 
-	dbConfig, err := config.GetDatabaseConn()
+	dir := cmd.Flag(flagMigrationDir.name).Value.String()
+	if dir == "" {
+		panic("migration directory must be specified")
+	}
+	dbGroup := cmd.Flag(flagMigrationDBGroup.name).Value.String()
+	if dbGroup == "" {
+		panic("migration database group must be specified")
+	}
+	ignoreUnknown, err := cmd.Flags().GetBool(flagMigrationIgnoreUnknown.name)
 	if err != nil {
 		panic(err)
+	}
+
+	var dbConfig config.Database
+
+	switch dbGroup {
+	case "default":
+		fallthrough
+	default:
+		dbConfig, err = config.GetDefaultDatabase()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// supported for multi sql statement
@@ -68,27 +88,16 @@ func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 		panic(err)
 	}
 
-	dir := cmd.Flag(flagMigrationDir.name).Value.String()
-	if dir == "" {
-		panic("migration directory must be specified")
+	migrationDir := path.Join(dir, dbGroup)
+	migrations := &migrate.FileMigrationSource{
+		Dir: migrationDir,
 	}
-	migrationDir := path.Join(dir, dbConfig.Driver.String())
-
-	ignoreUnknown, err := cmd.Flags().GetBool(flagMigrationIgnoreUnknown.name)
-	if err != nil {
-		panic(err)
-	}
-
 	migrate.SetTable("migrations")
 	migrate.SetIgnoreUnknown(ignoreUnknown)
 
-	db, cleanup, err := initDB(cmd.Context(), dbConfig, nil)
+	db, cleanup, err := initDB(cmd.Context(), dbConfig.DatabaseConn, nil)
 	if err != nil {
 		panic(err)
-	}
-
-	migrations := &migrate.FileMigrationSource{
-		Dir: migrationDir,
 	}
 
 	c.driver = dbConfig.Driver.String()

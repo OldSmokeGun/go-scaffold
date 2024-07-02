@@ -9,6 +9,7 @@ import (
 	"github.com/samber/lo"
 
 	"go-scaffold/internal/app/domain"
+	ient "go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/ent/ent"
 	"go-scaffold/internal/pkg/ent/ent/permission"
 	"go-scaffold/internal/pkg/ent/ent/role"
@@ -39,11 +40,11 @@ type (
 )
 
 type UserRepository struct {
-	client   *ent.Client
+	client   *ient.DefaultClient
 	enforcer *casbin.Enforcer
 }
 
-func NewUserRepository(client *ent.Client, enforcer *casbin.Enforcer) *UserRepository {
+func NewUserRepository(client *ient.DefaultClient, enforcer *casbin.Enforcer) *UserRepository {
 	return &UserRepository{
 		client:   client,
 		enforcer: enforcer,

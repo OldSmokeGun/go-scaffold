@@ -16,8 +16,7 @@ var ProviderSet = wire.NewSet(
 	GetGRPCServer,
 	GetServices,
 	GetDiscovery,
-	GetDatabase,
-	GetDatabaseConn,
+	GetDefaultDatabase,
 	GetRedis,
 	GetExampleKafka,
 	GetTrace,
@@ -31,15 +30,15 @@ var config *Config
 
 // Config application config
 type Config struct {
-	App       *App        `json:"app"`
-	HTTP      *HTTP       `json:"http"`
-	GRPC      *GRPC       `json:"grpc"`
-	Services  *Services   `json:"services"`
-	Discovery *Discovery  `json:"discovery"`
-	Database  *Database   `json:"database"`
-	Redis     *Redis      `json:"redis"`
-	Kafka     *KafkaGroup `json:"kafka"`
-	Trace     *Trace      `json:"trace"`
+	App       *App           `json:"app"`
+	HTTP      *HTTP          `json:"http"`
+	GRPC      *GRPC          `json:"grpc"`
+	Services  *Services      `json:"services"`
+	Discovery *Discovery     `json:"discovery"`
+	Database  *DatabaseGroup `json:"database"`
+	Redis     *Redis         `json:"redis"`
+	Kafka     *KafkaGroup    `json:"kafka"`
+	Trace     *Trace         `json:"trace"`
 }
 
 // SetConfig set configuration
@@ -93,16 +92,12 @@ func GetDiscovery() (Discovery, error) {
 	return getEntry(config.Discovery)
 }
 
-func GetDatabase() (Database, error) {
-	return getEntry(config.Database)
-}
-
-func GetDatabaseConn() (DatabaseConn, error) {
-	dbConfig, err := GetDatabase()
+func GetDefaultDatabase() (DefaultDatabase, error) {
+	databasesConfig, err := getEntry(config.Database)
 	if err != nil {
-		return DatabaseConn{}, err
+		return DefaultDatabase{}, err
 	}
-	return dbConfig.DatabaseConn, nil
+	return getEntry(databasesConfig.Default)
 }
 
 func GetRedis() (Redis, error) {

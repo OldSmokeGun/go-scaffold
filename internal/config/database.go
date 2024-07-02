@@ -9,15 +9,27 @@ import (
 
 var supportedDrivers = []DatabaseDriver{MySQL, Postgres, SQLite}
 
+// DatabaseGroup config
+type DatabaseGroup struct {
+	Default *DefaultDatabase `json:"default"`
+}
+
+func (DatabaseGroup) GetName() string {
+	return "database"
+}
+
+// DefaultDatabase default database config
+type DefaultDatabase = Database
+
+func (DefaultDatabase) GetName() string {
+	return "database.default"
+}
+
 // Database config
 type Database struct {
 	DatabaseConn
 	LogInfo   bool                `json:"logInfo"`
 	Resolvers []*DatabaseResolver `json:"resolvers"`
-}
-
-func (Database) GetName() string {
-	return "database"
 }
 
 // DatabaseConn connection config

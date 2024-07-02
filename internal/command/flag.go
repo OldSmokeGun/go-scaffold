@@ -25,6 +25,7 @@ var (
 	flagLoggerFormat = flag{"log.format", "", "json", "log output format (text, json)"}
 
 	flagMigrationDir           = flag{"migration", "m", "migrations", "migration directory"}
+	flagMigrationDBGroup       = flag{"db-group", "", "default", "migration database group"}
 	flagMigrationIgnoreUnknown = flag{"ignore-unknown", "", false, "whether to skip checking the database for migrations that are not in the migration source"}
 )
 

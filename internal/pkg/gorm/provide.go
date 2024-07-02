@@ -9,8 +9,10 @@ import (
 	"go-scaffold/internal/config"
 )
 
-// Provide gorm
-func Provide(ctx context.Context, conf config.Database, logger *slog.Logger) (db *gorm.DB, cleanup func(), err error) {
+type DefaultDB = gorm.DB
+
+// ProvideDefault gorm
+func ProvideDefault(ctx context.Context, conf config.DefaultDatabase, logger *slog.Logger) (db *DefaultDB, cleanup func(), err error) {
 	db, err = New(ctx, conf, logger)
 	if err != nil {
 		return nil, nil, err

@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
+	ient "go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/ent/ent"
 	"go-scaffold/internal/pkg/ent/ent/permission"
 )
@@ -35,11 +36,11 @@ type (
 )
 
 type PermissionRepository struct {
-	client   *ent.Client
+	client   *ient.DefaultClient
 	enforcer *casbin.Enforcer
 }
 
-func NewPermissionRepository(client *ent.Client, enforcer *casbin.Enforcer) *PermissionRepository {
+func NewPermissionRepository(client *ient.DefaultClient, enforcer *casbin.Enforcer) *PermissionRepository {
 	return &PermissionRepository{
 		client:   client,
 		enforcer: enforcer,

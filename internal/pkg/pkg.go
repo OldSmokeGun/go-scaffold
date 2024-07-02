@@ -18,8 +18,8 @@ var ProviderSet = wire.NewSet(
 	client.ProvideGRPC,
 	db.Provide,
 	discovery.Provide,
-	ent.Provide,
-	gorm.Provide,
+	ent.ProvideDefault,
+	gorm.ProvideDefault,
 	redis.Provide,
 	uid.Provide,
 )

@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 
 	"go-scaffold/internal/app/domain"
+	ient "go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/ent/ent"
 	"go-scaffold/internal/pkg/ent/ent/permission"
 	"go-scaffold/internal/pkg/ent/ent/role"
@@ -38,11 +39,11 @@ type (
 )
 
 type RoleRepository struct {
-	client   *ent.Client
+	client   *ient.DefaultClient
 	enforcer *casbin.Enforcer
 }
 
-func NewRoleRepository(client *ent.Client, enforcer *casbin.Enforcer) *RoleRepository {
+func NewRoleRepository(client *ient.DefaultClient, enforcer *casbin.Enforcer) *RoleRepository {
 	return &RoleRepository{
 		client:   client,
 		enforcer: enforcer,

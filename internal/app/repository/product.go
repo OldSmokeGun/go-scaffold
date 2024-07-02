@@ -6,6 +6,7 @@ import (
 	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
+	ient "go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/ent/ent"
 	"go-scaffold/internal/pkg/ent/ent/product"
 )
@@ -28,10 +29,10 @@ type (
 )
 
 type ProductRepository struct {
-	client *ent.Client
+	client *ient.DefaultClient
 }
 
-func NewProductRepository(client *ent.Client) *ProductRepository {
+func NewProductRepository(client *ient.DefaultClient) *ProductRepository {
 	return &ProductRepository{
 		client: client,
 	}

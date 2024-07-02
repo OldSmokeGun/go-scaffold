@@ -1,16 +1,18 @@
 package ent
 
 import (
-	"database/sql"
+	"context"
 	"log/slog"
 
 	"go-scaffold/internal/config"
 	"go-scaffold/internal/pkg/ent/ent"
 )
 
-// Provide db client
-func Provide(env config.Env, conf config.DatabaseConn, logger *slog.Logger, db *sql.DB) (*ent.Client, func(), error) {
-	client, err := New(env, conf, logger, db)
+type DefaultClient = ent.Client
+
+// ProvideDefault db client
+func ProvideDefault(ctx context.Context, env config.Env, conf config.DefaultDatabase, logger *slog.Logger) (*DefaultClient, func(), error) {
+	client, err := New(ctx, env, conf.DatabaseConn, logger)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -42,40 +42,26 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
-	databaseConn, err := config.GetDatabaseConn()
+	database, err := config.GetDefaultDatabase()
 	if err != nil {
 		return nil, nil, err
 	}
-	sqlDB, cleanup, err := db.Provide(contextContext, databaseConn)
+	entClient, cleanup, err := ent.ProvideDefault(contextContext, env, database, logger)
 	if err != nil {
-		return nil, nil, err
-	}
-	entClient, cleanup2, err := ent.Provide(env, databaseConn, logger, sqlDB)
-	if err != nil {
-		cleanup()
 		return nil, nil, err
 	}
 	configCasbin, err := config.GetHTTPCasbin()
 	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	database, err := config.GetDatabase()
+	db, cleanup2, err := gorm.ProvideDefault(contextContext, database, logger)
 	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	gormDB, cleanup3, err := gorm.Provide(contextContext, database, logger)
+	enforcer, err := casbin.Provide(contextContext, env, configCasbin, database, logger, db)
 	if err != nil {
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	enforcer, err := casbin.Provide(env, configCasbin, databaseConn, logger, gormDB, sqlDB)
-	if err != nil {
-		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -90,7 +76,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	greetHandler := v1.NewGreetHandler(greetController)
 	services, err := config.GetServices()
 	if err != nil {
-		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -99,7 +84,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
 	kafka, err := config.GetExampleKafka()
 	if err != nil {
-		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -127,7 +111,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server2 := http.New(httpServer, handler)
 	grpcServer, err := config.GetGRPCServer()
 	if err != nil {
-		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
@@ -141,7 +124,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server3 := grpc.New(grpcServer, routerRouter)
 	serverServer := server.New(contextContext, appName, server2, server3)
 	return serverServer, func() {
-		cleanup3()
 		cleanup2()
 		cleanup()
 	}, nil
