@@ -11,7 +11,7 @@ import (
 
 type DefaultDB = gorm.DB
 
-// ProvideDefault gorm
+// ProvideDefault default gorm
 func ProvideDefault(ctx context.Context, conf config.DefaultDatabase, logger *slog.Logger) (db *DefaultDB, cleanup func(), err error) {
 	db, err = New(ctx, conf, logger)
 	if err != nil {

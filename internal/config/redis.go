@@ -2,6 +2,21 @@ package config
 
 import "time"
 
+type RedisGroup struct {
+	Default *DefaultRedis `json:"default"`
+}
+
+func (RedisGroup) GetName() string {
+	return "redis"
+}
+
+// DefaultRedis default redis config
+type DefaultRedis = Redis
+
+func (DefaultRedis) GetName() string {
+	return "redis.default"
+}
+
 // Redis is redis config
 type Redis struct {
 	Addr               string        `json:"addr"`
@@ -20,8 +35,4 @@ type Redis struct {
 	PoolTimeout        time.Duration `json:"poolTimeout"`
 	IdleTimeout        time.Duration `json:"idleTimeout"`
 	IdleCheckFrequency time.Duration `json:"idleCheckFrequency"`
-}
-
-func (Redis) GetName() string {
-	return "redis"
 }

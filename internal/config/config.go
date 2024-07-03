@@ -17,7 +17,7 @@ var ProviderSet = wire.NewSet(
 	GetServices,
 	GetDiscovery,
 	GetDefaultDatabase,
-	GetRedis,
+	GetDefaultRedis,
 	GetExampleKafka,
 	GetTrace,
 )
@@ -36,7 +36,7 @@ type Config struct {
 	Services  *Services      `json:"services"`
 	Discovery *Discovery     `json:"discovery"`
 	Database  *DatabaseGroup `json:"database"`
-	Redis     *Redis         `json:"redis"`
+	Redis     *RedisGroup    `json:"redis"`
 	Kafka     *KafkaGroup    `json:"kafka"`
 	Trace     *Trace         `json:"trace"`
 }
@@ -100,8 +100,12 @@ func GetDefaultDatabase() (DefaultDatabase, error) {
 	return getEntry(databasesConfig.Default)
 }
 
-func GetRedis() (Redis, error) {
-	return getEntry(config.Redis)
+func GetDefaultRedis() (DefaultRedis, error) {
+	redisConfig, err := getEntry(config.Redis)
+	if err != nil {
+		return DefaultRedis{}, err
+	}
+	return getEntry(redisConfig.Default)
 }
 
 func GetExampleKafka() (ExampleKafka, error) {

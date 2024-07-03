@@ -11,7 +11,7 @@ import (
 
 type DefaultClient = ent.Client
 
-// ProvideDefault db client
+// ProvideDefault default db client
 func ProvideDefault(ctx context.Context, env config.Env, conf config.DefaultDatabase, logger *slog.Logger) (*DefaultClient, func(), error) {
 	sdb, err := db.New(ctx, conf.DatabaseConn)
 	if err != nil {

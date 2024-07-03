@@ -8,8 +8,10 @@ import (
 	"go-scaffold/internal/config"
 )
 
-// Provide redis client
-func Provide(ctx context.Context, conf config.Redis) (*redis.Client, func(), error) {
+type DefaultRedis = redis.Client
+
+// ProvideDefault default redis client
+func ProvideDefault(ctx context.Context, conf config.Redis) (*DefaultRedis, func(), error) {
 	client, err := New(ctx, conf)
 	if err != nil {
 		return nil, nil, err
