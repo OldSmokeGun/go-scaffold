@@ -96,7 +96,7 @@ $ docker-compose -f deploy/docker-compose/docker-compose.yaml up
 
 ## 热重启
 
-热重启功能基于 [air](https://github.com/cosmtrek/air)
+热重启功能基于 [air](https://github.com/air-verse/air)
 
 ```shell
 $ air

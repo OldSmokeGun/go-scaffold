@@ -59,7 +59,7 @@ tasks:
       - go get -u github.com/davecgh/go-spew/spew
       - go get github.com/google/wire/cmd/wire@main
       - go install github.com/google/wire/cmd/wire@main
-      - go install github.com/cosmtrek/air@latest
+      - go install github.com/air-verse/air@latest
       - go install github.com/swaggo/swag/cmd/swag@latest
       - go install github.com/golang/mock/mockgen@latest
       - go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
