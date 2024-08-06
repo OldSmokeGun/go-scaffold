@@ -15,11 +15,11 @@ import (
 // ErrorHandler is HTTP error handler. It sends a JSON response
 func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 	return func(err error, ctx echo.Context) {
-		logger.Error("handle request error", slog.Any("error", err))
-
 		if ctx.Response().Committed {
 			return
 		}
+
+		logger.Error("handle request error", slog.Any("error", err))
 
 		var (
 			bc         int
