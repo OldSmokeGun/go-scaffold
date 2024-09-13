@@ -67,7 +67,7 @@ services:
 #         dsn: "root:root@tcp(127.0.0.1:3306)/go-scaffold?charset=utf8mb4&parseTime=True&loc=Local"
 
 #   default:
-#     driver: "postgres"
+#     driver: "pgx"
 #     dsn: "host=127.0.0.1 port=5432 user=postgres password=root dbname=go-scaffold sslmode=disable TimeZone=Asia/Shanghai"
 #     maxIdleConn: 20
 #     maxOpenConn: 40

@@ -77,7 +77,7 @@ func (d DatabaseDriver) IsSupported() bool {
 
 const (
 	MySQL    DatabaseDriver = "mysql"
-	Postgres DatabaseDriver = "postgres"
+	Postgres DatabaseDriver = "pgx"
 	SQLite   DatabaseDriver = "sqlite3"
 )
 
