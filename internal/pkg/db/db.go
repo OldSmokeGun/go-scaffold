@@ -22,7 +22,12 @@ func New(ctx context.Context, conf config.DatabaseConn) (*sql.DB, error) {
 		return nil, ErrUnsupportedDriver
 	}
 
-	db, err := sql.Open(conf.Driver.String(), conf.DSN)
+	driver := conf.Driver.String()
+	if conf.Driver == config.Postgres {
+		driver = "pgx"
+	}
+
+	db, err := sql.Open(driver, conf.DSN)
 	if err != nil {
 		return nil, err
 	}

@@ -100,12 +100,7 @@ func (c *migrateCmd) initMigrate(cmd *cobra.Command) {
 		panic(err)
 	}
 
-	driver := dbConfig.Driver.String()
-	if dbConfig.Driver == config.Postgres {
-		driver = "postgres"
-	}
-
-	c.driver = driver
+	c.driver = dbConfig.Driver.String()
 	c.db = db
 	c.cleanup = cleanup
 	c.migrations = migrations
