@@ -13,6 +13,7 @@ import (
 	"go-scaffold/internal/app"
 	"go-scaffold/internal/app/adapter/cron"
 	"go-scaffold/internal/app/adapter/kafka"
+	"go-scaffold/internal/app/adapter/scripts"
 	"go-scaffold/internal/app/adapter/server"
 	"go-scaffold/internal/config"
 	"go-scaffold/internal/pkg"
@@ -66,5 +67,18 @@ func initDB(
 ) (*sql.DB, func(), error) {
 	panic(wire.Build(
 		pkg.ProviderSet,
+	))
+}
+
+func newExampleScript(
+	context.Context,
+	config.AppName,
+	config.Env,
+	*slog.Logger,
+) (*scripts.ExampleCmd, func(), error) {
+	panic(wire.Build(
+		// config.ProviderSet,
+		app.ProviderSet,
+		// pkg.ProviderSet,
 	))
 }

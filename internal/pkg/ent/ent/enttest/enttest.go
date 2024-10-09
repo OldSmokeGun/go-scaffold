@@ -4,6 +4,7 @@ package enttest
 
 import (
 	"context"
+
 	"go-scaffold/internal/pkg/ent/ent"
 	// required by schema hooks.
 	_ "go-scaffold/internal/pkg/ent/ent/runtime"

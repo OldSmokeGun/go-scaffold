@@ -5,6 +5,7 @@ import (
 
 	"go-scaffold/internal/app/adapter/cron"
 	"go-scaffold/internal/app/adapter/kafka"
+	"go-scaffold/internal/app/adapter/scripts"
 	"go-scaffold/internal/app/adapter/server"
 )
 
@@ -12,4 +13,5 @@ var ProviderSet = wire.NewSet(
 	cron.ProviderSet,
 	server.ProviderSet,
 	kafka.ProviderSet,
+	scripts.ProviderSet,
 )

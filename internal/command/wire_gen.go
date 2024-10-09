@@ -15,6 +15,7 @@ import (
 	"go-scaffold/internal/app/adapter/kafka"
 	"go-scaffold/internal/app/adapter/kafka/consumer"
 	"go-scaffold/internal/app/adapter/kafka/handler"
+	"go-scaffold/internal/app/adapter/scripts"
 	"go-scaffold/internal/app/adapter/server"
 	"go-scaffold/internal/app/adapter/server/grpc"
 	v1_2 "go-scaffold/internal/app/adapter/server/grpc/handler/v1"
@@ -166,5 +167,12 @@ func initDB(contextContext context.Context, databaseConn config.DatabaseConn, lo
 	}
 	return sqlDB, func() {
 		cleanup()
+	}, nil
+}
+
+func newExampleScript(contextContext context.Context, appName config.AppName, env config.Env, logger *slog.Logger) (*scripts.ExampleCmd, func(), error) {
+	greetController := controller.NewGreetController()
+	scriptsExampleCmd := scripts.NewExampleCmd(greetController)
+	return scriptsExampleCmd, func() {
 	}, nil
 }

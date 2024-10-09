@@ -5,6 +5,7 @@ package intercept
 import (
 	"context"
 	"fmt"
+
 	"go-scaffold/internal/pkg/ent/ent"
 	"go-scaffold/internal/pkg/ent/ent/permission"
 	"go-scaffold/internal/pkg/ent/ent/predicate"
