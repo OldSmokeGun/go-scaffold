@@ -25,6 +25,9 @@ func New(text string, code int, label string) *Error {
 }
 
 func (e *Error) Error() string {
+	if e.error != nil {
+		return e.error.Error()
+	}
 	return e.msg
 }
 
