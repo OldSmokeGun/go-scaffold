@@ -19,8 +19,8 @@ import (
 
 	v1 "go-scaffold/internal/app/adapter/server/grpc/api/v1"
 	"go-scaffold/internal/config"
+	berr "go-scaffold/internal/errors"
 	"go-scaffold/internal/pkg/client"
-	berr "go-scaffold/internal/pkg/errors"
 	"go-scaffold/pkg/trace"
 )
 

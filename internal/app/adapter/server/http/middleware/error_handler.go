@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/samber/lo"
 
-	berr "go-scaffold/internal/pkg/errors"
+	berr "go-scaffold/internal/errors"
 	uerr "go-scaffold/pkg/errors"
 )
 

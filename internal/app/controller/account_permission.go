@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/repository"
-	berr "go-scaffold/internal/pkg/errors"
+	berr "go-scaffold/internal/errors"
 )
 
 type AccountPermissionController struct {
