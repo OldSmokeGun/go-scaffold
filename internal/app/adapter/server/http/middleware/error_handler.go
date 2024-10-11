@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -37,7 +38,8 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			hintMsg = fmt.Sprintf("%v", ae.Message)
 			if une := ae.Unwrap(); une != nil {
 				err = une
-				if ce, ok := une.(*berr.Error); ok {
+				var ce *berr.Error
+				if errors.As(une, &ce) {
 					if ce.Unwrap() != nil {
 						err = ce.Unwrap()
 					}
