@@ -10,7 +10,7 @@ import (
 	"github.com/samber/lo"
 
 	berr "go-scaffold/internal/errors"
-	uerr "go-scaffold/pkg/errors"
+	perr "go-scaffold/pkg/errors"
 )
 
 // ErrorHandler is HTTP error handler. It sends a JSON response
@@ -23,36 +23,38 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 		logger.Error("handle request error", slog.Any("error", err))
 
 		var (
+			httpErr *echo.HTTPError
+			bErr    *berr.Error
+
 			bc         int
 			hintMsg    string
 			statusCode int
 		)
 
-		switch ae := err.(type) {
-		case *echo.HTTPError:
-			statusCode = ae.Code
+		if errors.As(err, &httpErr) {
+			statusCode = httpErr.Code
 			bc = berr.ErrInternalError.Code()
 			if c, ok := lo.Invert(errHttpStatusCode)[statusCode]; ok {
 				bc = c
 			}
-			hintMsg = fmt.Sprintf("%v", ae.Message)
-			if une := ae.Unwrap(); une != nil {
+			hintMsg = fmt.Sprintf("%v", httpErr.Message)
+			if une := httpErr.Unwrap(); une != nil {
 				err = une
-				var ce *berr.Error
-				if errors.As(une, &ce) {
-					if ce.Unwrap() != nil {
-						err = ce.Unwrap()
+				var be *berr.Error
+				if errors.As(une, &be) {
+					if be.Unwrap() != nil {
+						err = be.Unwrap()
 					}
 				}
 			}
-		case *berr.Error:
-			bc = ae.Code()
-			hintMsg = ae.Msg()
+		} else if errors.As(err, &bErr) {
+			bc = bErr.Code()
+			hintMsg = bErr.Msg()
 			statusCode = httpStatusCode(bc)
-			if ae.Unwrap() != nil {
-				err = ae.Unwrap()
+			if bErr.Unwrap() != nil {
+				err = bErr.Unwrap()
 			}
-		default:
+		} else {
 			de := berr.ErrInternalError
 			bc = de.Code()
 			hintMsg = hintMessage(de.Label())
@@ -64,13 +66,13 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			WithErrMsg(hintMsg)
 
 		if debug {
-			wrapMsg := err.Error()
+			errMsg := err.Error()
 			if hintMsg != "" {
-				wrapMsg = fmt.Sprintf("%s: %s", hintMsg, err)
+				errMsg = fmt.Sprintf("%s: %s", hintMsg, err)
 			}
-			responseBody.WithErrMsg(wrapMsg)
+			responseBody.WithErrMsg(errMsg)
 
-			stack := uerr.ErrorStackTrace(err)
+			stack := perr.ErrorStackTrace(err)
 			if stack != nil {
 				responseBody.WithStack(stack)
 			}

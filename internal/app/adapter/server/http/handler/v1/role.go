@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
 )
 
@@ -48,7 +48,7 @@ type RoleListResponse []*RoleInfo
 func (h *RoleHandler) List(ctx echo.Context) error {
 	req := new(RoleListRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.RoleListRequest{
@@ -94,7 +94,7 @@ type RoleCreateRequest struct {
 func (h *RoleHandler) Create(ctx echo.Context) error {
 	req := new(RoleCreateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.RoleCreateRequest{
@@ -134,7 +134,7 @@ type RoleUpdateRequest struct {
 func (h *RoleHandler) Update(ctx echo.Context) error {
 	req := new(RoleUpdateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	p := controller.RoleUpdateRequest{
@@ -176,7 +176,7 @@ type RoleDetailResponse = RoleInfo
 func (h *RoleHandler) Detail(ctx echo.Context) error {
 	req := new(RoleDetailRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	ret, err := h.controller.Detail(ctx.Request().Context(), req.ID)
@@ -216,7 +216,7 @@ type RoleDeleteRequest struct {
 func (h *RoleHandler) Delete(ctx echo.Context) error {
 	req := new(RoleDeleteRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	if err := h.controller.Delete(ctx.Request().Context(), req.ID); err != nil {
@@ -251,7 +251,7 @@ type RoleGrantPermissionsRequest struct {
 func (h *RoleHandler) GrantPermissions(ctx echo.Context) error {
 	req := new(RoleGrantPermissionsRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.RoleGrantPermissionsRequest{
@@ -291,7 +291,7 @@ type RoleGetPermissionsResponse []*PermissionInfo
 func (h *RoleHandler) GetPermissions(ctx echo.Context) error {
 	req := new(RoleGetPermissionsRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	ret, err := h.controller.GetPermissions(ctx.Request().Context(), req.ID)

@@ -19,6 +19,6 @@ func (e *HTTPError) SetMessage(message string) *HTTPError {
 	return e
 }
 
-func (e *HTTPError) Unwrap() *echo.HTTPError {
+func (e *HTTPError) Unwrap() error {
 	return e.HTTPError
 }

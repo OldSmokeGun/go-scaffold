@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
 )
 
@@ -50,7 +50,7 @@ type ProductListResponse []*ProductInfo
 func (h *ProductHandler) List(ctx echo.Context) error {
 	req := new(ProductListRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.ProductListRequest{
@@ -100,7 +100,7 @@ type ProductCreateRequest struct {
 func (h *ProductHandler) Create(ctx echo.Context) error {
 	req := new(ProductCreateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.ProductCreateRequest{
@@ -144,7 +144,7 @@ type ProductUpdateRequest struct {
 func (h *ProductHandler) Update(ctx echo.Context) error {
 	req := new(ProductUpdateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	p := controller.ProductUpdateRequest{
@@ -188,7 +188,7 @@ type ProductDetailResponse = ProductInfo
 func (h *ProductHandler) Detail(ctx echo.Context) error {
 	req := new(ProductDetailRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	ret, err := h.controller.Detail(ctx.Request().Context(), req.ID)
@@ -230,7 +230,7 @@ type ProductDeleteRequest struct {
 func (h *ProductHandler) Delete(ctx echo.Context) error {
 	req := new(ProductDeleteRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	if err := h.controller.Delete(ctx.Request().Context(), req.ID); err != nil {

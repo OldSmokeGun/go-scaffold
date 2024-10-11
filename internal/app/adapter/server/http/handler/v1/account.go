@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"go-scaffold/internal/app/adapter/server/http/middleware"
-	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
 )
 
@@ -45,7 +45,7 @@ type AccountRegisterResponse struct {
 func (h *AccountHandler) Register(ctx echo.Context) error {
 	req := new(AccountRegisterRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.AccountRegisterRequest{
@@ -104,7 +104,7 @@ type AccountLoginResponse struct {
 func (h *AccountHandler) Login(ctx echo.Context) error {
 	req := new(AccountLoginRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.AccountLoginRequest{
@@ -179,7 +179,7 @@ type AccountUpdateProfileRequest struct {
 func (h *AccountHandler) UpdateProfile(ctx echo.Context) error {
 	req := new(AccountUpdateProfileRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	user := ctx.(*middleware.Context).GetUser()

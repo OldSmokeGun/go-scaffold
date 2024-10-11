@@ -5,7 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"go-scaffold/internal/app/adapter/server/http/pkg/errors"
+	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
 )
 
@@ -51,7 +51,7 @@ type PermissionListResponse []*PermissionInfo
 func (h *PermissionHandler) List(ctx echo.Context) error {
 	req := new(PermissionListRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.PermissionListRequest{
@@ -103,7 +103,7 @@ type PermissionCreateRequest struct {
 func (h *PermissionHandler) Create(ctx echo.Context) error {
 	req := new(PermissionCreateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.PermissionCreateRequest{
@@ -149,7 +149,7 @@ type PermissionUpdateRequest struct {
 func (h *PermissionHandler) Update(ctx echo.Context) error {
 	req := new(PermissionUpdateRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	p := controller.PermissionUpdateRequest{
@@ -194,7 +194,7 @@ type PermissionDetailResponse = PermissionInfo
 func (h *PermissionHandler) Detail(ctx echo.Context) error {
 	req := new(PermissionDetailRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	ret, err := h.controller.Detail(ctx.Request().Context(), req.ID)
@@ -237,7 +237,7 @@ type PermissionDeleteRequest struct {
 func (h *PermissionHandler) Delete(ctx echo.Context) error {
 	req := new(PermissionDeleteRequest)
 	if err := ctx.Bind(req); err != nil {
-		return errors.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error").Unwrap()
+		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
 	}
 
 	if err := h.controller.Delete(ctx.Request().Context(), req.ID); err != nil {
