@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 
-	v1api "go-scaffold/internal/app/adapter/server/grpc/api/v1"
+	v1api "go-scaffold/internal/app/facade/server/grpc/api/v1"
 )
 
 // Router 注册器

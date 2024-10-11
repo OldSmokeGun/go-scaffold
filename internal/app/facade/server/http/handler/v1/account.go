@@ -5,9 +5,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"go-scaffold/internal/app/adapter/server/http/middleware"
-	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
+	"go-scaffold/internal/app/facade/server/http/middleware"
+	httperr "go-scaffold/internal/app/facade/server/http/pkg/errors"
 )
 
 type AccountHandler struct {

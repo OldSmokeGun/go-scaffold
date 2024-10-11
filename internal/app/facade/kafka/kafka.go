@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/wire"
 
-	"go-scaffold/internal/app/adapter/kafka/consumer"
-	"go-scaffold/internal/app/adapter/kafka/handler"
+	"go-scaffold/internal/app/facade/kafka/consumer"
+	"go-scaffold/internal/app/facade/kafka/handler"
 )
 
 var ProviderSet = wire.NewSet(

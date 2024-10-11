@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	v1 "go-scaffold/internal/app/adapter/server/grpc/api/v1"
-	"go-scaffold/internal/app/adapter/server/grpc/pkg/errors"
 	"go-scaffold/internal/app/controller"
+	v1 "go-scaffold/internal/app/facade/server/grpc/api/v1"
+	"go-scaffold/internal/app/facade/server/grpc/pkg/errors"
 )
 
 type UserHandler struct {

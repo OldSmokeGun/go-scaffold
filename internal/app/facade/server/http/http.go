@@ -10,8 +10,8 @@ import (
 	khttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
 
-	v1 "go-scaffold/internal/app/adapter/server/http/handler/v1"
-	"go-scaffold/internal/app/adapter/server/http/router"
+	v1 "go-scaffold/internal/app/facade/server/http/handler/v1"
+	"go-scaffold/internal/app/facade/server/http/router"
 	"go-scaffold/internal/config"
 )
 

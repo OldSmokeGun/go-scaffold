@@ -11,9 +11,9 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/google/wire"
 
-	v1api "go-scaffold/internal/app/adapter/server/grpc/api/v1"
-	v1handler "go-scaffold/internal/app/adapter/server/grpc/handler/v1"
-	"go-scaffold/internal/app/adapter/server/grpc/router"
+	v1api "go-scaffold/internal/app/facade/server/grpc/api/v1"
+	v1handler "go-scaffold/internal/app/facade/server/grpc/handler/v1"
+	"go-scaffold/internal/app/facade/server/grpc/router"
 	"go-scaffold/internal/config"
 )
 

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package internal.app.adapter.grpc.api.v1.permission;
 
-option go_package = "go-scaffold/internal/app/adapter/grpc/api/v1;v1";
+option go_package = "go-scaffold/internal/app/facade/grpc/api/v1;v1";
 
 service Permission {
   rpc Create (PermissionCreateRequest) returns (PermissionCreateResponse) {};

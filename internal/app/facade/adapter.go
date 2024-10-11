@@ -3,10 +3,10 @@ package facade
 import (
 	"github.com/google/wire"
 
-	"go-scaffold/internal/app/adapter/cron"
-	"go-scaffold/internal/app/adapter/kafka"
-	"go-scaffold/internal/app/adapter/scripts"
-	"go-scaffold/internal/app/adapter/server"
+	"go-scaffold/internal/app/facade/cron"
+	"go-scaffold/internal/app/facade/kafka"
+	"go-scaffold/internal/app/facade/scripts"
+	"go-scaffold/internal/app/facade/server"
 )
 
 var ProviderSet = wire.NewSet(

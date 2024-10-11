@@ -3,9 +3,9 @@ package router
 import (
 	"github.com/labstack/echo/v4"
 
-	v1 "go-scaffold/internal/app/adapter/server/http/handler/v1"
-	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
 	"go-scaffold/internal/app/controller"
+	v1 "go-scaffold/internal/app/facade/server/http/handler/v1"
+	imiddleware "go-scaffold/internal/app/facade/server/http/middleware"
 )
 
 // ApiV1Group v1 API routing group

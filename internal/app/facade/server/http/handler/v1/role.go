@@ -5,8 +5,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	httperr "go-scaffold/internal/app/adapter/server/http/pkg/errors"
 	"go-scaffold/internal/app/controller"
+	httperr "go-scaffold/internal/app/facade/server/http/pkg/errors"
 )
 
 type RoleHandler struct {

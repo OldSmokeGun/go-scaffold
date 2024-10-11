@@ -4,6 +4,7 @@ import (
 	"github.com/google/wire"
 
 	"go-scaffold/internal/app/controller"
+	"go-scaffold/internal/app/facade"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
 )

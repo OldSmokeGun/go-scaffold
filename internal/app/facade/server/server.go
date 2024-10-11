@@ -10,8 +10,8 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/google/wire"
 
-	gserv "go-scaffold/internal/app/adapter/server/grpc"
-	hserv "go-scaffold/internal/app/adapter/server/http"
+	gserv "go-scaffold/internal/app/facade/server/grpc"
+	hserv "go-scaffold/internal/app/facade/server/http"
 	"go-scaffold/internal/config"
 )
 

@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
-	"go-scaffold/internal/app/adapter/server/http/api/docs"
-	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
+	"go-scaffold/internal/app/facade/server/http/api/docs"
+	imiddleware "go-scaffold/internal/app/facade/server/http/middleware"
 	"go-scaffold/internal/config"
 )
 

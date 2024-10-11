@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 
-	imiddleware "go-scaffold/internal/app/adapter/server/http/middleware"
+	imiddleware "go-scaffold/internal/app/facade/server/http/middleware"
 	"go-scaffold/internal/config"
 )
 

@@ -10,7 +10,7 @@ import (
 
 	"github.com/segmentio/kafka-go"
 
-	"go-scaffold/internal/app/adapter/kafka/handler"
+	"go-scaffold/internal/app/facade/kafka/handler"
 	"go-scaffold/internal/config"
 )
 

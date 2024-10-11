@@ -7,8 +7,8 @@ import (
 	"github.com/google/wire"
 	"github.com/robfig/cron/v3"
 
-	"go-scaffold/internal/app/adapter/cron/job"
-	"go-scaffold/internal/app/adapter/cron/scheduler"
+	"go-scaffold/internal/app/facade/cron/job"
+	"go-scaffold/internal/app/facade/cron/scheduler"
 	clog "go-scaffold/pkg/log/cron"
 )
 
