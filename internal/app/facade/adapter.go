@@ -1,4 +1,4 @@
-package adapter
+package facade
 
 import (
 	"github.com/google/wire"
