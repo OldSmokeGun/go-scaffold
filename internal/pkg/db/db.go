@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/jackc/pgx/v5"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
 
 	"go-scaffold/internal/config"
@@ -22,7 +22,12 @@ func New(ctx context.Context, conf config.DatabaseConn) (*sql.DB, error) {
 		return nil, ErrUnsupportedDriver
 	}
 
-	db, err := sql.Open(conf.Driver.String(), conf.DSN)
+	driver := conf.Driver.String()
+	if conf.Driver == config.Postgres {
+		driver = "pgx"
+	}
+
+	db, err := sql.Open(driver, conf.DSN)
 	if err != nil {
 		return nil, err
 	}

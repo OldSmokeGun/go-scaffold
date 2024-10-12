@@ -70,6 +70,7 @@ func addLoggerFlag(cmd *cobra.Command, persistent bool) {
 
 func addMigrationFlag(cmd *cobra.Command, persistent bool) {
 	getFlags(cmd, persistent).StringP(flagMigrationDir.name, flagMigrationDir.shortName, flagMigrationDir.defaultValue.(string), flagMigrationDir.usage)
+	getFlags(cmd, persistent).StringP(flagMigrationDBGroup.name, flagMigrationDBGroup.shortName, flagMigrationDBGroup.defaultValue.(string), flagMigrationDBGroup.usage)
 	getFlags(cmd, persistent).BoolP(flagMigrationIgnoreUnknown.name, flagMigrationIgnoreUnknown.shortName, flagMigrationIgnoreUnknown.defaultValue.(bool), flagMigrationIgnoreUnknown.usage)
 }
 

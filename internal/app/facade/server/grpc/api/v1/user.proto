@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.user;
+
+option go_package = "go-scaffold/internal/app/facade/grpc/api/v1;v1";
+
+import "v1/role.proto";
+
+service User {
+  rpc Create (UserCreateRequest) returns (UserCreateResponse) {};
+  rpc Update (UserUpdateRequest) returns (UserUpdateResponse) {};
+  rpc Delete (UserDeleteRequest) returns (UserDeleteResponse) {};
+  rpc Detail (UserDetailRequest) returns (UserInfo) {};
+  rpc List (UserListRequest) returns (UserListResponse) {};
+  rpc AssignRoles (UserAssignRolesRequest) returns (UserAssignRolesResponse) {};
+  rpc GetRoles (UserGetRolesRequest) returns (UserGetRolesResponse) {};
+}
+
+message UserInfo {
+  int64 id = 1; // @gotags: json:"id"
+  string username = 2; // @gotags: json:"username"
+  string nickname = 3; // @gotags: json:"nickname"
+  string phone = 4; // @gotags: json:"phone"
+}
+
+message UserCreateRequest {
+  string username = 1; // @gotags: json:"username"
+  string password = 2; // @gotags: json:"password"
+  string nickname = 3; // @gotags: json:"nickname"
+  string phone = 4; // @gotags: json:"phone"
+}
+message UserCreateResponse {}
+
+message UserUpdateRequest {
+  int64 id = 1; // @gotags: json:"id"
+  string username = 2; // @gotags: json:"username"
+  string password = 3; // @gotags: json:"password"
+  string nickname = 4; // @gotags: json:"nickname"
+  string phone = 5; // @gotags: json:"phone"
+}
+message UserUpdateResponse {}
+
+message UserDeleteRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message UserDeleteResponse {}
+
+message UserDetailRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+
+message UserListRequest {
+  string keyword = 1; // @gotags: json:"keyword"
+}
+message UserListResponse {
+  repeated UserInfo items = 1; // @gotags: json:"items"
+}
+
+message UserAssignRolesRequest {
+  int64 user = 1; // @gotags: json:"user"
+  repeated int64 roles = 2; // @gotags: json:"roles"
+}
+message UserAssignRolesResponse {}
+
+message UserGetRolesRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message UserGetRolesResponse {
+  repeated role.RoleInfo items = 1; // @gotags: json:"items"
+}

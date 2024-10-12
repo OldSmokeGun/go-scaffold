@@ -11,7 +11,7 @@ import (
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
-	berr "go-scaffold/internal/pkg/errors"
+	berr "go-scaffold/internal/errors"
 	"go-scaffold/pkg/validator"
 )
 

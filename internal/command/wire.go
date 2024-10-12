@@ -11,9 +11,10 @@ import (
 	"github.com/google/wire"
 
 	"go-scaffold/internal/app"
-	"go-scaffold/internal/app/adapter/cron"
-	"go-scaffold/internal/app/adapter/kafka"
-	"go-scaffold/internal/app/adapter/server"
+	"go-scaffold/internal/app/facade/cron"
+	"go-scaffold/internal/app/facade/kafka"
+	"go-scaffold/internal/app/facade/scripts"
+	"go-scaffold/internal/app/facade/server"
 	"go-scaffold/internal/config"
 	"go-scaffold/internal/pkg"
 	"go-scaffold/pkg/trace"
@@ -66,5 +67,18 @@ func initDB(
 ) (*sql.DB, func(), error) {
 	panic(wire.Build(
 		pkg.ProviderSet,
+	))
+}
+
+func newExampleScript(
+	context.Context,
+	config.AppName,
+	config.Env,
+	*slog.Logger,
+) (*scripts.ExampleCmd, func(), error) {
+	panic(wire.Build(
+		// config.ProviderSet,
+		app.ProviderSet,
+		// pkg.ProviderSet,
 	))
 }

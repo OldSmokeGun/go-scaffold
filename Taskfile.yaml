@@ -6,11 +6,11 @@ vars:
   # wire
   WIRE_ENTRY_DIR: ./internal/command
   # swagger
-  API_SWAGGER_SCAN_DIR: internal/app/adapter/server/http
+  API_SWAGGER_SCAN_DIR: internal/app/facade/server/http
   API_SWAGGER_SCAN_ENTRY: http.go
-  API_SWAGGER_OUT_DIR: internal/app/adapter/server/http/api/docs
+  API_SWAGGER_OUT_DIR: internal/app/facade/server/http/api/docs
   # proto
-  API_PROTO_GENERATE_FILE: internal/app/adapter/server/grpc/api/generate.go
+  API_PROTO_GENERATE_FILE: internal/app/facade/server/grpc/api/generate.go
 
 tasks:
   build:

@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.product;
+
+option go_package = "go-scaffold/internal/app/facade/grpc/api/v1;v1";
+
+service Product {
+  rpc Create (ProductCreateRequest) returns (ProductCreateResponse) {};
+  rpc Update (ProductUpdateRequest) returns (ProductUpdateResponse) {};
+  rpc Delete (ProductDeleteRequest) returns (ProductDeleteResponse) {};
+  rpc Detail (ProductDetailRequest) returns (ProductInfo) {};
+  rpc List (ProductListRequest) returns (ProductListResponse) {};
+}
+
+message ProductInfo {
+  int64 id = 1; // @gotags: json:"id"
+  string name = 2; // @gotags: json:"name"
+  string desc = 3; // @gotags: json:"desc"
+  int64 price = 4; // @gotags: json:"price"
+}
+
+message ProductCreateRequest {
+  string name = 1; // @gotags: json:"name"
+  string desc = 2; // @gotags: json:"desc"
+  int64 price = 3; // @gotags: json:"price"
+}
+message ProductCreateResponse {}
+
+message ProductUpdateRequest {
+  int64 id = 1; // @gotags: json:"id"
+  string name = 2; // @gotags: json:"name"
+  string desc = 3; // @gotags: json:"desc"
+  int64 price = 4; // @gotags: json:"price"
+}
+message ProductUpdateResponse {}
+
+message ProductDeleteRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message ProductDeleteResponse {}
+
+message ProductDetailRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+
+message ProductListRequest {
+  string keyword = 1; // @gotags: json:"keyword"
+}
+message ProductListResponse {
+  repeated ProductInfo items = 1; // @gotags: json:"items"
+}

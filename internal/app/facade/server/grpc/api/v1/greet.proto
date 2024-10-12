@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.greet;
+
+option go_package = "go-scaffold/internal/app/facade/grpc/api/v1;v1";
+
+service Greet {
+  rpc Hello (GreetHelloRequest) returns (GreetHelloResponse)  {}
+}
+
+message GreetHelloRequest {
+  string name = 1; // @gotags: json:"name"
+}
+
+message GreetHelloResponse {
+  string msg = 1; // @gotags: json:"msg"
+}
