@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.role;
+
+option go_package = "go-scaffold/internal/app/adapter/grpc/api/v1;v1";
+
+import "v1/permission.proto";
+
+service Role {
+  rpc Create (RoleCreateRequest) returns (RoleCreateResponse) {};
+  rpc Update (RoleUpdateRequest) returns (RoleUpdateResponse) {};
+  rpc Delete (RoleDeleteRequest) returns (RoleDeleteResponse) {};
+  rpc Detail (RoleDetailRequest) returns (RoleInfo) {};
+  rpc List (RoleListRequest) returns (RoleListResponse) {};
+  rpc GrantPermissions (RoleGrantPermissionsRequest) returns (RoleGrantPermissionsResponse) {};
+  rpc GetPermissions (RoleGetPermissionsRequest) returns (RoleGetPermissionsResponse) {};
+}
+
+message RoleInfo {
+  int64 id = 1; // @gotags: json:"id"
+  string name = 2; // @gotags: json:"name"
+}
+
+message RoleCreateRequest {
+  string name = 1; // @gotags: json:"name"
+}
+message RoleCreateResponse {}
+
+message RoleUpdateRequest {
+  int64 id = 1; // @gotags: json:"id"
+  string name = 2; // @gotags: json:"name"
+}
+message RoleUpdateResponse {}
+
+message RoleDeleteRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message RoleDeleteResponse {}
+
+message RoleDetailRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+
+message RoleListRequest {
+  string keyword = 1; // @gotags: json:"keyword"
+}
+message RoleListResponse {
+  repeated RoleInfo items = 1; // @gotags: json:"items"
+}
+
+message RoleGrantPermissionsRequest {
+  int64 role = 1; // @gotags: json:"role"
+  repeated int64 permissions = 2; // @gotags: json:"permissions"
+}
+message RoleGrantPermissionsResponse {}
+
+message RoleGetPermissionsRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message RoleGetPermissionsResponse {
+  repeated permission.PermissionInfo items = 1; // @gotags: json:"items"
+}
