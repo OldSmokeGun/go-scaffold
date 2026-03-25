@@ -1,43 +1,28 @@
 * [介绍](#介绍)
-* [分层架构](#分层架构)
 * [如何运行](#如何运行)
   * [go build 或 go run](#go-build-或-go-run)
-  * [make](#make)
-  * [docker\-compose](#docker-compose)
+  * [task 命令](#task-命令)
+  * [docker-compose](#docker-compose)
   * [热重启](#热重启)
   * [运行子命令或脚本](#运行子命令或脚本)
 * [配置](#配置)
   * [配置模型](#配置模型)
   * [远程配置](#远程配置)
   * [监听配置变更](#监听配置变更)
+  * [依赖注入](#依赖注入)
 * [日志](#日志)
-* [依赖注入](#依赖注入)
+* [分层架构](#分层架构)
+* [wire 依赖注入](#wire-依赖注入)
 * [如何部署](#如何部署)
   * [Dockerfile](#dockerfile)
-  * [docker\-compose](#docker-compose-1)
+  * [docker-compose](#docker-compose-1)
   * [Kubernetes](#kubernetes)
 
 # 介绍
 
-`go-scaffold` 是一个基于 [cobra](https://github.com/spf13/cobra) 和 [kratos](https://github.com/go-kratos/kratos) 框架的脚手架，基于 [wire](https://github.com/google/wire) 实现功能的组件化
+`go-scaffold` 是一个基于 [cobra](https://github.com/spf13/cobra) 和 [kratos](https://github.com/go-kratos/kratos) 框架的脚手架
 
-`go-scaffold` 采用[清晰架构](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)，开箱即用，使用简单，可以快速搭建起一个微服务进行业务代码的开发，支持功能：
-
-- [cobra](https://github.com/spf13/cobra) 命令行
-- [cron](https://github.com/robfig/cron) 定时任务
-- `apollo` 远程配置中心和配置监听
-- 日志切割
-- 服务注册和发现
-- `jaeger` 链路追踪
-- `Swagger` 文档生成
-- `docker-compose` 和 `Kubernetes` 部署
-- 统一的错误处理
-- 基于 `wire` 依赖注入的组件化（`db`、`redis` 等）
-- ...
-
-# 分层架构
-
-![image](./docs/images/architecture.png)
+`go-scaffold` 采用[清晰架构](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)，使用简单，可以快速搭建起一个微服务进行业务代码的开发
 
 # 如何运行
 
@@ -60,17 +45,19 @@ $ go generate ./...
 $ go run cmd/app/main.go
 ```
 
-## `make`
+## `task` 命令
+
+[`task` 官方文档](https://taskfile.dev/docs/guide)
 
 ```shell
 # 下载依赖
-$ make download
-$ make build
+$ task download
+$ task build
 
 # 或依据平台编译
-$ make linux-build
-$ make windows-build
-$ make mac-build
+$ task linux-build
+$ task windows-build
+$ task mac-build
 
 # 运行
 $ ./bin/app
@@ -155,12 +142,10 @@ func NewHandler(
 
 在启动程序时，可通过以下选项配置远程配置中心
 
-- `--config.apollo.enable`: `apollo` 是否启用
-- `--config.apollo.endpoint`: 连接地址
-- `--config.apollo.appid`: `appID`
-- `--config.apollo.cluster`: `cluster`
-- `--config.apollo.namespace`: 命名空间
-- `--config.apollo.secret`: `secret`
+- `--config.remote.enable`：是否启用远程配置
+- `--config.remote.endpoints`：远程配置中心端点
+- `--config.remote.timeout`：超时时间
+- `--config.remote.path-prefix`：远程配置路径前缀
 
 ## 监听配置变更
 
@@ -176,6 +161,14 @@ var watchKeys = []string{
    "jwt.key",
 }
 ```
+
+## 依赖注入
+
+> 如果某个组件依赖配置模型的类型，那么在配置文件中就必须声明此类型的配置
+>
+> 这是为了防止在业务开发中，注入了某个类型，但是忘记对此类型需要的配置模型进行配置，然后在生产环境中因此造成程序的崩溃
+>
+> ！！！不建议在程序中直接通过 `config.Get*` 这类函数获取配置模型
 
 # 日志
 
@@ -211,13 +204,49 @@ func NewHandler(logger *slog.Logger) *Handler {
 }
 ```
 
-# 依赖注入
+# 分层架构
 
-> 关于 `go-scaffold` 的依赖注入功能，如果某个组件依赖配置模型的类型，那么在配置文件中必须声明此类型的配置
-> 
-> 这是为了防止在业务开发中，注入了某个类型，但是忘记对此类型需要的配置模型进行配置，然后在生产环境中因此造成程序的崩溃
-> 
-> ！！！不建议在程序中直接通过 `config.Get*` 这类函数获取配置模型
+![image](./docs/images/architecture.png)
+
+# `wire` 依赖注入
+
+如何使用依赖注入：
+
+1. 在分层目录的 `ProviderSet` 中声明可提供注入的依赖
+2. 在需要注入的类型的构造函数中声明需要此依赖，然后将其注入到类型中
+3. 运行命令：`task wire`
+4. 依赖注入成功
+
+例：
+
+```go
+var ProviderSet = wire.NewSet(
+	// 声明可提供注入的依赖
+	wire.NewSet(wire.Bind(new(UserRepositoryInterface), new(*UserRepository)), NewUserRepository),
+	// ...
+)
+```
+
+```go
+type UserUseCase struct {
+	repo repository.UserRepositoryInterface
+}
+
+func NewUserUseCase(
+	// 在需要注入的类型的构造函数中声明需要此依赖
+	repo repository.UserRepositoryInterface,
+) *UserUseCase {
+	return &UserUseCase{
+		// 然后将其注入到类型中
+		repo: repo,
+	}
+}
+```
+
+```shell
+# 生成注入代码
+task wire
+```
 
 # 如何部署
 
