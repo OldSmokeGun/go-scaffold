@@ -34,7 +34,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 		if errors.As(err, &httpErr) {
 			statusCode = httpErr.Code
 			bc = berr.ErrInternalError.Code()
-			if c, ok := lo.Invert(errHttpStatusCode)[statusCode]; ok {
+			if c, ok := httpStatusCodeBusinessErrCodeMap[statusCode]; ok {
 				bc = c
 			}
 			hintMsg = fmt.Sprintf("%v", httpErr.Message)
@@ -50,15 +50,15 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 		} else if errors.As(err, &bErr) {
 			bc = bErr.Code()
 			hintMsg = bErr.Msg()
-			statusCode = httpStatusCode(bc)
+			statusCode = businessErrCodeHttpStatusCodeMap[bc]
 			if bErr.Unwrap() != nil {
 				err = bErr.Unwrap()
 			}
 		} else {
 			de := berr.ErrInternalError
 			bc = de.Code()
-			hintMsg = hintMessage(de.Label())
-			statusCode = httpStatusCode(bc)
+			hintMsg = businessErrCodeHintMsgMap[de.Code()]
+			statusCode = businessErrCodeHttpStatusCodeMap[bc]
 		}
 
 		responseBody := NewDefaultBody().
@@ -89,30 +89,28 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 	}
 }
 
-var errHttpStatusCode = map[int]int{
-	berr.ErrInternalError.Code():      http.StatusInternalServerError,
-	berr.ErrBadCall.Code():            http.StatusBadRequest,
-	berr.ErrValidateError.Code():      http.StatusBadRequest,
-	berr.ErrInvalidAuthorized.Code():  http.StatusUnauthorized,
-	berr.ErrAccessDenied.Code():       http.StatusForbidden,
-	berr.ErrResourceNotFound.Code():   http.StatusNotFound,
-	berr.ErrCallsTooFrequently.Code(): http.StatusTooManyRequests,
-}
+var (
+	businessErrCodeHttpStatusCodeMap = map[int]int{
+		berr.ErrInternalError.Code():      http.StatusInternalServerError,
+		berr.ErrBadCall.Code():            http.StatusBadRequest,
+		berr.ErrValidateError.Code():      http.StatusBadRequest,
+		berr.ErrInvalidAuthorized.Code():  http.StatusUnauthorized,
+		berr.ErrAccessDenied.Code():       http.StatusForbidden,
+		berr.ErrResourceNotFound.Code():   http.StatusNotFound,
+		berr.ErrResourceConflict.Code():   http.StatusConflict,
+		berr.ErrCallsTooFrequently.Code(): http.StatusTooManyRequests,
+	}
 
-func httpStatusCode(c int) int {
-	return errHttpStatusCode[c]
-}
+	httpStatusCodeBusinessErrCodeMap = lo.Invert(businessErrCodeHttpStatusCodeMap)
+)
 
-var errHintMsg = map[string]string{
-	berr.ErrInternalError.Label():      "服务器出错",
-	berr.ErrBadCall.Label():            "客户端请求错误",
-	berr.ErrValidateError.Label():      "参数校验错误",
-	berr.ErrInvalidAuthorized.Label():  "未经授权",
-	berr.ErrAccessDenied.Label():       "暂无权限",
-	berr.ErrResourceNotFound.Label():   "资源不存在",
-	berr.ErrCallsTooFrequently.Label(): "请求太频繁",
-}
-
-func hintMessage(l string) string {
-	return errHintMsg[l]
+var businessErrCodeHintMsgMap = map[int]string{
+	berr.ErrInternalError.Code():      "服务器出错",
+	berr.ErrBadCall.Code():            "客户端请求错误",
+	berr.ErrValidateError.Code():      "参数校验错误",
+	berr.ErrInvalidAuthorized.Code():  "未经授权",
+	berr.ErrAccessDenied.Code():       "暂无权限",
+	berr.ErrResourceNotFound.Code():   "资源不存在",
+	berr.ErrResourceConflict.Code():   "资源冲突",
+	berr.ErrCallsTooFrequently.Code(): "请求太频繁",
 }

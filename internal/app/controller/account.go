@@ -61,7 +61,7 @@ func (c *AccountController) Register(ctx context.Context, req AccountRegisterReq
 		return nil, err
 	}
 	if exist {
-		return nil, berr.ErrBadCall.WithMsg("username already exist").WithError(errors.New("username already exist"))
+		return nil, berr.ErrResourceConflict.WithMsg("username already exist").WithError(errors.New("username already exist"))
 	}
 
 	user, err := c.uuc.Create(ctx, req.toEntity())

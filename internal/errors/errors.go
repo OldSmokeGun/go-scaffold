@@ -2,26 +2,32 @@ package errors
 
 // standard errors
 var (
-	ErrInternalError      = New("internal error", 10001, "INTERNAL_ERROR")
-	ErrBadCall            = New("bad call", 20001, "BAD_CALL")
-	ErrValidateError      = New("parameters validate error", 20002, "VALIDATE_ERROR")
-	ErrInvalidAuthorized  = New("invalid authorized", 20003, "INVALID_AUTHORIZED")
-	ErrAccessDenied       = New("access denied", 20004, "ACCESS_DENIED")
-	ErrResourceNotFound   = New("resource not found", 20005, "RESOURCE_NOT_FOUND")
-	ErrCallsTooFrequently = New("call too frequently", 20006, "CALLS_TOO_FREQUENTLY")
+	ErrInternalError = New(50000, "internal error")
+
+	ErrBadCall       = New(40000, "bad call")
+	ErrValidateError = New(40001, "parameters validate error")
+
+	ErrInvalidAuthorized = New(40100, "invalid authorized")
+
+	ErrAccessDenied = New(40300, "access denied")
+
+	ErrResourceNotFound = New(40400, "resource not found")
+
+	ErrResourceConflict = New(40900, "resource conflict")
+
+	ErrCallsTooFrequently = New(42900, "call too frequently")
 )
 
 // Error application internal error
 type Error struct {
-	msg   string
 	code  int
-	label string
+	msg   string
 	error error
 }
 
 // New returns an error that formats as the given text.
-func New(text string, code int, label string) *Error {
-	return &Error{text, code, label, nil}
+func New(code int, text string) *Error {
+	return &Error{code, text, nil}
 }
 
 func (e *Error) Error() string {
@@ -31,11 +37,11 @@ func (e *Error) Error() string {
 	return e.msg
 }
 
-func (e *Error) Cause() error {
+func (e *Error) Unwrap() error {
 	return e.error
 }
 
-func (e *Error) Unwrap() error {
+func (e *Error) Cause() error {
 	return e.error
 }
 
@@ -47,16 +53,10 @@ func (e *Error) Code() int {
 	return e.code
 }
 
-func (e *Error) Label() string {
-	return e.label
-}
-
 func (e *Error) WithMsg(msg string) *Error {
-	e.msg = msg
-	return e
+	return &Error{e.code, msg, e.error}
 }
 
 func (e *Error) WithError(err error) *Error {
-	e.error = err
-	return e
+	return &Error{e.code, e.msg, err}
 }

@@ -1,32 +1,42 @@
 package errors
 
 import (
+	"errors"
+
 	kerr "github.com/go-kratos/kratos/v2/errors"
 
 	berr "go-scaffold/internal/errors"
 )
 
-var errMsg = map[error]string{
-	berr.ErrInternalError:      "服务器出错",
-	berr.ErrBadCall:            "客户端请求错误",
-	berr.ErrValidateError:      "参数校验错误",
-	berr.ErrInvalidAuthorized:  "未经授权",
-	berr.ErrAccessDenied:       "暂无权限",
-	berr.ErrResourceNotFound:   "资源不存在",
-	berr.ErrCallsTooFrequently: "请求过于频繁",
+var businessErrCodeMsgMap = map[int]string{
+	berr.ErrInternalError.Code():      "服务器出错",
+	berr.ErrBadCall.Code():            "客户端请求错误",
+	berr.ErrValidateError.Code():      "参数校验错误",
+	berr.ErrInvalidAuthorized.Code():  "未经授权",
+	berr.ErrAccessDenied.Code():       "暂无权限",
+	berr.ErrResourceNotFound.Code():   "资源不存在",
+	berr.ErrResourceConflict.Code():   "资源冲突",
+	berr.ErrCallsTooFrequently.Code(): "请求过于频繁",
 }
 
-func Message(err error) string {
-	return errMsg[err]
+var businessErrCodeReasonMap = map[int]string{
+	berr.ErrInternalError.Code():      "INTERNAL_ERROR",
+	berr.ErrBadCall.Code():            "BAD_CALL",
+	berr.ErrValidateError.Code():      "VALIDATE_ERROR",
+	berr.ErrInvalidAuthorized.Code():  "INVALID_AUTHORIZED",
+	berr.ErrAccessDenied.Code():       "ACCESS_DENIED",
+	berr.ErrResourceNotFound.Code():   "RESOURCE_NOT_FOUND",
+	berr.ErrResourceConflict.Code():   "RESOURCE_CONFLICT",
+	berr.ErrCallsTooFrequently.Code(): "CALLS_TOO_FREQUENTLY",
 }
 
 // Wrap application internal error
 func Wrap(err error) error {
-	se, ok := err.(*berr.Error)
-	if ok {
-		return kerr.New(se.Code(), se.Label(), Message(se))
+	var se *berr.Error
+	if errors.As(err, &se) {
+		return kerr.New(se.Code(), businessErrCodeReasonMap[se.Code()], businessErrCodeMsgMap[se.Code()])
 	}
 
 	e := berr.ErrInternalError
-	return kerr.New(e.Code(), e.Label(), err.Error())
+	return kerr.New(e.Code(), businessErrCodeReasonMap[e.Code()], err.Error())
 }
