@@ -1,5 +1,12 @@
 package errors
 
+import (
+	stderrors "errors"
+	"fmt"
+
+	uerr "go-scaffold/pkg/errors"
+)
+
 // standard errors
 var (
 	ErrInternalError = New(50000, "internal error")
@@ -59,4 +66,16 @@ func (e *Error) WithMsg(msg string) *Error {
 
 func (e *Error) WithError(err error) *Error {
 	return &Error{e.code, e.msg, err}
+}
+
+func (e *Error) Wrap(err error) error {
+	if err == nil {
+		return nil
+	}
+	return &Error{e.code, e.msg, uerr.WithStack(err, 1)}
+}
+
+func (e *Error) Errorf(format string, args ...any) error {
+	msg := fmt.Sprintf(format, args...)
+	return &Error{e.code, msg, uerr.WithStack(stderrors.New(msg), 1)}
 }

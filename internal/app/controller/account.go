@@ -2,10 +2,10 @@ package controller
 
 import (
 	"context"
+	"errors"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
@@ -53,7 +53,7 @@ type AccountRegisterResponse struct {
 
 func (c *AccountController) Register(ctx context.Context, req AccountRegisterRequest) (*AccountRegisterResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	exist, err := c.userRepo.UsernameExist(ctx, req.Username)
@@ -61,7 +61,7 @@ func (c *AccountController) Register(ctx context.Context, req AccountRegisterReq
 		return nil, err
 	}
 	if exist {
-		return nil, berr.ErrResourceConflict.WithMsg("username already exist").WithError(errors.New("username already exist"))
+		return nil, berr.ErrResourceConflict.Errorf("username already exist")
 	}
 
 	user, err := c.uuc.Create(ctx, req.toEntity())
@@ -106,18 +106,18 @@ type AccountLoginResponse struct {
 
 func (c *AccountController) Login(ctx context.Context, req AccountLoginRequest) (*AccountLoginResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	user, err := c.userRepo.FindOneByUsername(ctx, req.Username)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrBadCall.WithMsg("username or password is incorrect").WithError(errors.New("username not exist"))
+		return nil, berr.ErrBadCall.WithMsg("username or password is incorrect").Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}
 
 	if !user.Password.Verify(domain.Plaintext(req.Password)) {
-		return nil, berr.ErrBadCall.WithMsg("username or password is incorrect").WithError(errors.New("password incorrect"))
+		return nil, berr.ErrBadCall.WithMsg("username or password is incorrect").Wrap(errors.New("password incorrect"))
 	}
 
 	token, err := c.auc.Login(ctx, *user)
@@ -133,12 +133,12 @@ func (c *AccountController) Login(ctx context.Context, req AccountLoginRequest) 
 
 func (c *AccountController) Logout(ctx context.Context, id int64) error {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	user, err := c.userRepo.FindOne(ctx, id)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithMsg("user not exist").WithError(err)
+		return berr.ErrResourceNotFound.WithMsg("user not exist").Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -163,12 +163,12 @@ func (r AccountUpdateProfileRequest) Validate() error {
 
 func (c *AccountController) UpdateProfile(ctx context.Context, req AccountUpdateProfileRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	e, err := c.userRepo.FindOne(ctx, req.ID)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -180,12 +180,12 @@ func (c *AccountController) UpdateProfile(ctx context.Context, req AccountUpdate
 
 func (c *AccountController) GetProfile(ctx context.Context, id int64) (*domain.UserProfile, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	user, err := c.uuc.Detail(ctx, id)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrResourceNotFound.WithError(err)
+		return nil, berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (c *AccountController) GetProfile(ctx context.Context, id int64) (*domain.U
 
 func (c *AccountController) GetPermissions(ctx context.Context, id int64) ([]*domain.Permission, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	return c.uuc.GetPermissions(ctx, id)

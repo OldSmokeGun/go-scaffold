@@ -2,10 +2,8 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pkg/errors"
 	"github.com/samber/lo"
 
 	"go-scaffold/internal/app/domain"
@@ -57,7 +55,7 @@ func (r RoleCreateRequest) toEntity() domain.Role {
 
 func (c *RoleController) Create(ctx context.Context, req RoleCreateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	exist, err := c.roleRepo.NameExist(ctx, req.Name)
@@ -65,7 +63,7 @@ func (c *RoleController) Create(ctx context.Context, req RoleCreateRequest) erro
 		return err
 	}
 	if exist {
-		return berr.ErrBadCall.WithMsg("role name already exist").WithError(errors.New("name already exist"))
+		return berr.ErrBadCall.Errorf("role name already exist")
 	}
 
 	return c.uc.Create(ctx, req.toEntity())
@@ -92,12 +90,12 @@ func (r RoleUpdateRequest) Validate() error {
 
 func (c *RoleController) Update(ctx context.Context, req RoleUpdateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	_, err := c.roleRepo.FindOne(ctx, req.ID)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -107,7 +105,7 @@ func (c *RoleController) Update(ctx context.Context, req RoleUpdateRequest) erro
 		return err
 	}
 	if exist {
-		return berr.ErrBadCall.WithMsg("role name already exist").WithError(errors.New("name already exist"))
+		return berr.ErrBadCall.Errorf("role name already exist")
 	}
 
 	return c.uc.Update(ctx, req.toEntity())
@@ -115,12 +113,12 @@ func (c *RoleController) Update(ctx context.Context, req RoleUpdateRequest) erro
 
 func (c *RoleController) Delete(ctx context.Context, id int64) error {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	role, err := c.roleRepo.FindOne(ctx, id)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -130,12 +128,12 @@ func (c *RoleController) Delete(ctx context.Context, id int64) error {
 
 func (c *RoleController) Detail(ctx context.Context, id int64) (*domain.Role, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	role, err := c.uc.Detail(ctx, id)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrResourceNotFound.WithError(err)
+		return nil, berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}
@@ -166,7 +164,7 @@ func (r RoleGrantPermissionsRequest) Validate() error {
 
 func (c *RoleController) GrantPermissions(ctx context.Context, req RoleGrantPermissionsRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	if err := c.validatePermissionsExist(ctx, req.Permissions); err != nil {
@@ -178,7 +176,7 @@ func (c *RoleController) GrantPermissions(ctx context.Context, req RoleGrantPerm
 
 func (c *RoleController) GetPermissions(ctx context.Context, id int64) ([]*domain.Permission, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	return c.uc.GetPermissions(ctx, id)
@@ -195,7 +193,7 @@ func (c *RoleController) validatePermissionsExist(ctx context.Context, permissio
 
 	diffs, _ := lo.Difference(permissions, permissionList)
 	if len(diffs) > 0 {
-		return berr.ErrBadCall.WithMsg(fmt.Sprintf("permissions %v not exist", diffs)).WithError(errors.New("permission not exist"))
+		return berr.ErrBadCall.Errorf("permissions %v not exist", diffs)
 	}
 	return nil
 }

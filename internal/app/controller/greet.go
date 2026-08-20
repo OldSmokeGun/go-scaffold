@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pkg/errors"
 
 	berr "go-scaffold/internal/errors"
 )
@@ -32,7 +31,7 @@ type GreetHelloResponse struct {
 
 func (c *GreetController) Hello(ctx context.Context, req GreetHelloRequest) (*GreetHelloResponse, error) {
 	if err := req.Validate(); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	return &GreetHelloResponse{

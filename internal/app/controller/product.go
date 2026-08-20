@@ -4,7 +4,6 @@ import (
 	"context"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
@@ -61,7 +60,7 @@ func (r ProductCreateRequest) toEntity() domain.Product {
 
 func (c *ProductController) Create(ctx context.Context, req ProductCreateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 	return c.uc.Create(ctx, req.toEntity())
 }
@@ -89,12 +88,12 @@ func (r ProductUpdateRequest) Validate() error {
 
 func (c *ProductController) Update(ctx context.Context, req ProductUpdateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	_, err := c.repo.FindOne(ctx, req.ID)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -104,12 +103,12 @@ func (c *ProductController) Update(ctx context.Context, req ProductUpdateRequest
 
 func (c *ProductController) Delete(ctx context.Context, id int64) error {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	product, err := c.repo.FindOne(ctx, id)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -119,12 +118,12 @@ func (c *ProductController) Delete(ctx context.Context, id int64) error {
 
 func (c *ProductController) Detail(ctx context.Context, id int64) (*domain.Product, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	product, err := c.uc.Detail(ctx, id)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrResourceNotFound.WithError(err)
+		return nil, berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}

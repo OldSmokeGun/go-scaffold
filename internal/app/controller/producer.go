@@ -6,7 +6,6 @@ import (
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pkg/errors"
 	"github.com/segmentio/kafka-go"
 
 	"go-scaffold/internal/config"
@@ -33,7 +32,7 @@ func (r ProducerExampleRequest) Validate() error {
 
 func (c *ProducerController) Example(ctx context.Context, req ProducerExampleRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	return c.sendMsg(ctx, req.Msg)
@@ -56,5 +55,5 @@ func (c *ProducerController) sendMsg(ctx context.Context, msg string) error {
 		Value: []byte(value),
 	}
 
-	return errors.WithStack(w.WriteMessages(ctx, message))
+	return berr.ErrInternalError.Wrap(w.WriteMessages(ctx, message))
 }

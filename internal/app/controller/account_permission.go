@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/casbin/casbin/v2"
-	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/repository"
 	berr "go-scaffold/internal/errors"
@@ -32,13 +31,13 @@ func NewAccountPermissionController(
 func (c *AccountPermissionController) ValidatePermission(ctx context.Context, user int64, permissionKey string) (bool, error) {
 	permission, err := c.permissionRepo.FindOneByKey(ctx, permissionKey)
 	if repository.IsNotFound(err) {
-		return false, berr.ErrAccessDenied.WithError(err)
+		return false, berr.ErrAccessDenied.Wrap(err)
 	} else if err != nil {
 		return false, err
 	}
 	result, err := c.enforcer.Enforce(repository.GetPolicyUser(user), fmt.Sprintf("%d", permission.ID))
 	if err != nil {
-		return false, berr.ErrAccessDenied.WithError(errors.WithStack(err))
+		return false, berr.ErrAccessDenied.Wrap(err)
 	}
 
 	return result, nil

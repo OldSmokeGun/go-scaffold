@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
@@ -38,7 +37,7 @@ func (c *AccountTokenController) ValidateToken(ctx context.Context, token string
 
 	user, err := c.repo.FindOne(ctx, claims.Data.UserID)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrInvalidAuthorized.WithError(err)
+		return nil, berr.ErrInvalidAuthorized.Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}
@@ -60,7 +59,7 @@ func (c *AccountTokenController) RefreshToken(ctx context.Context, userProfile d
 
 	expireDuration := claims.ExpiresAt.Sub(time.Now())
 	if expireDuration <= 0 {
-		return "", berr.ErrInvalidAuthorized.WithError(errors.WithStack(jwt.ErrTokenExpired))
+		return "", berr.ErrInvalidAuthorized.Wrap(jwt.ErrTokenExpired)
 	}
 	if expireDuration > domain.AccountTokenRefreshDuration {
 		return token, nil

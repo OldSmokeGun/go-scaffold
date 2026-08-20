@@ -4,7 +4,6 @@ import (
 	"context"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/pkg/errors"
 
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
@@ -64,7 +63,7 @@ func (r PermissionCreateRequest) toEntity() domain.Permission {
 
 func (c *PermissionController) Create(ctx context.Context, req PermissionCreateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	exist, err := c.repo.KeyExist(ctx, req.Key)
@@ -72,7 +71,7 @@ func (c *PermissionController) Create(ctx context.Context, req PermissionCreateR
 		return err
 	}
 	if exist {
-		return berr.ErrBadCall.WithMsg("permission key already exist").WithError(errors.New("key already exist"))
+		return berr.ErrBadCall.Errorf("permission key already exist")
 	}
 
 	return c.uc.Create(ctx, req.toEntity())
@@ -102,18 +101,18 @@ func (r PermissionUpdateRequest) Validate() error {
 
 func (c *PermissionController) Update(ctx context.Context, req PermissionUpdateRequest) error {
 	if err := req.Validate(); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	permission, err := c.repo.FindOne(ctx, req.ID)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
 
 	if req.ParentID == permission.ID {
-		return berr.ErrBadCall.WithMsg("parent cannot be self").WithError(errors.New("parent cannot be self"))
+		return berr.ErrBadCall.Errorf("parent cannot be self")
 	}
 
 	exist, err := c.repo.KeyExistExcludeID(ctx, req.Key, req.ID)
@@ -121,7 +120,7 @@ func (c *PermissionController) Update(ctx context.Context, req PermissionUpdateR
 		return err
 	}
 	if exist {
-		return berr.ErrBadCall.WithMsg("permission key already exist").WithError(errors.New("key already exist"))
+		return berr.ErrBadCall.Errorf("permission key already exist")
 	}
 
 	return c.uc.Update(ctx, req.toEntity())
@@ -129,12 +128,12 @@ func (c *PermissionController) Update(ctx context.Context, req PermissionUpdateR
 
 func (c *PermissionController) Delete(ctx context.Context, id int64) error {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return berr.ErrValidateError.WithError(errors.WithStack(err))
+		return berr.ErrValidateError.Wrap(err)
 	}
 
 	permission, err := c.repo.FindOne(ctx, id)
 	if repository.IsNotFound(err) {
-		return berr.ErrResourceNotFound.WithError(err)
+		return berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return err
 	}
@@ -144,7 +143,7 @@ func (c *PermissionController) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	if hasChild {
-		return berr.ErrBadCall.WithMsg("permission has child").WithError(errors.New("permission has child"))
+		return berr.ErrBadCall.Errorf("permission has child")
 	}
 
 	return c.uc.Delete(ctx, *permission)
@@ -152,12 +151,12 @@ func (c *PermissionController) Delete(ctx context.Context, id int64) error {
 
 func (c *PermissionController) Detail(ctx context.Context, id int64) (*domain.Permission, error) {
 	if err := validation.Validate(id, validation.Required.Error("id is required")); err != nil {
-		return nil, berr.ErrValidateError.WithError(errors.WithStack(err))
+		return nil, berr.ErrValidateError.Wrap(err)
 	}
 
 	permission, err := c.uc.Detail(ctx, id)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrResourceNotFound.WithError(err)
+		return nil, berr.ErrResourceNotFound.Wrap(err)
 	} else if err != nil {
 		return nil, err
 	}
