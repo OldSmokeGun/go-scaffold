@@ -43,11 +43,11 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
-	database, err := config.GetDefaultDatabase()
+	v, err := config.GetDefaultDatabase()
 	if err != nil {
 		return nil, nil, err
 	}
-	entClient, cleanup, err := ent.ProvideDefault(contextContext, env, database, logger)
+	v2, cleanup, err := ent.ProvideDefault(contextContext, env, v, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -56,22 +56,22 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup2, err := gorm.ProvideDefault(contextContext, database, logger)
+	db, cleanup2, err := gorm.ProvideDefault(contextContext, v, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	enforcer, err := casbin.Provide(contextContext, env, configCasbin, database, logger, db)
+	enforcer, err := casbin.Provide(contextContext, env, configCasbin, v, logger, db)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	userRepository := repository.NewUserRepository(entClient, enforcer)
+	userRepository := repository.NewUserRepository(v2, enforcer)
 	accountUseCase := usecase.NewAccountUseCase(userRepository)
 	accountTokenController := controller.NewAccountTokenController(accountUseCase, userRepository)
-	roleRepository := repository.NewRoleRepository(entClient, enforcer)
-	permissionRepository := repository.NewPermissionRepository(entClient, enforcer)
+	roleRepository := repository.NewRoleRepository(v2, enforcer)
+	permissionRepository := repository.NewPermissionRepository(v2, enforcer)
 	accountPermissionController := controller.NewAccountPermissionController(roleRepository, permissionRepository, enforcer)
 	greetController := controller.NewGreetController()
 	greetHandler := v1.NewGreetHandler(greetController)
@@ -83,13 +83,13 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	}
 	clientGRPC := client.ProvideGRPC()
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
-	kafka, err := config.GetExampleKafka()
+	v3, err := config.GetExampleKafka()
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	producerController := controller.NewProducerController(kafka)
+	producerController := controller.NewProducerController(v3)
 	producerHandler := v1.NewProducerHandler(producerController)
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	accountController := controller.NewAccountController(accountUseCase, userUseCase, userRepository)
@@ -102,7 +102,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	permissionUseCase := usecase.NewPermissionUseCase(permissionRepository)
 	permissionController := controller.NewPermissionController(permissionUseCase, permissionRepository)
 	permissionHandler := v1.NewPermissionHandler(permissionController)
-	productRepository := repository.NewProductRepository(entClient)
+	productRepository := repository.NewProductRepository(v2)
 	productUseCase := usecase.NewProductUseCase(productRepository)
 	productController := controller.NewProductController(productUseCase, productRepository)
 	productHandler := v1.NewProductHandler(productController)
@@ -146,12 +146,12 @@ func initCron(contextContext context.Context, appName config.AppName, env config
 }
 
 func initKafka(contextContext context.Context, appName config.AppName, env config.Env, logger *slog.Logger) (*kafka.Kafka, func(), error) {
-	configKafka, err := config.GetExampleKafka()
+	v, err := config.GetExampleKafka()
 	if err != nil {
 		return nil, nil, err
 	}
 	exampleHandler := handler.NewExampleHandler(logger)
-	exampleConsumer, err := consumer.NewExampleConsumer(logger, configKafka, exampleHandler)
+	exampleConsumer, err := consumer.NewExampleConsumer(logger, v, exampleHandler)
 	if err != nil {
 		return nil, nil, err
 	}
