@@ -54,7 +54,7 @@ func (r *router) useMiddlewares(e *echo.Echo) {
 }
 
 func (r *router) useRoutes(e *echo.Echo) {
-	path := "/"
+	path := ""
 
 	group := e.Group(path)
 	group.GET("/ping", func(c echo.Context) error { return c.String(http.StatusOK, "pong") })
