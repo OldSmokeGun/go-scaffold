@@ -72,10 +72,10 @@ func (e *Error) Wrap(err error) error {
 	if err == nil {
 		return nil
 	}
-	return &Error{e.code, e.msg, uerr.WithStack(err, 1)}
+	return &Error{e.code, e.msg, uerr.WithStack(err, 2)}
 }
 
 func (e *Error) Errorf(format string, args ...any) error {
 	msg := fmt.Sprintf(format, args...)
-	return &Error{e.code, msg, uerr.WithStack(stderrors.New(msg), 1)}
+	return &Error{e.code, msg, uerr.WithStack(stderrors.New(msg), 2)}
 }

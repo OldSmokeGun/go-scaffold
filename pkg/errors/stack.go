@@ -57,7 +57,7 @@ func WithStack(err error, skip int) error {
 	}
 	return &withStack{
 		error: err,
-		stack: callers(3 + skip),
+		stack: callers(2 + skip),
 	}
 }
 
