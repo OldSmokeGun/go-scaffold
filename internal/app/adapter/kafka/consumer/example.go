@@ -49,7 +49,7 @@ func (c *ExampleConsumer) Consume(ctx context.Context) {
 
 	defer func() {
 		if err := c.reader.Close(); err != nil {
-			slog.Error("close consumer error", err)
+			slog.Error("close consumer error", slog.Any("error", err))
 		}
 	}()
 
@@ -66,7 +66,7 @@ func (c *ExampleConsumer) Consume(ctx context.Context) {
 
 		msg := handler.ExampleMessage{}
 		if err := json.Unmarshal(message.Value, &msg); err != nil {
-			c.logger.With(slog.String("value", string(message.Value))).Error("unmarshal message value error", err)
+			c.logger.With(slog.String("value", string(message.Value))).Error("unmarshal message value error", slog.Any("error", err))
 			continue
 		}
 

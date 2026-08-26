@@ -30,7 +30,6 @@ import (
 	"go-scaffold/internal/pkg/casbin"
 	"go-scaffold/internal/pkg/client"
 	"go-scaffold/internal/pkg/db"
-	"go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/gorm"
 	"go-scaffold/pkg/trace"
 	"log/slog"
@@ -47,7 +46,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
-	v2, cleanup, err := ent.ProvideDefault(contextContext, env, v, logger)
+	v2, cleanup, err := gorm.ProvideDefault(contextContext, v, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -56,14 +55,8 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 		cleanup()
 		return nil, nil, err
 	}
-	db, cleanup2, err := gorm.ProvideDefault(contextContext, v, logger)
+	enforcer, err := casbin.Provide(configCasbin, v2)
 	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	enforcer, err := casbin.Provide(contextContext, env, configCasbin, v, logger, db)
-	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -77,7 +70,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	greetHandler := v1.NewGreetHandler(greetController)
 	services, err := config.GetServices()
 	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -85,7 +77,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
 	v3, err := config.GetExampleKafka()
 	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -112,7 +103,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server2 := http.New(httpServer, handler)
 	grpcServer, err := config.GetGRPCServer()
 	if err != nil {
-		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -125,7 +115,6 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server3 := grpc.New(grpcServer, routerRouter)
 	serverServer := server.New(contextContext, appName, server2, server3)
 	return serverServer, func() {
-		cleanup2()
 		cleanup()
 	}, nil
 }

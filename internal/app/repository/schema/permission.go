@@ -1,55 +1,28 @@
 package schema
 
 import (
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
-
-	"go-scaffold/internal/app/repository/schema/mixin"
+	"go-scaffold/internal/app/domain"
+	igorm "go-scaffold/internal/pkg/gorm"
 )
 
-// Permission holds the schema definition for the Permission entity.
 type Permission struct {
-	ent.Schema
+	igorm.BaseModel `gorm:"embedded"`
+	Key             string `gorm:"column:key;uniqueIndex;size:128;not null;default:''"`
+	Name            string `gorm:"column:name;size:128;not null;default:''"`
+	Desc            string `gorm:"column:desc;size:255;not null;default:''"`
+	ParentID        int64  `gorm:"column:parent_id;not null;default:0"`
 }
 
-func (Permission) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{
-			Table:   "permissions",
-			Options: "COMMENT='权限表'",
-		},
-		entsql.WithComments(true),
+func (Permission) TableName() string {
+	return "permissions"
+}
+
+func (m *Permission) ToEntity() *domain.Permission {
+	return &domain.Permission{
+		ID:       m.ID,
+		Key:      m.Key,
+		Name:     m.Name,
+		Desc:     m.Desc,
+		ParentID: m.ParentID,
 	}
-}
-
-func (Permission) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.TimeMixin{},
-		mixin.SoftDeleteMixin{},
-	}
-}
-
-func (Permission) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("key"),
-	}
-}
-
-// Fields of the Permission.
-func (Permission) Fields() []ent.Field {
-	return []ent.Field{
-		field.Int64("id").Unique().Immutable(),
-		field.String("key").Unique().MaxLen(128).Comment("权限标识"),
-		field.String("name").Default("").MaxLen(128).Comment("权限名称"),
-		field.String("desc").Default("").MaxLen(255).Comment("权限描述"),
-		field.Int64("parent_id").Default(0).Comment("父级权限 id"),
-	}
-}
-
-// Edges of the Permission.
-func (Permission) Edges() []ent.Edge {
-	return nil
 }

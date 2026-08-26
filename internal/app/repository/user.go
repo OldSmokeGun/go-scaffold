@@ -5,15 +5,14 @@ import (
 	"strconv"
 
 	"github.com/casbin/casbin/v2"
-	"github.com/pkg/errors"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 
 	"go-scaffold/internal/app/domain"
-	ient "go-scaffold/internal/pkg/ent"
-	"go-scaffold/internal/pkg/ent/ent"
-	"go-scaffold/internal/pkg/ent/ent/permission"
-	"go-scaffold/internal/pkg/ent/ent/role"
-	"go-scaffold/internal/pkg/ent/ent/user"
+	"go-scaffold/internal/app/repository/queries"
+	"go-scaffold/internal/app/repository/schema"
+	"go-scaffold/internal/app/repository/tools"
+	igorm "go-scaffold/internal/pkg/gorm"
 )
 
 var _ UserRepositoryInterface = (*UserRepository)(nil)
@@ -40,117 +39,143 @@ type (
 )
 
 type UserRepository struct {
-	client   *ient.DefaultClient
+	db       *igorm.DefaultDB
 	enforcer *casbin.Enforcer
 }
 
-func NewUserRepository(client *ient.DefaultClient, enforcer *casbin.Enforcer) *UserRepository {
+func NewUserRepository(db *igorm.DefaultDB, enforcer *casbin.Enforcer) *UserRepository {
 	return &UserRepository{
-		client:   client,
+		db:       db,
 		enforcer: enforcer,
 	}
 }
 
 func (r *UserRepository) Filter(ctx context.Context, param UserFindListParam) ([]*domain.User, error) {
-	query := r.client.User.Query()
+	q := gorm.G[schema.User](r.db).
+		Order(queries.User.UpdatedAt.Desc())
 
 	if param.Keyword != "" {
-		query.Where(
-			user.Or(
-				user.UsernameContains(param.Keyword),
-				user.NicknameContains(param.Keyword),
-				user.PhoneContains(param.Keyword),
-			),
-		)
+		kw := tools.BuildLikeContains(param.Keyword)
+		q = q.
+			Where(queries.User.Username.Like(kw)).
+			Or(queries.User.Nickname.Like(kw)).
+			Or(queries.User.Phone.Like(kw))
 	}
 
-	list, err := query.
-		Order(ent.Desc(user.FieldUpdatedAt)).
-		All(ctx)
+	list, err := q.Find(ctx)
 	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+		return nil, handleError(err)
 	}
 
 	entities := make([]*domain.User, 0, len(list))
-	for _, i := range list {
-		entities = append(entities, (&userModel{i}).toEntity())
+	for i := range list {
+		entities = append(entities, list[i].ToEntity())
 	}
 
 	return entities, nil
 }
 
 func (r *UserRepository) FindOne(ctx context.Context, id int64) (*domain.User, error) {
-	m, err := r.client.User.Get(ctx, id)
-	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+	m, err := queries.Query[schema.User](r.db).FindOne(ctx, id)
+	if err == nil && m.ID == 0 {
+		err = gorm.ErrRecordNotFound
 	}
-	return (&userModel{m}).toEntity(), nil
+	if err != nil {
+		return nil, handleError(err)
+	}
+
+	return m.ToEntity(), nil
 }
 
 func (r *UserRepository) FindOneByUsername(ctx context.Context, username string) (*domain.User, error) {
-	m, err := r.client.User.Query().
-		Where(user.UsernameEQ(username)).
-		Only(ctx)
+	m, err := gorm.G[schema.User](r.db).
+		Where(queries.User.Username.Eq(username)).
+		Take(ctx)
 	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+		return nil, handleError(err)
 	}
-	return (&userModel{m}).toEntity(), nil
+
+	return m.ToEntity(), nil
 }
 
 func (r *UserRepository) Exist(ctx context.Context, id int64) (bool, error) {
-	exist, err := r.client.User.Query().Where(user.IDEQ(id)).Exist(ctx)
-	return exist, errors.WithStack(handleError(err))
+	n, err := queries.Query[schema.User](r.db).Exist(ctx, id)
+
+	return n > 0, handleError(err)
 }
 
 func (r *UserRepository) UsernameExist(ctx context.Context, username string) (bool, error) {
-	exist, err := r.client.User.Query().Where(user.UsernameEQ(username)).Exist(ctx)
-	return exist, errors.WithStack(handleError(err))
+	n, err := gorm.G[schema.User](r.db).
+		Where(queries.User.Username.Eq(username)).
+		Count(ctx, "*")
+
+	return n > 0, handleError(err)
 }
 
 func (r *UserRepository) UsernameExistExcludeID(ctx context.Context, username string, excludeID int64) (bool, error) {
-	exist, err := r.client.User.Query().Where(
-		user.UsernameEQ(username),
-		user.IDNEQ(excludeID),
-	).Exist(ctx)
-	return exist, errors.WithStack(handleError(err))
+	n, err := gorm.G[schema.User](r.db).
+		Where(queries.User.Username.Eq(username)).
+		Where(queries.User.ID.Neq(excludeID)).
+		Count(ctx, "*")
+
+	return n > 0, handleError(err)
 }
 
 func (r *UserRepository) Create(ctx context.Context, e domain.User) (*domain.User, error) {
-	m, err := r.client.User.Create().
-		SetUsername(e.Username).
-		SetPassword(string(e.Password)).
-		SetNickname(e.Nickname).
-		SetPhone(e.Phone).
-		SetSalt(e.Salt).
-		Save(ctx)
-	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+	m := schema.User{
+		Username: e.Username,
+		Password: string(e.Password),
+		Nickname: e.Nickname,
+		Phone:    e.Phone,
+		Salt:     e.Salt,
 	}
-	return (&userModel{m}).toEntity(), nil
+
+	if err := gorm.G[schema.User](r.db).
+		Create(ctx, &m); err != nil {
+		return nil, handleError(err)
+	}
+
+	return m.ToEntity(), nil
 }
 
 func (r *UserRepository) Update(ctx context.Context, e domain.User) (*domain.User, error) {
-	m, err := r.client.User.
-		UpdateOneID(e.ID).
-		SetUsername(e.Username).
-		SetPassword(string(e.Password)).
-		SetNickname(e.Nickname).
-		SetPhone(e.Phone).
-		SetSalt(e.Salt).
-		Save(ctx)
+	_, err := gorm.G[schema.User](r.db).
+		Where(queries.User.ID.Eq(e.ID)).
+		Set(
+			queries.User.Username.Set(e.Username),
+			queries.User.Password.Set(string(e.Password)),
+			queries.User.Nickname.Set(e.Nickname),
+			queries.User.Phone.Set(e.Phone),
+			queries.User.Salt.Set(e.Salt),
+		).
+		Update(ctx)
 	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+		return nil, handleError(err)
 	}
-	return (&userModel{m}).toEntity(), nil
+
+	m := schema.User{
+		ID:       e.ID,
+		Username: e.Username,
+		Password: string(e.Password),
+		Nickname: e.Nickname,
+		Phone:    e.Phone,
+		Salt:     e.Salt,
+	}
+
+	return m.ToEntity(), nil
 }
 
 func (r *UserRepository) Delete(ctx context.Context, e domain.User) error {
 	_, err := r.enforcer.DeleteUser(GetPolicyUser(e.ID))
 	if err != nil {
-		return errors.WithStack(err)
+		return handleError(err)
 	}
 
-	return errors.WithStack(r.client.User.DeleteOneID(e.ID).Exec(ctx))
+	_, err = gorm.G[schema.User](r.db).
+		Where(queries.User.ID.Eq(e.ID)).
+		Delete(ctx)
+
+	return handleError(err)
 }
 
 func (r *UserRepository) AssignRoles(ctx context.Context, user int64, roles []int64) error {
@@ -158,21 +183,22 @@ func (r *UserRepository) AssignRoles(ctx context.Context, user int64, roles []in
 
 	_, err := r.enforcer.DeleteRolesForUser(policyUser)
 	if err != nil {
-		return errors.WithStack(handleError(err))
+		return handleError(err)
 	}
 
-	rs := lo.Map(roles, func(r int64, index int) string {
-		return GetPolicyRole(r)
+	rs := lo.Map(roles, func(roleID int64, _ int) string {
+		return GetPolicyRole(roleID)
 	})
 
 	_, err = r.enforcer.AddRolesForUser(policyUser, rs)
-	return errors.WithStack(handleError(err))
+
+	return handleError(err)
 }
 
 func (r *UserRepository) GetRoles(ctx context.Context, id int64) ([]*domain.Role, error) {
 	rss, err := r.enforcer.GetRolesForUser(GetPolicyUser(id))
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, handleError(err)
 	}
 
 	rs := make([]int64, 0, len(rss))
@@ -184,24 +210,29 @@ func (r *UserRepository) GetRoles(ctx context.Context, id int64) ([]*domain.Role
 		rs = append(rs, i)
 	}
 
-	data, err := r.client.Role.Query().
-		Where(role.IDIn(rs...)).
-		All(ctx)
+	if len(rs) == 0 {
+		return nil, nil
+	}
+
+	data, err := gorm.G[schema.Role](r.db).
+		Where(queries.Role.ID.In(rs...)).
+		Find(ctx)
 	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+		return nil, handleError(err)
 	}
 
 	list := make([]*domain.Role, 0, len(data))
-	for _, item := range data {
-		list = append(list, (&roleModel{item}).toEntity())
+	for i := range data {
+		list = append(list, data[i].ToEntity())
 	}
-	return list, err
+
+	return list, nil
 }
 
 func (r *UserRepository) GetPermissions(ctx context.Context, id int64) ([]*domain.Permission, error) {
 	pss, err := r.enforcer.GetImplicitPermissionsForUser(GetPolicyUser(id))
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, handleError(err)
 	}
 
 	ps := make([]int64, 0, len(pss))
@@ -211,37 +242,27 @@ func (r *UserRepository) GetPermissions(ctx context.Context, id int64) ([]*domai
 		}
 		i, err := strconv.ParseInt(s[1], 10, 64)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, handleError(err)
 		}
 		ps = append(ps, i)
 	}
-	ps = lo.Uniq(ps)
 
-	data, err := r.client.Permission.Query().
-		Where(permission.IDIn(ps...)).
-		All(ctx)
+	ps = lo.Uniq(ps)
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	data, err := gorm.G[schema.Permission](r.db).
+		Where(queries.Permission.ID.In(ps...)).
+		Find(ctx)
 	if err != nil {
-		return nil, errors.WithStack(handleError(err))
+		return nil, handleError(err)
 	}
 
 	list := make([]*domain.Permission, 0, len(data))
-	for _, item := range data {
-		list = append(list, (&permissionModel{item}).toEntity())
+	for i := range data {
+		list = append(list, data[i].ToEntity())
 	}
-	return list, err
-}
 
-type userModel struct {
-	*ent.User
-}
-
-func (m *userModel) toEntity() *domain.User {
-	return &domain.User{
-		ID:       m.ID,
-		Username: m.Username,
-		Password: domain.Password(m.Password),
-		Nickname: m.Nickname,
-		Phone:    m.Phone,
-		Salt:     m.Salt,
-	}
+	return list, nil
 }

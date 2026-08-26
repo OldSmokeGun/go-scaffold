@@ -6,10 +6,9 @@ import (
 )
 
 // casbinRuleTableName casbin rule's table name
-// for consistency with the ent adapter
 const casbinRuleTableName = "casbin_rules"
 
-// NewGormAdapter build casin gorm adapter
+// NewGormAdapter build casbin gorm adapter
 func NewGormAdapter(db *gorm.DB) (adp *gormadapter.Adapter, err error) {
 	// turn on automatic migration for consistency with the ent adapter
 	// gormadapter.TurnOffAutoMigrate(db)

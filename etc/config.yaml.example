@@ -19,7 +19,6 @@ http:
   #   adapter:
   #     file: "etc/rbac_policy.csv"
   #     gorm: {}
-  #     ent: {}
 
 grpc:
   server:

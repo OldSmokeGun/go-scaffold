@@ -44,14 +44,10 @@ type (
 	CasbinAdapter struct {
 		File string             `json:"file"`
 		Gorm *CasbinGormAdapter `json:"gorm"`
-		Ent  *CasbinEntAdapter  `json:"ent"`
 	}
 
 	// CasbinGormAdapter casbin gorm adapter
 	CasbinGormAdapter struct{}
-
-	// CasbinEntAdapter casbin ent adapter
-	CasbinEntAdapter struct{}
 )
 
 // GRPC the gRPC config

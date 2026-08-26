@@ -5,9 +5,8 @@ import (
 
 	"github.com/google/wire"
 	"gorm.io/gorm"
-	"gorm.io/plugin/soft_delete"
 
-	"go-scaffold/internal/pkg/ent/ent"
+	uerr "go-scaffold/pkg/errors"
 )
 
 var ProviderSet = wire.NewSet(
@@ -20,26 +19,17 @@ var ProviderSet = wire.NewSet(
 var ErrRecordNotFound = errors.New("record not found")
 
 func IsNotFound(err error) bool {
-	return errors.Is(err, ErrRecordNotFound) || errors.Is(err, gorm.ErrRecordNotFound) || ent.IsNotFound(err)
+	return errors.Is(err, ErrRecordNotFound) || errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-// handleError handle ent and gorm error
-// masking the internal implementation of the repository layer
 func handleError(err error) error {
 	if err == nil {
 		return nil
 	}
-	if errors.Is(err, gorm.ErrRecordNotFound) || ent.IsNotFound(err) {
-		return ErrRecordNotFound
-	}
-	return err
-}
 
-// baseModel base model
-// automatic update of timestamps, soft delete
-type baseModel struct {
-	ID        int64                 `gorm:"primaryKey"`
-	CreatedAt int64                 `gorm:"NOT NULL"`
-	UpdatedAt int64                 `gorm:"NOT NULL;DEFAULT:0"`
-	DeletedAt soft_delete.DeletedAt `gorm:"index;NOT NULL;DEFAULT:0"`
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		err = ErrRecordNotFound
+	}
+
+	return uerr.WithStack(err, 4)
 }

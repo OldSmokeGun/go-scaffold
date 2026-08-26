@@ -1,9 +1,6 @@
 package casbin
 
 import (
-	"database/sql"
-	"log/slog"
-
 	"github.com/casbin/casbin/v2"
 	"gorm.io/gorm"
 
@@ -13,28 +10,16 @@ import (
 )
 
 // New build casbin
-func New(
-	env config.Env,
-	conf config.Casbin,
-	dbConf config.DatabaseConn,
-	logger *slog.Logger,
-	gdb *gorm.DB,
-	sdb *sql.DB,
-) (*casbin.Enforcer, error) {
+func New(conf config.Casbin, gdb *gorm.DB) (*casbin.Enforcer, error) {
 	mod, err := model.New(conf.Model)
 	if err != nil {
 		return nil, err
 	}
 
-	adp, err := adapter.New(env, conf.Adapter, dbConf, logger, gdb, sdb)
+	adp, err := adapter.New(conf.Adapter, gdb)
 	if err != nil {
 		return nil, err
 	}
 
-	ef, err := casbin.NewEnforcer(mod, adp)
-	if err != nil {
-		return nil, err
-	}
-
-	return ef, nil
+	return casbin.NewEnforcer(mod, adp)
 }

@@ -1,57 +1,30 @@
 package schema
 
 import (
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
-
-	"go-scaffold/internal/app/repository/schema/mixin"
+	"go-scaffold/internal/app/domain"
+	igorm "go-scaffold/internal/pkg/gorm"
 )
 
-// User holds the schema definition for the User entity.
 type User struct {
-	ent.Schema
+	igorm.BaseModel `gorm:"embedded"`
+	Username        string `gorm:"column:username;uniqueIndex;size:32;not null;default:''"`
+	Password        string `gorm:"column:password;size:64;not null;default:''"`
+	Nickname        string `gorm:"column:nickname;size:64;not null;default:''"`
+	Phone           string `gorm:"column:phone;index;size:11;not null;default:''"`
+	Salt            string `gorm:"column:salt;size:64;not null;default:''"`
 }
 
-func (User) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{
-			Table:   "users",
-			Options: "COMMENT='用户表'",
-		},
-		entsql.WithComments(true),
+func (User) TableName() string {
+	return "users"
+}
+
+func (m *User) ToEntity() *domain.User {
+	return &domain.User{
+		ID:       m.ID,
+		Username: m.Username,
+		Password: domain.Password(m.Password),
+		Nickname: m.Nickname,
+		Phone:    m.Phone,
+		Salt:     m.Salt,
 	}
-}
-
-func (User) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.TimeMixin{},
-		mixin.SoftDeleteMixin{},
-	}
-}
-
-func (User) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("username"),
-		index.Fields("phone"),
-	}
-}
-
-// Fields of the User.
-func (User) Fields() []ent.Field {
-	return []ent.Field{
-		field.Int64("id").Unique().Immutable(),
-		field.String("username").Default("").Comment("用户名"),
-		field.String("password").Default("").Comment("密码"),
-		field.String("nickname").Default("").Comment("用户名"),
-		field.String("phone").Default("").Comment("电话"),
-		field.String("salt").Default("").Comment("盐值"),
-	}
-}
-
-// Edges of the User.
-func (User) Edges() []ent.Edge {
-	return nil
 }

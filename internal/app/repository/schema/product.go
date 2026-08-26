@@ -1,54 +1,26 @@
 package schema
 
 import (
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/entsql"
-	"entgo.io/ent/schema"
-	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
-
-	"go-scaffold/internal/app/repository/schema/mixin"
+	"go-scaffold/internal/app/domain"
+	igorm "go-scaffold/internal/pkg/gorm"
 )
 
-// Product holds the schema definition for the Product entity.
 type Product struct {
-	ent.Schema
+	igorm.BaseModel `gorm:"embedded"`
+	Name            string `gorm:"column:name;index;size:128;not null;default:''"`
+	Desc            string `gorm:"column:desc;size:255;not null;default:''"`
+	Price           int    `gorm:"column:price;not null;default:0"`
 }
 
-func (Product) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{
-			Table:   "products",
-			Options: "COMMENT='产品表'",
-		},
-		entsql.WithComments(true),
+func (Product) TableName() string {
+	return "products"
+}
+
+func (m *Product) ToEntity() *domain.Product {
+	return &domain.Product{
+		ID:    m.ID,
+		Name:  m.Name,
+		Desc:  m.Desc,
+		Price: m.Price,
 	}
-}
-
-func (Product) Mixin() []ent.Mixin {
-	return []ent.Mixin{
-		mixin.TimeMixin{},
-		mixin.SoftDeleteMixin{},
-	}
-}
-
-func (Product) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("name"),
-	}
-}
-
-// Fields of the Product.
-func (Product) Fields() []ent.Field {
-	return []ent.Field{
-		field.Int64("id").Unique().Immutable(),
-		field.String("name").Default("").Comment("名称"),
-		field.String("desc").Default("").Comment("描述"),
-		field.Int("price").Default(0).Comment("价格"),
-	}
-}
-
-// Edges of the Product.
-func (Product) Edges() []ent.Edge {
-	return nil
 }
