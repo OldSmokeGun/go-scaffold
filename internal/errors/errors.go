@@ -3,38 +3,40 @@ package errors
 import (
 	stderrors "errors"
 	"fmt"
+	"net/http"
 
 	uerr "go-scaffold/pkg/errors"
 )
 
 // standard errors
 var (
-	ErrInternalError = New(50000, "internal error")
+	ErrInternalError = New(50000, http.StatusInternalServerError, "internal error", "服务器出错")
 
-	ErrBadCall       = New(40000, "bad call")
-	ErrValidateError = New(40001, "parameters validate error")
+	ErrBadCall       = New(40000, http.StatusBadRequest, "bad call", "客户端请求错误")
+	ErrValidateError = New(40001, http.StatusBadRequest, "parameters validate error", "参数校验错误")
 
-	ErrInvalidAuthorized = New(40100, "invalid authorized")
+	ErrInvalidAuthorized = New(40100, http.StatusUnauthorized, "invalid authorized", "未经授权")
 
-	ErrAccessDenied = New(40300, "access denied")
+	ErrAccessDenied = New(40300, http.StatusForbidden, "access denied", "暂无权限")
 
-	ErrResourceNotFound = New(40400, "resource not found")
+	ErrResourceNotFound = New(40400, http.StatusNotFound, "resource not found", "资源不存在")
 
-	ErrResourceConflict = New(40900, "resource conflict")
+	ErrResourceConflict = New(40900, http.StatusConflict, "resource conflict", "资源冲突")
 
-	ErrCallsTooFrequently = New(42900, "call too frequently")
+	ErrCallsTooFrequently = New(42900, http.StatusTooManyRequests, "call too frequently", "请求太频繁")
 )
 
 // Error application internal error
 type Error struct {
-	code  int
-	msg   string
-	error error
+	code       int
+	httpStatus int
+	hint       string
+	msg        string
+	error      error
 }
 
-// New returns an error that formats as the given text.
-func New(code int, text string) *Error {
-	return &Error{code, text, nil}
+func New(code, httpStatus int, msg, hint string) *Error {
+	return &Error{code: code, httpStatus: httpStatus, msg: msg, hint: hint}
 }
 
 func (e *Error) Error() string {
@@ -60,22 +62,34 @@ func (e *Error) Code() int {
 	return e.code
 }
 
+func (e *Error) HTTPStatus() int {
+	return e.httpStatus
+}
+
+func (e *Error) HintMsg() string {
+	return e.hint
+}
+
 func (e *Error) WithMsg(msg string) *Error {
-	return &Error{e.code, msg, e.error}
+	return e.spawn(msg, e.error)
 }
 
 func (e *Error) WithError(err error) *Error {
-	return &Error{e.code, e.msg, err}
+	return e.spawn(e.msg, err)
 }
 
 func (e *Error) Wrap(err error) error {
 	if err == nil {
 		return nil
 	}
-	return &Error{e.code, e.msg, uerr.WithStack(err, 4)}
+	return e.spawn(e.msg, uerr.WithStack(err, 4))
 }
 
 func (e *Error) Errorf(format string, args ...any) error {
 	msg := fmt.Sprintf(format, args...)
-	return &Error{e.code, msg, uerr.WithStack(stderrors.New(msg), 4)}
+	return e.spawn(msg, uerr.WithStack(stderrors.New(msg), 4))
+}
+
+func (e *Error) spawn(msg string, err error) *Error {
+	return &Error{code: e.code, httpStatus: e.httpStatus, hint: e.hint, msg: msg, error: err}
 }

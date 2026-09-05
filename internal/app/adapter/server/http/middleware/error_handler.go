@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/samber/lo"
 
 	berr "go-scaffold/internal/errors"
 	perr "go-scaffold/pkg/errors"
@@ -20,7 +19,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			return
 		}
 
-		logger.Error("handle request error", slog.Any("error", err))
+		handleErr := err
 
 		var (
 			httpErr *echo.HTTPError
@@ -33,10 +32,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 
 		if errors.As(err, &httpErr) {
 			statusCode = httpErr.Code
-			bc = berr.ErrInternalError.Code()
-			if c, ok := httpStatusCodeBusinessErrCodeMap[statusCode]; ok {
-				bc = c
-			}
+			bc = statusCode * 100
 			hintMsg = fmt.Sprintf("%v", httpErr.Message)
 			if une := httpErr.Unwrap(); une != nil {
 				err = une
@@ -50,15 +46,21 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 		} else if errors.As(err, &bErr) {
 			bc = bErr.Code()
 			hintMsg = bErr.Msg()
-			statusCode = businessErrCodeHttpStatusCodeMap[bc]
+			statusCode = bErr.HTTPStatus()
 			if bErr.Unwrap() != nil {
 				err = bErr.Unwrap()
 			}
 		} else {
 			de := berr.ErrInternalError
 			bc = de.Code()
-			hintMsg = businessErrCodeHintMsgMap[de.Code()]
-			statusCode = businessErrCodeHttpStatusCodeMap[bc]
+			hintMsg = de.HintMsg()
+			statusCode = de.HTTPStatus()
+		}
+
+		if statusCode >= 500 {
+			logger.Error("handle request error", slog.Any("error", handleErr))
+		} else if statusCode >= 400 {
+			logger.Warn("handle request error", slog.Any("error", handleErr))
 		}
 
 		responseBody := NewDefaultBody().
@@ -87,30 +89,4 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			logger.Error("send error response error", slog.Any("error", err))
 		}
 	}
-}
-
-var (
-	businessErrCodeHttpStatusCodeMap = map[int]int{
-		berr.ErrInternalError.Code():      http.StatusInternalServerError,
-		berr.ErrBadCall.Code():            http.StatusBadRequest,
-		berr.ErrValidateError.Code():      http.StatusBadRequest,
-		berr.ErrInvalidAuthorized.Code():  http.StatusUnauthorized,
-		berr.ErrAccessDenied.Code():       http.StatusForbidden,
-		berr.ErrResourceNotFound.Code():   http.StatusNotFound,
-		berr.ErrResourceConflict.Code():   http.StatusConflict,
-		berr.ErrCallsTooFrequently.Code(): http.StatusTooManyRequests,
-	}
-
-	httpStatusCodeBusinessErrCodeMap = lo.Invert(businessErrCodeHttpStatusCodeMap)
-)
-
-var businessErrCodeHintMsgMap = map[int]string{
-	berr.ErrInternalError.Code():      "服务器出错",
-	berr.ErrBadCall.Code():            "客户端请求错误",
-	berr.ErrValidateError.Code():      "参数校验错误",
-	berr.ErrInvalidAuthorized.Code():  "未经授权",
-	berr.ErrAccessDenied.Code():       "暂无权限",
-	berr.ErrResourceNotFound.Code():   "资源不存在",
-	berr.ErrResourceConflict.Code():   "资源冲突",
-	berr.ErrCallsTooFrequently.Code(): "请求太频繁",
 }
