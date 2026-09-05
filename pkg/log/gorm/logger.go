@@ -54,20 +54,20 @@ func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 	sql, rows := fc()
 	switch {
 	case err != nil && (!l.config.IgnoreRecordNotFoundError || !errors.Is(err, gorm.ErrRecordNotFound)):
-		l.logger.Log(ctx, 5, err, slog.LevelError, "query error",
+		l.logger.Log(ctx, 6, err, slog.LevelError, "query error",
 			slog.String("elapsed", elapsed.String()),
 			slog.Int64("rows", rows),
 			slog.String("sql", sql),
 		)
 	case l.config.SlowThreshold != 0 && elapsed > l.config.SlowThreshold:
 		msg := fmt.Sprintf("slow threshold >= %v", l.config.SlowThreshold)
-		l.logger.Log(ctx, 5, nil, slog.LevelWarn, msg,
+		l.logger.Log(ctx, 6, nil, slog.LevelWarn, msg,
 			slog.String("elapsed", elapsed.String()),
 			slog.Int64("rows", rows),
 			slog.String("sql", sql),
 		)
 	case l.config.LogInfo:
-		l.logger.Log(ctx, 5, nil, slog.LevelInfo, "query info",
+		l.logger.Log(ctx, 6, nil, slog.LevelInfo, "query info",
 			slog.String("elapsed", elapsed.String()),
 			slog.Int64("rows", rows),
 			slog.String("sql", sql),
