@@ -41,7 +41,7 @@ type GreetHelloResponse struct {
 func (h *GreetHandler) Hello(ctx echo.Context) error {
 	req := new(controller.GreetHelloRequest)
 	if err := ctx.Bind(req); err != nil {
-		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
+		return httperr.WrapHTTTPError(err).SetMessage("request parameter parsing error")
 	}
 
 	ret, err := h.controller.Hello(ctx.Request().Context(), *req)

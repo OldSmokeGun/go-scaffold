@@ -9,9 +9,10 @@ type HTTPError struct {
 	*echo.HTTPError
 }
 
-func WrapHTTTPError(err *echo.HTTPError) *HTTPError {
-	err.Internal = errors.WithStack(err.Internal)
-	return &HTTPError{err}
+func WrapHTTTPError[T error](err T) *HTTPError {
+	target := &echo.HTTPError{}
+	_ = errors.As(err, &target)
+	return &HTTPError{target}
 }
 
 func (e *HTTPError) SetMessage(message string) *HTTPError {

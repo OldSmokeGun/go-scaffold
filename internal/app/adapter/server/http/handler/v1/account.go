@@ -45,7 +45,7 @@ type AccountRegisterResponse struct {
 func (h *AccountHandler) Register(ctx echo.Context) error {
 	req := new(AccountRegisterRequest)
 	if err := ctx.Bind(req); err != nil {
-		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
+		return httperr.WrapHTTTPError(err).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.AccountRegisterRequest{
@@ -104,7 +104,7 @@ type AccountLoginResponse struct {
 func (h *AccountHandler) Login(ctx echo.Context) error {
 	req := new(AccountLoginRequest)
 	if err := ctx.Bind(req); err != nil {
-		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
+		return httperr.WrapHTTTPError(err).SetMessage("request parameter parsing error")
 	}
 
 	r := controller.AccountLoginRequest{
@@ -179,7 +179,7 @@ type AccountUpdateProfileRequest struct {
 func (h *AccountHandler) UpdateProfile(ctx echo.Context) error {
 	req := new(AccountUpdateProfileRequest)
 	if err := ctx.Bind(req); err != nil {
-		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
+		return httperr.WrapHTTTPError(err).SetMessage("request parameter parsing error")
 	}
 
 	user := ctx.(*middleware.Context).GetUser()

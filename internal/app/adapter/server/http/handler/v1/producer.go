@@ -41,7 +41,7 @@ type ProducerExampleRequest struct {
 func (h *ProducerHandler) Example(ctx echo.Context) error {
 	req := new(controller.ProducerExampleRequest)
 	if err := ctx.Bind(req); err != nil {
-		return httperr.WrapHTTTPError(err.(*echo.HTTPError)).SetMessage("request parameter parsing error")
+		return httperr.WrapHTTTPError(err).SetMessage("request parameter parsing error")
 	}
 
 	if err := h.controller.Example(ctx.Request().Context(), *req); err != nil {
