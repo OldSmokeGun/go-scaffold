@@ -45,7 +45,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			}
 		} else if errors.As(err, &bErr) {
 			bc = bErr.Code()
-			hintMsg = bErr.Msg()
+			hintMsg = bErr.HintMsg()
 			statusCode = bErr.HTTPStatus()
 			if bErr.Unwrap() != nil {
 				err = bErr.Unwrap()
