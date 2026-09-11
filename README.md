@@ -206,7 +206,7 @@ func NewHandler(logger *slog.Logger) *Handler {
 
 # 分层架构
 
-![image](./docs/images/architecture.png)
+![image](assets/images/architecture.png)
 
 # `wire` 依赖注入
 
