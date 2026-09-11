@@ -45,7 +45,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			}
 		} else if errors.As(err, &bErr) {
 			bc = bErr.Code()
-			hintMsg = bErr.HintMsg()
+			hintMsg = bErr.Reason()
 			statusCode = bErr.HTTPStatus()
 			if bErr.Unwrap() != nil {
 				err = bErr.Unwrap()
@@ -53,7 +53,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 		} else {
 			de := berr.ErrInternalError
 			bc = de.Code()
-			hintMsg = de.HintMsg()
+			hintMsg = de.Reason()
 			statusCode = de.HTTPStatus()
 		}
 
@@ -68,11 +68,11 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			WithErrMsg(hintMsg)
 
 		if debug {
-			errMsg := err.Error()
+			debugMsg := err.Error()
 			if hintMsg != "" {
-				errMsg = fmt.Sprintf("%s: %s", hintMsg, err)
+				debugMsg = fmt.Sprintf("%s: %s", hintMsg, err)
 			}
-			responseBody.WithErrMsg(errMsg)
+			responseBody.WithErrMsg(debugMsg)
 
 			stack := perr.ErrorStackTrace(err)
 			if stack != nil {
