@@ -1,0 +1,44 @@
+kind: pipeline
+type: docker
+name: default
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
+
+steps:
+  # =========================
+  # Build
+  # =========================
+  - name: build
+    image: docker:29
+    commands:
+      - docker build -t hub.example.com/go-scaffold/server:${DRONE_COMMIT_SHA:0:8} .
+
+  # =========================
+  # Push
+  # =========================
+  - name: push
+    image: docker:29
+    environment:
+      REGISTRY_USERNAME:
+        from_secret: registry_username
+      REGISTRY_PASSWORD:
+        from_secret: registry_password
+    commands:
+      - echo "$REGISTRY_PASSWORD" | docker login hub.example.com -u "$REGISTRY_USERNAME" --password-stdin
+      - docker push hub.example.com/go-scaffold/server:${DRONE_COMMIT_SHA:0:8}
+
+  # =========================
+  # Deploy
+  # =========================
+  - name: deploy
+    image: docker:29
+    commands:
+      - cd /deploy
+      - export SERVER_TAG=${DRONE_COMMIT_SHA:0:8}
+      - sed -i "s/SERVER_TAG/$SERVER_TAG/g" docker-compose.yaml
+      - docker-compose up -d
+      - docker image prune -f
