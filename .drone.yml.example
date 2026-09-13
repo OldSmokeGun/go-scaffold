@@ -17,7 +17,7 @@ steps:
     environment:
       GOPROXY: https://goproxy.cn,direct
     commands:
-      - go test -gcflags=-l -v {{.FLAGS}} ./...
+      - go test -gcflags=-l -v ./...
 
   # =========================
   # Build
