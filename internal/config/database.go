@@ -1,7 +1,7 @@
 package config
 
 import (
-	"net/url"
+	"strings"
 	"time"
 
 	"github.com/samber/lo"
@@ -48,18 +48,15 @@ func (d *DatabaseConn) EnableMultiStatement() error {
 		return nil
 	}
 
-	options, err := url.Parse(d.DSN)
-	if err != nil {
-		return err
+	if strings.Contains(d.DSN, "multiStatements") {
+		return nil
 	}
-
-	if !options.Query().Has("multiStatements") {
-		q := options.Query()
-		q.Set("multiStatements", "true")
-		options.RawQuery = q.Encode()
+	sep := "?"
+	if strings.Contains(d.DSN, "?") {
+		sep = "&"
 	}
+	d.DSN += sep + "multiStatements=true"
 
-	d.DSN = options.String()
 	return nil
 }
 
