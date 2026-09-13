@@ -10,6 +10,16 @@ trigger:
 
 steps:
   # =========================
+  # Test
+  # =========================
+  - name: test
+    image: golang:1.27
+    environment:
+      GOPROXY: https://goproxy.cn,direct
+    commands:
+      - go test -gcflags=-l -v {{.FLAGS}} ./...
+
+  # =========================
   # Build
   # =========================
   - name: build
