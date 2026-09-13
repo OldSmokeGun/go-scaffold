@@ -29,6 +29,7 @@ COPY --from=builder /app/.air.conf.example /app/.air.conf
 COPY --from=builder /app/etc /app/etc
 COPY --from=builder /app/etc/config.yaml.example /app/etc/config.yaml
 COPY --from=builder /app/assets /app/assets
+COPY --from=builder /app/migrations /app/migrations
 COPY --from=builder /app/bin/app /app/bin/app
 
 CMD ["./bin/app", "server"]
