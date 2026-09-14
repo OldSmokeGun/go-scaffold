@@ -1,38 +1,38 @@
-# Repository Layer
+# Repository 层
 
-Location: `internal/app/repository`
+位置：`internal/app/repository`
 
 ---
 
-## Responsibility
+## 职责
 
-The Repository layer is responsible for **data access and infrastructure implementation**.
+Repository 层负责**数据访问与基础设施实现**。
 
-Implementations may include:
+实现可能包括：
 
 * MySQL / PostgreSQL
 * Redis
-* Message queue producers / consumers
-* External data sources
-* Other persistence/infrastructure mechanisms
+* 消息队列生产者 / 消费者
+* 外部数据源
+* 其他持久化/基础设施机制
 
-Examples: `GoodsRepository`, `UserRepository`, `OrderRepository`.
+例如：`GoodsRepository`、`UserRepository`、`OrderRepository`。
 
-The Repository translates application-level data access requirements into infrastructure-specific operations.
+Repository 将应用级的数据访问需求转化为基础设施特定的操作。
 
 ---
 
-## Repository MAY
+## Repository 可以做的事
 
-* Execute SQL.
-* Query / update MySQL or Redis.
-* Publish / consume messages when the repository abstraction is appropriate.
-* Call infrastructure SDKs.
-* Convert database models into application/domain representations.
-* Handle infrastructure-specific errors.
-* Manage persistence-specific details.
+* 执行 SQL。
+* 查询 / 更新 MySQL 或 Redis。
+* 在仓储抽象合适的情况下发布 / 消费消息。
+* 调用基础设施 SDK。
+* 将数据库模型转换为应用/domain 表示。
+* 处理基础设施特定的错误。
+* 管理持久化相关的细节。
 
-Example:
+示例：
 
 ```go
 func (r *GoodsRepository) QueryGoodsInfo(
@@ -43,50 +43,50 @@ func (r *GoodsRepository) QueryGoodsInfo(
 }
 ```
 
-The Usecase should not need to know whether this operation uses MySQL, Redis, Cache + MySQL, HTTP, or RPC.
+Usecase 无需知道该操作使用的是 MySQL、Redis、Cache + MySQL、HTTP 还是 RPC。
 
 ---
 
-## Repository MUST NOT
+## Repository 不得做的事
 
-* Contain Controller workflows.
-* Call Controllers.
-* Call unrelated Usecases to perform business orchestration.
-* Decide application-level business outcomes.
-* Perform HTTP / gRPC response handling.
-* Know about Echo or HTTP status codes.
-* Return transport-specific errors.
-* Implement business workflows spanning multiple modules.
+* 包含 Controller 工作流。
+* 调用 Controller。
+* 调用无关的 Usecase 来执行业务编排。
+* 决定应用级业务结果。
+* 执行 HTTP / gRPC 响应处理。
+* 知道 Echo 或 HTTP 状态码。
+* 返回传输层特定的错误。
+* 实现跨多个模块的业务工作流。
 
-Forbidden example:
+禁止的示例：
 
 ```go
 func (r *OrderRepository) CreateOrder(...) error {
-	// check user balance
-	// check inventory
-	// create order
-	// deduct balance
+	// 检查用户余额
+	// 检查库存
+	// 创建订单
+	// 扣减余额
 }
 ```
 
-Those operations belong to the appropriate Usecases and Controller orchestration.
+这些操作属于相应的 Usecase 和 Controller 编排。
 
 ---
 
-## Interface and Implementation
+## 接口与实现
 
-Interfaces MUST be defined according to the dependency direction.
+必须按照依赖方向来定义接口。
 
-A consumer should depend on an abstraction rather than an infrastructure implementation:
+使用方应当依赖抽象，而不是基础设施实现：
 
 ```text
 Usecase
    ↓
-GoodsRepository interface
+GoodsRepository 接口
    ↓
-MySQL implementation
+MySQL 实现
 ```
 
-The Usecase MUST NOT depend directly on a concrete MySQL repository implementation when an abstraction is appropriate.
+在抽象合适的情况下，Usecase 不得直接依赖具体的 MySQL repository 实现。
 
-Infrastructure-specific implementation details MUST remain inside Repository.
+基础设施特定的实现细节必须保留在 Repository 内部。

@@ -1,18 +1,18 @@
-# Go Style and Development Rules
+# Go 风格与开发规则
 
 ---
 
 ## Context
 
-`context.Context` MAY be passed through the application layers:
+`context.Context` 可以贯穿应用各层传递：
 
 ```text
 Adapter → Controller → Usecase → Repository
 ```
 
-The Context MUST NOT be stored in long-lived structs.
+Context 不得存储在长生命周期的结构体中。
 
-Do not use:
+不要使用：
 
 ```go
 type OrderUsecase struct {
@@ -20,7 +20,7 @@ type OrderUsecase struct {
 }
 ```
 
-Use:
+应使用：
 
 ```go
 func (u *OrderUsecase) Create(
@@ -31,55 +31,55 @@ func (u *OrderUsecase) Create(
 
 ---
 
-## Interfaces
+## 接口
 
-* Keep interfaces small and meaningful.
-* Consumers should depend on abstractions rather than concrete infrastructure types when appropriate.
-* Prefer standard library solutions when appropriate.
-
----
-
-## Functions and State
-
-* Keep functions focused.
-* Avoid unnecessary global mutable state.
-* Avoid unnecessary `init()`.
-* Avoid unrelated refactoring.
-* Do not weaken architecture to make implementation easier.
+* 保持接口小而有意义。
+* 在合适时，使用方应依赖抽象而不是具体的基础设施类型。
+* 在合适时优先使用标准库方案。
 
 ---
 
-## Errors
+## 函数与状态
 
-* Handle errors explicitly.
-* Prefer `%w` when wrapping so the original error remains inspectable.
-* Do not silently discard errors.
-* See [../architecture/error-handling.md](../architecture/error-handling.md) for business error ownership.
+* 保持函数职责单一。
+* 避免不必要的全局可变状态。
+* 避免不必要的 `init()`。
+* 避免无关的重构。
+* 不得为了让实现更容易而削弱架构。
 
 ---
 
-## Code Quality
+## 错误
 
-All code created or modified by the Agent MUST comply with the project's configured code quality and linting rules.
+* 显式处理错误。
+* 包装错误时优先使用 `%w`，使原始错误保持可检查。
+* 不得静默丢弃错误。
+* 业务错误归属参见 [../architecture/error-handling.md](../architecture/error-handling.md)。
 
-Before considering a task complete:
+---
 
-1. Run the project's configured lint and validation commands.
-2. Fix all errors reported by the validation tools.
-3. Do not disable, weaken, or bypass existing validation rules.
-4. Do not modify lint configuration merely to make the code pass.
-5. Do not use suppression directives unless there is a legitimate and documented reason.
-6. Re-run validation after fixing issues.
-7. Never claim that validation passed unless it was actually executed successfully.
+## 代码质量
 
-For Go projects:
+Agent 创建或修改的所有代码都必须符合项目配置的代码质量与 lint 规则。
 
-* Follow the project's `golangci-lint` configuration (`.golangci.yml`).
-* Run at least:
+在认定任务完成之前：
+
+1. 运行项目配置的 lint 和验证命令。
+2. 修复验证工具报告的所有错误。
+3. 不得禁用、削弱或绕过既有验证规则。
+4. 不得仅仅为了让代码通过而修改 lint 配置。
+5. 除非有正当且已记录的理由，否则不得使用抑制指令。
+6. 修复问题后重新运行验证。
+7. 绝不在验证未实际执行成功的情况下声称验证已通过。
+
+对于 Go 项目：
+
+* 遵循项目的 `golangci-lint` 配置（`.golangci.yml`）。
+* 至少运行：
 
 ```bash
 golangci-lint fmt
 golangci-lint run
 ```
 
-* Fix all reported issues before completing the task.
+* 在完成任务之前修复所有报告的问题。

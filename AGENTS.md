@@ -1,117 +1,117 @@
-# Project Architecture
+# 项目架构
 
-All code MUST follow the layered architecture:
+所有代码必须遵循分层架构：
 
 ```text
 adapter → controller → usecase → repository
 ```
 
-Responsibilities:
+职责划分：
 
-* adapter: protocol conversion and external entry points.
-* controller: business workflow orchestration.
-* usecase: module-specific business logic.
-* repository: infrastructure and data access.
-* domain: business entities, types, enums and constants.
-* errors: standardized business errors.
+* adapter：协议转换与外部入口。
+* controller：业务工作流编排。
+* usecase：模块内具体业务逻辑。
+* repository：基础设施与数据访问。
+* domain：业务实体、类型、枚举与常量。
+* errors：标准化业务错误。
 
-Detailed layer responsibilities and dependency rules:
+各层详细职责与依赖规则：
 
-> See [docs/architecture/layering.md](docs/architecture/layering.md)
+> 参见 [docs/architecture/layering.md](docs/architecture/layering.md)
 
 ---
 
-# Controller and Usecase
+# Controller 与 Usecase
 
-* controller MUST orchestrate business workflows.
-* usecase MUST implement module-specific business logic.
-* controller MUST NOT access repository or infrastructure directly.
-* usecase MUST NOT depend on adapter or transport-specific types.
-* Cross-module workflows MUST be orchestrated by controller.
+* controller 必须编排业务工作流。
+* usecase 必须实现模块内具体业务逻辑。
+* controller 不得直接访问 repository 或基础设施。
+* usecase 不得依赖 adapter 或传输层特定类型。
+* 跨模块工作流必须由 controller 编排。
 
-Detailed rules and examples:
+详细规则与示例：
 
-> See [docs/architecture/controller-usecase.md](docs/architecture/controller-usecase.md)
+> 参见 [docs/architecture/controller-usecase.md](docs/architecture/controller-usecase.md)
 
 ---
 
 # Repository
 
-* repository MUST handle data access and infrastructure integration.
-* repository MUST NOT implement business workflows.
-* repository MUST NOT depend on controller or usecase.
-* Database, Redis, MQ and external service access MUST remain behind repository boundaries.
+* repository 必须处理数据访问与基础设施集成。
+* repository 不得实现业务工作流。
+* repository 不得依赖 controller 或 usecase。
+* 数据库、Redis、MQ 及外部服务访问必须保留在 repository 边界之内。
 
-Detailed rules:
+详细规则：
 
-> See [docs/architecture/repository.md](docs/architecture/repository.md)
+> 参见 [docs/architecture/repository.md](docs/architecture/repository.md)
 
 ---
 
 # Domain
 
-* domain contains business entities, types, enums and constants.
-* domain MUST NOT depend on application or infrastructure layers.
-* domain SHOULD remain independent from transport and persistence implementations.
+* domain 包含业务实体、类型、枚举与常量。
+* domain 不得依赖应用层或基础设施层。
+* domain 应保持与传输层和持久化实现无关。
 
-Detailed rules:
+详细规则：
 
-> See [docs/architecture/domain.md](docs/architecture/domain.md)
+> 参见 [docs/architecture/domain.md](docs/architecture/domain.md)
 
 ---
 
-# Errors
+# 错误处理
 
-* Business errors MUST be defined in `internal/errors`.
-* Business errors MUST NOT contain business workflows.
-* Infrastructure errors SHOULD be wrapped and propagated without losing the original error.
-* Transport-specific error presentation belongs to adapter.
+* 业务错误必须在 `internal/errors` 中定义。
+* 业务错误不得包含业务工作流。
+* 基础设施错误应被包装并在传播时保留原始错误。
+* 传输层特定的错误呈现属于 adapter。
 
-Detailed rules:
+详细规则：
 
-> See [docs/architecture/error-handling.md](docs/architecture/error-handling.md)
+> 参见 [docs/architecture/error-handling.md](docs/architecture/error-handling.md)
 
 ---
 
 # Adapter
 
-* adapter is the external protocol entry point (HTTP / gRPC / cron / CLI / scripts).
-* adapter MUST only call controller.
-* adapter MUST NOT call usecase, repository, or infrastructure directly.
-* Transport-specific DTOs MUST remain inside adapter.
+* adapter 是外部协议入口（HTTP / gRPC / cron / CLI / 脚本）。
+* adapter 只能调用 controller。
+* adapter 不得直接调用 usecase、repository 或基础设施。
+* 传输层特定的 DTO 必须保留在 adapter 内部。
 
-Detailed rules and examples:
+详细规则与示例：
 
-> See [docs/architecture/adapter.md](docs/architecture/adapter.md)
-
----
-
-# General Development Rules
-
-All Go code MUST be idiomatic, simple and maintainable.
-
-* Handle errors explicitly.
-* Propagate `context.Context` correctly.
-* Keep functions focused.
-* Keep interfaces small and meaningful.
-* Avoid unnecessary global mutable state.
-* Avoid unnecessary `init()`.
-* Prefer standard library solutions when appropriate.
-* Avoid unrelated refactoring.
-* Do not weaken architecture to make implementation easier.
-* Do not disable lint rules merely to make code pass.
-
-Detailed Go development rules:
-
-> See [docs/development/go-style.md](docs/development/go-style.md)
+> 参见 [docs/architecture/adapter.md](docs/architecture/adapter.md)
 
 ---
 
-# Code Quality
+# 通用开发规则
 
-The project uses `.golangci.yml` for Go formatting and static analysis.
+所有 Go 代码必须符合惯用写法、简洁且易于维护。
 
-Before completing a non-trivial task, run:
+* 显式处理错误。
+* 正确传递 `context.Context`。
+* 保持函数职责单一。
+* 保持接口小而有意义。
+* 避免不必要的全局可变状态。
+* 避免不必要的 `init()`。
+* 在合适时优先使用标准库方案。
+* 避免无关的重构。
+* 不得为了让实现更容易而削弱架构。
+* 不得仅仅为了让检查通过而禁用 lint 规则。
+
+Go 开发详细规则：
+
+> 参见 [docs/development/go-style.md](docs/development/go-style.md)
+
+---
+
+# 代码质量
+
+项目使用 `.golangci.yml` 进行 Go 格式化和静态分析。
+
+在完成非简单任务之前，运行：
 
 ```bash
 golangci-lint fmt
@@ -119,53 +119,53 @@ golangci-lint run
 go test ./...
 ```
 
-All lint errors MUST be resolved.
+所有 lint 错误必须解决。
 
-Do NOT:
+禁止事项：
 
-* Disable a linter merely to make the check pass.
-* Add `//nolint` without a legitimate and documented reason.
-* Modify `.golangci.yml` merely to bypass an existing violation.
-* Claim validation passed unless it was actually executed successfully.
+* 仅仅为了让检查通过而禁用某个 linter。
+* 在没有正当且已记录理由的情况下添加 `//nolint`。
+* 仅仅为了绕过既有违规而修改 `.golangci.yml`。
+* 除非验证确实执行成功，否则不得声称验证已通过。
 
-Lint and formatting configuration:
+Lint 与格式化配置：
 
-> See [.golangci.yml](.golangci.yml)
-
----
-
-# Change Workflow
-
-Before modifying code:
-
-1. Identify the responsible layer.
-2. Check the dependency direction.
-3. Read the relevant document under `docs/architecture/` or `docs/development/`.
-4. Reuse existing project abstractions.
-5. Make the smallest appropriate change.
-6. Run formatting, linting and tests.
-
-New feature implementation procedure and final verification checklist:
-
-> See [docs/development/change-workflow.md](docs/development/change-workflow.md)
+> 参见 [.golangci.yml](.golangci.yml)
 
 ---
 
-# Source of Truth
+# 变更工作流
 
-`AGENTS.md` defines mandatory high-level rules.
+修改代码之前：
 
-Detailed rules are defined in:
+1. 确定所属的职责层。
+2. 检查依赖方向。
+3. 阅读 `docs/architecture/` 或 `docs/development/` 下的相关文档。
+4. 复用项目已有的抽象。
+5. 做出最小的适当变更。
+6. 运行格式化、lint 和测试。
+
+新功能实现流程与最终验证清单：
+
+> 参见 [docs/development/change-workflow.md](docs/development/change-workflow.md)
+
+---
+
+# 权威来源
+
+`AGENTS.md` 定义强制性的高层规则。
+
+详细规则定义在：
 
 ```text
 docs/architecture/
 docs/development/
 ```
 
-Automated code quality rules are defined in:
+自动化代码质量规则定义在：
 
 ```text
 .golangci.yml
 ```
 
-When a detailed rule is needed, read the referenced document instead of making assumptions.
+当需要某条详细规则时，阅读被引用的文档，而不是凭假设行事。

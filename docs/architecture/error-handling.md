@@ -1,23 +1,23 @@
-# Error Handling
+# 错误处理
 
-Location: `internal/errors`
+位置：`internal/errors`
 
 ---
 
-## Responsibility
+## 职责
 
-The `errors` package defines standardized application and business errors.
+`errors` 包定义标准化的应用错误和业务错误。
 
-It may contain:
+它可以包含：
 
-* Business error codes
-* Business error messages
-* HTTP status codes associated with business errors
-* Standard application errors
-* Error constructors
-* Predefined business errors
+* 业务错误码
+* 业务错误消息
+* 与业务错误关联的 HTTP 状态码
+* 标准应用错误
+* 错误构造函数
+* 预定义的业务错误
 
-Example:
+示例：
 
 ```go
 var ErrInsufficientBalance = BizError(
@@ -29,21 +29,21 @@ var ErrInsufficientBalance = BizError(
 
 ---
 
-## Error Ownership
+## 错误归属
 
-Business errors MUST be defined centrally.
+业务错误必须集中定义。
 
-Do NOT recreate the same business error in multiple Usecases, Controllers, or Adapters.
+不得在多个 Usecase、Controller 或 Adapter 中重复定义同一个业务错误。
 
-Forbidden:
+禁止：
 
 ```go
 return errors.New("余额不足")
 ```
 
-when a corresponding centralized business error already exists.
+当已存在对应的集中定义的业务错误时。
 
-Required:
+要求：
 
 ```go
 return errors.ErrInsufficientBalance
@@ -51,17 +51,17 @@ return errors.ErrInsufficientBalance
 
 ---
 
-## Error Layer Restrictions
+## errors 层限制
 
-The `errors` package MUST NOT:
+`errors` 包不得：
 
-* Access repositories or databases.
-* Call Usecases or Controllers.
-* Handle HTTP requests.
-* Execute business workflows.
-* Depend on transport implementations.
+* 访问 repository 或数据库。
+* 调用 Usecase 或 Controller。
+* 处理 HTTP 请求。
+* 执行业务工作流。
+* 依赖传输层实现。
 
-The Adapter may translate a business error into a protocol-specific representation:
+Adapter 可以将业务错误转换为协议特定的表示：
 
 ```text
 internal/errors.ErrInsufficientBalance
@@ -70,32 +70,32 @@ internal/errors.ErrInsufficientBalance
 HTTP Adapter
               │
               ▼
-HTTP 400 + response body
+HTTP 400 + 响应体
 ```
 
-The HTTP status code mapping MUST NOT be implemented inside the Usecase.
+HTTP 状态码映射不得在 Usecase 内实现。
 
 ---
 
-## Error Propagation
+## 错误传播
 
-Errors MUST preserve their original cause whenever additional context is added.
+只要需要添加额外上下文，错误就必须保留其原始原因。
 
-Use:
+使用：
 
 ```go
 return fmt.Errorf("query goods info: %w", err)
 ```
 
-Do NOT use:
+不要使用：
 
 ```go
 return fmt.Errorf("query goods info: %v", err)
 ```
 
-when the original error needs to remain inspectable.
+当原始错误需要保持可检查时。
 
-Do NOT silently discard errors.
+不得静默丢弃错误。
 
-* Business errors defined in `internal/errors` SHOULD be returned directly when no additional context is necessary.
-* Infrastructure errors SHOULD normally be wrapped with meaningful context before being returned to the caller.
+* 当不需要额外上下文时，`internal/errors` 中定义的业务错误应直接返回。
+* 基础设施错误在返回给调用方之前，通常应附上有意义的上下文进行包装。

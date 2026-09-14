@@ -1,37 +1,37 @@
-# Controller and Usecase
+# Controller 与 Usecase
 
 ---
 
 ## Controller
 
-Location: `internal/app/controller`
+位置：`internal/app/controller`
 
-### Responsibility
+### 职责
 
-The Controller is the **core application business entry point**.
+Controller 是**应用业务的核心入口**。
 
-It is responsible for:
+它负责：
 
-1. Validating business input parameters.
-2. Organizing business operations.
-3. Orchestrating multiple Usecases.
-4. Defining the execution order of Usecases.
-5. Coordinating different business modules.
-6. Controlling the application-level workflow.
-7. Returning the final business result.
+1. 校验业务输入参数。
+2. 组织业务操作。
+3. 编排多个 Usecase。
+4. 定义 Usecase 的执行顺序。
+5. 协调不同的业务模块。
+6. 控制应用级工作流。
+7. 返回最终业务结果。
 
-The Controller MUST NOT implement the internal business logic of individual modules.
+Controller 不得实现各个模块的内部业务逻辑。
 
-* Controller defines **what business operations need to happen and in what order**.
-* Usecase defines **how each individual business operation is implemented**.
+* Controller 定义**需要发生哪些业务操作以及以什么顺序发生**。
+* Usecase 定义**每个具体业务操作如何实现**。
 
-### Controller MUST NOT Access Repository
+### Controller 不得访问 Repository
 
-Controllers MUST NOT directly call Repository, Database, Redis, Message Queue, or External Service.
+Controller 不得直接调用 Repository、数据库、Redis、消息队列或外部服务。
 
-Controllers MUST interact with business functionality through Usecases.
+Controller 必须通过 Usecase 与业务功能交互。
 
-Forbidden:
+禁止：
 
 ```go
 func (c *Controller) CreateOrder(...) error {
@@ -40,7 +40,7 @@ func (c *Controller) CreateOrder(...) error {
 }
 ```
 
-Required:
+要求：
 
 ```go
 func (c *Controller) CreateOrder(...) error {
@@ -65,7 +65,7 @@ func (c *Controller) CreateOrder(...) error {
 }
 ```
 
-### Workflow Example
+### 工作流示例
 
 ```text
 CreateOrder
@@ -77,7 +77,7 @@ CreateOrder
     └── OrderUsecase.Create
 ```
 
-The Controller MUST NOT care how these operations are implemented, and MUST NOT know:
+Controller 不得关心这些操作如何实现，也不得知道：
 
 ```text
 GoodsUsecase.CheckInventory → GoodsRepository.QueryGoodsInfo
@@ -85,64 +85,64 @@ UserUsecase.CheckBalance    → UserRepository.GetUserInfo
 OrderUsecase.Create         → OrderRepository.Save
 ```
 
-The Controller only depends on the Usecase contract.
+Controller 只依赖 Usecase 的契约。
 
-### Controller Restrictions
+### Controller 限制
 
-The Controller MUST NOT:
+Controller 不得：
 
-* Access databases / Redis / message queues / external services directly.
-* Execute SQL or contain persistence logic.
-* Contain repository implementation details.
-* Implement module-specific business rules.
-* Contain HTTP/gRPC-specific logic.
-* Depend on Echo, net/http, gRPC transport types, or other protocol-specific types.
-* Know how a Usecase is implemented.
-* Duplicate Usecase business logic.
+* 直接访问数据库 / Redis / 消息队列 / 外部服务。
+* 执行 SQL 或包含持久化逻辑。
+* 包含 repository 实现细节。
+* 实现模块内业务规则。
+* 包含 HTTP/gRPC 特定逻辑。
+* 依赖 Echo、net/http、gRPC 传输类型或其他协议特定类型。
+* 知道 Usecase 是如何实现的。
+* 重复实现 Usecase 的业务逻辑。
 
-### Controller Complexity
+### Controller 复杂度
 
-If a Controller becomes large because it contains complex calculations, database operations, detailed business rules, repeated validation, or module-specific decisions, move that logic into the appropriate Usecase or Domain abstraction.
+如果某个 Controller 因为包含复杂计算、数据库操作、详细业务规则、重复校验或模块内决策而变得庞大，应将那部分逻辑移入合适的 Usecase 或 Domain 抽象中。
 
-A Controller should primarily read like a business workflow:
+Controller 读起来应当主要像一条业务工作流：
 
 ```text
-validate input
+校验输入
     ↓
-check inventory
+检查库存
     ↓
-check balance
+检查余额
     ↓
-create order
+创建订单
     ↓
-return result
+返回结果
 ```
 
 ---
 
 ## Usecase
 
-Location: `internal/app/usecase`
+位置：`internal/app/usecase`
 
-### Responsibility
+### 职责
 
-The Usecase layer contains the **concrete implementation of module-specific business logic**.
+Usecase 层包含**模块内业务逻辑的具体实现**。
 
-Examples: `GoodsUsecase`, `UserUsecase`, `OrderUsecase`, `PaymentUsecase`.
+例如：`GoodsUsecase`、`UserUsecase`、`OrderUsecase`、`PaymentUsecase`。
 
-### Usecase and Repository
+### Usecase 与 Repository
 
-A Usecase MAY depend on Repository interfaces/contracts.
+Usecase 可以依赖 Repository 接口/契约。
 
-The Usecase determines:
+由 Usecase 决定：
 
-* What data is required.
-* What business rules need to be applied.
-* What repository operations need to be performed.
-* How repository data is interpreted.
-* Whether a business operation succeeds or fails.
+* 需要哪些数据。
+* 需要应用哪些业务规则。
+* 需要执行哪些 repository 操作。
+* 如何解读 repository 返回的数据。
+* 业务操作成功还是失败。
 
-Example flow:
+示例流程：
 
 ```text
 GoodsUsecase.CheckInventory
@@ -151,13 +151,13 @@ GoodsUsecase.CheckInventory
 GoodsRepository.QueryGoodsInfo
         │
         ▼
-Check goods.inventory
+检查 goods.inventory
         │
         ▼
-Return result / ErrInsufficientInventory
+返回结果 / ErrInsufficientInventory
 ```
 
-Example:
+示例：
 
 ```go
 func (u *GoodsUsecase) CheckInventory(
@@ -178,24 +178,24 @@ func (u *GoodsUsecase) CheckInventory(
 }
 ```
 
-The Repository only retrieves data. The Usecase decides what the data means from a business perspective.
+Repository 只负责取数据。数据的业务含义由 Usecase 决定。
 
-### Usecase Restrictions
+### Usecase 限制
 
-The Usecase MUST NOT:
+Usecase 不得：
 
-* Depend on HTTP request/response objects, Echo context, or gRPC messages.
-* Parse HTTP parameters / construct HTTP responses / set HTTP status codes.
-* Implement routing or cron scheduling.
-* Contain SQL implementation.
-* Directly access `database/sql`, Redis clients, or message queue implementations.
-* Contain transport-specific DTO conversion.
+* 依赖 HTTP 请求/响应对象、Echo context 或 gRPC 消息。
+* 解析 HTTP 参数 / 构造 HTTP 响应 / 设置 HTTP 状态码。
+* 实现路由或 cron 调度。
+* 包含 SQL 实现。
+* 直接访问 `database/sql`、Redis 客户端或消息队列实现。
+* 包含传输层特定的 DTO 转换。
 
-If a Usecase requires infrastructure data, it MUST use a Repository abstraction.
+如果 Usecase 需要基础设施数据，必须使用 Repository 抽象。
 
-### Module Ownership
+### 模块归属
 
-Each Usecase MUST own the business rules of its corresponding module.
+每个 Usecase 必须拥有其对应模块的业务规则。
 
 ```text
 GoodsUsecase
@@ -214,47 +214,47 @@ OrderUsecase
     └── Get
 ```
 
-Do not move business logic into another module merely because the current module needs that information.
+不要仅仅因为当前模块需要某个信息，就把业务逻辑移入另一个模块。
 
-> A business rule belongs to the module that owns the business concept.
+> 业务规则属于拥有该业务概念的模块。
 
 ---
 
-## Cross-Module Operations
+## 跨模块操作
 
-When an operation involves multiple business modules, the Controller SHOULD orchestrate the Usecases.
+当某个操作涉及多个业务模块时，Controller 应当编排这些 Usecase。
 
-Do NOT create a Repository method such as:
+不要为了简化 Controller 而创建这样的 Repository 方法：
 
 ```text
 OrderRepository.CreateOrderAndCheckInventoryAndBalance
 ```
 
-merely to simplify the Controller. The Repository is not the application service layer.
+Repository 不是应用服务层。
 
 ---
 
-## Prohibited Shortcuts
+## 禁止的捷径
 
-### Adapter directly querying Repository
+### Adapter 直接查询 Repository
 
 ```text
-handler → repository   // forbidden
+handler → repository   // 禁止
 ```
 
-Required:
+要求：
 
 ```text
 handler → controller → usecase → repository
 ```
 
-### Controller directly querying database
+### Controller 直接查询数据库
 
 ```text
-controller → gorm/db   // forbidden
+controller → gorm/db   // 禁止
 ```
 
-### Controller implementing module business logic
+### Controller 实现模块业务逻辑
 
 ```go
 if goods.Inventory < quantity {
@@ -262,22 +262,22 @@ if goods.Inventory < quantity {
 }
 ```
 
-If this is the inventory business rule, it belongs in `GoodsUsecase`, not Controller.
+如果这是库存业务规则，它属于 `GoodsUsecase`，而不是 Controller。
 
-### Usecase accessing HTTP
+### Usecase 访问 HTTP
 
 ```go
-func (u *OrderUsecase) Create(c echo.Context, ...) // forbidden
-func (u *OrderUsecase) Create(ctx context.Context, ...) // required
+func (u *OrderUsecase) Create(c echo.Context, ...) // 禁止
+func (u *OrderUsecase) Create(ctx context.Context, ...) // 要求
 ```
 
-### Repository implementing business workflow
+### Repository 实现业务工作流
 
 ```text
 OrderRepository
-    ↓ check inventory
-    ↓ check balance
-    ↓ create order
+    ↓ 检查库存
+    ↓ 检查余额
+    ↓ 创建订单
 ```
 
-Forbidden. This workflow belongs to Controller + Usecases.
+禁止。该工作流属于 Controller + 各 Usecase。

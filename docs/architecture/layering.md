@@ -1,14 +1,14 @@
-# Layering and Dependencies
+# 分层与依赖
 
-These rules are **strict requirements**, not recommendations.
+这些规则是**强制性要求**，而非建议。
 
-Every Agent-generated or Agent-modified code MUST comply with the responsibilities, dependency boundaries, and data-flow rules defined here.
+Agent 生成的或修改的每一段代码都必须符合此处定义的职责、依赖边界和数据流规则。
 
-If a requested implementation appears to conflict with these rules, the Agent MUST NOT bypass them for convenience. Redesign the implementation to respect layer responsibilities.
+如果被要求的实现看起来与这些规则冲突，Agent 不得为了图方便而绕过它们。应当重新设计实现，使其遵守各层的职责。
 
 ---
 
-## Directory Structure
+## 目录结构
 
 ```text
 internal
@@ -33,34 +33,34 @@ internal
 └─errors
 ```
 
-Layer flow:
+分层流向：
 
 ```text
-External Protocol
-       │
-       ▼
-   Adapter
-       │
-       ▼
-   Controller
-       │
-       ▼
-    Usecase
-       │
-       ▼
-   Repository
-       │
-       ▼
-External Infrastructure
-(MySQL / Redis / MQ / HTTP / etc.)
+外部协议
+   │
+   ▼
+Adapter（适配层）
+   │
+   ▼
+Controller（控制层）
+   │
+   ▼
+Usecase（用例层）
+   │
+   ▼
+Repository（仓储层）
+   │
+   ▼
+外部基础设施
+（MySQL / Redis / MQ / HTTP 等）
 ```
 
-* `Domain` defines business entities, value types, enums, constants, and stable business concepts.
-* `errors` defines application/business errors and their external error representation.
+* `Domain` 定义业务实体、值类型、枚举、常量以及稳定的业务概念。
+* `errors` 定义应用/业务错误及其外部错误表示。
 
 ---
 
-## Mandatory Dependency Direction
+## 强制依赖方向
 
 ```text
 adapter
@@ -72,123 +72,123 @@ usecase
 repository
 ```
 
-The dependency direction MUST NOT be reversed.
+依赖方向不得逆转。
 
-Principles:
+原则：
 
-1. Lower layers MUST NOT depend on higher layers.
-2. Infrastructure implementations MUST NOT contain application orchestration.
-3. Protocol-specific concepts MUST NOT leak into business logic.
-4. Business logic MUST NOT depend on HTTP, gRPC, CLI, cron, or other transport protocols.
-5. Controllers MUST NOT directly access databases, Redis, message queues, or other infrastructure.
-6. Adapters MUST NOT implement business logic.
-7. Usecases MUST NOT implement HTTP/gRPC/CLI response handling.
-8. Repository implementations MUST NOT perform application-level business orchestration.
-9. Domain definitions MUST NOT depend on adapters, controllers, usecases, or repositories.
-10. Business errors MUST be defined centrally in `internal/errors`.
+1. 下层不得依赖上层。
+2. 基础设施实现不得包含应用编排。
+3. 协议特定概念不得泄漏到业务逻辑中。
+4. 业务逻辑不得依赖 HTTP、gRPC、CLI、cron 或其他传输协议。
+5. Controller 不得直接访问数据库、Redis、消息队列或其他基础设施。
+6. Adapter 不得实现业务逻辑。
+7. Usecase 不得实现 HTTP/gRPC/CLI 响应处理。
+8. Repository 实现不得执行应用级业务编排。
+9. Domain 定义不得依赖 adapter、controller、usecase 或 repository。
+10. 业务错误必须在 `internal/errors` 中集中定义。
 
 ---
 
-## Dependency Matrix
+## 依赖矩阵
 
-| From       | Allowed to depend on                               |
+| 来源       | 允许依赖的对象                        |
 | ---------- | -------------------------------------------------- |
-| adapter    | controller, domain, errors                         |
-| controller | usecase, domain, errors                            |
-| usecase    | repository, domain, errors                         |
-| repository | domain, errors, infrastructure libraries           |
-| domain     | standard library only, unless explicitly justified |
-| errors     | standard library only, unless explicitly justified |
+| adapter    | controller、domain、errors                         |
+| controller | usecase、domain、errors                            |
+| usecase    | repository、domain、errors                         |
+| repository | domain、errors、基础设施库                         |
+| domain     | 仅标准库，除非有明确正当理由                       |
+| errors     | 仅标准库，除非有明确正当理由                       |
 
-Forbidden:
+禁止的依赖：
 
-| Forbidden dependency    | Reason                         |
+| 禁止的依赖                                           | 理由                 |
 | ----------------------- | ------------------------------ |
-| adapter → usecase       | Bypasses Controller            |
-| adapter → repository    | Bypasses business layer        |
-| adapter → database      | Infrastructure leakage         |
-| controller → repository | Bypasses Usecase               |
-| controller → database   | Infrastructure leakage         |
-| controller → redis      | Infrastructure leakage         |
-| usecase → adapter       | Reversed dependency            |
-| usecase → HTTP / Echo   | Transport leakage              |
-| repository → controller | Reversed dependency            |
-| repository → usecase    | Business orchestration leakage |
-| repository → adapter    | Reversed dependency            |
-| domain → repository / usecase / controller / adapter | Domain contamination |
+| adapter → usecase       | 绕过 Controller                |
+| adapter → repository    | 绕过业务层                     |
+| adapter → database      | 基础设施泄漏                   |
+| controller → repository | 绕过 Usecase                   |
+| controller → database   | 基础设施泄漏                   |
+| controller → redis      | 基础设施泄漏                   |
+| usecase → adapter       | 依赖逆转                       |
+| usecase → HTTP / Echo   | 传输层泄漏                     |
+| repository → controller | 依赖逆转                       |
+| repository → usecase    | 业务编排泄漏                   |
+| repository → adapter    | 依赖逆转                       |
+| domain → repository / usecase / controller / adapter | Domain 被污染 |
 
 ---
 
-## Business Logic Placement
+## 业务逻辑归属
 
-| Kind of code | Layer |
+| 代码类型                                                       | 所属层     |
 | --- | --- |
-| Protocol conversion (HTTP / gRPC / CLI / Cron → app input) | adapter |
-| Business workflow orchestration (`A → B → C → D`) | controller |
-| Module-specific business rules (inventory, balance, pricing, permission) | usecase |
-| SQL / Redis / MQ / infrastructure SDK access | repository |
-| Business entity / enum / type / constant | domain |
-| Business error code / message / status mapping | errors |
+| 协议转换（HTTP / gRPC / CLI / Cron → 应用输入）                | adapter    |
+| 业务工作流编排（`A → B → C → D`）                              | controller |
+| 模块内业务规则（库存、余额、定价、权限）                       | usecase    |
+| SQL / Redis / MQ / 基础设施 SDK 访问                           | repository |
+| 业务实体 / 枚举 / 类型 / 常量                                  | domain     |
+| 业务错误码 / 错误消息 / 状态映射                               | errors     |
 
 ---
 
-## Architectural Decision Order
+## 架构决策顺序
 
-When uncertain where code belongs:
+当不确定代码属于哪一层时：
 
 ```text
-Is it protocol-specific?
+它是否与特定协议相关？
         │
-        ├── YES → Adapter
+        ├── 是 → Adapter
         │
-        └── NO
+        └── 否
              │
              ▼
-Does it orchestrate multiple business operations?
+它是否编排多个业务操作？
         │
-        ├── YES → Controller
+        ├── 是 → Controller
         │
-        └── NO
+        └── 否
              │
              ▼
-Is it module-specific business logic?
+它是否是模块内业务逻辑？
         │
-        ├── YES → Usecase
+        ├── 是 → Usecase
         │
-        └── NO
+        └── 否
              │
              ▼
-Does it access infrastructure/data?
+它是否访问基础设施/数据？
         │
-        ├── YES → Repository
+        ├── 是 → Repository
         │
-        └── NO
+        └── 否
              │
              ▼
-Is it a stable business entity/type/value?
+它是否是稳定的业务实体/类型/值？
         │
-        ├── YES → Domain
+        ├── 是 → Domain
         │
-        └── NO
+        └── 否
              │
              ▼
-Is it a standardized business error?
+它是否是标准化的业务错误？
         │
-        ├── YES → errors
+        ├── 是 → errors
         │
-        └── NO
+        └── 否
              │
              ▼
-Re-evaluate the design before adding the code.
+在添加代码之前重新评估设计。
 ```
 
-Do NOT choose a layer based on implementation convenience.
+不得基于实现方便来选择所属层。
 
 ---
 
-## Non-Negotiable Principle
+## 不可妥协的原则
 
-> **Adapter handles protocols. Controller orchestrates business operations. Usecase implements module business logic. Repository implements infrastructure access. Domain defines business concepts. Errors defines standardized business errors.**
+> **Adapter 处理协议。Controller 编排业务操作。Usecase 实现模块业务逻辑。Repository 实现基础设施访问。Domain 定义业务概念。Errors 定义标准化业务错误。**
 
 ```text
                     ┌──────────────┐
@@ -221,17 +221,17 @@ Do NOT choose a layer based on implementation convenience.
                  MySQL / Redis / MQ / ...
 ```
 
-Any implementation that violates this dependency direction is architecturally invalid unless this document is explicitly amended.
+任何违反此依赖方向的实现，除非本文档被明确修订，否则在架构上都是无效的。
 
 ---
 
-## Refactoring Rules
+## 重构规则
 
-When modifying existing code:
+修改既有代码时：
 
-1. Prefer fixing a violation if it is within the scope of the requested change.
-2. Do not spread an existing violation into new code.
-3. Do not use an existing violation as justification for creating another one.
-4. Preserve backward compatibility when required, but keep new code compliant.
+1. 如果违规处于本次变更范围内，优先修复该违规。
+2. 不得将既有违规扩散到新代码中。
+3. 不得以既有违规为由制造新的违规。
+4. 在需要时保持向后兼容，但新代码必须合规。
 
-A legacy violation does not create permission for new violations.
+历史遗留的违规不构成制造新违规的许可。

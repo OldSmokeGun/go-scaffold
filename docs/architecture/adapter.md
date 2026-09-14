@@ -1,60 +1,60 @@
-# Adapter Layer
+# Adapter 层
 
-Location: `internal/app/adapter`
+位置：`internal/app/adapter`
 
 ---
 
-## Responsibility
+## 职责
 
-The Adapter layer is the **external protocol conversion layer** and the external entry point of the application.
+Adapter 层是**外部协议转换层**，也是应用的外部入口。
 
-Adapters may include:
+Adapter 可能包括：
 
 * HTTP
 * gRPC
 * cron
 * CLI
-* scripts
-* other external invocation mechanisms
+* 脚本
+* 其他外部调用机制
 
-Adapters convert external representations into internal application representations, and convert internal results into external representations.
+Adapter 将外部表示转换为内部应用表示，并将内部结果转换为外部表示。
 
-Example flow:
+示例流程：
 
 ```text
-HTTP request
+HTTP 请求
     ↓
 HTTP handler
     ↓
-Controller request
+Controller 请求
 ```
 
 ```text
-Controller result
+Controller 结果
     ↓
-HTTP response
+HTTP 响应
 ```
 
-The Adapter layer MUST NOT contain business logic.
+Adapter 层不得包含业务逻辑。
 
 ---
 
-## Adapter MAY
+## Adapter 可以做的事
 
-* Parse HTTP request parameters / bodies.
-* Parse gRPC request messages.
-* Parse CLI arguments.
-* Parse cron/job configuration.
-* Perform protocol-specific validation.
-* Convert external DTOs into Controller input structures.
-* Convert Controller output into HTTP/gRPC/CLI response structures.
-* Set HTTP status codes and headers.
-* Convert business errors into protocol-specific error representations.
-* Handle protocol-specific authentication/authorization middleware.
-* Handle serialization / deserialization.
-* Handle protocol-specific logging and tracing.
+* 解析 HTTP 请求参数 / 请求体。
+* 解析 gRPC 请求消息。
+* 解析 CLI 参数。
+* 解析 cron/任务配置。
+* 执行协议特定的校验。
+* 将外部 DTO 转换为 Controller 的输入结构。
+* 将 Controller 的输出转换为 HTTP/gRPC/CLI 响应结构。
+* 设置 HTTP 状态码和响应头。
+* 将业务错误转换为协议特定的错误表示。
+* 处理协议特定的认证/授权中间件。
+* 处理序列化 / 反序列化。
+* 处理协议特定的日志与追踪。
 
-Valid example:
+正确的示例：
 
 ```go
 func (h *Handler) CreateOrder(c echo.Context) error {
@@ -81,31 +81,31 @@ func (h *Handler) CreateOrder(c echo.Context) error {
 
 ---
 
-## Adapter MUST NOT
+## Adapter 不得做的事
 
-* Query MySQL / Redis directly.
-* Publish messages directly as part of business processing.
-* Call Repository methods.
-* Implement business rules or workflows.
-* Calculate business prices / check inventory / check balance.
-* Create business orders or modify business entities as business decisions.
-* Orchestrate multiple Usecases.
-* Decide business outcomes.
+* 直接查询 MySQL / Redis。
+* 作为业务处理的一部分直接发布消息。
+* 调用 Repository 方法。
+* 实现业务规则或工作流。
+* 计算业务价格 / 检查库存 / 检查余额。
+* 创建业务订单或以业务决策的方式修改业务实体。
+* 编排多个 Usecase。
+* 决定业务结果。
 
-Mandatory call path:
+强制调用路径：
 
 ```text
-Adapter → Controller          // allowed
-Adapter → Usecase             // forbidden
-Adapter → Repository          // forbidden
-Adapter → Database / Redis    // forbidden
+Adapter → Controller          // 允许
+Adapter → Usecase             // 禁止
+Adapter → Repository          // 禁止
+Adapter → Database / Redis    // 禁止
 ```
 
-An Adapter MUST NOT bypass the Controller even if doing so appears simpler.
+即使绕过 Controller 看起来更简单，Adapter 也不得这样做。
 
 ---
 
-## Adapter Subdirectories
+## Adapter 子目录
 
 ```text
 adapter
@@ -125,48 +125,48 @@ adapter
 
 ### `router`
 
-* Route / endpoint registration.
-* Protocol-level configuration.
-* MUST NOT contain business logic.
+* 路由 / 端点注册。
+* 协议级配置。
+* 不得包含业务逻辑。
 
 ### `handler`
 
-* Receive external requests.
-* Parse input.
-* Call Controller.
-* Convert Controller output to protocol responses.
-* MUST NOT call Usecase or Repository directly.
+* 接收外部请求。
+* 解析输入。
+* 调用 Controller。
+* 将 Controller 的输出转换为协议响应。
+* 不得直接调用 Usecase 或 Repository。
 
 ### `middleware`
 
-Protocol-level cross-cutting concerns:
+协议级的横切关注点：
 
-* Authentication
-* Request tracing
-* Logging
+* 认证
+* 请求追踪
+* 日志
 * CORS
-* Rate limiting
-* Request metadata
+* 限流
+* 请求元数据
 
-Middleware MUST NOT implement business workflows.
+Middleware 不得实现业务工作流。
 
 ### `cron/job`
 
-Scheduled external entry points. MUST invoke Controller, not Usecase or Repository.
+定时触发的外部入口。必须调用 Controller，而不是 Usecase 或 Repository。
 
 ### `scheduler`
 
-Scheduling and triggering jobs. MUST NOT contain business logic.
+调度并触发任务。不得包含业务逻辑。
 
 ### `scripts`
 
-External entry points. MUST follow the same Adapter rules and MUST NOT bypass Controller.
+外部入口。必须遵守与 Adapter 相同的规则，且不得绕过 Controller。
 
 ---
 
-## DTO Rules
+## DTO 规则
 
-Transport-specific DTOs MUST remain inside Adapter, for example:
+传输层特定的 DTO 必须保留在 Adapter 内部，例如：
 
 ```text
 adapter/http/handler
@@ -174,11 +174,11 @@ adapter/http/handler
     CreateOrderResponse
 ```
 
-These types MUST NOT be used as business-layer entities.
+这些类型不得用作业务层实体。
 
-Do not pass `*http.Request`, `echo.Context`, gRPC request/response types into Controller or Usecase.
+不得将 `*http.Request`、`echo.Context`、gRPC 请求/响应类型传入 Controller 或 Usecase。
 
-Prefer internal request structures:
+应优先使用内部请求结构：
 
 ```go
 type CreateOrderInput struct {
@@ -188,4 +188,4 @@ type CreateOrderInput struct {
 }
 ```
 
-The Adapter converts external data into this structure.
+由 Adapter 将外部数据转换为该结构。
