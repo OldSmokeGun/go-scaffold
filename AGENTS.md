@@ -28,6 +28,7 @@ adapter → controller → usecase → repository
 * controller 不得直接访问 repository 或基础设施。
 * usecase 不得依赖 adapter 或传输层特定类型。
 * 跨模块工作流必须由 controller 编排。
+* 例外：极简单的单资源 CRUD 可由 controller 直接调用 repository，避免空壳 Usecase 的样板代码（详见 controller-usecase.md）。
 
 详细规则与示例：
 

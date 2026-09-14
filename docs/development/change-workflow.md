@@ -60,8 +60,8 @@ Controller 应当描述工作流。
 在认定任务完成之前，确认：
 
 1. Adapter 只调用 Controller。
-2. Controller 不直接访问 Repository 或基础设施。
-3. Controller 只编排 Usecase。
+2. Controller 不直接访问 Repository 或基础设施（例外：满足"极简单单资源 CRUD"条件时允许 controller 直接调用 repository）。
+3. Controller 只编排 Usecase（极简单单资源 CRUD 例外除外）。
 4. Usecase 包含模块内业务逻辑。
 5. Usecase 通过 Repository 抽象访问数据。
 6. Repository 只包含基础设施/数据访问实现。

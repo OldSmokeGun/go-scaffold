@@ -31,6 +31,8 @@ Controller 不得直接调用 Repository、数据库、Redis、消息队列或�
 
 Controller 必须通过 Usecase 与业务功能交互。
 
+> 例外：满足「极简单单资源 CRUD」条件时，Controller 可直接调用 Repository 抽象，见下方小节 [例外：极简单单资源 CRUD 可直接调用 Repository](#例外极简单单资源-crud-可直接调用-repository)。
+
 禁止：
 
 ```go
@@ -64,6 +66,53 @@ func (c *Controller) CreateOrder(...) error {
 	return order
 }
 ```
+
+### 例外：极简单单资源 CRUD 可直接调用 Repository
+
+当操作**同时满足**以下全部条件时，Controller 可以直接调用 Repository，以避免引入只是透传参数的空壳 Usecase：
+
+1. 仅涉及单一资源/单一模块。
+2. 不涉及跨模块编排或跨模块数据依赖。
+3. 除基本参数校验外没有实质性业务规则（无库存扣减、余额计算、定价、权限判定等）。
+4. 操作能由单个（或一组简单顺序的）Repository 方法直接表达。
+
+推荐写法（以极简单的字典管理为例）：
+
+```go
+func (c *DictController) CreateDict(
+	ctx context.Context,
+	input CreateDictInput,
+) (*domain.Dict, error) {
+	if input.Name == "" {
+		return nil, errors.ErrInvalidParam
+	}
+
+	return c.dictRepository.Create(ctx, repository.CreateDictParams{
+		Name:  input.Name,
+		Value: input.Value,
+	})
+}
+```
+
+不推荐为这类操作引入纯透传的样板代码：
+
+```go
+// Usecase 只是转发，没有任何业务价值 —— 不推荐
+func (u *DictUsecase) Create(ctx context.Context, input CreateDictInput) (*domain.Dict, error) {
+	return u.dictRepository.Create(ctx, input)
+}
+
+// Controller 也只是转发 —— 不推荐
+func (c *DictController) CreateDict(ctx context.Context, input CreateDictInput) (*domain.Dict, error) {
+	return c.dictUsecase.Create(ctx, input)
+}
+```
+
+注意事项：
+
+* 该例外仅限 controller → repository 这一步；adapter 仍然必须调用 Controller，不得绕过 Controller。
+* 一旦操作将来需要增加业务规则、跨模块步骤或多步编排，必须立即将逻辑下沉到 Usecase，恢复标准的 controller → usecase → repository 路径。
+* 该例外属于有意的设计取舍，不得作为将复杂逻辑堆进 Controller 的理由。
 
 ### 工作流示例
 
@@ -242,6 +291,8 @@ Repository 不是应用服务层。
 handler → repository   // 禁止
 ```
 
+> 特别规则：CRUD 例外仅适用于 controller → repository 这一步，adapter → repository 仍然一律禁止。
+
 要求：
 
 ```text
@@ -253,6 +304,8 @@ handler → controller → usecase → repository
 ```text
 controller → gorm/db   // 禁止
 ```
+
+> 特别规则：即使满足 CRUD 例外条件，Controller 也只能调用 Repository 抽象，不得直接操作数据库连接（gorm/db）。
 
 ### Controller 实现模块业务逻辑
 

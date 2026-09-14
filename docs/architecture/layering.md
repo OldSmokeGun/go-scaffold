@@ -80,7 +80,7 @@ repository
 2. 基础设施实现不得包含应用编排。
 3. 协议特定概念不得泄漏到业务逻辑中。
 4. 业务逻辑不得依赖 HTTP、gRPC、CLI、cron 或其他传输协议。
-5. Controller 不得直接访问数据库、Redis、消息队列或其他基础设施。
+5. Controller 不得直接访问数据库、Redis、消息队列或其他基础设施（数据库与 Redis 的访问即便在 CRUD 例外下也必须经由 Repository 抽象）。
 6. Adapter 不得实现业务逻辑。
 7. Usecase 不得实现 HTTP/gRPC/CLI 响应处理。
 8. Repository 实现不得执行应用级业务编排。
@@ -107,7 +107,7 @@ repository
 | adapter → usecase       | 绕过 Controller                |
 | adapter → repository    | 绕过业务层                     |
 | adapter → database      | 基础设施泄漏                   |
-| controller → repository | 绕过 Usecase                   |
+| controller → repository | 绕过 Usecase（满足"极简单单资源 CRUD"例外条件时允许，见下） |
 | controller → database   | 基础设施泄漏                   |
 | controller → redis      | 基础设施泄漏                   |
 | usecase → adapter       | 依赖逆转                       |
@@ -116,6 +116,8 @@ repository
 | repository → usecase    | 业务编排泄漏                   |
 | repository → adapter    | 依赖逆转                       |
 | domain → repository / usecase / controller / adapter | Domain 被污染 |
+
+> 例外：当操作满足"极简单单资源 CRUD"条件（单一资源、无跨模块编排、无实质性业务规则）时，允许 controller → repository 直接调用，以避免空壳 Usecase 的样板代码。详见 [controller-usecase.md](controller-usecase.md#例外极简单单资源-crud-可直接调用-repository)。该例外不得扩展到其他禁止项。
 
 ---
 
