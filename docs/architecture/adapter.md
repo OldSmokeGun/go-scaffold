@@ -37,6 +37,92 @@ HTTP 响应
 
 Adapter 层不得包含业务逻辑。
 
+### Adapter 只做协议转换，不编排业务逻辑
+
+Adapter 的职责边界可以概括为一句话：**它只负责"外部协议 ↔ Controller 入口"的双向转换**。
+
+* **入方向**：把外部协议表示（HTTP 请求体、gRPC 消息、CLI 参数、cron 配置等）解析、校验格式、转换为 Controller 的业务入参结构，然后调用 Controller。
+* **出方向**：把 Controller 返回的业务结果（或业务错误）转换为外部协议表示（HTTP 响应、gRPC 响应、退出码等），然后返回给调用方。
+
+Adapter 在整个调用链中只扮演"翻译"角色：
+
+```text
+            入方向                         出方向
+外部协议 ──解析/DTO 转换──► Controller 入参   Controller 结果 ──DTO 转换/渲染──► 外部协议
+```
+
+Adapter **不编排业务逻辑**，具体来说，Adapter 不得：
+
+* 决定调用哪个 Usecase、以什么顺序调用多个业务操作。
+* 在 handler 内组合多个 Controller 调用来"拼装"业务结果。
+* 对 Controller 的返回结果做业务语义上的加工（合并、拆分、条件取舍）。
+* 根据业务含义做决策（例如"库存不足就不创建订单"这类判断）。
+
+禁止的示例：
+
+```go
+func (h *Handler) CreateOrder(c echo.Context) error {
+	var req CreateOrderRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	// 禁止：handler 内编排多个业务操作
+	if err := h.controller.CheckInventory(c.Request().Context(), req.ProductID, req.Quantity); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	if err := h.controller.CheckBalance(c.Request().Context(), req.UserID, ...); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	result, err := h.controller.CreateOrder(c.Request().Context(), input)
+	...
+}
+```
+
+要求：编排发生在 Controller 内，Adapter 只调用一次 Controller 工作流入口：
+
+```go
+func (h *Handler) CreateOrder(c echo.Context) error {
+	var req CreateOrderRequest
+	if err := c.Bind(&req); err != nil {
+		return err
+	}
+
+	input := controller.CreateOrderInput{
+		UserID:    req.UserID,
+		ProductID: req.ProductID,
+		Quantity:  req.Quantity,
+	}
+
+	result, err := h.controller.CreateOrder(c.Request().Context(), input)
+	if err != nil {
+		return convertError(err)
+	}
+
+	return c.JSON(http.StatusOK, toResponse(result))
+}
+```
+
+"步骤如何组织"属于业务工作流，必须由 Controller 编排；Adapter 永远只关心"这个协议长什么样"。
+
+### Controller 不感知外部协议
+
+与上一条对称，**Controller 必须完全不知道外部协议的存在**：
+
+* Controller 的入参/出参必须是业务语义结构（如 `CreateOrderInput`、`*domain.Order`），不得是 `*http.Request`、`echo.Context`、gRPC 消息等协议类型。
+* Controller 不设置 HTTP 状态码、不构造 HTTP/gRPC 响应体、不感知路由或序列化格式。
+* 同一个 Controller 工作流应当可以同时被 HTTP、gRPC、cron、CLI 等任意 Adapter 复用，而无需修改一行代码。
+
+```text
+HTTP Adapter     ─► Controller.CreateOrder ─► HTTP 响应
+gRPC Adapter     ─► Controller.CreateOrder ─► gRPC 响应
+Cron Job         ─► Controller.CreateOrder ─► （忽略结果）
+```
+
+如果 Controller 的签名中出现了协议类型，说明协议概念已经泄漏进业务层，必须回退到 Adapter 转换。
+
 ---
 
 ## Adapter 可以做的事

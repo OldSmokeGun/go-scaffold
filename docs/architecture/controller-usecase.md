@@ -149,6 +149,8 @@ Controller 不得：
 * 知道 Usecase 是如何实现的。
 * 重复实现 Usecase 的业务逻辑。
 
+Controller 与外部协议完全解耦：协议转换由 Adapter 负责，Controller 的入参/出参必须是业务语义结构，同一工作流可被任意协议复用。详见 [adapter.md](adapter.md#controller-不感知外部协议)。
+
 ### Controller 复杂度
 
 如果某个 Controller 因为包含复杂计算、数据库操作、详细业务规则、重复校验或模块内决策而变得庞大，应将那部分逻辑移入合适的 Usecase 或 Domain 抽象中。

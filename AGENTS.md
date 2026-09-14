@@ -77,6 +77,8 @@ adapter → controller → usecase → repository
 # Adapter
 
 * adapter 是外部协议入口（HTTP / gRPC / cron / CLI / 脚本）。
+* adapter 只负责外部协议与 Controller 入参/出参之间的双向转换，不得编排业务逻辑。
+* controller 不得感知外部协议，入参/出参必须是业务语义结构，同一工作流可被任意协议复用。
 * adapter 只能调用 controller。
 * adapter 不得直接调用 usecase、repository 或基础设施。
 * 传输层特定的 DTO 必须保留在 adapter 内部。
