@@ -4,7 +4,6 @@ go 1.27.0
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/bwmarrin/snowflake v0.3.0
 	github.com/casbin/casbin/v2 v2.98.0
 	github.com/casbin/gorm-adapter/v3 v3.26.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -33,6 +32,7 @@ require (
 	github.com/rubenv/sql-migrate v1.7.0
 	github.com/samber/lo v1.46.0
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/sony/sonyflake v1.3.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.10
 	github.com/swaggo/echo-swagger v1.4.1
@@ -47,7 +47,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.45.0
 	golang.org/x/time v0.15.0
 	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
 	gorm.io/cli/gorm v0.2.4
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
@@ -232,6 +231,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260724162435-b2f20204f0df // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260724162435-b2f20204f0df // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260807164820-c8921c73eeea // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/sqlserver v1.5.3 // indirect

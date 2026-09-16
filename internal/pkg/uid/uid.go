@@ -1,61 +1,34 @@
 package uid
 
 import (
-	"math/rand"
-	"time"
+	"fmt"
+	"strconv"
 
-	"github.com/bwmarrin/snowflake"
+	"github.com/sony/sonyflake"
 )
 
-var defaultRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-
-const maxNode = 1<<10 - 1
-
 type Generator interface {
-	Generate(options ...Option) (string, error)
+	Generate() (string, error)
 }
 
-type Uid struct {
-	node int64
-	rand *rand.Rand
+type UID struct {
+	sf *sonyflake.Sonyflake // sonyflake 实例
 }
 
-// New build snowflake generator
-func New() *Uid {
-	return &Uid{rand: defaultRand}
-}
-
-type Option func(uid *Uid)
-
-func WithNode(node int64) Option {
-	return func(uid *Uid) {
-		uid.node = node
-	}
-}
-
-func WithRand(rand *rand.Rand) Option {
-	return func(uid *Uid) {
-		uid.rand = rand
-	}
-}
-
-func (u *Uid) Generate(options ...Option) (string, error) {
-	for _, option := range options {
-		option(u)
+func New() (*UID, error) {
+	sf, err := sonyflake.New(sonyflake.Settings{})
+	if err != nil {
+		return nil, fmt.Errorf("new sony flake error: %w", err)
 	}
 
-	var node int64
+	return &UID{sf: sf}, nil
+}
 
-	if u.node == 0 {
-		node = int64(u.rand.Intn(maxNode + 1))
-	} else {
-		node = u.node
-	}
-
-	sn, err := snowflake.NewNode(node)
+func (u *UID) Generate() (string, error) {
+	id, err := u.sf.NextID()
 	if err != nil {
 		return "", err
 	}
 
-	return sn.Generate().String(), nil
+	return strconv.FormatUint(id, 10), nil
 }

@@ -1,6 +1,6 @@
 package uid
 
-// Provide  snowflake generator
-func Provide() *Uid {
+// Provide  sonyflake generator
+func Provide() (*UID, error) {
 	return New()
 }
