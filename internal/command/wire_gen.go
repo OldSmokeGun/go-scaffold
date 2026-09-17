@@ -9,27 +9,28 @@ package command
 import (
 	"context"
 	"database/sql"
-	"go-scaffold/internal/app/adapter/cron"
-	"go-scaffold/internal/app/adapter/cron/job"
-	"go-scaffold/internal/app/adapter/cron/scheduler"
-	"go-scaffold/internal/app/adapter/kafka"
-	"go-scaffold/internal/app/adapter/kafka/consumer"
-	"go-scaffold/internal/app/adapter/kafka/handler"
-	"go-scaffold/internal/app/adapter/scripts"
-	"go-scaffold/internal/app/adapter/server"
-	"go-scaffold/internal/app/adapter/server/grpc"
-	v1_2 "go-scaffold/internal/app/adapter/server/grpc/handler/v1"
-	router2 "go-scaffold/internal/app/adapter/server/grpc/router"
-	"go-scaffold/internal/app/adapter/server/http"
-	"go-scaffold/internal/app/adapter/server/http/handler/v1"
-	"go-scaffold/internal/app/adapter/server/http/router"
 	"go-scaffold/internal/app/controller"
+	"go-scaffold/internal/app/facade/cron"
+	"go-scaffold/internal/app/facade/cron/job"
+	"go-scaffold/internal/app/facade/cron/scheduler"
+	"go-scaffold/internal/app/facade/kafka"
+	"go-scaffold/internal/app/facade/kafka/consumer"
+	"go-scaffold/internal/app/facade/kafka/handler"
+	"go-scaffold/internal/app/facade/scripts"
+	"go-scaffold/internal/app/facade/server"
+	"go-scaffold/internal/app/facade/server/grpc"
+	v1_2 "go-scaffold/internal/app/facade/server/grpc/handler/v1"
+	router2 "go-scaffold/internal/app/facade/server/grpc/router"
+	"go-scaffold/internal/app/facade/server/http"
+	"go-scaffold/internal/app/facade/server/http/handler/v1"
+	"go-scaffold/internal/app/facade/server/http/router"
 	"go-scaffold/internal/app/repository"
 	"go-scaffold/internal/app/usecase"
 	"go-scaffold/internal/config"
 	"go-scaffold/internal/pkg/casbin"
 	"go-scaffold/internal/pkg/client"
 	"go-scaffold/internal/pkg/db"
+	"go-scaffold/internal/pkg/ent"
 	"go-scaffold/internal/pkg/gorm"
 	"go-scaffold/pkg/trace"
 	"log/slog"
@@ -42,11 +43,11 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	if err != nil {
 		return nil, nil, err
 	}
-	v, err := config.GetDefaultDatabase()
+	database, err := config.GetDefaultDatabase()
 	if err != nil {
 		return nil, nil, err
 	}
-	v2, cleanup, err := gorm.ProvideDefault(contextContext, v, logger)
+	entClient, cleanup, err := ent.ProvideDefault(contextContext, env, database, logger)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -55,32 +56,40 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 		cleanup()
 		return nil, nil, err
 	}
-	enforcer, err := casbin.Provide(configCasbin, v2)
+	db, cleanup2, err := gorm.ProvideDefault(contextContext, database, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	userRepository := repository.NewUserRepository(v2, enforcer)
+	enforcer, err := casbin.Provide(contextContext, env, configCasbin, database, logger, db)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	userRepository := repository.NewUserRepository(entClient, enforcer)
 	accountUseCase := usecase.NewAccountUseCase(userRepository)
-	accountTokenController := controller.NewAccountTokenController(accountUseCase, userRepository)
-	roleRepository := repository.NewRoleRepository(v2, enforcer)
-	permissionRepository := repository.NewPermissionRepository(v2, enforcer)
+	accountTokenController := controller.NewAccountTokenController(userRepository)
+	roleRepository := repository.NewRoleRepository(entClient, enforcer)
+	permissionRepository := repository.NewPermissionRepository(entClient, enforcer)
 	accountPermissionController := controller.NewAccountPermissionController(roleRepository, permissionRepository, enforcer)
 	greetController := controller.NewGreetController()
 	greetHandler := v1.NewGreetHandler(greetController)
 	services, err := config.GetServices()
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	clientGRPC := client.ProvideGRPC()
 	traceHandler := v1.NewTraceHandler(logger, services, httpServer, traceTrace, clientGRPC)
-	v3, err := config.GetExampleKafka()
+	kafka, err := config.GetExampleKafka()
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	producerController := controller.NewProducerController(v3)
+	producerController := controller.NewProducerController(kafka)
 	producerHandler := v1.NewProducerHandler(producerController)
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	accountController := controller.NewAccountController(accountUseCase, userUseCase, userRepository)
@@ -93,7 +102,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	permissionUseCase := usecase.NewPermissionUseCase(permissionRepository)
 	permissionController := controller.NewPermissionController(permissionUseCase, permissionRepository)
 	permissionHandler := v1.NewPermissionHandler(permissionController)
-	productRepository := repository.NewProductRepository(v2)
+	productRepository := repository.NewProductRepository(entClient)
 	productUseCase := usecase.NewProductUseCase(productRepository)
 	productController := controller.NewProductController(productUseCase, productRepository)
 	productHandler := v1.NewProductHandler(productController)
@@ -103,6 +112,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server2 := http.New(httpServer, handler)
 	grpcServer, err := config.GetGRPCServer()
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
@@ -115,6 +125,7 @@ func initServer(contextContext context.Context, appName config.AppName, env conf
 	server3 := grpc.New(grpcServer, routerRouter)
 	serverServer := server.New(contextContext, appName, server2, server3)
 	return serverServer, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }
@@ -135,12 +146,12 @@ func initCron(contextContext context.Context, appName config.AppName, env config
 }
 
 func initKafka(contextContext context.Context, appName config.AppName, env config.Env, logger *slog.Logger) (*kafka.Kafka, func(), error) {
-	v, err := config.GetExampleKafka()
+	configKafka, err := config.GetExampleKafka()
 	if err != nil {
 		return nil, nil, err
 	}
 	exampleHandler := handler.NewExampleHandler(logger)
-	exampleConsumer, err := consumer.NewExampleConsumer(logger, v, exampleHandler)
+	exampleConsumer, err := consumer.NewExampleConsumer(logger, configKafka, exampleHandler)
 	if err != nil {
 		return nil, nil, err
 	}

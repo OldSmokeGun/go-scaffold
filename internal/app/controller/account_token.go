@@ -4,79 +4,55 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/google/uuid"
-
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
-	"go-scaffold/internal/app/service"
-	"go-scaffold/internal/app/usecase"
 	berr "go-scaffold/internal/errors"
+	"go-scaffold/pkg/authtoken"
 )
 
 type AccountTokenController struct {
-	uc   usecase.AccountUseCaseInterface
 	repo repository.UserRepositoryInterface
 }
 
-func NewAccountTokenController(
-	uc usecase.AccountUseCaseInterface,
-	repo repository.UserRepositoryInterface,
-) *AccountTokenController {
-	return &AccountTokenController{
-		uc:   uc,
-		repo: repo,
-	}
+func NewAccountTokenController(repo repository.UserRepositoryInterface) *AccountTokenController {
+	return &AccountTokenController{repo: repo}
 }
 
 func (c *AccountTokenController) ValidateToken(ctx context.Context, token string) (*domain.UserProfile, error) {
-	claims, err := service.ParseAccountTokenUnverified(token)
+	userID, ts, sign, err := authtoken.Parse(token)
 	if err != nil {
-		return nil, err
+		return nil, berr.ErrInvalidAuthorized.WithError(err)
 	}
 
-	user, err := c.repo.FindOne(ctx, claims.Data.UserID)
+	user, err := c.repo.FindOne(ctx, userID)
 	if repository.IsNotFound(err) {
-		return nil, berr.ErrInvalidAuthorized.Wrap(err)
+		return nil, berr.ErrInvalidAuthorized.WithError(err)
 	} else if err != nil {
 		return nil, err
 	}
-
-	tokenService := service.NewAccountTokenService(user.Salt)
-	_, err = tokenService.ValidateToken(token)
-	if err != nil {
-		return nil, err
+	if !authtoken.VerifySign(userID, ts, user.Salt, sign) {
+		return nil, berr.ErrInvalidAuthorized.WithMsg("token is invalid")
+	}
+	if !authtoken.InExpireWindow(ts, time.Now(), domain.AccountTokenExpireDuration) {
+		return nil, berr.ErrInvalidAuthorized.WithMsg("token is expired")
 	}
 
 	return user.ToProfile(), nil
 }
 
+// RefreshToken 有效窗口内续期，返回新 token（不更换 salt）。
 func (c *AccountTokenController) RefreshToken(ctx context.Context, userProfile domain.UserProfile, token string) (string, error) {
-	claims, err := service.ParseAccountTokenUnverified(token)
+	_ = token
+	if userProfile.ID <= 0 {
+		return "", berr.ErrInvalidAuthorized.WithMsg("token is invalid")
+	}
+	user, err := c.repo.FindOne(ctx, userProfile.ID)
+	if repository.IsNotFound(err) {
+		return "", berr.ErrInvalidAuthorized.WithError(err)
+	}
 	if err != nil {
 		return "", err
 	}
 
-	expireDuration := claims.ExpiresAt.Sub(time.Now())
-	if expireDuration <= 0 {
-		return "", berr.ErrInvalidAuthorized.Wrap(jwt.ErrTokenExpired)
-	}
-	if expireDuration > domain.AccountTokenRefreshDuration {
-		return token, nil
-	}
-
-	user := domain.User{
-		ID:       userProfile.ID,
-		Username: userProfile.Username,
-		Nickname: userProfile.Nickname,
-		Phone:    userProfile.Phone,
-		Salt:     uuid.New().String(),
-	}
-
-	token, err = c.uc.Login(ctx, user)
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
+	return authtoken.Generate(user.ID, user.Salt, time.Now().Unix()), nil
 }

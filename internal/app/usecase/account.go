@@ -2,10 +2,11 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"go-scaffold/internal/app/domain"
 	"go-scaffold/internal/app/repository"
-	"go-scaffold/internal/app/service"
+	"go-scaffold/pkg/authtoken"
 )
 
 var _ AccountUseCaseInterface = (*AccountUseCase)(nil)
@@ -28,12 +29,7 @@ func NewAccountUseCase(
 }
 
 func (c AccountUseCase) Login(ctx context.Context, user domain.User) (string, error) {
-	tokenExpire := domain.AccountTokenExpireDuration
-
-	data := service.AccountTokenData{
-		UserID: user.ID,
-	}
-	return service.NewAccountTokenService(user.Salt).Generate(tokenExpire, data)
+	return authtoken.Generate(user.ID, user.Salt, time.Now().Unix()), nil
 }
 
 func (c AccountUseCase) Logout(ctx context.Context, user domain.User) error {
