@@ -28,6 +28,7 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			bc         int
 			hintMsg    string
 			statusCode int
+			cause      error
 		)
 
 		if errors.As(err, &httpErr) {
@@ -36,24 +37,27 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			hintMsg = fmt.Sprintf("%v", httpErr.Message)
 			if une := httpErr.Unwrap(); une != nil {
 				err = une
+				cause = une
 				var be *berr.Error
 				if errors.As(une, &be) {
 					if be.Unwrap() != nil {
 						err = be.Unwrap()
+						cause = be.Unwrap()
 					}
 				}
 			}
 		} else if errors.As(err, &bErr) {
 			bc = bErr.Code()
-			hintMsg = bErr.Reason()
+			hintMsg = bErr.Msg()
 			statusCode = bErr.HTTPStatus()
+			cause = bErr.Cause()
 			if bErr.Unwrap() != nil {
 				err = bErr.Unwrap()
 			}
 		} else {
 			de := berr.ErrInternalError
 			bc = de.Code()
-			hintMsg = de.Reason()
+			hintMsg = de.Msg()
 			statusCode = de.HTTPStatus()
 		}
 
@@ -68,11 +72,10 @@ func ErrorHandler(debug bool, logger *slog.Logger) echo.HTTPErrorHandler {
 			WithErrMsg(hintMsg)
 
 		if debug {
-			debugMsg := err.Error()
-			if hintMsg != "" {
-				debugMsg = fmt.Sprintf("%s: %s", hintMsg, err)
+			if cause != nil {
+				hintMsg = fmt.Sprintf("%s: %s", hintMsg, cause)
 			}
-			responseBody.WithErrMsg(debugMsg)
+			responseBody.WithErrMsg(hintMsg)
 
 			stack := perr.ErrorStackTrace(err)
 			if stack != nil {
