@@ -25,6 +25,7 @@ adapter → controller → usecase → repository
 
 * controller 必须编排业务工作流。
 * usecase 必须实现模块内具体业务逻辑。
+* usecase 不做参数校验，无条件信任 controller 传入的参数；业务上参数逻辑的校验必须在调用 usecase 之前完成。
 * controller 不得直接访问 repository 或基础设施。
 * usecase 不得依赖 adapter 或传输层特定类型。
 * 跨模块工作流必须由 controller 编排。

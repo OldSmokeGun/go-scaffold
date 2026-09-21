@@ -83,9 +83,10 @@ repository
 5. Controller 不得直接访问数据库、Redis、消息队列或其他基础设施（数据库与 Redis 的访问即便在 CRUD 例外下也必须经由 Repository 抽象）。
 6. Adapter 不得实现业务逻辑。
 7. Usecase 不得实现 HTTP/gRPC/CLI 响应处理。
-8. Repository 实现不得执行应用级业务编排。
-9. Domain 定义不得依赖 adapter、controller、usecase 或 repository。
-10. 业务错误必须在 `internal/errors` 中集中定义。
+8. Usecase 不做参数校验，无条件信任 Controller 传入的参数；业务上参数逻辑的校验必须在调用 Usecase 之前完成。
+9. Repository 实现不得执行应用级业务编排。
+10. Domain 定义不得依赖 adapter、controller、usecase 或 repository。
+11. 业务错误必须在 `internal/errors` 中集中定义。
 
 ---
 
@@ -126,6 +127,7 @@ repository
 | 代码类型                                                       | 所属层     |
 | --- | --- |
 | 协议转换（HTTP / gRPC / CLI / Cron → 应用输入）                | adapter    |
+| 业务输入参数校验（在调用 Usecase 前完成）                      | controller |
 | 业务工作流编排（`A → B → C → D`）                              | controller |
 | 模块内业务规则（库存、余额、定价、权限）                       | usecase    |
 | SQL / Redis / MQ / 基础设施 SDK 访问                           | repository |

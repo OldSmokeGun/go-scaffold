@@ -12,7 +12,7 @@ Controller 是**应用业务的核心入口**。
 
 它负责：
 
-1. 校验业务输入参数。
+1. 校验业务输入参数（必须在调用 Usecase 之前完成全部参数逻辑校验，见下文 [Usecase 不做参数校验](#usecase-不做参数校验)）。
 2. 组织业务操作。
 3. 编排多个 Usecase。
 4. 定义 Usecase 的执行顺序。
@@ -181,6 +181,40 @@ Usecase 层包含**模块内业务逻辑的具体实现**。
 
 例如：`GoodsUsecase`、`UserUsecase`、`OrderUsecase`、`PaymentUsecase`。
 
+### Usecase 不做参数校验
+
+Usecase **无条件信任 Controller 传入的参数**，不做参数校验。
+
+业务上参数逻辑的校验（如必填、格式、取值范围、字段关联性、状态合法性等）必须在**调用 Usecase 之前**由 Controller 完成。Usecase 的契约是：只要 Controller 按约定传参，就能执行业务逻辑。
+
+要求（Controller 在调用前完成校验）：
+
+```go
+func (c *Controller) CreateOrder(ctx context.Context, input CreateOrderInput) (*domain.Order, error) {
+	if input.GoodsID <= 0 || input.Quantity <= 0 {
+		return nil, errors.ErrValidateError
+	}
+
+	return c.orderUsecase.Create(ctx, input)
+}
+```
+
+禁止（Usecase 内重复校验参数）：
+
+```go
+func (u *OrderUsecase) Create(ctx context.Context, input CreateOrderInput) (*domain.Order, error) {
+	if input.GoodsID <= 0 || input.Quantity <= 0 { // 禁止：参数校验应留在 Controller
+		return nil, errors.ErrValidateError
+	}
+	...
+}
+```
+
+注意区分：
+
+* **参数校验**属于 Controller：判断输入本身是否合法。
+* **业务规则判定**属于 Usecase：基于合法输入判断业务状态，如库存是否足够、余额是否充足。这类逻辑不算参数校验，必须留在 Usecase。
+
 ### Usecase 与 Repository
 
 Usecase 可以依赖 Repository 接口/契约。
@@ -235,6 +269,7 @@ Repository 只负责取数据。数据的业务含义由 Usecase 决定。
 
 Usecase 不得：
 
+* 进行参数校验（参数逻辑校验必须在调用 Usecase 前由 Controller 完成，Usecase 无条件信任入参）。
 * 依赖 HTTP 请求/响应对象、Echo context 或 gRPC 消息。
 * 解析 HTTP 参数 / 构造 HTTP 响应 / 设置 HTTP 状态码。
 * 实现路由或 cron 调度。

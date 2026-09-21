@@ -133,6 +133,8 @@ Cron Job         ─► Controller.CreateOrder ─► （忽略结果）
 * 解析 cron/任务配置。
 * 执行协议特定的校验。
 * 将外部 DTO 转换为 Controller 的输入结构。
+
+> 校验边界：Adapter 只做协议格式校验（能否解析、字段类型等）；业务上参数逻辑的校验由 Controller 在调用 Usecase 之前完成。Usecase 不做参数校验，无条件信任 Controller 传入的参数。详见 [controller-usecase.md](controller-usecase.md#usecase-不做参数校验)。
 * 将 Controller 的输出转换为 HTTP/gRPC/CLI 响应结构。
 * 设置 HTTP 状态码和响应头。
 * 将业务错误转换为协议特定的错误表示。
