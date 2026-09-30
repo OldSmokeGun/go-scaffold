@@ -22,235 +22,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/account/permissions": {
-            "get": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "获取账号权限",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "账号"
-                ],
-                "summary": "获取账号权限",
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/example.Success"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/v1.PermissionInfo"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/account/profile": {
-            "get": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "获取账号信息",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "账号"
-                ],
-                "summary": "获取账号信息",
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/example.Success"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/v1.AccountProfileResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "更新账号信息",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "账号"
-                ],
-                "summary": "更新账号信息",
-                "parameters": [
-                    {
-                        "format": "string",
-                        "description": "请求体",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.AccountUpdateProfileRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/greet": {
             "get": {
                 "security": [
@@ -364,7 +135,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.AccountLoginRequest"
+                            "$ref": "#/definitions/v1.SystemSessionLoginRequest"
                         }
                     }
                 ],
@@ -380,7 +151,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.AccountLoginResponse"
+                                            "$ref": "#/definitions/v1.SystemSessionLoginResponse"
                                         }
                                     }
                                 }
@@ -490,316 +261,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/permission": {
-            "put": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "权限更新",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "权限"
-                ],
-                "summary": "权限更新",
-                "parameters": [
-                    {
-                        "format": "string",
-                        "description": "权限信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.PermissionUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "权限创建",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "权限"
-                ],
-                "summary": "权限创建",
-                "parameters": [
-                    {
-                        "format": "string",
-                        "description": "权限信息",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/v1.PermissionCreateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/permission/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "权限详情",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "权限"
-                ],
-                "summary": "权限详情",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "format": "uint",
-                        "description": "权限 id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/example.Success"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/v1.PermissionDetailResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "权限删除",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "权限"
-                ],
-                "summary": "权限删除",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "format": "uint",
-                        "description": "权限 id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/permissions": {
             "get": {
                 "security": [
@@ -807,26 +268,17 @@ const docTemplate = `{
                         "Authorization": []
                     }
                 ],
-                "description": "权限列表",
+                "description": "获取账号权限",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "text/plain"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "权限"
+                    "账号"
                 ],
-                "summary": "权限列表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "format": "string",
-                        "description": "查询字符串",
-                        "name": "keyword",
-                        "in": "query"
-                    }
-                ],
+                "summary": "获取账号权限",
                 "responses": {
                     "200": {
                         "description": "成功响应",
@@ -841,7 +293,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.PermissionInfo"
+                                                "$ref": "#/definitions/v1.SystemPermissionInfo"
                                             }
                                         }
                                     }
@@ -1362,6 +814,232 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/profile": {
+            "get": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "获取账号信息",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "账号"
+                ],
+                "summary": "获取账号信息",
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/example.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SystemSessionProfileResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "更新账号信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "账号"
+                ],
+                "summary": "更新账号信息",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "请求体",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SystemSessionUpdateProfileRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/profile/password": {
+            "put": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "修改当前登录用户密码。新密码 8～18 位，且同时包含数字、大写字母、小写字母和符号",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "账号"
+                ],
+                "summary": "修改当前登录用户密码",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "原密码与新密码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SystemSessionUpdatePasswordRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/register": {
             "post": {
                 "security": [
@@ -1388,7 +1066,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.AccountRegisterRequest"
+                            "$ref": "#/definitions/v1.SystemSessionRegisterRequest"
                         }
                     }
                 ],
@@ -1404,7 +1082,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.AccountRegisterResponse"
+                                            "$ref": "#/definitions/v1.SystemSessionRegisterResponse"
                                         }
                                     }
                                 }
@@ -1450,7 +1128,405 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/role": {
+        "/v1/system-permission": {
+            "put": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "权限更新",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "权限"
+                ],
+                "summary": "权限更新",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "权限信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SystemPermissionUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "权限创建",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "权限"
+                ],
+                "summary": "权限创建",
+                "parameters": [
+                    {
+                        "format": "string",
+                        "description": "权限信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.SystemPermissionCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/system-permission/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "权限详情",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "权限"
+                ],
+                "summary": "权限详情",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "uint",
+                        "description": "权限 id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/example.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/v1.SystemPermissionDetailResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "权限删除",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "权限"
+                ],
+                "summary": "权限删除",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "format": "uint",
+                        "description": "权限 id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/system-permissions": {
+            "get": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "权限列表",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "权限"
+                ],
+                "summary": "权限列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "查询字符串",
+                        "name": "keyword",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/example.Success"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/v1.SystemPermissionInfo"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/system-role": {
             "put": {
                 "security": [
                     {
@@ -1476,7 +1552,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.RoleUpdateRequest"
+                            "$ref": "#/definitions/v1.SystemRoleUpdateRequest"
                         }
                     }
                 ],
@@ -1550,7 +1626,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.RoleCreateRequest"
+                            "$ref": "#/definitions/v1.SystemRoleCreateRequest"
                         }
                     }
                 ],
@@ -1600,7 +1676,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/role/permissions": {
+        "/v1/system-role/permissions": {
             "get": {
                 "security": [
                     {
@@ -1626,7 +1702,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.RoleGetPermissionsRequest"
+                            "$ref": "#/definitions/v1.SystemRoleGetPermissionsRequest"
                         }
                     }
                 ],
@@ -1700,7 +1776,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.RoleGrantPermissionsRequest"
+                            "$ref": "#/definitions/v1.SystemRoleGrantPermissionsRequest"
                         }
                     }
                 ],
@@ -1750,7 +1826,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/role/{id}": {
+        "/v1/system-role/{id}": {
             "get": {
                 "security": [
                     {
@@ -1791,7 +1867,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.RoleDetailResponse"
+                                            "$ref": "#/definitions/v1.SystemRoleDetailResponse"
                                         }
                                     }
                                 }
@@ -1910,7 +1986,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/roles": {
+        "/v1/system-roles": {
             "get": {
                 "security": [
                     {
@@ -1951,7 +2027,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.RoleInfo"
+                                                "$ref": "#/definitions/v1.SystemRoleInfo"
                                             }
                                         }
                                     }
@@ -1998,71 +2074,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/trace/example": {
-            "post": {
-                "security": [
-                    {
-                        "Authorization": []
-                    }
-                ],
-                "description": "示例接口",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "示例"
-                ],
-                "summary": "示例接口",
-                "responses": {
-                    "200": {
-                        "description": "成功响应",
-                        "schema": {
-                            "$ref": "#/definitions/example.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
-                        "schema": {
-                            "$ref": "#/definitions/example.ClientError"
-                        }
-                    },
-                    "401": {
-                        "description": "登陆失效",
-                        "schema": {
-                            "$ref": "#/definitions/example.Unauthorized"
-                        }
-                    },
-                    "403": {
-                        "description": "没有权限",
-                        "schema": {
-                            "$ref": "#/definitions/example.PermissionDenied"
-                        }
-                    },
-                    "404": {
-                        "description": "资源不存在",
-                        "schema": {
-                            "$ref": "#/definitions/example.ResourceNotFound"
-                        }
-                    },
-                    "429": {
-                        "description": "请求过于频繁",
-                        "schema": {
-                            "$ref": "#/definitions/example.TooManyRequest"
-                        }
-                    },
-                    "500": {
-                        "description": "服务器出错",
-                        "schema": {
-                            "$ref": "#/definitions/example.ServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/user": {
+        "/v1/system-user": {
             "put": {
                 "security": [
                     {
@@ -2088,7 +2100,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UserUpdateRequest"
+                            "$ref": "#/definitions/v1.SystemUserUpdateRequest"
                         }
                     }
                 ],
@@ -2162,7 +2174,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UserCreateRequest"
+                            "$ref": "#/definitions/v1.SystemUserCreateRequest"
                         }
                     }
                 ],
@@ -2212,7 +2224,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/roles": {
+        "/v1/system-user/roles": {
             "get": {
                 "security": [
                     {
@@ -2238,7 +2250,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UserGetRoleRequest"
+                            "$ref": "#/definitions/v1.SystemUserGetRoleRequest"
                         }
                     }
                 ],
@@ -2256,7 +2268,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/v1.RoleInfo"
+                                                "$ref": "#/definitions/v1.SystemRoleInfo"
                                             }
                                         }
                                     }
@@ -2327,7 +2339,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UserAssignRoleRequest"
+                            "$ref": "#/definitions/v1.SystemUserAssignRoleRequest"
                         }
                     }
                 ],
@@ -2377,7 +2389,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user/{id}": {
+        "/v1/system-user/{id}": {
             "get": {
                 "security": [
                     {
@@ -2418,7 +2430,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.UserDetailResponse"
+                                            "$ref": "#/definitions/v1.SystemUserDetailResponse"
                                         }
                                     }
                                 }
@@ -2537,7 +2549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users": {
+        "/v1/system-users": {
             "get": {
                 "security": [
                     {
@@ -2562,6 +2574,18 @@ const docTemplate = `{
                         "description": "查询字符串",
                         "name": "keyword",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码，从 1 开始",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页条数，默认 10；-1 表示不限制",
+                        "name": "limit",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2576,14 +2600,75 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/v1.UserInfo"
-                                            }
+                                            "$ref": "#/definitions/v1.SystemUserListResponse"
                                         }
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "400": {
+                        "description": "客户端请求错误（code 类型应为 int，string 仅为了表达多个错误码）",
+                        "schema": {
+                            "$ref": "#/definitions/example.ClientError"
+                        }
+                    },
+                    "401": {
+                        "description": "登陆失效",
+                        "schema": {
+                            "$ref": "#/definitions/example.Unauthorized"
+                        }
+                    },
+                    "403": {
+                        "description": "没有权限",
+                        "schema": {
+                            "$ref": "#/definitions/example.PermissionDenied"
+                        }
+                    },
+                    "404": {
+                        "description": "资源不存在",
+                        "schema": {
+                            "$ref": "#/definitions/example.ResourceNotFound"
+                        }
+                    },
+                    "429": {
+                        "description": "请求过于频繁",
+                        "schema": {
+                            "$ref": "#/definitions/example.TooManyRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器出错",
+                        "schema": {
+                            "$ref": "#/definitions/example.ServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/trace/example": {
+            "post": {
+                "security": [
+                    {
+                        "Authorization": []
+                    }
+                ],
+                "description": "示例接口",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "示例"
+                ],
+                "summary": "示例接口",
+                "responses": {
+                    "200": {
+                        "description": "成功响应",
+                        "schema": {
+                            "$ref": "#/definitions/example.Success"
                         }
                     },
                     "400": {
@@ -2712,163 +2797,11 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.AccountLoginRequest": {
-            "type": "object",
-            "properties": {
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.AccountLoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/v1.UserInfo"
-                }
-            }
-        },
-        "v1.AccountProfileResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "nickname": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.AccountRegisterRequest": {
-            "type": "object",
-            "properties": {
-                "nickname": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.AccountRegisterResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/v1.UserInfo"
-                }
-            }
-        },
-        "v1.AccountUpdateProfileRequest": {
-            "type": "object",
-            "properties": {
-                "nickname": {
-                    "type": "string"
-                }
-            }
-        },
         "v1.GreetHelloResponse": {
             "type": "object",
             "properties": {
                 "msg": {
                     "type": "string"
-                }
-            }
-        },
-        "v1.PermissionCreateRequest": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "v1.PermissionDetailResponse": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "v1.PermissionInfo": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentID": {
-                    "type": "integer"
-                }
-            }
-        },
-        "v1.PermissionUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "desc": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "parentID": {
-                    "type": "integer"
                 }
             }
         },
@@ -2945,7 +2878,84 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleCreateRequest": {
+        "v1.SystemPermissionCreateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemPermissionDetailResponse": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemPermissionInfo": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemPermissionUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "desc": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "parentID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemRoleCreateRequest": {
             "type": "object",
             "properties": {
                 "name": {
@@ -2953,7 +2963,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleDetailResponse": {
+        "v1.SystemRoleDetailResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -2964,7 +2974,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleGetPermissionsRequest": {
+        "v1.SystemRoleGetPermissionsRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -2972,7 +2982,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleGrantPermissionsRequest": {
+        "v1.SystemRoleGrantPermissionsRequest": {
             "type": "object",
             "properties": {
                 "permissions": {
@@ -2986,7 +2996,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleInfo": {
+        "v1.SystemRoleInfo": {
             "type": "object",
             "properties": {
                 "id": {
@@ -2997,7 +3007,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.RoleUpdateRequest": {
+        "v1.SystemRoleUpdateRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3008,21 +3018,52 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UserAssignRoleRequest": {
+        "v1.SystemSessionLoginRequest": {
             "type": "object",
             "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SystemSessionLoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/v1.SystemSessionProfileResponse"
+                }
+            }
+        },
+        "v1.SystemSessionProfileResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
                 "roles": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/v1.SystemRoleInfo"
                     }
                 },
-                "user": {
-                    "type": "integer"
+                "username": {
+                    "type": "string"
                 }
             }
         },
-        "v1.UserCreateRequest": {
+        "v1.SystemSessionRegisterRequest": {
             "type": "object",
             "properties": {
                 "nickname": {
@@ -3039,7 +3080,68 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UserDetailResponse": {
+        "v1.SystemSessionRegisterResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/v1.SystemUserInfo"
+                }
+            }
+        },
+        "v1.SystemSessionUpdatePasswordRequest": {
+            "type": "object",
+            "properties": {
+                "oldPassword": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SystemSessionUpdateProfileRequest": {
+            "type": "object",
+            "properties": {
+                "nickname": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SystemUserAssignRoleRequest": {
+            "type": "object",
+            "properties": {
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "user": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemUserCreateRequest": {
+            "type": "object",
+            "properties": {
+                "nickname": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SystemUserDetailResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3056,7 +3158,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UserGetRoleRequest": {
+        "v1.SystemUserGetRoleRequest": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3064,7 +3166,7 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UserInfo": {
+        "v1.SystemUserInfo": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3081,7 +3183,44 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.UserUpdateRequest": {
+        "v1.SystemUserListItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.SystemRoleInfo"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.SystemUserListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.SystemUserListItem"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "v1.SystemUserUpdateRequest": {
             "type": "object",
             "properties": {
                 "id": {

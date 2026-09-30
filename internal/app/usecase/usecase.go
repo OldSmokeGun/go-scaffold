@@ -5,9 +5,9 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	wire.NewSet(wire.Bind(new(AccountUseCaseInterface), new(*AccountUseCase)), NewAccountUseCase),
-	wire.NewSet(wire.Bind(new(UserUseCaseInterface), new(*UserUseCase)), NewUserUseCase),
-	wire.NewSet(wire.Bind(new(RoleUseCaseInterface), new(*RoleUseCase)), NewRoleUseCase),
-	wire.NewSet(wire.Bind(new(PermissionUseCaseInterface), new(*PermissionUseCase)), NewPermissionUseCase),
+	wire.NewSet(wire.Bind(new(SystemSessionUseCaseInterface), new(*SystemSessionUseCase)), NewSystemSessionUseCase),
+	wire.NewSet(wire.Bind(new(SystemUserUseCaseInterface), new(*SystemUserUseCase)), NewSystemUserUseCase),
+	wire.NewSet(wire.Bind(new(SystemRoleUseCaseInterface), new(*SystemRoleUseCase)), NewSystemRoleUseCase),
+	wire.NewSet(wire.Bind(new(SystemPermissionUseCaseInterface), new(*SystemPermissionUseCase)), NewSystemPermissionUseCase),
 	wire.NewSet(wire.Bind(new(ProductUseCaseInterface), new(*ProductUseCase)), NewProductUseCase),
 )

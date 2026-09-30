@@ -10,9 +10,9 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	wire.NewSet(wire.Bind(new(UserRepositoryInterface), new(*UserRepository)), NewUserRepository),
-	wire.NewSet(wire.Bind(new(RoleRepositoryInterface), new(*RoleRepository)), NewRoleRepository),
-	wire.NewSet(wire.Bind(new(PermissionRepositoryInterface), new(*PermissionRepository)), NewPermissionRepository),
+	wire.NewSet(wire.Bind(new(SystemUserRepositoryInterface), new(*SystemUserRepository)), NewSystemUserRepository),
+	wire.NewSet(wire.Bind(new(SystemRoleRepositoryInterface), new(*SystemRoleRepository)), NewSystemRoleRepository),
+	wire.NewSet(wire.Bind(new(SystemPermissionRepositoryInterface), new(*SystemPermissionRepository)), NewSystemPermissionRepository),
 	wire.NewSet(wire.Bind(new(ProductRepositoryInterface), new(*ProductRepository)), NewProductRepository),
 )
 

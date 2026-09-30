@@ -18,11 +18,11 @@ const (
 )
 
 type TokenValidator interface {
-	ValidateToken(ctx context.Context, token string) (*domain.UserProfile, error)
+	ValidateToken(ctx context.Context, token string) (*domain.SystemUserProfile, error)
 }
 
 type TokenRefresher interface {
-	RefreshToken(ctx context.Context, userProfile domain.UserProfile, token string) (string, error)
+	RefreshToken(ctx context.Context, userProfile domain.SystemUserProfile, token string) (string, error)
 }
 
 type AuthConfig struct {

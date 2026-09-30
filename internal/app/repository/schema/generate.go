@@ -18,9 +18,9 @@ var _ = genconfig.Config{
 	},
 	IncludeInterfaces: []any{"Query*"},
 	IncludeStructs: []any{
-		User{},
-		Role{},
-		Permission{},
+		SystemUser{},
+		SystemRole{},
+		SystemPermission{},
 		Product{},
 	},
 }

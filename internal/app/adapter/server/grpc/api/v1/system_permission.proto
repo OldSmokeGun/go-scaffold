@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package internal.app.adapter.grpc.api.v1.system_permission;
+
+option go_package = "go-scaffold/internal/app/adapter/grpc/api/v1;v1";
+
+service SystemPermission {
+  rpc Create (SystemPermissionCreateRequest) returns (SystemPermissionCreateResponse) {};
+  rpc Update (SystemPermissionUpdateRequest) returns (SystemPermissionUpdateResponse) {};
+  rpc Delete (SystemPermissionDeleteRequest) returns (SystemPermissionDeleteResponse) {};
+  rpc Detail (SystemPermissionDetailRequest) returns (SystemPermissionInfo) {};
+  rpc List (SystemPermissionListRequest) returns (SystemPermissionListResponse) {};
+}
+
+message SystemPermissionInfo {
+  int64 id = 1; // @gotags: json:"id"
+  string key = 2; // @gotags: json:"key"
+  string name = 3; // @gotags: json:"name"
+  string desc = 4; // @gotags: json:"desc"
+  int64 parentID = 5; // @gotags: json:"parentID"
+}
+
+message SystemPermissionCreateRequest {
+  string key = 1; // @gotags: json:"key"
+  string name = 2; // @gotags: json:"name"
+  string desc = 3; // @gotags: json:"desc"
+  int64 parentID = 4; // @gotags: json:"parentID"
+}
+message SystemPermissionCreateResponse {}
+
+message SystemPermissionUpdateRequest {
+  int64 id = 1; // @gotags: json:"id"
+  string key = 2; // @gotags: json:"key"
+  string name = 3; // @gotags: json:"name"
+  string desc = 4; // @gotags: json:"desc"
+  int64 parentID = 5; // @gotags: json:"parentID"
+}
+message SystemPermissionUpdateResponse {}
+
+message SystemPermissionDeleteRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+message SystemPermissionDeleteResponse {}
+
+message SystemPermissionDetailRequest {
+  int64 id = 1; // @gotags: json:"id"
+}
+
+message SystemPermissionListRequest {
+  string keyword = 1; // @gotags: json:"keyword"
+}
+message SystemPermissionListResponse {
+  repeated SystemPermissionInfo items = 1; // @gotags: json:"items"
+}

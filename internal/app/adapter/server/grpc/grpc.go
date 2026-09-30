@@ -20,9 +20,9 @@ import (
 var ProviderSet = wire.NewSet(
 	// handler
 	wire.NewSet(wire.Bind(new(v1api.GreetServer), new(*v1handler.GreetHandler)), v1handler.NewGreetHandler),
-	wire.NewSet(wire.Bind(new(v1api.UserServer), new(*v1handler.UserHandler)), v1handler.NewUserHandler),
-	wire.NewSet(wire.Bind(new(v1api.RoleServer), new(*v1handler.RoleHandler)), v1handler.NewRoleHandler),
-	wire.NewSet(wire.Bind(new(v1api.PermissionServer), new(*v1handler.PermissionHandler)), v1handler.NewPermissionHandler),
+	wire.NewSet(wire.Bind(new(v1api.SystemUserServer), new(*v1handler.SystemUserHandler)), v1handler.NewSystemUserHandler),
+	wire.NewSet(wire.Bind(new(v1api.SystemRoleServer), new(*v1handler.SystemRoleHandler)), v1handler.NewSystemRoleHandler),
+	wire.NewSet(wire.Bind(new(v1api.SystemPermissionServer), new(*v1handler.SystemPermissionHandler)), v1handler.NewSystemPermissionHandler),
 	wire.NewSet(wire.Bind(new(v1api.ProductServer), new(*v1handler.ProductHandler)), v1handler.NewProductHandler),
 	// register
 	router.New,

@@ -9,15 +9,15 @@ import (
 // Context user profile context
 type Context struct {
 	echo.Context
-	user domain.UserProfile
+	user domain.SystemUserProfile
 }
 
 // GetUser get user profile from context
-func (u *Context) GetUser() domain.UserProfile {
+func (u *Context) GetUser() domain.SystemUserProfile {
 	return u.user
 }
 
 // SetUser set user profile to context
-func (u *Context) SetUser(user domain.UserProfile) {
+func (u *Context) SetUser(user domain.SystemUserProfile) {
 	u.user = user
 }

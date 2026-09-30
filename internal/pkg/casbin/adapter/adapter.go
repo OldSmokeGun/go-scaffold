@@ -15,21 +15,21 @@ type Adapter interface {
 	persist.FilteredAdapter
 }
 
-// New creates casbin adapter
+// New creates casbin adapter.
+// A configured gorm adapter is used even when a file path is also set.
+// The file adapter does not implement AddPolicy, so rules would stay in memory
+// and never reach casbin_rules.
 func New(
 	conf config.CasbinAdapter,
 	db *gorm.DB,
-) (adp Adapter, err error) {
+) (Adapter, error) {
 	if conf.Gorm != nil {
-		adp, err = NewGormAdapter(db)
-		if err != nil {
-			return nil, err
-		}
+		return NewGormAdapter(db)
 	}
 
 	if conf.File != "" {
-		adp = NewFileAdapter(conf.File)
+		return NewFileAdapter(conf.File), nil
 	}
 
-	return
+	return nil, nil
 }

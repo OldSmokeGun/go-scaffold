@@ -9,18 +9,18 @@ import (
 // Router 注册器
 type Router struct {
 	greetServer      v1api.GreetServer
-	userServer       v1api.UserServer
-	roleServer       v1api.RoleServer
-	permissionServer v1api.PermissionServer
+	userServer       v1api.SystemUserServer
+	roleServer       v1api.SystemRoleServer
+	permissionServer v1api.SystemPermissionServer
 	productServer    v1api.ProductServer
 }
 
 // New 构造注册器
 func New(
 	greetServer v1api.GreetServer,
-	userServer v1api.UserServer,
-	roleServer v1api.RoleServer,
-	permissionServer v1api.PermissionServer,
+	userServer v1api.SystemUserServer,
+	roleServer v1api.SystemRoleServer,
+	permissionServer v1api.SystemPermissionServer,
 	productServer v1api.ProductServer,
 ) *Router {
 	return &Router{
@@ -35,8 +35,8 @@ func New(
 // Register 注册服务
 func (r *Router) Register(server *grpc.Server) {
 	v1api.RegisterGreetServer(server, r.greetServer)
-	v1api.RegisterUserServer(server, r.userServer)
-	v1api.RegisterRoleServer(server, r.roleServer)
-	v1api.RegisterPermissionServer(server, r.permissionServer)
+	v1api.RegisterSystemUserServer(server, r.userServer)
+	v1api.RegisterSystemRoleServer(server, r.roleServer)
+	v1api.RegisterSystemPermissionServer(server, r.permissionServer)
 	v1api.RegisterProductServer(server, r.productServer)
 }
